@@ -21,14 +21,19 @@ class ReadConf
 
     public function check() {
         // Se il file non esiste restituisci FALSE
-        if (!file_exists($this->confFile)) return FALSE;
+        if (!file_exists($this->confFile)) {
+            $this->error='ERROR:'.$this->confFile.' file does not exist';
+            return FALSE;
+        }
 
         // Leggi il file JSON
         $this->json = json_decode(file_get_contents($this->confFile));
 
         // Controllo validità del JSON nel file di configurazione
-        if(is_null($this->json)) return FALSE;
-     
+        if(is_null($this->json)) {
+            $this->error='ERROR:'.$this->confFile.' json is not valid';
+            return FALSE;
+        }
 
         return TRUE;
     }
