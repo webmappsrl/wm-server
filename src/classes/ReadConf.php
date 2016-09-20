@@ -19,6 +19,10 @@ class ReadConf
         return $this->error;
     }
 
+    public function getJson() {
+        return $this->json;
+    }
+
     public function check() {
         // Se il file non esiste restituisci FALSE
         if (!file_exists($this->confFile)) {
@@ -27,7 +31,7 @@ class ReadConf
         }
 
         // Leggi il file JSON
-        $this->json = json_decode(file_get_contents($this->confFile));
+        $this->json = json_decode(file_get_contents($this->confFile),TRUE);
 
         // Controllo validità del JSON nel file di configurazione
         if(is_null($this->json)) {

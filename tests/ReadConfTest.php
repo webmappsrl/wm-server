@@ -8,17 +8,20 @@ use PHPUnit\Framework\TestCase;
 class ReadConfTest extends TestCase
 {
     private $testFileOk = __DIR__.'/../data/overpassPoi.example.conf';
+    private $testSimpleJson = __DIR__.'/../data/simpleJson.conf';
     private $testFileKo = __DIR__.'/../data/not_existing.conf';
     private $testFileInvalidJson = __DIR__.'/../data/invalidJson.conf';
 
     public function testConfFile()
     {
         // File VALIDO
-        $a = new ReadConf($this->testFileOk);
-        $this->assertEquals($a->getConfFile(), $this->testFileOk);
+        $a = new ReadConf($this->testSimpleJson);
+        $this->assertEquals($a->getConfFile(), $this->testSimpleJson);
         $this->assertEquals($a->getError(),'NONE');
         $this->assertTrue($a->check());
         $this->assertEquals($a->getError(),'NONE');
+        $simpleJson=array("simple"=>"json");
+        $this->assertEquals($a->getJson(),$simpleJson);       
     }
 
     public function testNotExistingFile () {
