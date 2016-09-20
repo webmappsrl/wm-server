@@ -3,19 +3,25 @@ use PHPUnit\Framework\TestCase;
 
 class ReadConfTest extends TestCase
 {
-    // ...
+    private $testFileOk = __DIR__.'../data/overpassPoi.example.conf';
+    private $testFileKo = __DIR__.'../data/not_existing.conf';
+    private $testFileInvalidJson = __DIR__.'../data/not_existing.conf';
 
-    public function testCanBeNegated()
+    public function testConfFile()
     {
-        // Arrange
-        $a = new ReadConf(1);
+        // Getter
+        $a = new ReadConf($this->testFileOk);
+        $this->assertEquals($a->getConfFile(), $this->testFileOk);
+        $this->assertEquals($a->getError(),'NONE');
 
-        // Act
-        $b = $a->negate();
+        // Configurazione VALIDO
+        //$this->assertTrue($a->check());
 
-        // Assert
-        $this->assertEquals(-1, $b->getAmount());
+        // File inesistente
+        $b = new ReadConf($this->testFileKo);
+        $this->assertFalse($b->check());
+
+        // JSON non valido
     }
 
-    // ...
 }
