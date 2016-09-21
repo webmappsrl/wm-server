@@ -12,16 +12,36 @@ class ReadConfTest extends TestCase
     private $testFileKo = __DIR__.'/../data/not_existing.conf';
     private $testFileInvalidJson = __DIR__.'/../data/invalidJson.conf';
 
-    public function testConfFile()
+    public function testOk() {
+        $a = new ReadConf($this->testFileOk);
+        $this->assertEquals($a->getConfFile(), $this->testFileOk);
+        $this->assertEquals($a->getError(),'NONE');
+        $result = $a->check();
+        $this->assertEquals($a->getError(),'NONE');
+        $this->assertTrue($result);
+    }
+
+    public function testJson()
     {
-        // File VALIDO
         $a = new ReadConf($this->testSimpleJson);
         $this->assertEquals($a->getConfFile(), $this->testSimpleJson);
         $this->assertEquals($a->getError(),'NONE');
-        $this->assertTrue($a->check());
-        $this->assertEquals($a->getError(),'NONE');
+        $this->assertFalse($a->check());
+        $this->assertRegExp('/Mandatory/',$a->getError());
         $simpleJson=array("simple"=>"json");
         $this->assertEquals($a->getJson(),$simpleJson);       
+    }
+
+    public function testMandatoryInfo() {
+        // File VALIDO
+        $a = new ReadConf($this->testSimpleJson);
+        $this->assertEquals($a->getConfFile(), $this->testSimpleJson);
+        $this->assertFalse($a->check());
+        $this->assertRegExp('/project_name/',$a->getError());
+        $this->assertRegExp('/file_name/',$a->getError());
+        $this->assertRegExp('/file_type/',$a->getError());
+        $this->assertRegExp('/bounds/',$a->getError());
+
     }
 
     public function testNotExistingFile () {
