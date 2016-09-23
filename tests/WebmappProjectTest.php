@@ -11,6 +11,7 @@ class WebmappProjectTest extends TestCase
     private $pathNoProject = __DIR__.'/../data/api.webmapp.it/example.noproject.webmapp.it/';
     private $pathOnlyProject = __DIR__.'/../data/api.webmapp.it/example.onlyproject.webmapp.it/';
     private $pathNoServer = __DIR__.'/../data/api.webmapp.it/example.noserver.webmapp.it/';
+    private $pathInvalid = __DIR__.'/../data/api.webmapp.it/example.invalid.webmapp.it/';
     private $pathNotValid = '/invalid/path';
 
     public function testGetters() {
@@ -45,8 +46,11 @@ class WebmappProjectTest extends TestCase
      	$this->assertRegExp('/ERROR/',$p->getError());
     	$this->assertRegExp('/has no subdir server with configuration files/',$p->getError());
 
-
-
+        // Invalid task configuration file
+        $p = new WebmappProject($this->pathInvalid);
+        $this->assertFalse($p->open());
+     	$this->assertRegExp('/ERROR/',$p->getError());
+    	$this->assertRegExp('/reading configuration files/',$p->getError());
 
     }
 

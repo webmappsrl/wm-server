@@ -57,8 +57,7 @@ class WebmappProject {
     	$conf_files = array();
     	$d = dir($this->confPath);
     	while (false !== ($entry = $d->read())) {
-    		// if(preg_match('/conf/', $entry)) $conf_files[] = $entry;
-    		$conf_files[] = $entry;
+    		if(preg_match('/conf/', $entry)) $conf_files[] = $entry;
     	}
     	$this->confFiles=$conf_files;
     	// Controlla l'esistenza di project.conf
@@ -67,12 +66,25 @@ class WebmappProject {
     		return FALSE;
     	}
 
-    	// Costruisci la variabile tasks
+    	// Costruisci la variabile tasks, esegui il check sui file di configurazione
     	$tasks=array();
+    	$err = array();
     	foreach ($this->confFiles as $confFile) {
-    		if($confFile != 'project.conf') $tasks[]=preg_replace('/.conf/', '', $confFile); 
+    		if($confFile != 'project.conf') { 
+    			$tasks[]=preg_replace('/\.conf/', '', $confFile); 
+    		    $c = new ReadConf($this->confPath.$confFile);
+    		    if (! $c-> check() ){
+    			    $err[] = $confFile. ': '. $c->getError(); 
+    		    }
     	}
-    	$this->tasks=$tasks;
+    	}
+    	if (count($err)==0) {
+           $this->tasks=$tasks;
+       	}
+       	else {
+            $this->error="ERROR: reading configuration files.\n".implode("\n", $err);
+            return FALSE;
+       	}
 
     	return TRUE;
     }

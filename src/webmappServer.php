@@ -9,3 +9,4 @@ else {
 }
 
 var_dump($p->getConfFiles());
+var_dump($p->getTasks());
