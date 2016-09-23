@@ -23,6 +23,7 @@ class WebmappProjectTest extends TestCase
     	$this->assertEquals('example.webmapp.it',$p->getName());
     	$this->assertTrue(in_array('project.conf', $p->getConfFiles()));
     	$this->assertTrue(in_array('overpassNode.conf', $p->getConfFiles()));
+    	$this->assertTrue(in_array('overpassNode', $p->getTasks()));
     }
 
     public function testError() {

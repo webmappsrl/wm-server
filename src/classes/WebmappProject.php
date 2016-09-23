@@ -15,6 +15,9 @@ class WebmappProject {
 	// File di configurazione
 	private $confFiles = array();
 
+	// tasks
+	private $tasks = array();
+
 	// Costruttore
 	public function __construct($path)
     {
@@ -27,8 +30,9 @@ class WebmappProject {
     public function getName() { return $this->name; }
     public function getError() { return $this->error; }
     public function getConfFiles() { return $this->confFiles; }
+    public function getTasks() { return $this->tasks; }
 
-    // Open (check directory exists)
+    // Open and check configuration files
     public function open() {
     	if( ! file_exists($this->path)) {
     		$this->error='ERROR:'.$this->path.' is not valid path.';
@@ -62,6 +66,13 @@ class WebmappProject {
     		$this->error='ERROR: project '.$this->name.' has no project.conf file.';
     		return FALSE;
     	}
+
+    	// Costruisci la variabile tasks
+    	$tasks=array();
+    	foreach ($this->confFiles as $confFile) {
+    		if($confFile != 'project.conf') $tasks[]=preg_replace('/.conf/', '', $confFile); 
+    	}
+    	$this->tasks=$tasks;
 
     	return TRUE;
     }
