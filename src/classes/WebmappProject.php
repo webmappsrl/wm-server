@@ -71,10 +71,13 @@ class WebmappProject {
     	$err = array();
     	foreach ($this->confFiles as $confFile) {
     		if($confFile != 'project.conf') { 
-    			$tasks[]=preg_replace('/\.conf/', '', $confFile); 
     		    $c = new ReadConf($this->confPath.$confFile);
     		    if (! $c-> check() ){
     			    $err[] = $confFile. ': '. $c->getError(); 
+    		    } 
+    		    else {
+    		    	$name=preg_replace('/\.conf/', '', $confFile);
+    		    	$tasks[$name]=array('path'=>$confFile,'json'=>$c->getJson());
     		    }
     	}
     	}
