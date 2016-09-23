@@ -77,7 +77,7 @@ class WebmappProject {
     		    } 
     		    else {
     		    	$name=preg_replace('/\.conf/', '', $confFile);
-    		    	$tasks[$name]=array('path'=>$confFile,'json'=>$c->getJson());
+    		    	$tasks[$name]=array('path'=>$this->confPath.$confFile,'json'=>$c->getJson());
     		    }
     	}
     	}
