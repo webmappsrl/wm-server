@@ -1,11 +1,11 @@
 <?php
 require('autoload.php');
-$confFile = $argv[1];
-$conf=new ReadConf($confFile);
-
-if($conf->check()) {
-	echo "\n\nOK -> processing file $confFile\n\n";
+$p = new WebmappProject($argv[1]);
+if($p->open()) {
+	echo "OK";
 }
 else {
-	echo $conf->getError();
+	echo $p->getError();
 }
+
+var_dump($p->getConfFiles());

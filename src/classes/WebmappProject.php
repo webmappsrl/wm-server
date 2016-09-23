@@ -9,6 +9,12 @@ class WebmappProject {
 	// Stringa di errore
 	private $error='NONE';
 
+	// Path dei file di configurazione
+	private $confPath;
+
+	// File di configurazione
+	private $confFiles = array();
+
 	// Costruttore
 	public function __construct($path)
     {
@@ -17,8 +23,10 @@ class WebmappProject {
 
     // Getters
     public function getPath() { return $this->path; }
+    public function getConfPath() { return $this->confPath; }
     public function getName() { return $this->name; }
     public function getError() { return $this->error; }
+    public function getConfFiles() { return $this->confFiles; }
 
     // Open (check directory exists)
     public function open() {
@@ -29,6 +37,31 @@ class WebmappProject {
 
     	// Imposta il nome del progetto
     	$this->name=basename($this->path);
+
+    	// Imposta il path delle configurazione
+    	$this->confPath=$this->path.'/server/';
+    	// Rimuovi i doppi slash (sostituisci con singolo slash)
+    	$this->confPath = preg_replace('|//|', '/', $this->confPath);
+
+    	// Controlla l'esistenza della directory
+    	if( ! file_exists($this->confPath)) {
+    		$this->error='ERROR:'.$this->path.' has no subdir server with configuration files.';
+    		return FALSE;
+    	}
+
+    	// Apri la directory e leggi i file di configurazione
+    	$conf_files = array();
+    	$d = dir($this->confPath);
+    	while (false !== ($entry = $d->read())) {
+    		// if(preg_match('/conf/', $entry)) $conf_files[] = $entry;
+    		$conf_files[] = $entry;
+    	}
+    	$this->confFiles=$conf_files;
+    	// Controlla l'esistenza di project.conf
+    	if (! in_array('project.conf', $conf_files)) {
+    		$this->error='ERROR: project '.$this->name.' has no project.conf file.';
+    		return FALSE;
+    	}
 
     	return TRUE;
     }

@@ -14,7 +14,7 @@ class ReadConf
     // Primo livello di json, validi per tutti i tipi del TASK da eseguire
     private $mandatoryPars = 
           array(
-                'file_type'
+                'task_type'
                 );
 
     public function __construct($confFile)
@@ -54,8 +54,8 @@ class ReadConf
     
         // Controllo parametri presenti nel file di configurazione
 
-        // file_type: obbligatorio
-        // file_type: deve essere definito tra valori consentiti 
+        // task_type: obbligatorio
+        // task_type: deve essere definito tra valori consentiti 
         //            (ovvero deve esistere una classe che poi fa i lavori che deve fare)
 
         // Controllo Parametri obbligatori: project_name, bounding_box, file_name, file_type

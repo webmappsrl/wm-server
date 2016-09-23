@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class ReadConfTest extends TestCase
 {
-    private $testFileOk = __DIR__.'/../data/overpassPoi.example.conf';
+    private $testFileOk = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/server/overpassNode.conf';
     private $testSimpleJson = __DIR__.'/../data/simpleJson.conf';
     private $testFileKo = __DIR__.'/../data/not_existing.conf';
     private $testFileInvalidJson = __DIR__.'/../data/invalidJson.conf';
@@ -37,11 +37,7 @@ class ReadConfTest extends TestCase
         $a = new ReadConf($this->testSimpleJson);
         $this->assertEquals($a->getConfFile(), $this->testSimpleJson);
         $this->assertFalse($a->check());
-        $this->assertRegExp('/project_name/',$a->getError());
-        $this->assertRegExp('/file_name/',$a->getError());
-        $this->assertRegExp('/file_type/',$a->getError());
-        $this->assertRegExp('/bounds/',$a->getError());
-
+        $this->assertRegExp('/task_type/',$a->getError());
     }
 
     public function testNotExistingFile () {

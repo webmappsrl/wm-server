@@ -10,15 +10,19 @@ class WebmappProjectTest extends TestCase
     private $pathOk = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
     private $pathNoProject = __DIR__.'/../data/api.webmapp.it/example.noproject.webmapp.it/';
     private $pathOnlyProject = __DIR__.'/../data/api.webmapp.it/example.onlyproject.webmapp.it/';
+    private $pathNoServer = __DIR__.'/../data/api.webmapp.it/example.noserver.webmapp.it/';
     private $pathNotValid = '/invalid/path';
 
     public function testGetters() {
     	$p = new WebmappProject($this->pathOk);
-    	$this->assertEquals($this->pathOk,$p->getPath());
     	$this->assertEquals('NONE',$p->getError());
-    	$this->assertTrue($p->open());
+    	$this->assertEquals($this->pathOk,$p->getPath());
+    	$p->open();
+    	// $this->assertEquals('NONE',$p->getError());
+    	$this->assertEquals($this->pathOk.'server/',$p->getConfPath());
     	$this->assertEquals('example.webmapp.it',$p->getName());
-
+    	$this->assertTrue(in_array('project.conf', $p->getConfFiles()));
+    	$this->assertTrue(in_array('overpassNode.conf', $p->getConfFiles()));
     }
 
     public function testError() {
@@ -27,6 +31,21 @@ class WebmappProjectTest extends TestCase
     	$this->assertFalse($p->open());
     	$this->assertRegExp('/ERROR/',$p->getError());
     	$this->assertRegExp('/is not valid path/',$p->getError());
+
+    	// No project.conf
+    	$p = new WebmappProject($this->pathNoProject);
+    	$this->assertFalse($p->open());
+    	$this->assertRegExp('/ERROR/',$p->getError());
+    	$this->assertRegExp('/has no project.conf file./',$p->getError());
+
+    	// No server dir
+    	$p = new WebmappProject($this->pathNoServer);
+    	$this->assertFalse($p->open());
+     	$this->assertRegExp('/ERROR/',$p->getError());
+    	$this->assertRegExp('/has no subdir server with configuration files/',$p->getError());
+
+
+
 
     }
 
