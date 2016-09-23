@@ -7,7 +7,7 @@ class WebmappProject {
 	private $path;
 
 	// Stringa di errore
-	private $errore='NONE';
+	private $error='NONE';
 
 	// Costruttore
 	public function __construct($path)
@@ -18,10 +18,19 @@ class WebmappProject {
     // Getters
     public function getPath() { return $this->path; }
     public function getName() { return $this->name; }
+    public function getError() { return $this->error; }
 
     // Open (check directory exists)
     public function open() {
-    	return FALSE;
+    	if( ! file_exists($this->path)) {
+    		$this->error='ERROR:'.$this->path.' is not valid path.';
+    		return FALSE;
+    	}
+
+    	// Imposta il nome del progetto
+    	$this->name=basename($this->path);
+
+    	return TRUE;
     }
 
 }
