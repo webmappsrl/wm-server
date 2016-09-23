@@ -13,9 +13,7 @@ class ReadConf
     // Parametri obbligatori del file di configurazione 
     // Primo livello di json, validi per tutti i tipi del TASK da eseguire
     private $mandatoryPars = 
-          array('project_name',
-                'bounds',
-                'file_name',
+          array(
                 'file_type'
                 );
 
@@ -56,16 +54,6 @@ class ReadConf
     
         // Controllo parametri presenti nel file di configurazione
 
-        // project_name: obbligatorio
-        // project_path: 1) se non definito nella variabile deve è 
-        //                  /var/www/html/api.webmapp.it/[projetc_name]
-        //               2) Controllare che la directory esista
-        // bounds: obbligatorio
-        // bounds:        bounds: {
-        //                         'southWest': [43.56984,10.21466],
-        //                         'northEast': [43.87756,10.6855]
-        //                      }
-        // file_name: obbligatorio
         // file_type: obbligatorio
         // file_type: deve essere definito tra valori consentiti 
         //            (ovvero deve esistere una classe che poi fa i lavori che deve fare)
