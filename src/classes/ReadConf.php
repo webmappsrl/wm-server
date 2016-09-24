@@ -35,7 +35,7 @@ class ReadConf
         return $this->json;
     }
 
-    public function check() {
+    public function check($skipMandatory=FALSE) {
         // Se il file non esiste restituisci FALSE
         if (!file_exists($this->confFile)) {
             $this->error='ERROR.'.$this->confFile.' file does not exist';
@@ -59,6 +59,7 @@ class ReadConf
         //            (ovvero deve esistere una classe che poi fa i lavori che deve fare)
 
         // Controllo Parametri obbligatori: project_name, bounding_box, file_name, file_type
+        if(!$skipMandatory) {
         $mandatoryErrors = array();
         foreach ($this->mandatoryPars as $par) {
             if(!array_key_exists($par, $this->json)) $mandatoryErrors[]=$par;
@@ -66,6 +67,7 @@ class ReadConf
         if(count($mandatoryErrors)>=1){
             $this->error='ERROR. Mandatory pars missing '. implode(',', $mandatoryErrors);
             return FALSE;
+        }
         }
 
 

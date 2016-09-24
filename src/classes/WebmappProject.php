@@ -79,6 +79,7 @@ class WebmappProject {
             $this->error=$c->getError();
             return FALSE;
         }
+        
 
     	// Costruisci la variabile tasks, esegui il check sui file di configurazione
     	$tasks=array();

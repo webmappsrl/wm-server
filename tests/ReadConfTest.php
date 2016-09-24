@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 class ReadConfTest extends TestCase
 {
     private $testFileOk = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/server/overpassNode.conf';
+    private $testFileProject = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/server/project.conf';
     private $testSimpleJson = __DIR__.'/../data/simpleJson.conf';
     private $testFileKo = __DIR__.'/../data/not_existing.conf';
     private $testFileInvalidJson = __DIR__.'/../data/invalidJson.conf';
@@ -19,6 +20,20 @@ class ReadConfTest extends TestCase
         $result = $a->check();
         $this->assertEquals($a->getError(),'NONE');
         $this->assertTrue($result);
+    }
+
+    public function testProjectConf() {
+        $a = new ReadConf($this->testFileProject);
+        $this->assertEquals($a->getError(),'NONE');
+        $result = $a->check(TRUE);
+        $this->assertEquals($a->getError(),'NONE');
+        $this->assertTrue($result);
+        $json = $a->getJson();
+        $this->assertTrue(isset($json['bounds']));
+        $bounds = array("southWest"=>array(43.704367081989,10.338478088378),
+                      "northEast"=>array(43.84839376489,10.637855529785));
+        $this->assertEquals($bounds,$json['bounds']);
+        $this->assertEquals(43.704367081989,$json['bounds']['southWest'][0]);
     }
 
     public function testJson()
