@@ -18,6 +18,9 @@ class WebmappProject {
 	// File di configurazione
 	private $confFiles = array();
 
+    // Bounding box del progetto
+    private $bounds;
+
 	// tasks
 	private $tasks = array();
 
@@ -35,6 +38,7 @@ class WebmappProject {
     public function getConfFiles() { return $this->confFiles; }
     public function getTasks() { return $this->tasks; }
     public function getConfProjectPath() { return $this->confProjectPath;}
+    public function getBounds() {return $this->bounds; }
 
     // Open and check configuration files
     public function open() {
@@ -75,10 +79,13 @@ class WebmappProject {
 
         // Leggi project.conf e setta bounds
         $c = new ReadConf($this->confProjectPath);
-        if(!$c->check()){
+        if(!$c->check(TRUE)){
             $this->error=$c->getError();
             return FALSE;
         }
+        // TODO: gestione errore caso in cui non sia presente bounds nella conf
+        $json = $c->getJson();
+        $this->bounds = new WebmappBounds ($json['bounds']);
         
 
     	// Costruisci la variabile tasks, esegui il check sui file di configurazione

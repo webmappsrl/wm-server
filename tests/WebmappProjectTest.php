@@ -25,7 +25,7 @@ class WebmappProjectTest extends TestCase
     	$this->assertEquals('example.webmapp.it',$p->getName());
     	$this->assertTrue(in_array('project.conf', $p->getConfFiles()));
     	$this->assertTrue(in_array('overpassNode.conf', $p->getConfFiles()));
-        $this->assertEqual($this->pathOkProject,$p->getConfProjectPath());
+        $this->assertEquals($this->pathOkProject,$p->getConfProjectPath());
     	$tasks=$p->getTasks();
     	$this->assertTrue(array_key_exists('overpassNode', $tasks));
     	$this->assertTrue(array_key_exists('overpassNode1', $tasks));
@@ -33,6 +33,13 @@ class WebmappProjectTest extends TestCase
     	$this->assertEquals($tasks['overpassNode1']['json']['task_type'],'overpassNode');
     	$this->assertTrue(file_exists($tasks['overpassNode']['path']));
     	$this->assertTrue(file_exists($tasks['overpassNode1']['path']));
+
+        $bounds = new WebmappBounds(array("southWest"=>array(43.704367081989,10.338478088378),
+                      "northEast"=>array(43.84839376489,10.637855529785)));
+
+        $this->assertEquals($bounds,$p->getBounds());
+
+
 
     }
 
