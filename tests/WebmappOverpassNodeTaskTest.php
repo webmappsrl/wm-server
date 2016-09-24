@@ -6,10 +6,16 @@ class WebmappOverpassNodeTaskTest extends TestCase {
    public function testOk() {
 
        $name = 'overpassNode';
-       $path = __DIR__.'/../../data/api.webmapp.it/example.webmapp.it/server/overpassNode.conf';
+       $path = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/server/overpassNode.conf';
+       $project_path=__DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
+       $geojson_path = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/geojson/';
+       $geojson_file = $geojson_path.'overpassNode.geojson';
+
        $json = array(
           'task_type' => 'overpassNode',
-          'query' => '"traffic_sign"="IT:Divieto di transito"'
+          'query' => '"traffic_sign"="IT:Divieto di transito"',
+          'bounds' => array("southWest"=>array(43.704367081989,10.338478088378),
+                      "northEast"=>array(43.84839376489,10.637855529785))
         );
 
        $encoded_query='%22traffic_sign%22%3D%22IT%3ADivieto%20di%20transito%22';
@@ -20,8 +26,15 @@ class WebmappOverpassNodeTaskTest extends TestCase {
        $this->assertEquals('overpassNode',$t->getName());
        $this->assertEquals('overpassNode',$t->getType());
        $this->assertEquals($path,$t->getPath());
-       $project_path=__DIR__.'/../../data/api.webmapp.it/example.webmapp.it/';
        $this->assertEquals($project_path,$t->getProjectPath());
+       $this->assertEquals($geojson_path,$t->getGeojsonPath());
+       $this->assertEquals($geojson_file,$t->getGeojsonFile());
+       $bounds = $t->getBounds();
+       $this->assertEquals('WebmappBounds',get_class($bounds));
+       $this->assertEquals($json['bounds']['southWest'],$bounds->getSouthWest());
+
+
+
        $json_t=$t->getJson();
        $this->assertEquals($json['query'],$json_t['query']);
        $this->assertEquals($json['task_type'],$json_t['task_type']);
