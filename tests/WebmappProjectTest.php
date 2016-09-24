@@ -8,22 +8,24 @@ use PHPUnit\Framework\TestCase;
 class WebmappProjectTest extends TestCase
 {
     private $pathOk = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
+    private $pathOkProject = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/server/project.conf';
     private $pathNoProject = __DIR__.'/../data/api.webmapp.it/example.noproject.webmapp.it/';
     private $pathOnlyProject = __DIR__.'/../data/api.webmapp.it/example.onlyproject.webmapp.it/';
     private $pathNoServer = __DIR__.'/../data/api.webmapp.it/example.noserver.webmapp.it/';
     private $pathInvalid = __DIR__.'/../data/api.webmapp.it/example.invalid.webmapp.it/';
     private $pathNotValid = '/invalid/path';
 
-    public function testGetters() {
+    public function testOk() {
     	$p = new WebmappProject($this->pathOk);
     	$this->assertEquals('NONE',$p->getError());
     	$this->assertEquals($this->pathOk,$p->getPath());
     	$p->open();
-    	// $this->assertEquals('NONE',$p->getError());
+    	$this->assertEquals('NONE',$p->getError());
     	$this->assertEquals($this->pathOk.'server/',$p->getConfPath());
     	$this->assertEquals('example.webmapp.it',$p->getName());
     	$this->assertTrue(in_array('project.conf', $p->getConfFiles()));
     	$this->assertTrue(in_array('overpassNode.conf', $p->getConfFiles()));
+        $this->assertEqual($this->pathOkProject,$p->getConfProjectPath());
     	$tasks=$p->getTasks();
     	$this->assertTrue(array_key_exists('overpassNode', $tasks));
     	$this->assertTrue(array_key_exists('overpassNode1', $tasks));

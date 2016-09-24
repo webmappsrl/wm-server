@@ -1,12 +1,10 @@
 <?php
 require('autoload.php');
-$p = new WebmappProject($argv[1]);
-if($p->open()) {
-	echo "OK";
-}
-else {
-	echo $p->getError();
-}
+$json = array("southWest"=>array(43.704367081989325,10.338478088378906),
+	      			  "northEast"=>array(43.84839376489157,10.637855529785156));
+		$overpass = "43.704367081989325%2C10.338478088378906%2C43.84839376489157%2C10.637855529785156";
 
-var_dump($p->getConfFiles());
-var_dump($p->getTasks());
+
+		$b = new WebmappBounds($json);
+
+var_dump($b);

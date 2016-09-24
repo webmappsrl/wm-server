@@ -12,6 +12,9 @@ class WebmappProject {
 	// Path dei file di configurazione
 	private $confPath;
 
+    // Path del file di configurazione di progetto
+    private $confProjectPath;
+
 	// File di configurazione
 	private $confFiles = array();
 
@@ -31,6 +34,7 @@ class WebmappProject {
     public function getError() { return $this->error; }
     public function getConfFiles() { return $this->confFiles; }
     public function getTasks() { return $this->tasks; }
+    public function getConfProjectPath() { return $this->confProjectPath;}
 
     // Open and check configuration files
     public function open() {
@@ -65,6 +69,16 @@ class WebmappProject {
     		$this->error='ERROR: project '.$this->name.' has no project.conf file.';
     		return FALSE;
     	}
+
+        // Imposta proprietà confProjectPath
+        $this->confProjectPath=$this->confPath.'project.conf';
+
+        // Leggi project.conf e setta bounds
+        $c = new ReadConf($this->confProjectPath);
+        if(!$c->check()){
+            $this->error=$c->getError();
+            return FALSE;
+        }
 
     	// Costruisci la variabile tasks, esegui il check sui file di configurazione
     	$tasks=array();
