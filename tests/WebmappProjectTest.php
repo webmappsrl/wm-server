@@ -70,4 +70,12 @@ class WebmappProjectTest extends TestCase
 
     }
 
+    public function testNoBounds() {
+        $path = __DIR__.'/../data/api.webmapp.it/example.nobounds.webmapp.it/';
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Error: no bounds defined in project.conf');
+        $p = new WebmappProject($path);
+        $p->open();
+    }
+
 }

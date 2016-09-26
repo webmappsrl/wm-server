@@ -1,4 +1,25 @@
 <?php
+
+// Apre e verifica (open()) e poi processa (process()) un progetto
+// Webmapp.
+//
+// Unico parametro necessario la directory del progetto che deve contenere
+// la subdire "/server/" all'interno della quale deve essere presente il file 
+// project.conf che definisce i parametri generali di tutto il progetto. Unico
+// parametro obbligatorio è bounds che contiene i bounding box geografici del progetto: 
+//
+//  { 
+//   "bounds": 
+//      { 
+//        "southWest" : [43.704367081989,10.338478088378],
+//        "northEast" : [43.84839376489,10.637855529785] 
+//      }
+//  }
+//
+// I singoli task da eseguire sono definiti nei file di configurazione [taskName].conf
+// per i dettagli vedere la classe WebmappAbstractTask.conf
+//
+
 class WebmappProject {
     // Nome del progetto (preso dalla directory del costruttore)
 	private $name;
@@ -78,13 +99,18 @@ class WebmappProject {
         $this->confProjectPath=$this->confPath.'project.conf';
 
         // Leggi project.conf e setta bounds
+        // TODO: gestire con eccezione (e impostare caso di test relativo)
         $c = new ReadConf($this->confProjectPath);
         if(!$c->check(TRUE)){
             $this->error=$c->getError();
             return FALSE;
         }
-        // TODO: gestione errore caso in cui non sia presente bounds nella conf
+
+        // Controllo delle bounds
         $json = $c->getJson();
+        if (!isset($json['bounds'])){
+            throw new Exception("Error: no bounds defined in project.conf", 1);            
+        }
         $this->bounds = new WebmappBounds ($json['bounds']);
         
 
