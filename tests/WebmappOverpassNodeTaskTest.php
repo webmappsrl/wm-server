@@ -27,8 +27,7 @@ class WebmappOverpassNodeTaskTest extends TestCase {
        $this->assertEquals('overpassNode',$t->getType());
        $this->assertEquals($path,$t->getPath());
        $this->assertEquals($project_path,$t->getProjectPath());
-       $this->assertEquals($geojson_path,$t->getGeojsonPath());
-       $this->assertEquals($geojson_file,$t->getGeojsonFile());
+
        $bounds = $t->getBounds();
        $this->assertEquals('WebmappBounds',get_class($bounds));
        $this->assertEquals($json['bounds']['southWest'],$bounds->getSouthWest());

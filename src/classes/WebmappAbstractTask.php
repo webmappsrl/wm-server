@@ -13,13 +13,15 @@ abstract class WebmappAbstractTask {
 	// Json con tutte le info aggiuntive del task
 	protected $json;
 
-	// geoJson path
+	// geojson Path
+	// Todo: refactoring con classe WebmappProjectStructure (solo name) 
 	protected $geojson_path;
 
-	// geoJson file
-	protected $geojson_file;
+    // Poi
+	protected $poi_path;
+	protected $poi_file;
+	protected $poi_single_path;
 
-	// Bounding Box
 	protected $bounds;
 
 	// Messaggio di errore
@@ -30,14 +32,20 @@ abstract class WebmappAbstractTask {
 		$this->path = $path;
 		$this->project_path = preg_replace('/server$/','',dirname($path));
 		$this->geojson_path = $this->project_path.'geojson/';
-		$this->geojson_file = $this->geojson_path.$this->name.'.geojson';
+		$this->poi_path = $this->geojson_path.'poi/';
+		$this->poi_file = $this->poi_path.$this->name.'.geojson';
+		$this->poi_single_path = $this->poi_path.'id/';
+
+
 		$this->json=$json;
 		if(isset($json['bounds'])) $this->bounds = new WebmappBounds($json['bounds']);
 	}
 	
 	public function getName() { return $this->name; }
 	public function getGeojsonPath() { return $this->geojson_path; }
-	public function getGeojsonFile() { return $this->geojson_file; }
+	public function getPoiPath() { return $this->poi_path; }
+	public function getPoiFile() { return $this->poi_file; }
+	public function getPoiSinglePath() { return $this->poi_single_path; }
 	public function getBounds() { return $this->bounds; }
 	public function getType() { 
 		$class_name = get_class($this);
@@ -61,6 +69,16 @@ abstract class WebmappAbstractTask {
 		// TODO: test eccezione
 		if (get_class($this->bounds) != 'WebmappBounds')
 			throw new Exception("Property bounds is not an instance of WebmappBounds class: ".get_class($this->bounds), 1);	
+	}
+
+	protected function checkPoiStructure() {
+		// TODO: verifica esistenza della directory geojson/poi/
+		// TODO: verifica scrivibilità della directory geojson/poi/
+		// TODO: nel caso esista già verifica la scrivibiità del file poi_file
+		// TODO: verifica esistenza della directory geojson/poi/id/
+		// TODO: verifica la scrivibilità della directory geojson/poi/id
+
+		return true;
 	}
 
 	abstract public function check();
