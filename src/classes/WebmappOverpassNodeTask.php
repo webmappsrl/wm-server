@@ -6,6 +6,7 @@ class WebmappOverpassNodeTask extends WebmappAbstractTask {
 
 	public function check() {
 		// Esistenza del parametro query
+		// TODO: passare ad eccezione e implementare test relativo
 		if (!isset($this->json['query']))
 		{
 			$this->error='ERROR: parameter query in json is mandatory for this type of task.';
