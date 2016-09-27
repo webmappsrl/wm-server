@@ -59,12 +59,9 @@ class WebmappProjectStructure {
 
 	public function checkPoi() {
 		// Controlla la struttura per i POI (geojson, poi, poi_single)
-		if(!file_exists($this->geojson))
-			throw new Exception("Error: directory geojson does not exist - ".$this->geojson, 1);
-		if(!file_exists($this->poi))
-			throw new Exception("Error: directory poi does not exist - ".$this->poi, 1);
-		if(!file_exists($this->poi_single))
-			throw new Exception("Error: directory poi_single does not exist - ".$this->poi_single, 1);
+		if(!file_exists($this->geojson)) return false;
+		if(!file_exists($this->poi)) return false;
+		if(!file_exists($this->poi_single)) return false;
 		return true;
 	}
 

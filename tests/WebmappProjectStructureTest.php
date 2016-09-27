@@ -28,39 +28,4 @@ class WebmappProjectStructureTest extends TestCase {
 
 	}
 
-	public static function delTree($dir) { 
-		$files = array_diff(scandir($dir), array('.','..'));
-		foreach ($files as $file) { 
-			(is_dir("$dir/$file")) ? self::delTree("$dir/$file") : unlink("$dir/$file");
-		}
-		return rmdir($dir);
-	}
-
-	public function testCheckPoiNoPoiSingle() {
-		$s = new WebmappProjectStructure($this->root);
-		$s->create();
-		self::delTree($this->poi_single);
-		// TODO: controllare lo specifico messaggio di errore con il metodo expectExceptionMessage ( che non funziona )
-		// $this->expectExceptionMessage('Error: directory poi_single does not exist');
-		$this->expectException(Exception::class);
-		$s->checkPoi();
-	}
-
-	public function testCheckPoiNoPoi() {
-		$s = new WebmappProjectStructure($this->root);
-		$s->create();
-		self::delTree($this->poi);
-		// TODO: controllare lo specifico messaggio di errore con il metodo expectExceptionMessage ( che non funziona )
-		$this->expectException(Exception::class);
-		$s->checkPoi();
-	}
-
-	public function testCheckPoiNoGeojson() {
-		$s = new WebmappProjectStructure($this->root);
-		$s->create();
-		self::delTree($this->geojson);
-		// TODO: controllare lo specifico messaggio di errore con il metodo expectExceptionMessage ( che non funziona )
-		$this->expectException(Exception::class);
-		$s->checkPoi();
-	}
 }
