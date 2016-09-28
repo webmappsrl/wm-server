@@ -6,10 +6,9 @@ class WebmappOverpassNodeTaskTest extends TestCase {
    public function testOk() {
 
        $name = 'overpassNode';
-       $path = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/server/overpassNode.conf';
-       $project_path=__DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
-       $geojson_path = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/geojson/';
-       $geojson_file = $geojson_path.'overpassNode.geojson';
+       $project_root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
+       $project_structure = new WebmappProjectStructure($project_root);
+       $geojson = $project_root .'geojson/poi/'.$name.'.geojson';
 
        $json = array(
           'task_type' => 'overpassNode',
@@ -20,29 +19,21 @@ class WebmappOverpassNodeTaskTest extends TestCase {
 
        $encoded_query='%22traffic_sign%22%3D%22IT%3ADivieto%20di%20transito%22';
 
-       $t = new WebmappOverpassNodeTask($name,$path,$json);
-       $this->assertEquals('NONE',$t->getError());
+       $t = new WebmappOverpassNodeTask($name,$project_root,$json);
 
        $this->assertEquals('overpassNode',$t->getName());
        $this->assertEquals('overpassNode',$t->getType());
-       $this->assertEquals($path,$t->getPath());
-       $this->assertEquals($project_path,$t->getProjectPath());
 
        $bounds = $t->getBounds();
        $this->assertEquals('WebmappBounds',get_class($bounds));
        $this->assertEquals($json['bounds']['southWest'],$bounds->getSouthWest());
 
+       $this->assertEquals($project_structure,$t->getProjectStructure());
 
-
-       $json_t=$t->getJson();
-       $this->assertEquals($json['query'],$json_t['query']);
-       $this->assertEquals($json['task_type'],$json_t['task_type']);
+       $this->assertEquals($geojson,$t->getPoiFile());
 
        $response = $t->check();
-       $this->assertEquals($json['query'],$t->getQuery());
        $this->assertEquals($encoded_query,$t->getEncodedQuery());
-
-       $this->assertEquals('NONE',$t->getError());
 
        $this->assertTrue($response);
 

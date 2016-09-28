@@ -19,7 +19,7 @@ class WebmappOverpassNodeTask extends WebmappAbstractTask {
 		$this->checkBounds();
 
 		// Controllo dela PoiStructure
-		$this->checkPoiStructure();
+		$this->project_structure->checkPoi();
 			
         
 		return TRUE;
