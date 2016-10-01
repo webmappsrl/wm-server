@@ -18,6 +18,8 @@
 class WebmappProjectStructure {
 
 	private $root;
+	private $server;
+	private $conf;
 	private $geojson;
 	private $poi;
 	private $poi_single;
@@ -27,6 +29,8 @@ class WebmappProjectStructure {
 	public function __construct ( $root ) {
 		$this->root = $root;
 		if(substr($this->root, -1)!='/') $this->root .= '/';
+		$this->server = $this->root.'server/';
+		$this->conf= $this->root.'server/project.conf';
 		$this->geojson = $this->root.'geojson/';
 		$this->poi = $this->geojson.'poi/';
 		$this->poi_single = $this->poi.'id/';
@@ -34,6 +38,7 @@ class WebmappProjectStructure {
 		$this->all_dir = 
 		  array(
 		  	$this->root,
+		  	$this->server,
 		  	$this->geojson,
 		  	$this->poi,
 		  	$this->poi_single
@@ -41,9 +46,24 @@ class WebmappProjectStructure {
 	}
 
 	public function getRoot() { return $this->root; }
+	public function getServer() { return $this->server; }
+	public function getConf() { return $this->conf; }
 	public function getGeojson() { return $this->geojson; }
 	public function getPoi() { return $this->poi; }
 	public function getPoiSingle() { return $this->poi_single; }
+
+    // Restituisce un array con la lista dei file di configurazione
+    // (path completo) di tutti i singoli task del progetto
+
+	public function getTaskConfFiles() {
+	    $conf_files = array();
+    	$d = dir($this->server);
+    	while (false !== ($entry = $d->read())) {
+    		if(preg_match('/conf/', $entry) && $entry != 'project.conf') $conf_files[] = $this->server.$entry;
+    	}
+    	return $conf_files;
+
+	}
 
 	public function create() {
 		// Crea le directory della struttura
