@@ -3,22 +3,19 @@
 
 class WebmappTaskFactory {
 
-	private $error ='NONE';
+    // $conf_file = Path to task configuration file
+	public function  Task($conf_file) {
+  
+		$c = new ReadConf($conf_file);
+		$c->check();
+		$json=$c->getJson();
+		$task_type=$json['task_type'];
 
-	public function getError() { return $this->error; }
-	// Restituisce un oggetto della classe Webmbapp[Type]Task
-	// Nel caso la classe non esistesse, restituisce FALSE e
-	// la variabile errore contiene l'errore 
-	public function  getTask($type,$name,$path,$json) {
 
-		$class_name = 'Webmapp'.ucfirst($type).'Task';
-		if(class_exists($class_name)) {
-			return new $class_name($name,$path,$json);
-		}
-		else {
-     		$this->error='ERROR: '; 
-            return NULL;
-		}
+		$class_name = 'Webmapp'.ucfirst($task_type).'Task';
+		if(!class_exists($class_name))
+			throw new Exception("Error: wrong type. ".$class_name, 1);			
+		return new $class_name($name,$project_root,$json);
 	}
 
 

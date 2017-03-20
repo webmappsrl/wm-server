@@ -10,6 +10,15 @@ php src/webmapp-server.php CONFFILE.conf
 CHe legge le informazioni dal file di configurazione ed esegue di conseguenza le operazioni necessarie. Il File di configurazione è un file json. Un esempio 
 utilizzato per i test si trova della directory data.
 
+Per gli sviluppatori:
+
+I test possono essere lanciati come segue:
+
+Tutti:
+phpunit --color=always --bootstrap src/autoload.php tests/
+
+Singola classe:
+phpunit --color=always --bootstrap src/autoload.php tests/WebmappProjectStructureTest.php
 
 
 REMOVE THIS:

@@ -107,6 +107,8 @@ class WebmappProject {
         }
 
         // Controllo delle bounds
+        // TODO: bounds non è obbligatorio sempre
+        
         $json = $c->getJson();
         if (!isset($json['bounds'])){
             throw new Exception("Error: no bounds defined in project.conf", 1);            
@@ -114,7 +116,10 @@ class WebmappProject {
         $this->bounds = new WebmappBounds ($json['bounds']);
         
 
+        // TODO: il readConf deve essere lanciato direttamente dalla Factory
     	// Costruisci la variabile tasks, esegui il check sui file di configurazione
+        // Passare alle eccezioni con relativo test
+        
     	$tasks=array();
     	$err = array();
     	foreach ($this->confFiles as $confFile) {
