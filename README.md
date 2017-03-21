@@ -13,12 +13,16 @@ utilizzato per i test si trova della directory data.
 Per gli sviluppatori:
 
 I test possono essere lanciati come segue:
-
 Tutti:
 phpunit --color=always --bootstrap src/autoload.php tests/
-
 Singola classe:
 phpunit --color=always --bootstrap src/autoload.php tests/WebmappProjectStructureTest.php
+
+URL UTILI DEL MANUALE DI PHPUNIT
+ * https://phpunit.de/manual/current/en/appendixes.assertions.html#appendixes.assertions.assertRegExp
+ * https://phpunit.de/manual/current/en/textui.html
+
+
 
 
 REMOVE THIS:
