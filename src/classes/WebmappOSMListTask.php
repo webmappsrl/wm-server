@@ -10,6 +10,8 @@ class WebmappOSMListTask extends WebmappAbstractTask {
 		// Controllo esistenza file lista
 		if(!file_exists($this->getPathList()))
 			throw new Exception("Il file ".$this->getPathList()." non esiste.", 1);
+
+		// TODO: controllo dell'esistenza di almeno un elemento (?)
 			
 		return TRUE;
 	}

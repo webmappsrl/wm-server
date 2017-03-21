@@ -22,4 +22,5 @@ class WebmappProjectStructureTest extends TestCase
 
     // TODO: eccezione readConf json malformato
     // TODO: eccezione readConf json senza chiave tasks
+    // TODO: eccezione readConf factorytask con un tipo non esistente
 }

@@ -16,6 +16,8 @@ class WebmappProjectStructure {
 	private $path_geojson;
 	// Percorso del file di configurazione
 	private $conf;
+	// Array dei tasks del progetto
+	private $tasks = array();
 
 	// Costruttore
 	public function __construct($root) {
@@ -28,6 +30,7 @@ class WebmappProjectStructure {
 	public function getRoot() { return $this->root;}
 	public function getPathGeojson() { return $this->path_geojson;}
 	public function getConf() { return $this->conf;}
+	public function getTasks() { return $this->tasks; }
 	// fine getters
 
 	// Verifica la struttura di un progetto esistente
@@ -56,8 +59,13 @@ class WebmappProjectStructure {
 			throw new Exception("Il file di configurazione non ha tasks.", 1);
 			
 		// TODO: Interpretazione dei TASKS e verifica dei singoli
+		foreach ($json['tasks'] as $name => $options ) {
+			$t = WebmappTaskFactory::Task($name,$options,$this->root);
+			if(!$t->check()) return FALSE;
+			array_push($this->tasks, $t);
+		}
 
-		return FALSE;
+		return TRUE;
 	}
 
 

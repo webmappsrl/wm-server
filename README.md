@@ -19,6 +19,8 @@ Singola classe:
 phpunit --color=always --bootstrap src/autoload.php tests/WebmappProjectStructureTest.php
 Con code coverage:
 phpunit --color=always --bootstrap src/autoload.php --coverage-text --whitelist src tests/
+Con Code covrage e HTML output
+phpunit --color=always --bootstrap src/autoload.php --coverage-text --coverage-html test-log --whitelist src tests/
 
 URL UTILI DEL MANUALE DI PHPUNIT
  * https://phpunit.de/manual/current/en/appendixes.assertions.html#appendixes.assertions.assertRegExp
