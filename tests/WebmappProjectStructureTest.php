@@ -20,4 +20,5 @@ class WebmappProjectStructureTest extends TestCase
     }
 
 
+    // TODO: aggiungere eccezione file di configurazione
 }
