@@ -52,7 +52,9 @@ class WebmappProjectStructure {
 			throw new Exception("Impossibile convertire il file di configurazione in JSON.", 1);
 
 		// TODO: presenza dell'array dei TASKS
-
+		if(!array_key_exists('tasks', $json))
+			throw new Exception("Il file di configurazione non ha tasks.", 1);
+			
 		// TODO: Interpretazione dei TASKS e verifica dei singoli
 
 		return FALSE;

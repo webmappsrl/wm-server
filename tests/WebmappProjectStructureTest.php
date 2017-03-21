@@ -20,5 +20,6 @@ class WebmappProjectStructureTest extends TestCase
     }
 
 
-    // TODO: aggiungere eccezione file di configurazione
+    // TODO: eccezione readConf json malformato
+    // TODO: eccezione readConf json senza chiave tasks
 }
