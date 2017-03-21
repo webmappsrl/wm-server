@@ -2,7 +2,7 @@
 // Caricamento classi obbligatorie
 
 require 'classes/WebmappProject.php';
-// require 'classes/WebmappProjectStructure.php';
+require 'classes/WebmappProjectStructure.php';
 
 // require 'classes/ReadConf.php';
 

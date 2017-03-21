@@ -21,19 +21,9 @@ class WebmappProject {
     // Effettua anche la lettura del file di configurazione e imposta l'esecuzione
     // di tutti i task che vengono poi effettivamente eseguiti chiamando il metodo process
     public function check() {
-
-        return FALSE;
-    }
-
-    // Crea una struttura di progetto base secondo la project structure e 
-    // inserisce un file di configurazione di esempio (funzionante)
-    public function create() {
-        return FALSE;
-    }
-
-    // Esegue i TASK definiti nel file di configurazione
-    public function process() {
-
+        if(file_exists($this->root)){
+            return TRUE;
+        }
         return FALSE;
     }
 
