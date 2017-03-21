@@ -6,25 +6,24 @@ class WebmappProject {
     // Root directory del progetto (base delle API), path assoluto
 	private $root;
 
+    // Struttura del progetto è un oggetto WebmappProjectStructure;
+    private $structure;
+
     public function __construct($root) {
-        $this->root=$root;
+        $this->root=rtrim($root, '/');
+        $this->structure = new WebmappProjectStructure($this->root);
     } 
 
     // Getters
     public function getRoot() {return $this->root;}
-
+    public function getStructure() {return $this->structure;}
     // Fine dei getters
 
     // Metodi pubblici
 
-    // effettua il controllo di una root (esistenza dei file obbligatori)
-    // Effettua anche la lettura del file di configurazione e imposta l'esecuzione
-    // di tutti i task che vengono poi effettivamente eseguiti chiamando il metodo process
+    // Controllo di una struttura esistente delegato alla classe Structure
     public function check() {
-        if(file_exists($this->root)){
-            return TRUE;
-        }
-        return FALSE;
+        return $this->structure->check();
     }
 
     // Fine dei metodi pubblici

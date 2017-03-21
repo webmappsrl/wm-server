@@ -13,7 +13,8 @@ class WebmappProjectTest extends TestCase
         // root inesistente
         $root = __DIR__.'/../data/api.webmapp.it/XXX-NO-ROOT-XXX/';
         $p = new WebmappProject($root);
-        $this->assertFalse($p->check());
+        $this->expectException(Exception::class);
+        $p->check();
     }
 
 }
