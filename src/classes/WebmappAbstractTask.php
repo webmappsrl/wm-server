@@ -21,5 +21,6 @@ abstract class WebmappAbstractTask {
 	// end of getters
 
 	abstract public function check();
+	abstract public function process();
 
 }

@@ -17,4 +17,11 @@ class WebmappProjectTest extends TestCase
         $p->check();
     }
 
+    public function testProcess() {
+        // root esistente
+        $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
+        $p = new WebmappProject($root);
+        $this->assertTrue($p->check());
+        $this->assertTrue($p->process());
+    }
 }

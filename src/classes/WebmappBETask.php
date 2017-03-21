@@ -12,4 +12,8 @@ class WebmappBETask extends WebmappAbstractTask {
 		return TRUE;
 	}
 
+    public function process(){
+    	return TRUE;
+    }
+
 }

@@ -26,6 +26,18 @@ class WebmappProject {
         return $this->structure->check();
     }
 
+    // Esegue i singoli task del progetto
+    public function process() {
+        foreach ($this->getStructure()->getTasks() as $t) {
+            try {
+                $t->process();   
+            } catch (Exception $e) {
+                throw $e;
+            }
+        }
+        return TRUE;
+    }
+
     // Fine dei metodi pubblici
 
 }
