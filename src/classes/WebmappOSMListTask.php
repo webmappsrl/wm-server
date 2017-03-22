@@ -53,7 +53,7 @@ class WebmappOSMListTask extends WebmappAbstractTask {
                 $option = '-c';
             }
 
-            $cmd = "osm2pgsql $option -d gis -H localhost -U $file_osm --style /var/www/mappalo-server/openstreetmap-carto.style"; 
+            $cmd = "osm2pgsql $option -d gis -H localhost -U webmapp $file_osm --style /var/www/mappalo-server/openstreetmap-carto.style"; 
             // TODO: passare ad un sistema di LOG
             echo "$cmd \n";
             system($cmd);
