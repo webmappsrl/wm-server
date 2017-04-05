@@ -40,21 +40,4 @@ class WebmappTasksTests extends TestCase
         $this->expectException(Exception::class);
         $t->check();
     }
-    public function testBETask() {
-        $name = 'prova';
-        $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
-
-        //TEST OK
-        $options = array('code'=>'dev');
-        $t = new WebmappBETask($name,$options,$root);
-        $this->assertTrue($t->check());
-        
-        // ECCEZIONI
-        // No code nell'array
-        $options = array('nocode'=>'dev');
-        $t = new WebmappBETask($name,$options,$root);
-        $this->expectException(Exception::class);
-        $t->check();
-
-    }
 }
