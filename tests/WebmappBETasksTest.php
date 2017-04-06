@@ -3,42 +3,65 @@ use PHPUnit\Framework\TestCase;
 
 class WebmappBETasksTests extends TestCase
 {
-    public function testSimple() {
-        $name = 'prova';
-        $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
 
-        //TEST OK
-        $options = array('code'=>'dev');
-        $t = new WebmappBETask($name,$options,$root);
+    public $name;
+    public $root;
+    public $options = array();
+
+    public function __construct() {
+        $this->name = 'prova';
+        $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
+
+        // La mappa con ID 408 ha n7webmap_type='all';
+        $this->options = array('code'=>'dev','id'=>408);
+    }
+    public function testOk() {
+        $t = new WebmappBETask($this->name,$this->options,$this->root);
         $this->assertTrue($t->check());
         $this->assertEquals('dev',$t->getCode());
         $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/map',$t->getAPI('wp','map'));
-        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/map',$t->getMapAPI());
+        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/map/'.$this->options['id'],$t->getMapAPI());
         $this->assertEquals('http://dev.be.webmapp.it/wp-json/webmapp/v1/pois.geojson',$t->getAPI('wm','pois.geojson'));
         $this->assertTrue($t->process());
         $this->expectException(Exception::class);
         $t->getAPI('XX','');
 
-        // ECCEZIONI
-        // No code nell'array
+    }
+
+    public function testLoadMap() {
+        $t = new WebmappBETask($this->name,$this->options,$this->root);
+        $this->assertTrue($t->check());
+        $map=$t->loadAPI($t->getMapAPI());
+        $this->assertEquals($this->options['id'],$map['id']);
+    }
+
+    // Eccezioni
+    public function testKoNocode() {
+              // No code nell'array
         $options = array('nocode'=>'dev');
-        $t = new WebmappBETask($name,$options,$root);
+        $t = new WebmappBETask($this->name,$options,$this->root);
         $this->expectException(Exception::class);
         $t->check();
     }
 
-    public function testLoadMaps() {
-        $name = 'prova';
-        $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it/';
-        //TEST OK
+    public function testKoNoID() {
+              // No code nell'array
         $options = array('code'=>'dev');
-        $t = new WebmappBETask($name,$options,$root);
-        $this->assertTrue($t->check());
-        $maps=$t->loadAPI($t->getMapAPI());
-        $this->assertGreaterThan(0,count($maps));
-        foreach($maps as $map) {
-            $this->assertTrue(array_key_exists('n7webmap_type', $map));
-            $this->assertTrue(array_key_exists('layer_poi', $map));
-        }
+        $t = new WebmappBETask($this->name,$options,$this->root);
+        $this->expectException(Exception::class);
+        $t->check();
     }
+
+    public function testKoNoMap() {
+              // No code nell'array
+        $options = array('code'=>'dev','id'=>1);
+        $t = new WebmappBETask($this->name,$options,$this->root);
+        $t->check();
+        $this->expectException(Exception::class);
+        $t->process();
+    }
+
+
+
+
 }

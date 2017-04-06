@@ -4,13 +4,21 @@ class WebmappBETask extends WebmappAbstractTask {
 	// Code
 	private $code;
 
+    // ID della mappa
+    private $id;
+
 	public function check() {
 
-		// Controllo parametro list
-		if(!array_key_exists('code', $this->options))
-			throw new Exception("L'array options deve avere la chiave 'code'", 1);
+        // Controllo parametro code http://[code].be.webmapp.it
+        if(!array_key_exists('code', $this->options))
+            throw new Exception("L'array options deve avere la chiave 'code'", 1);
 
-		$this->code = $this->options['code'];
+        // Controllo parametro id (id della mappa)
+        if(!array_key_exists('id', $this->options))
+            throw new Exception("L'array options deve avere la chiave 'id' corrispondente all'id della mappa", 1);
+
+        $this->code = $this->options['code'];
+        $this->id = $this->options['id'];
 
 		// TODO: controllo della risposta delle API http://$code.be.webmapp.it/XXX
 			
@@ -18,7 +26,8 @@ class WebmappBETask extends WebmappAbstractTask {
 	}
 
 	// GETTERS
-	public function getCode() { return $this->code; }
+    public function getCode() { return $this->code; }
+    public function getId() { return $this->id; }
     public function getAPI($type,$api){
 
     	$baseUrl = 'http://'.$this->code.'.be.webmapp.it/';
@@ -37,17 +46,50 @@ class WebmappBETask extends WebmappAbstractTask {
     	return $url;
     }
     public function getMapAPI() {
-    	return $this->getAPI('wp','map');
+    	return $this->getAPI('wp','map/'.$this->id);
     }
     // END of GETTERS
 
     public function process(){
 
     	// Scarica le mappe da elaborare
-    	$maps=$this->loadAPI($this->getMapAPI());
+    	$map=$this->loadAPI($this->getMapAPI());
 
-    	// Esegui i loop sulle singole mappe
-    	return TRUE;
+        if(!array_key_exists('id', $map)){
+            throw new Exception("Errore nel caricamento della mappa con API ".$this->getMapAPI().". Il parametro ID non è presente nella risposta della API." , 1);
+        }
+
+        switch ($map['n7webmap_type']  ) {
+            case 'all':
+                return $this->processAll($map);
+                break;
+            
+            case 'single_route':
+                return $this->processSingleRoot($map);
+                break;
+            
+            case 'layers':
+                return $this->processLayers($map);
+                break;
+            
+            default:
+                throw new Exception("Map typpe not supported: " . $map['n7webmap_type'], 1);
+                
+                break;
+        }
+
+    }
+
+    private function processAll($map) {
+        return TRUE;
+    }
+
+    private function processSingleRoot($map) {
+        return FALSE;
+    }
+
+    private function processLayers($map) {
+        return FALSE;
     }
 
     // Carica una API del BE e restituisce l'array json corrispondente

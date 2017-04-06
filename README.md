@@ -26,10 +26,6 @@ URL UTILI DEL MANUALE DI PHPUNIT
  * https://phpunit.de/manual/current/en/appendixes.assertions.html#appendixes.assertions.assertRegExp
  * https://phpunit.de/manual/current/en/textui.html
 
-TODO:
-6 Aprile 2017
-- Rifattorizzare il costruttore di AbstractTask per passare tutta la struttura del progetto e non solo la root
-
 
 REMOVE THIS:
 Paragraphs are separated by a blank line.
