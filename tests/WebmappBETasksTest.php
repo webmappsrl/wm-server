@@ -27,6 +27,8 @@ class WebmappBETasksTests extends TestCase
         $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/map/'.$this->options['id'],$t->getMapAPI());
         $this->assertEquals('http://dev.be.webmapp.it/wp-json/webmapp/v1/pois.geojson',$t->getAPI('wm','pois.geojson'));
         $this->assertTrue($t->process());
+        $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/pois_30.geojson'));
+        $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/pois_7.geojson'));
 
     }
 
