@@ -32,7 +32,7 @@ class WebmappOSMListTask extends WebmappAbstractTask {
     	$urls = file($this->getPathList(),FILE_IGNORE_NEW_LINES);
         $first = true;
     	foreach($urls as $url) {
-            echo "Processing URL: $url\n";
+            //echo "Processing URL: $url\n";
 
             // NODE https://www.openstreetmap.org/node/353049774
             // WAY https://www.openstreetmap.org/way/284449666
@@ -57,8 +57,8 @@ class WebmappOSMListTask extends WebmappAbstractTask {
 
             $cmd = "osm2pgsql $option -d gis -H localhost -U webmapp $file_osm --style /var/www/mappalo-server/openstreetmap-carto.style"; 
             // TODO: passare ad un sistema di LOG
-            echo "$cmd \n";
-            system($cmd);
+            //echo "$cmd \n";
+            //system($cmd);
 
   			// TODO: ogr2ogr per la creazione dei file geojson
 

@@ -19,9 +19,7 @@
 
             $this->code = $this->options['code'];
             $this->id = $this->options['id'];
-
-    		// TODO: controllo della risposta delle API http://$code.be.webmapp.it/XXX
-
+            
             return TRUE;
         }
 
