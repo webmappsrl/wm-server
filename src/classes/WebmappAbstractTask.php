@@ -8,12 +8,12 @@ abstract class WebmappAbstractTask {
 	protected $options;
 
 	// Root dir del progetto
-	protected $root;
+	protected $project_structure;
 
-	public function __construct ($name,$options,$root) {
+	public function __construct ($name,$options,$project_structure) {
 		$this->name = $name;
 		$this->options = $options;
-		$this->root = rtrim($root, '/');
+		$this->project_structure = $project_structure;
 	}
 	
 	// getters

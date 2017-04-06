@@ -60,7 +60,7 @@ class WebmappProjectStructure {
 			
 		// TODO: Interpretazione dei TASKS e verifica dei singoli
 		foreach ($json['tasks'] as $name => $options ) {
-			$t = WebmappTaskFactory::Task($name,$options,$this->root);
+			$t = WebmappTaskFactory::Task($name,$options,$this);
 			if(!$t->check()) return FALSE;
 			array_push($this->tasks, $t);
 		}

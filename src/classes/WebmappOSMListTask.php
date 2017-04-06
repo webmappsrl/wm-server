@@ -17,7 +17,8 @@ class WebmappOSMListTask extends WebmappAbstractTask {
 	}
 
 	public function getPathList() {
-		return $this->root.'/'.ltrim($this->options['list'], '/');
+        $root = $this->project_structure->getRoot();
+		return $root . '/' . ltrim($this->options['list'], '/');
 	}
 
     public function process(){
