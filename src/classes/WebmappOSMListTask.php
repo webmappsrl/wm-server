@@ -26,7 +26,8 @@ class WebmappOSMListTask extends WebmappAbstractTask {
         // TODO: passare ad un sistema di LOG
         echo "Processing task: {$this->getName()}\n\n";
 
-    	$path_osm = $this->root.'/server/osm';
+        $root = $this->project_structure->getRoot();
+    	$path_osm = $root.'/server/osm';
     	if(!file_exists($path_osm)) mkdir ($path_osm);
     	$urls = file($this->getPathList(),FILE_IGNORE_NEW_LINES);
         $first = true;
