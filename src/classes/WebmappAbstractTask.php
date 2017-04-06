@@ -13,6 +13,9 @@ abstract class WebmappAbstractTask {
 	public function __construct ($name,$options,$project_structure) {
 		$this->name = $name;
 		$this->options = $options;
+		if (gettype($project_structure) != 'object' || get_class($project_structure) != 'WebmappProjectStructure') {
+			throw new Exception("Wrong type of parameter project_structure", 1);		
+		}
 		$this->project_structure = $project_structure;
 	}
 	
