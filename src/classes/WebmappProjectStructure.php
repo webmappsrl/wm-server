@@ -18,27 +18,51 @@ class WebmappProjectStructure {
 	private $path_client;
 	private $path_client_index;
 	private $path_client_conf;
+
+	private $path_base;
+	private $url_base;
+
+	private $url_geojson;
+	// CLIENT
+	private $url_client;
+	private $url_client_index;
+	private $url_client_conf;
 	// Percorso del file di configurazione del server
 	private $conf;
 	// Array dei tasks del progetto
 	private $tasks = array();
 
 	// Costruttore
-	public function __construct($root) {
+	public function __construct($root,$path_base='/root/api.webmapp.it',$url_base='http://api.webmapp.it') {
+
 		$this->root = rtrim($root, '/');
+		$this->path_base=$path_base;
+		$this->url_base=$url_base;
 		$this->path_geojson = $this->root.'/geojson';
 		$this->path_client = $this->root.'/client';
 		$this->path_client_index = $this->root.'/client/index.html';
 		$this->path_client_conf = $this->root.'/client/conf.js';
 		$this->conf = $this->root.'/server/project.conf';
+
+		$this->url_geojson = $this->url_base.'/geojson';
+		$this->url_client = $this->url_base.'/client';
+		$this->url_client_index = $this->url_base.'/client/index.html';
+		$this->url_client_conf = $this->url_base.'/client/conf.js';
+
 	}
 
 	// Getters
 	public function getRoot() { return $this->root;}
+	public function getPathBase() { return $this->path_base;}
+	public function getUrlBase() { return $this->url_base;}
 	public function getPathGeojson() { return $this->path_geojson;}
 	public function getPathClient() { return $this->path_client;}
 	public function getPathClientIndex() { return $this->path_client_index;}
 	public function getPathClientConf() { return $this->path_client_conf;}
+	public function getURLGeojson() { return $this->url_geojson;}
+	public function getURLClient() { return $this->url_client;}
+	public function getURLClientIndex() { return $this->url_client_index;}
+	public function getURLClientConf() { return $this->url_client_conf;}
 	public function getConf() { return $this->conf;}
 	public function getTasks() { return $this->tasks; }
 	// fine getters
