@@ -5,15 +5,20 @@ class WebmappProjectStructureTest extends TestCase
 {
 
     private $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
+    private $path_base = __DIR__.'/../data/api.webmapp.it';
 
     public function testCheck() {
-        $p = new WebmappProjectStructure($this->root);
+        $p = new WebmappProjectStructure($this->root,$this->path_base);
         $this->assertTrue($p->check());
         $this->assertEquals($this->root,$p->getRoot());
         $this->assertEquals($this->root.'/geojson',$p->getPathGeojson());
         $this->assertEquals($this->root.'/client',$p->getPathClient());
         $this->assertEquals($this->root.'/client/index.html',$p->getPathClientIndex());
         $this->assertEquals($this->root.'/client/conf.js',$p->getPathClientConf());
+        $this->assertEquals($this->path_base,$p->getPathBase());
+        //$this->assertEquals('http://api.webmapp.it',$p->getURLBase());
+        //$this->assertEquals('http://api.webmapp.it/',$p->getURL());
+
 
     }
 
