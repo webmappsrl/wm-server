@@ -9,6 +9,7 @@ class WebmappMap {
     private $type;
     private $title;
     private $bb;
+    private $pois_layers=array();
 
     public function __construct($map,$structure) {
       $this->map = $map;
@@ -21,11 +22,16 @@ class WebmappMap {
     }
       $this->title = $this->map['title']['rendered'];
       $this->bb = $this->map['n7webmap_map_bbox'];
+
     } 
 
     public function getType() { return $this->type;}
     public function getTitle() { return $this->title;}
     public function getBB() { return $this->bb;}
+
+    public function addPoisLayer($layer){
+        array_push($this->pois_layers, $layer);
+    }
 
     public function writeConf() {
         $conf = $this->getConf();
@@ -38,6 +44,36 @@ class WebmappMap {
     }
 
     public function getConf() {
+
+// Gestione degli ovlerlay_layers
+// Prima i POI:
+    $pois_string = '';
+    if (count($this->pois_layers)):
+        $first = true;
+        foreach ($this->pois_layers as $layer) {
+            $label=$layer['label'];
+            $icon=$layer['icon'];
+            $geojsonUrl=$layer['geojsonUrl'];
+            $showByDefault = 'true';
+            if(isset($layer['showByDefault']) && $layer['showByDefault']===false) {
+                $showByDefault = 'false';
+            } 
+            $out = <<<EOS
+
+        {
+            label: '$label',
+            type: 'poi_geojson',
+            icon: '$icon',
+            geojsonUrl: '$geojsonUrl',
+            showByDefault: $showByDefault
+        }
+EOS;
+    if(!$first) $out = ','.$out;
+    $first = false;
+    $pois_string = $pois_string.$out;
+        }
+    endif;
+    $overlay_layers = "OVERLAY_LAYERS: [$pois_string]";
 
 $conf = <<<EOS
 
@@ -142,53 +178,6 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
 
     TRACKING: {
         active: false,
-        appId: 'Webmapp@0.1',
-        sync: true,
-        syncUrl: 'https://data.netseven.it/map/track',
-        syncIntervalInMinutes: 30,
-        maxBatchItems: 50,
-        backgroundFetch: true,
-        logging: false,
-        config: {
-            // Geolocation config
-            desiredAccuracy: 0,
-            // stationaryRadius: 25,
-            distanceFilter: 50,
-            // disableElasticity: false, // <-- [iOS] Default is 'false'.  Set true to disable speed-based distanceFilter elasticity
-            locationUpdateInterval: 180000, // milliseconds
-            // fastestLocationUpdateInterval: 5000,
-            // minimumActivityRecognitionConfidence: 80, // 0-100%.  Minimum activity-confidence for a state-change
-            // activityRecognitionInterval: 10000,
-            // stopDetectionDelay: 1, // [iOS] delay x minutes before entering stop-detection mode
-            // stopTimeout: 2, // Stop-detection timeout minutes (wait x minutes to turn off tracking)
-            // activityType: 'AutomotiveNavigation',
-            // locationTimeout: 30,
-            foregroundService: false, // <-- [Android] Running as a foreground-service makes the tracking-service much more inmmune to OS killing it due to memory/battery pressure
-
-            // Application config
-            debug: false, // <-- enable this hear sounds for background-geolocation life-cycle.
-            // forceReloadOnLocationChange: false, // <-- [Android] If the user closes the app **while locatwm-icon-tracking is started** , reboot app when a new location is recorded (WARNING: possibly distruptive to user)
-            // forceReloadOnMotionChange: false, // <-- [Android] If the user closes the app **while locatwm-icon-tracking is started** , reboot app when device changes stationary-state (stationary->moving or vice-versa) --WARNING: possibly distruptive to user)
-            // forceReloadOnGeofence: false, // <-- [Android] If the user closes the app **while locatwm-icon-tracking is started** , reboot app when a geofence crossing occurs --WARNING: possibly distruptive to user)
-            stopOnTerminate: false, // <-- Don't stop tracking when user closes app.
-            startOnBoot: true, // <-- [Android] Auto start background-service in headless mode when device is powered-up.
-
-            // HTTP / SQLite config
-            // url: 'http://posttestserver.com/post.php?dir=cordova-background-geolocation',
-            // method: 'POST',
-            batchSync: true, // <-- [Default: false] Set true to sync locations to server in a single HTTP request.
-            autoSync: false, // <-- [Default: true] Set true to sync each location to server as it arrives.
-            maxDaysToPersist: 365, // <-- Maximum days to persist a location in plugin's SQLite database when HTTP fails
-            // headers: {
-            //     'X-FOO': 'bar'
-            // },
-            // params: {
-            //     'auth_token': 'maybe_your_server_authenticates_via_token_YES?'
-            // },
-            // locationAuthorizationRequest: 'WhenInUse', // <-- [iOS] Always, WhenInUse
-            preventSuspend: false,
-            heartbeatInterval: 2700 // seconds
-        }
     },
 
     MAP: {
@@ -236,19 +225,7 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
     },
 
     // Loop sui layers (da prendere nelle tracce)
-    OVERLAY_LAYERS: [ {
-            label: 'Tracks',
-            type: 'line_geojson',
-            icon: 'wm-icon-trail',
-            geojsonUrl: 'XXX',
-            showByDefault: true
-        }, {
-            label: 'POI',
-            type: 'poi_geojson',
-            geojsonUrl: 'XXX',
-            color: '#FF3812'
-        }
-    ],
+    $overlay_layers ,
 
     PAGES: [],
 

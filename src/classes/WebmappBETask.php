@@ -95,24 +95,15 @@
             $parents[]=$layer['parent'];
         }
         $parents=array_unique($parents);
-        $leaves=array();
+        $map_pois = array();
         foreach ($layers as $layer) {
             if(!in_array($layer['id'],$parents)){
                 $pois = $this->loadAPI($this->getAPI('wp','poi?webmapp_category='.$layer['id']));
-                //$routes = $this->loadAPI($this->getAPI('wp','route?webmapp_category='.$layer['id']));
-                //$tracks = $this->loadAPI($this->getAPI('wp','track?webmapp_category='.$layer['id']));
-                //$tot = count($pois) + count($routes) + count($tracks);
-                $tot = count($pois) ;
-                if($tot>0){
-                    if(count($pois)>0) {
-                        $layer['pois']=$this->convertPoisToGeoJSON($pois);
-                        $geojson_path = $this->project_structure->getPathGeojson();
-                        $path =  $geojson_path . '/pois_'.$layer['id'].'.geojson';
-                        file_put_contents($path, json_encode($layer['pois']));                       
-                    }
-                    //if(count($routes)>0) $layer['routes']=$routes;
-                    //if(count($tracks)>0) $layer['tracks']=$tracks;
-                    array_push($leaves, $layer);
+                if(count($pois)>0){
+                    $layer['pois']=$this->convertPoisToGeoJSON($pois);
+                    $geojson_path = $this->project_structure->getPathGeojson();
+                    $path =  $geojson_path . '/pois_'.$layer['id'].'.geojson';
+                    file_put_contents($path, json_encode($layer['pois']));                       
                 }
             }
         }

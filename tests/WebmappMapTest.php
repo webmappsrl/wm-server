@@ -9,13 +9,19 @@ class WebmappMapTest extends TestCase
 
     public function __construct() {
         $this->map = constructMap();
+
         $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
         $path_base = __DIR__.'/../data/api.webmapp.it';
         $this-> project_structure = new WebmappProjectStructure($root,$path_base);;
     }
 
     public function testOk() {
-       $m = new WebmappMap($this->map,$this->project_structure);
+    $m = new WebmappMap($this->map,$this->project_structure);
+    $pois = array('label'=>'POI-1','icon'=>'wm-icon-trail-1','geojsonUrl'=>'https://api/layer-1.geojson','showByDefault'=>true);
+    $m->addPoisLayer($pois);
+    $pois = array('label'=>'POI-2','icon'=>'wm-icon-trail-2','geojsonUrl'=>'https://api/layer-2.geojson','showByDefault'=>false);
+    $m->addPoisLayer($pois);
+
     $this->assertEquals('all',$m->getType());
     $this->assertEquals('TEST ALL',$m->getTitle());
     $this->assertRegExp('/maxZoom: 18/',$m->getBB());
@@ -25,9 +31,18 @@ class WebmappMapTest extends TestCase
     // File di configurazione
     $conf = $m->getConf();
     $this->assertRegExp("/title: 'TEST ALL'/",$conf);
-    $this->assertRegExp('/maxZoom: 18/',$m->getBB());
-    $this->assertRegExp('/minZoom: 7/',$m->getBB());
-    $this->assertRegExp('/defZoom: 9/',$m->getBB());
+    $this->assertRegExp('/maxZoom: 18/',$conf);
+    $this->assertRegExp('/minZoom: 7/',$conf);
+    $this->assertRegExp('/defZoom: 9/',$conf);
+    $this->assertRegExp("/label: 'POI-1'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-trail-1',/",$conf);
+    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
+    $this->assertRegExp("/showByDefault: true/",$conf);
+    $this->assertRegExp("/label: 'POI-2'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-trail-2',/",$conf);
+    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
+    $this->assertRegExp("/showByDefault: false/",$conf);
+
 
     $conf_path = $this->project_structure->getPathClientConf();
     $cmd = 'rm -f '.$conf_path;
@@ -41,6 +56,14 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp('/maxZoom: 18/',$conf);
     $this->assertRegExp('/minZoom: 7/',$conf);
     $this->assertRegExp('/defZoom: 9/',$conf);
+    $this->assertRegExp("/label: 'POI-1'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-trail-1',/",$conf);
+    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
+    $this->assertRegExp("/showByDefault: true/",$conf);
+    $this->assertRegExp("/label: 'POI-2'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-trail-2',/",$conf);
+    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
+    $this->assertRegExp("/showByDefault: false/",$conf);
 
     // Index del client
     $index = $m->getIndex();

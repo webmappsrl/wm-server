@@ -108,8 +108,4 @@ class WebmappProjectStructure {
 
 		return TRUE;
 	}
-
-
-
-
 }
