@@ -13,7 +13,12 @@ class WebmappMap {
     public function __construct($map,$structure) {
       $this->map = $map;
       $this->structure = $structure;
-      $this->type = $this->map['n7webmap_type'];
+      if(isset($this->map['n7webmap_type'])){
+        $this->type = $this->map['n7webmap_type'];
+    }
+    else {
+        throw new Exception("Parametro n7webmap mancante", 1);
+    }
       $this->title = $this->map['title']['rendered'];
       $this->bb = $this->map['n7webmap_map_bbox'];
     } 

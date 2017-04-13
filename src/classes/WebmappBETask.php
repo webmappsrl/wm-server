@@ -7,6 +7,9 @@
         // ID della mappa
         private $id;
 
+        // Oggetto WebmappMap
+        private $map;
+
         public function check() {
 
             // Controllo parametro code http://[code].be.webmapp.it
@@ -56,6 +59,7 @@
 
         	// Scarica le mappe da elaborare
        $map=$this->loadAPI($this->getMapAPI());
+       $this->map = new WebmappMap($map,$this->project_structure);
 
        if(!array_key_exists('id', $map)){
         throw new Exception("Errore nel caricamento della mappa con API ".$this->getMapAPI().". Il parametro ID non è presente nella risposta della API." , 1);
@@ -79,6 +83,7 @@
 
         break;
     }
+
 
     }
 
@@ -112,6 +117,9 @@
             }
         }
 
+        // TODO: spostare la scrittura nella process generale
+        $this->map->writeConf();
+        $this->map->writeIndex();
         return TRUE;
     }
 
