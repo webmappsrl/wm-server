@@ -43,6 +43,11 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp('/minZoom: 7/',$conf);
     $this->assertRegExp('/defZoom: 9/',$conf);
 
+    // Controllo della creazione del file pathclientindex
+    $index = $m->getIndex();
+    $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
+    $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
+
     }
 
 }
