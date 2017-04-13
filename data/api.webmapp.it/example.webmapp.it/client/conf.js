@@ -1,41 +1,9 @@
-<?php
-
-// Gestione di una mappa (creazione file index, file di configurazione)
-
-class WebmappMap {
-
-	private $map;
-    private $structure;
-    private $type;
-    private $title;
-    private $bb;
-
-    public function __construct($map,$structure) {
-      $this->map = $map;
-      $this->structure = $structure;
-      $this->type = $this->map['n7webmap_type'];
-      $this->title = $this->map['title']['rendered'];
-      $this->bb = $this->map['n7webmap_map_bbox'];
-    } 
-
-    public function getType() { return $this->type;}
-    public function getTitle() { return $this->title;}
-    public function getBB() { return $this->bb;}
-
-    public function writeConf() {
-        $conf = $this->getConf();
-        file_put_contents($this->structure->getPathClientConf(), $conf);
-    }
-
-    public function getConf() {
-
-$conf = <<<EOS
 
 angular.module('webmapp').constant('GENERAL_CONFIG', {
     VERSION: '0.4', // TODO: add clear localStorage if VERSION !==
 
     OPTIONS: {
-        title: '$this->title',
+        title: 'TEST ALL',
         startUrl: '/',
         useLocalStorageCaching: false,
         advancedDebug: false,
@@ -182,7 +150,25 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
     },
 
     MAP: {
-         $this->bb
+         {
+    maxZoom: 18,
+    minZoom: 7,
+    defZoom: 9,
+    center: {
+        lat: 43.719287828277004,
+        lng: 10.39685368537899
+    },
+    bounds: {
+        southWest: [
+            43.34116005412307,
+            9.385070800781252
+        ],
+        northEast: [
+            44.09547572946637,
+            11.4093017578125
+        ]
+    }
+}
          ,  markerClustersOptions: {
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
@@ -244,10 +230,3 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
 
 });
 
-
-EOS;
-return $conf;
-
-    }
-
-}

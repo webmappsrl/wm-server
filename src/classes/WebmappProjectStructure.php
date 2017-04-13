@@ -49,6 +49,11 @@ class WebmappProjectStructure {
 		$this->url_client_index = $this->url_base.'/client/index.html';
 		$this->url_client_conf = $this->url_base.'/client/conf.js';
 
+		// TODO: controllare esistenza del root path. Se non esiste crearlo. Se non lo fa creare eccezione
+
+		// TODO: controllare esistenza delle directory obbligatorie per il funzionamento del servr
+		// Stesso controllo e azione del precedente
+
 	}
 
 	// Getters

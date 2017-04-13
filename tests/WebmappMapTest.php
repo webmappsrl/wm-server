@@ -17,6 +17,32 @@ class WebmappMapTest extends TestCase
     public function testOk() {
        $m = new WebmappMap($this->map,$this->project_structure);
     $this->assertEquals('all',$m->getType());
+    $this->assertEquals('TEST ALL',$m->getTitle());
+    $this->assertRegExp('/maxZoom: 18/',$m->getBB());
+    $this->assertRegExp('/minZoom: 7/',$m->getBB());
+    $this->assertRegExp('/defZoom: 9/',$m->getBB());
+
+    $conf = $m->getConf();
+
+    $this->assertRegExp("/title: 'TEST ALL'/",$conf);
+    $this->assertRegExp('/maxZoom: 18/',$m->getBB());
+    $this->assertRegExp('/minZoom: 7/',$m->getBB());
+    $this->assertRegExp('/defZoom: 9/',$m->getBB());
+
+    // Verifica della scrittura del file conf.js
+    $conf_path = $this->project_structure->getPathClientConf();
+    $cmd = 'rm -f '.$conf_path;
+    system($cmd);
+
+    $m->writeConf();
+    $this->assertTrue(file_exists($conf_path));
+
+    $conf = file_get_contents($conf_path);
+    $this->assertRegExp("/title: 'TEST ALL'/",$conf);
+    $this->assertRegExp('/maxZoom: 18/',$conf);
+    $this->assertRegExp('/minZoom: 7/',$conf);
+    $this->assertRegExp('/defZoom: 9/',$conf);
+
     }
 
 }
