@@ -27,6 +27,11 @@ class WebmappMap {
         file_put_contents($this->structure->getPathClientConf(), $conf);
     }
 
+    public function writeIndex() {
+        $conf = $this->getIndex();
+        file_put_contents($this->structure->getPathClientIndex(), $conf);
+    }
+
     public function getConf() {
 
 $conf = <<<EOS

@@ -22,14 +22,13 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp('/minZoom: 7/',$m->getBB());
     $this->assertRegExp('/defZoom: 9/',$m->getBB());
 
+    // File di configurazione
     $conf = $m->getConf();
-
     $this->assertRegExp("/title: 'TEST ALL'/",$conf);
     $this->assertRegExp('/maxZoom: 18/',$m->getBB());
     $this->assertRegExp('/minZoom: 7/',$m->getBB());
     $this->assertRegExp('/defZoom: 9/',$m->getBB());
 
-    // Verifica della scrittura del file conf.js
     $conf_path = $this->project_structure->getPathClientConf();
     $cmd = 'rm -f '.$conf_path;
     system($cmd);
@@ -43,8 +42,19 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp('/minZoom: 7/',$conf);
     $this->assertRegExp('/defZoom: 9/',$conf);
 
-    // Controllo della creazione del file pathclientindex
+    // Index del client
     $index = $m->getIndex();
+    $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
+    $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
+
+    $conf_index = $this->project_structure->getPathClientIndex();
+    $cmd = 'rm -f '.$conf_index;
+    system($cmd);
+
+    $m->writeIndex();
+    $this->assertTrue(file_exists($conf_index));
+
+    $index = file_get_contents($conf_index);
     $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
     $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
 
