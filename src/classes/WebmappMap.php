@@ -29,7 +29,14 @@ class WebmappMap {
     public function getTitle() { return $this->title;}
     public function getBB() { return $this->bb;}
 
-    public function addPoisLayer($layer){
+    public function addPoisLayer($url,$label,$color='#FF3812',$icon='wm-icon-generic-1',$showByDefault=true){
+        $layer = array (
+            'geojsonUrl' => $url,
+            'label' => $label,
+            'color' => $color,
+            'icon' => $icon,
+            'showByDefault' => $showByDefault
+            );
         array_push($this->pois_layers, $layer);
     }
 
@@ -53,6 +60,7 @@ class WebmappMap {
         foreach ($this->pois_layers as $layer) {
             $label=$layer['label'];
             $icon=$layer['icon'];
+            $color=$layer['color'];
             $geojsonUrl=$layer['geojsonUrl'];
             $showByDefault = 'true';
             if(isset($layer['showByDefault']) && $layer['showByDefault']===false) {
@@ -63,6 +71,7 @@ class WebmappMap {
         {
             label: '$label',
             type: 'poi_geojson',
+            color: '$color',
             icon: '$icon',
             geojsonUrl: '$geojsonUrl',
             showByDefault: $showByDefault

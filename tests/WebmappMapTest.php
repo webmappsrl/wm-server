@@ -17,10 +17,8 @@ class WebmappMapTest extends TestCase
 
     public function testOk() {
     $m = new WebmappMap($this->map,$this->project_structure);
-    $pois = array('label'=>'POI-1','icon'=>'wm-icon-trail-1','geojsonUrl'=>'https://api/layer-1.geojson','showByDefault'=>true);
-    $m->addPoisLayer($pois);
-    $pois = array('label'=>'POI-2','icon'=>'wm-icon-trail-2','geojsonUrl'=>'https://api/layer-2.geojson','showByDefault'=>false);
-    $m->addPoisLayer($pois);
+    $m->addPoisLayer('https://api/layer-1.geojson','POI-1','#FF3812','wm-icon-generic-1',true);
+    $m->addPoisLayer('https://api/layer-2.geojson','POI-2','#FF3813','wm-icon-generic-2',false);
 
     $this->assertEquals('all',$m->getType());
     $this->assertEquals('TEST ALL',$m->getTitle());
@@ -35,11 +33,13 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp('/minZoom: 7/',$conf);
     $this->assertRegExp('/defZoom: 9/',$conf);
     $this->assertRegExp("/label: 'POI-1'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-trail-1',/",$conf);
+    $this->assertRegExp("/color: '#FF3812'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-generic-1',/",$conf);
     $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
     $this->assertRegExp("/showByDefault: true/",$conf);
     $this->assertRegExp("/label: 'POI-2'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-trail-2',/",$conf);
+    $this->assertRegExp("/color: '#FF3813'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-generic-2',/",$conf);
     $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
     $this->assertRegExp("/showByDefault: false/",$conf);
 
@@ -57,11 +57,13 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp('/minZoom: 7/',$conf);
     $this->assertRegExp('/defZoom: 9/',$conf);
     $this->assertRegExp("/label: 'POI-1'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-trail-1',/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-generic-1',/",$conf);
+    $this->assertRegExp("/color: '#FF3812'/",$conf);
     $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
     $this->assertRegExp("/showByDefault: true/",$conf);
     $this->assertRegExp("/label: 'POI-2'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-trail-2',/",$conf);
+    $this->assertRegExp("/color: '#FF3813'/",$conf);
+    $this->assertRegExp("/icon: 'wm-icon-generic-2',/",$conf);
     $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
     $this->assertRegExp("/showByDefault: false/",$conf);
 
