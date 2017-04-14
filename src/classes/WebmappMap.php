@@ -29,7 +29,7 @@ class WebmappMap {
     public function getTitle() { return $this->title;}
     public function getBB() { return $this->bb;}
 
-    public function addPoisLayer($url,$label,$color='#FF3812',$icon='wm-icon-generic-1',$showByDefault=true){
+    public function addPoisLayer($url,$label,$color='#FF3812',$icon='wm-icon-generic',$showByDefault=true){
         $layer = array (
             'geojsonUrl' => $url,
             'label' => $label,

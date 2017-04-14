@@ -49,6 +49,13 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/maxZoom: 18/',$conf);
         $this->assertRegExp('/minZoom: 7/',$conf);
         $this->assertRegExp('/defZoom: 9/',$conf);
+        $this->assertRegExp("/label: 'Bar'/",$conf);
+        $this->assertRegExp("/color: '#FF3812'/",$conf);
+        $this->assertRegExp("/icon: 'wm-icon-generic',/",$conf);
+        // TODO: $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
+        $this->assertRegExp("/showByDefault: true/",$conf);
+        $this->assertRegExp("/label: 'Ristoranti'/",$conf);
+
         $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
         $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
     }

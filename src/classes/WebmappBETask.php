@@ -103,7 +103,9 @@
                     $layer['pois']=$this->convertPoisToGeoJSON($pois);
                     $geojson_path = $this->project_structure->getPathGeojson();
                     $path =  $geojson_path . '/pois_'.$layer['id'].'.geojson';
-                    file_put_contents($path, json_encode($layer['pois']));                      
+                    file_put_contents($path, json_encode($layer['pois']));
+                    $url = $this->project_structure->getUrlGeojson() . '/pois_'.$layer['id'].'.geojson';
+                    $this->map->addPoisLayer($url,$layer['name']);                    
                 }
             }
         }
