@@ -14,12 +14,12 @@ class WebmappProjectStructureTest extends TestCase
         $this->assertEquals($this->root.'/geojson',$p->getPathGeojson());
         $this->assertEquals($this->root.'/client',$p->getPathClient());
         $this->assertEquals($this->root.'/client/index.html',$p->getPathClientIndex());
-        $this->assertEquals($this->root.'/client/conf.js',$p->getPathClientConf());
+        $this->assertEquals($this->root.'/client/config.js',$p->getPathClientConf());
         $this->assertEquals($this->path_base,$p->getPathBase());
         $this->assertEquals('http://api.webmapp.it',$p->getURLBase());
         $this->assertEquals('http://api.webmapp.it/example.webmapp.it/geojson',$p->getURLGeojson());
         $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client',$p->getURLClient());
-        $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client/conf.js',$p->getURLClientConf());
+        $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client/config.js',$p->getURLClientConf());
         $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client/index.html',$p->getURLClientIndex());
 
 
