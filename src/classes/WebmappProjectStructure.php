@@ -33,23 +33,26 @@ class WebmappProjectStructure {
 	private $tasks = array();
 
 	// Costruttore
-	public function __construct($root,$path_base='/root/api.webmapp.it',$url_base='http://api.webmapp.it') {
+	public function __construct($root,$path_base='/root/api.webmapp.it',$url_base='') {
 
 		$this->root = rtrim($root, '/');
 		$this->path_base=$path_base;
-		$this->url_base=$url_base;
 		$this->path_geojson = $this->root.'/geojson';
 		$this->path_client = $this->root.'/client';
 		$this->path_client_index = $this->root.'/client/index.html';
 		$this->path_client_conf = $this->root.'/client/config.js';
 		$this->conf = $this->root.'/server/project.conf';
 
-		$url = preg_replace("|$path_base|", '', $root);
-
-		$this->url_geojson = $this->url_base.$url.'/geojson';
-		$this->url_client = $this->url_base.$url.'/client';
-		$this->url_client_index = $this->url_base.$url.'/client/index.html';
-		$this->url_client_conf = $this->url_base.$url.'/client/config.js';
+		$this->url_base=$url_base;
+		if($this->url_base=='') {
+			$this->url_base = 'http://'.basename($this->root);
+		}
+		// La directory client deve avere un link simbolico del tipo geojson -> ../geojson
+		
+		$this->url_geojson = $this->url_base.'/geojson';
+		$this->url_client = $this->url_base;
+		$this->url_client_index = $this->url_base.'/index.html';
+		$this->url_client_conf = $this->url_base.'/config.js';
 
 		// TODO: controllare esistenza del root path. Se non esiste crearlo. Se non lo fa creare eccezione
 

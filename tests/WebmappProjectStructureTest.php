@@ -16,11 +16,11 @@ class WebmappProjectStructureTest extends TestCase
         $this->assertEquals($this->root.'/client/index.html',$p->getPathClientIndex());
         $this->assertEquals($this->root.'/client/config.js',$p->getPathClientConf());
         $this->assertEquals($this->path_base,$p->getPathBase());
-        $this->assertEquals('http://api.webmapp.it',$p->getURLBase());
-        $this->assertEquals('http://api.webmapp.it/example.webmapp.it/geojson',$p->getURLGeojson());
-        $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client',$p->getURLClient());
-        $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client/config.js',$p->getURLClientConf());
-        $this->assertEquals('http://api.webmapp.it/example.webmapp.it/client/index.html',$p->getURLClientIndex());
+        $this->assertEquals('http://example.webmapp.it',$p->getURLBase());
+        $this->assertEquals('http://example.webmapp.it/geojson',$p->getURLGeojson());
+        $this->assertEquals('http://example.webmapp.it',$p->getURLClient());
+        $this->assertEquals('http://example.webmapp.it/config.js',$p->getURLClientConf());
+        $this->assertEquals('http://example.webmapp.it/index.html',$p->getURLClientIndex());
 
 
     }

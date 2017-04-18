@@ -247,7 +247,7 @@ return $conf;
     }
 
     public function getIndex() {
-        $url=$this->structure->getURLClientIndex();
+        $url=$this->structure->getURLClient().'/';
 $index = <<<EOS
 
 <!DOCTYPE html>

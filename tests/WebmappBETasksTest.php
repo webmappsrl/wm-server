@@ -56,7 +56,7 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp("/showByDefault: true/",$conf);
         $this->assertRegExp("/label: 'Ristoranti'/",$conf);
 
-        $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
+        $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
         $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
     }
 

@@ -69,7 +69,7 @@ class WebmappMapTest extends TestCase
 
     // Index del client
     $index = $m->getIndex();
-    $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
+    $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
     $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
 
     $conf_index = $this->project_structure->getPathClientIndex();
@@ -80,7 +80,7 @@ class WebmappMapTest extends TestCase
     $this->assertTrue(file_exists($conf_index));
 
     $index = file_get_contents($conf_index);
-    $this->assertRegExp('|<base href="http://api.webmapp.it/example.webmapp.it/client/index.html"></base>|',$index);
+    $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
     $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
 
     }
