@@ -98,7 +98,8 @@
         $map_pois = array();
         foreach ($layers as $layer) {
             if(!in_array($layer['id'],$parents)){
-                $pois = $this->loadAPI($this->getAPI('wp','poi?webmapp_category='.$layer['id']));
+                // TODO: gestire la chiamata con un numero di elementi dinamico (<=100) e la paginazione
+                $pois = $this->loadAPI($this->getAPI('wp','poi?webmapp_category='.$layer['id'].'&per_page=100'));
                 if(count($pois)>0){
                     $layer['pois']=$this->convertPoisToGeoJSON($pois);
                     $geojson_path = $this->project_structure->getPathGeojson();
