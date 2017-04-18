@@ -9,6 +9,7 @@ class WebmappMap {
     private $type;
     private $title;
     private $bb;
+    private $tilesUrl;
     private $pois_layers=array();
 
     public function __construct($map,$structure) {
@@ -22,12 +23,14 @@ class WebmappMap {
     }
       $this->title = $this->map['title']['rendered'];
       $this->bb = $this->map['n7webmap_map_bbox'];
+      $this->tilesUrl = $this->map['tiles'];
 
     } 
 
     public function getType() { return $this->type;}
     public function getTitle() { return $this->title;}
     public function getBB() { return $this->bb;}
+    public function getTilesURL() { return $this->tilesUrl;}
 
     public function addPoisLayer($url,$label,$color='#FF3812',$icon='wm-icon-generic',$showByDefault=true){
         $layer = array (
@@ -206,7 +209,7 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
             label: 'Mappa',
             type: 'maptile',
             // TODO: mettere OSM
-            tilesUrl: 'http://{s}.tile.osm.org/',
+            tilesUrl: '$this->tilesUrl',
             default: true
         }, {
             label: 'Satellite',

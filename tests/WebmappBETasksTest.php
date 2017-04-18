@@ -55,6 +55,8 @@ class WebmappBETasksTests extends TestCase
         // TODO: $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
         $this->assertRegExp("/showByDefault: true/",$conf);
         $this->assertRegExp("/label: 'Ristoranti'/",$conf);
+        $this->assertRegExp("/tilesUrl: 'https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/'/",$conf);
+
 
         $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
         $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);

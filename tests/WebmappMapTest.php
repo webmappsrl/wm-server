@@ -42,6 +42,7 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp("/icon: 'wm-icon-generic-2',/",$conf);
     $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
     $this->assertRegExp("/showByDefault: false/",$conf);
+    $this->assertRegExp("/tilesUrl: 'https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/'/",$conf);
 
 
     $conf_path = $this->project_structure->getPathClientConf();
@@ -66,6 +67,7 @@ class WebmappMapTest extends TestCase
     $this->assertRegExp("/icon: 'wm-icon-generic-2',/",$conf);
     $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
     $this->assertRegExp("/showByDefault: false/",$conf);
+    $this->assertRegExp("/tilesUrl: 'https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/'/",$conf);
 
     // Index del client
     $index = $m->getIndex();
@@ -89,6 +91,6 @@ class WebmappMapTest extends TestCase
 
 function constructMap() {
 // Preso da API DEV: view-source:http://dev.be.webmapp.it/wp-json/wp/v2/map/408
- $map_string = '{"id":408,"date":"2017-04-05T16:35:23","date_gmt":"2017-04-05T16:35:23","guid":{"rendered":"http:\/\/dev.be.webmapp.it\/?post_type=map&#038;p=408"},"modified":"2017-04-05T16:35:59","modified_gmt":"2017-04-05T16:35:59","slug":"test-all","status":"publish","type":"map","link":"http:\/\/dev.be.webmapp.it\/map\/test-all\/","title":{"rendered":"TEST ALL"},"content":{"rendered":"","protected":false},"excerpt":{"rendered":"","protected":false},"author":2,"featured_media":0,"template":"","webmapp_category":[],"n7webmap_type":"all","net7webmap_map_route":null,"layer_poi":null,"n7webmap_map_bbox":"{\r\n    maxZoom: 18,\r\n    minZoom: 7,\r\n    defZoom: 9,\r\n    center: {\r\n        lat: 43.719287828277004,\r\n        lng: 10.39685368537899\r\n    },\r\n    bounds: {\r\n        southWest: [\r\n            43.34116005412307,\r\n            9.385070800781252\r\n        ],\r\n        northEast: [\r\n            44.09547572946637,\r\n            11.4093017578125\r\n        ]\r\n    }\r\n}","wpml_current_locale":"it_IT","wpml_translations":[],"_links":{"self":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map\/408"}],"collection":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map"}],"about":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/types\/map"}],"author":[{"embeddable":true,"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/users\/2"}],"version-history":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map\/408\/revisions"}],"wp:attachment":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/media?parent=408"}],"wp:term":[{"taxonomy":"webmapp_category","embeddable":true,"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/webmapp_category?post=408"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}}';
- return json_decode($map_string,true);
+$map_string = '{"id":408,"date":"2017-04-05T16:35:23","date_gmt":"2017-04-05T16:35:23","guid":{"rendered":"http:\/\/dev.be.webmapp.it\/?post_type=map&#038;p=408"},"modified":"2017-04-18T14:53:42","modified_gmt":"2017-04-18T14:53:42","slug":"test-all","status":"publish","type":"map","link":"http:\/\/dev.be.webmapp.it\/map\/test-all\/","title":{"rendered":"TEST ALL"},"content":{"rendered":"","protected":false},"excerpt":{"rendered":"","protected":false},"author":2,"featured_media":0,"template":"","webmapp_category":[],"n7webmap_type":"all","net7webmap_map_route":null,"layer_poi":null,"tiles":"https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/","n7webmap_map_bbox":"{\r\n    maxZoom: 18,\r\n    minZoom: 7,\r\n    defZoom: 9,\r\n    center: {\r\n        lat: 43.719287828277004,\r\n        lng: 10.39685368537899\r\n    },\r\n    bounds: {\r\n        southWest: [\r\n            43.34116005412307,\r\n            9.385070800781252\r\n        ],\r\n        northEast: [\r\n            44.09547572946637,\r\n            11.4093017578125\r\n        ]\r\n    }\r\n}","wpml_current_locale":"it_IT","wpml_translations":[],"_links":{"self":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map\/408"}],"collection":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map"}],"about":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/types\/map"}],"author":[{"embeddable":true,"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/users\/2"}],"version-history":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map\/408\/revisions"}],"wp:attachment":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/media?parent=408"}],"wp:term":[{"taxonomy":"webmapp_category","embeddable":true,"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/webmapp_category?post=408"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}}';
+return json_decode($map_string,true);
 }
