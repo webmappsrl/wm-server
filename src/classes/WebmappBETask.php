@@ -139,6 +139,10 @@
         $noDetails = $poi['noDetails'];
         if($noDetails === true) $feature['properties']['noDetails']= true;
 
+        // icon
+        $icon = $poi['icon'];
+        if($icon) $feature['properties']['icon']= $icon;
+
         // color
         $color = $poi['color'];
         if ($color) $feature['properties']['color']= $color;
