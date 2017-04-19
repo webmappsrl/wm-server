@@ -129,6 +129,10 @@
         $feature['properties']['name']=$poi['title']['rendered'];
         $feature['properties']['description']=$poi['content']['rendered'];
 
+        // color
+        $color = $poi['color'];
+        if ($color) $feature['properties']['color']= $color;
+
         // Address
         $addr = $poi['addr:street'];
         if ($addr) $feature['properties']['address']= $addr;
