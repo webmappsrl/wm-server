@@ -43,6 +43,7 @@ class WebmappBETasksTests extends TestCase
         $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/pois_7.geojson'));
         $pois_30 = file_get_contents($this->project_structure->getPathGeojson().'/pois_30.geojson');
         $this->assertRegExp('/0000ff/',$pois_30);
+        $this->assertRegExp('/"noDetails":true/',$pois_30);
 
 
 

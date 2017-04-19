@@ -135,6 +135,10 @@
         $feature['properties']['name']=$poi['title']['rendered'];
         $feature['properties']['description']=$poi['content']['rendered'];
 
+        // no Details
+        $noDetails = $poi['noDetails'];
+        if($noDetails === true) $feature['properties']['noDetails']= true;
+
         // color
         $color = $poi['color'];
         if ($color) $feature['properties']['color']= $color;

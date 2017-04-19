@@ -3,7 +3,7 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
     VERSION: '0.4', // TODO: add clear localStorage if VERSION !==
 
     OPTIONS: {
-        title: 'TEST ALL',
+        title: 'DEV408 &#8211; MMP',
         startUrl: '/',
         useLocalStorageCaching: false,
         advancedDebug: false,
@@ -103,25 +103,17 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
     },
 
     MAP: {
-         {
-    maxZoom: 18,
-    minZoom: 7,
-    defZoom: 9,
-    center: {
-        lat: 43.719287828277004,
-        lng: 10.39685368537899
-    },
-    bounds: {
-        southWest: [
-            43.34116005412307,
-            9.385070800781252
-        ],
-        northEast: [
-            44.09547572946637,
-            11.4093017578125
-        ]
-    }
-}
+                 maxZoom: 16,
+        minZoom: 10,
+        defZoom: 13,
+        center: {
+            lat: 43.7440,
+            lng: 10.5310
+        },
+        bounds: {
+            northEast: [43.56984,10.21466],
+            southWest: [43.87756,10.6855]
+        }
          ,  markerClustersOptions: {
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
@@ -137,7 +129,7 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
             label: 'Mappa',
             type: 'maptile',
             // TODO: mettere OSM
-            tilesUrl: 'http://{s}.tile.osm.org/',
+            tilesUrl: 'https://api.mappalo.org/mappadeimontipisani_new/tiles/map/',
             default: true
         }, {
             label: 'Satellite',
@@ -169,9 +161,9 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
         {
             label: 'Bar',
             type: 'poi_geojson',
-            color: '#FF3812',
+            color: '#00ff00',
             icon: 'wm-icon-generic',
-            geojsonUrl: 'http://api.webmapp.it/Users/piccioli/webapp/webmapp-server/tests/../data/api.webmapp.it/example.webmapp.it/geojson/pois_30.geojson',
+            geojsonUrl: 'http://example.webmapp.it/geojson/pois_30.geojson',
             showByDefault: true
         },
         {
@@ -179,7 +171,7 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
             type: 'poi_geojson',
             color: '#FF3812',
             icon: 'wm-icon-generic',
-            geojsonUrl: 'http://api.webmapp.it/Users/piccioli/webapp/webmapp-server/tests/../data/api.webmapp.it/example.webmapp.it/geojson/pois_7.geojson',
+            geojsonUrl: 'http://example.webmapp.it/geojson/pois_7.geojson',
             showByDefault: true
         }] ,
 
