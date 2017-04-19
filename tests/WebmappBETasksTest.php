@@ -41,10 +41,10 @@ class WebmappBETasksTests extends TestCase
         // File di POIS
         $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/pois_30.geojson'));
         $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/pois_7.geojson'));
+        // 30 BAR: 
         $pois_30 = file_get_contents($this->project_structure->getPathGeojson().'/pois_30.geojson');
         $this->assertRegExp('/0000ff/',$pois_30);
         $this->assertRegExp('/"noDetails":true/',$pois_30);
-
 
 
         // Controllo sui file del client di configurazione e index.html
@@ -59,6 +59,7 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp("/label: 'Bar'/",$conf);
         $this->assertRegExp("/color: '#00ff00'/",$conf);
         $this->assertRegExp("/icon: 'wm-icon-generic',/",$conf);
+        $this->assertRegExp("/icon: 'wm-icon-restaurant',/",$conf);
         // TODO: $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
         $this->assertRegExp("/showByDefault: true/",$conf);
         $this->assertRegExp("/label: 'Ristoranti'/",$conf);

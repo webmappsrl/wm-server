@@ -106,12 +106,12 @@
                     $path =  $geojson_path . '/pois_'.$layer['id'].'.geojson';
                     file_put_contents($path, json_encode($layer['pois']));
                     $url = $this->project_structure->getUrlGeojson() . '/pois_'.$layer['id'].'.geojson';
-                    if(isset($layer['color'])) {
-                        $this->map->addPoisLayer($url,$layer['name'],$layer['color']);  
-                    }
-                    else {
-                        $this->map->addPoisLayer($url,$layer['name']);  
-                    }
+                    $color = '';
+                    $icon = '';
+                    if(isset($layer['color'])) $color = $layer['color'];
+                    if(isset($layer['icon'])) $icon = $layer['icon'];
+                    $this->map->addPoisLayer($url,$layer['name'],$color,$icon);  
+
                                       
                 }
             }

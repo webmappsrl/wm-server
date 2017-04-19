@@ -32,7 +32,12 @@ class WebmappMap {
     public function getBB() { return $this->bb;}
     public function getTilesURL() { return $this->tilesUrl;}
 
-    public function addPoisLayer($url,$label,$color='#FF3812',$icon='wm-icon-generic',$showByDefault=true){
+    public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true) {
+
+        // Manage default values
+        if ($color == '' ) $color = '#FF3812';
+        if ($icon == '' ) $icon = 'wm-icon-generic';
+
         $layer = array (
             'geojsonUrl' => $url,
             'label' => $label,
