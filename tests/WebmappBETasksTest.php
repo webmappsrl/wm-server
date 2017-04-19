@@ -45,10 +45,10 @@ class WebmappBETasksTests extends TestCase
         $this->assertTrue(file_exists($conf_index));
         $conf = file_get_contents($conf_path);
         $index = file_get_contents($conf_index);
-        $this->assertRegExp("/title: 'TEST ALL'/",$conf);
-        $this->assertRegExp('/maxZoom: 18/',$conf);
-        $this->assertRegExp('/minZoom: 7/',$conf);
-        $this->assertRegExp('/defZoom: 9/',$conf);
+        $this->assertRegExp("/title: 'DEV408 &#8211; MMP'/",$conf);
+        $this->assertRegExp('/maxZoom: 16/',$conf);
+        $this->assertRegExp('/minZoom: 10/',$conf);
+        $this->assertRegExp('/defZoom: 13/',$conf);
         $this->assertRegExp("/label: 'Bar'/",$conf);
         $this->assertRegExp("/color: '#FF3812'/",$conf);
         $this->assertRegExp("/icon: 'wm-icon-generic',/",$conf);
@@ -59,7 +59,7 @@ class WebmappBETasksTests extends TestCase
 
 
         $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
-        $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
+        $this->assertRegExp('/<title>DEV408 &#8211; MMP<\/title>/',$index);
     }
 
     public function testGetLayersAPI() {
