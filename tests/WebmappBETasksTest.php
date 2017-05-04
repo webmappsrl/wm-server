@@ -74,7 +74,7 @@ class WebmappBETasksTests extends TestCase
     public function testGetLayersAPI() {
         $t = new WebmappBETask($this->name,$this->options,$this->project_structure);
         $t->check();
-        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category',$t->getLayersAPI());
+        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category?per_page=100',$t->getLayersAPI());
         
     }
 

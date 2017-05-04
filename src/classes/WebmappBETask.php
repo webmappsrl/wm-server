@@ -51,7 +51,7 @@
     }
 
     public function getLayersAPI() {
-        return $this->getAPI('wp','webmapp_category');
+        return $this->getAPI('wp','webmapp_category?per_page=100');
     }
         // END of GETTERS
 
@@ -94,13 +94,15 @@
         foreach ($layers as $layer) {
             $parents[]=$layer['parent'];
         }
+
         $parents=array_unique($parents);
         $map_pois = array();
+
         foreach ($layers as $layer) {
             if(!in_array($layer['id'],$parents)){
                 // TODO: gestire la chiamata con un numero di elementi dinamico (<=100) e la paginazione
                 $pois = $this->loadAPI($this->getAPI('wp','poi?webmapp_category='.$layer['id'].'&per_page=100'));
-                if(count($pois)>0){
+                if(count($pois)>0) {
                     $layer['pois']=$this->convertPoisToGeoJSON($pois);
                     $geojson_path = $this->project_structure->getPathGeojson();
                     $path =  $geojson_path . '/pois_'.$layer['id'].'.geojson';
@@ -110,9 +112,7 @@
                     $icon = '';
                     if(isset($layer['color'])) $color = $layer['color'];
                     if(isset($layer['icon'])) $icon = $layer['icon'];
-                    $this->map->addPoisLayer($url,$layer['name'],$color,$icon);  
-
-                                      
+                    $this->map->addPoisLayer($url,$layer['name'],$color,$icon);
                 }
             }
         }
