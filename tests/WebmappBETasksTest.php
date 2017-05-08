@@ -48,6 +48,18 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"noDetails":true/',$pois_30);
         $this->assertRegExp('/"icon":"wm-icon-mappalo"/',$pois_30);
 
+        // File di Tracks
+        $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/tracks_11.geojson'));
+        $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/tracks_14.geojson'));
+
+        // 11 BIKE: http://dev.be.webmapp.it/wp-json/wp/v2/track?webmapp_category=11
+        $tracks_11 = file_get_contents($this->project_structure->getPathGeojson().'/tracks_11.geojson');
+        $this->assertRegExp('/81d742/',$tracks_11);
+        $this->assertRegExp('/Pisa Tour by Bike/',$tracks_11);
+        $this->assertRegExp('/imageGallery/',$tracks_11);
+        $this->assertRegExp('/Screenshot-2017-03-01-15.06.47.png/',$tracks_11);
+
+
         // Controllo sui file del client di configurazione e index.html
         $this->assertTrue(file_exists($conf_path));
         $this->assertTrue(file_exists($conf_index));
