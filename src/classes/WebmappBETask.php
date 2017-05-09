@@ -206,6 +206,14 @@
             $feature['properties']['imageGallery']=$images;
         }
 
+        if (!is_null($track['ref'])) $feature['properties']['ref']=$track['ref'];
+        if (!is_null($track['ascent'])) $feature['properties']['ascent']=$track['ascent'];
+        if (!is_null($track['descent'])) $feature['properties']['descent']=$track['descent'];
+        if (!is_null($track['distance'])) $feature['properties']['distance']=$track['distance'];
+        if (!is_null($track['duration:forward'])) $feature['properties']['duration:forward']=$track['duration:forward'];
+        if (!is_null($track['duration:backward'])) $feature['properties']['duration:backward']=$track['duration:backward'];
+        if (!is_null($track['cai_scale'])) $feature['properties']['cai_scale']=$track['cai_scale'];
+
         // color
         $color = $track['n7webmapp_track_color'];
         if ($color) $feature['properties']['color']= $color;

@@ -53,11 +53,19 @@ class WebmappBETasksTests extends TestCase
         $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/tracks_14.geojson'));
 
         // 11 BIKE: http://dev.be.webmapp.it/wp-json/wp/v2/track?webmapp_category=11
+        // Tour della cat 11: http://dev.be.webmapp.it/wp-admin/post.php?post=580&action=edit&lang=it
         $tracks_11 = file_get_contents($this->project_structure->getPathGeojson().'/tracks_11.geojson');
         $this->assertRegExp('/81d742/',$tracks_11);
         $this->assertRegExp('/Pisa Tour by Bike/',$tracks_11);
         $this->assertRegExp('/imageGallery/',$tracks_11);
         $this->assertRegExp('/Screenshot-2017-03-01-15.06.47.png/',$tracks_11);
+        $this->assertRegExp('/ref/',$tracks_11);
+        $this->assertRegExp('/descent/',$tracks_11);
+        $this->assertRegExp('/ascent/',$tracks_11);
+        $this->assertRegExp('/duration:forward/',$tracks_11);
+        $this->assertRegExp('/duration:backward/',$tracks_11);
+        $this->assertRegExp('/distance/',$tracks_11);
+        $this->assertRegExp('/cai_scale/',$tracks_11);
 
 
         // Controllo sui file del client di configurazione e index.html
