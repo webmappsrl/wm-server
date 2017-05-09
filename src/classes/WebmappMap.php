@@ -11,6 +11,7 @@ class WebmappMap {
     private $bb;
     private $tilesUrl;
     private $pois_layers=array();
+    private $tracks_layers=array();
 
     public function __construct($map,$structure) {
       $this->map = $map;
@@ -33,6 +34,13 @@ class WebmappMap {
     public function getTilesURL() { return $this->tilesUrl;}
 
     public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true) {
+        $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault);
+    }
+    public function addTracksLayer($url,$label,$color='',$icon='',$showByDefault=true) {
+        $this->addLayer('tracks',$url,$label,$color,$icon,$showByDefault);
+    }
+
+    public function addLayer($type,$url,$label,$color='',$icon='',$showByDefault=true) {
 
         // Manage default values
         if ($color == '' ) $color = '#FF3812';
@@ -43,10 +51,23 @@ class WebmappMap {
             'label' => $label,
             'color' => $color,
             'icon' => $icon,
-            'showByDefault' => $showByDefault
+            'showByDefault' => $showByDefault,
+            'type' => $type
             );
-        array_push($this->pois_layers, $layer);
+        switch ($type) {
+            case 'pois':
+                array_push($this->pois_layers, $layer);
+                break;
+            case 'tracks':
+                array_push($this->tracks_layers, $layer);
+                break;
+            
+            default:
+                throw new Exception("Tipo $type non supportato", 1);
+                break;
+        }
     }
+
 
     public function writeConf() {
         $conf = $this->getConf();
@@ -61,11 +82,11 @@ class WebmappMap {
     public function getConf() {
 
 // Gestione degli ovlerlay_layers
-// Prima i POI:
-    $pois_string = '';
-    if (count($this->pois_layers)):
+    $all_layers = array_merge($this->tracks_layers,$this->pois_layers);
+    $layers_string = '';
+    if (count($all_layers)):
         $first = true;
-        foreach ($this->pois_layers as $layer) {
+        foreach ($all_layers as $layer) {
             $label=$layer['label'];
             $icon=$layer['icon'];
             $color=$layer['color'];
@@ -74,11 +95,23 @@ class WebmappMap {
             if(isset($layer['showByDefault']) && $layer['showByDefault']===false) {
                 $showByDefault = 'false';
             } 
+            switch ($layer['type']) {
+                case 'pois':
+                    $type='poi_geojson';
+                    break;
+                case 'tracks':
+                    $type='line_geojson';
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
             $out = <<<EOS
 
         {
             label: '$label',
-            type: 'poi_geojson',
+            type: '$type',
             color: '$color',
             icon: '$icon',
             geojsonUrl: '$geojsonUrl',
@@ -87,13 +120,14 @@ class WebmappMap {
 EOS;
     if(!$first) $out = ','.$out;
     $first = false;
-    $pois_string = $pois_string.$out;
+    $layers_string = $layers_string.$out;
         }
     endif;
-    $overlay_layers = "OVERLAY_LAYERS: [$pois_string]";
+
+
+    $overlay_layers = "OVERLAY_LAYERS: [$layers_string]";
 
 $conf = <<<EOS
-
 angular.module('webmapp').constant('GENERAL_CONFIG', {
     VERSION: '0.4', // TODO: add clear localStorage if VERSION !==
 
