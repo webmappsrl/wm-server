@@ -122,12 +122,12 @@
                     $layer['tracks']=$this->convertTracksToGeoJSON($tracks);
                     $path =  $geojson_path . '/tracks_'.$layer['id'].'.geojson';
                     file_put_contents($path, json_encode($layer['tracks']));
-                    //$url = $this->project_structure->getUrlGeojson() . '/pois_'.$layer['id'].'.geojson';
-                    //$color = '';
-                    //$icon = '';
-                    //if(isset($layer['color'])) $color = $layer['color'];
-                    //if(isset($layer['icon'])) $icon = $layer['icon'];
-                    //$this->map->addPoisLayer($url,$layer['name'],$color,$icon);
+                    $url = $this->project_structure->getUrlGeojson() . '/pois_'.$layer['id'].'.geojson';
+                    $color = '';
+                    $icon = '';
+                    if(isset($layer['color'])) $color = $layer['color'];
+                    if(isset($layer['icon'])) $icon = $layer['icon'];
+                    $this->map->addPoisLayer($url,$layer['name'],$color,$icon);
                 }
 
 
