@@ -267,7 +267,7 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
             fields: {
                 title: 'name',
                 description: 'description',
-                image: 'picture_url',
+                image: 'image',
                 email: 'mail',
                 phone: 'telefono',
                 address: 'via'
