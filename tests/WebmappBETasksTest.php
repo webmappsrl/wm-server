@@ -47,6 +47,7 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/0000ff/',$pois_30);
         $this->assertRegExp('/"noDetails":true/',$pois_30);
         $this->assertRegExp('/"icon":"wm-icon-mappalo"/',$pois_30);
+        $this->assertRegExp('/"image":/',$pois_30);
 
         // File di Tracks
         $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/tracks_11.geojson'));

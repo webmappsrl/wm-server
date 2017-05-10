@@ -171,6 +171,19 @@
         // Housenumber
         $housenumber = $poi['addr:housenumber'];
 
+        // Gallery
+        $gallery = $poi['n7webmap_media_gallery'];
+        if (is_array($gallery) && count($gallery)>0) {
+            $images = array();
+            foreach ($gallery as $item ) {
+                // TODO: usare una grandezza standard
+                $images[]=array('src'=>$item['url']);
+            }
+            $feature['properties']['imageGallery']=$images;
+            $feature['properties']['image']=$images[0]['src'];
+        }
+
+
         $lng = $poi['n7webmap_coord']['lng'];
         $lat = $poi['n7webmap_coord']['lat'];
 
