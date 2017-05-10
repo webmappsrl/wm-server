@@ -66,6 +66,9 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/duration:backward/',$tracks_11);
         $this->assertRegExp('/distance/',$tracks_11);
         $this->assertRegExp('/cai_scale/',$tracks_11);
+        // "image":"http:\/\/dev.be.webmapp.it\/wp-content\/uploads\/2017\/03\/Screenshot-2017-03-01-15.06.47.png"
+        $this->assertRegExp('/"image":/',$tracks_11);
+
 
 
         // Controllo sui file del client di configurazione e index.html

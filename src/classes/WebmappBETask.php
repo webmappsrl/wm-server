@@ -204,6 +204,7 @@
                 $images[]=array('src'=>$item['url']);
             }
             $feature['properties']['imageGallery']=$images;
+            $feature['properties']['image']=$images[0]['src'];
         }
 
         if (!is_null($track['ref'])) $feature['properties']['ref']=$track['ref'];
