@@ -7,11 +7,6 @@ abstract class WebmappAbstractFeature {
 	// Array associativo con la sezione properties
 	protected $properties;
 
-    // Tipo di geometria (dipende dalla classe)
-    // WebmappPoiFeature -> Point
-    // WebmappTrackFeature -> LineString
-	protected $geometryType;
-
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
     // Esempio locale singolo POI: http://dev.be.webmapp.local/wp-json/wp/v2/poi/38
@@ -50,7 +45,7 @@ abstract class WebmappAbstractFeature {
     	}
     }
 
-    private function setProperty($key,$json_array,$key_map='') {
+    protected function setProperty($key,$json_array,$key_map='') {
     	if (isset($json_array[$key]) && !is_null($json_array[$key])) {
     		if($key_map=='') $key_map = $key;
     		$this->properties[$key_map] = $json_array[$key] ;
