@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WebmappPoiFeatureTests extends TestCase {
+class WebmappPoiFeatureTest extends TestCase {
 	public function testOk() {
 		$poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
 		$json = $poi->getJson();
