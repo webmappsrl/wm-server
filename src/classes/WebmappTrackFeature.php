@@ -20,9 +20,8 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     // Impostazione della geometry a partire da formato API WP
     /**
     **/
-
 	protected function mappingGeometry($json_array) {
         // TODO: controllo esistenza coordinate
+        $this->geometry=unserialize($json_array['n7webmap_geojson']);
 	}
-
 }

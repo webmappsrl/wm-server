@@ -6,6 +6,8 @@ class WebmappTrackFeatureTests extends TestCase {
 	public function testOk() {
 		$track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
 		$json = $track->getJson();
+
+                // MAPPING STANDARD
                 $this->assertRegExp('/"type":"Feature"/',$json);
                 $this->assertRegExp('/"id":580/',$json);
                 $this->assertRegExp('/"name":"Pisa Tour by Bike"/',$json);
@@ -14,6 +16,7 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertRegExp('/"src":"http:.*pisa_stazione_riparazione_gonfiaggio_bici_corso_italia_2\.jpg/',$json);
                 $this->assertRegExp('/"src":"http:.*Screenshot-2017-03-01-15\.06\.47\.png/',$json);
 
+                // MAPPING SPECIFIC TRACK
                 $this->assertRegExp('/"color":"#81d742"/',$json);
                 $this->assertRegExp('/"from":"Stazione di Pisa"/',$json);
                 $this->assertRegExp('/"to":"Stazione di Pisa"/',$json);
@@ -24,7 +27,17 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertRegExp('/"duration:forward":"11:22"/',$json);
                 $this->assertRegExp('/"duration:backward":"22:11"/',$json);
                 $this->assertRegExp('/"cai_scale":"E"/',$json);
-                // $this->assertRegExp('/"":""/',$json);
+
+                // MAPPING GEOMETRY
+                $this->assertRegExp('/"type":"LineString"/',$json);
+                $this->assertRegExp('/10\.39874/',$json);
+                $this->assertRegExp('/10\.39743/',$json);
+                $this->assertRegExp('/10\.38968/',$json);
+                $this->assertRegExp('/43\.70904/',$json);
+                $this->assertRegExp('/43\.71941/',$json);
+                $this->assertRegExp('/43\.70904/',$json);
+
+                //$this->assertRegExp('/"":""/',$json);
         
         }
 }
