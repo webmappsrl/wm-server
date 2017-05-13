@@ -102,13 +102,17 @@ abstract class WebmappAbstractFeature {
     }
 }
     **/
-    public function getJson() {
-    	$json['type']='Feature';
-    	$json['properties'] = $this->properties;
-    	$json['geometry']=$this->geometry;
-    	return json_encode($json);
-    }
+    public function getArrayJson() {
 
+        $json = array();
+        $json['type']='Feature';
+        $json['properties'] = $this->properties;
+        $json['geometry']=$this->geometry;
+        return $json;
+    }
+    public function getJson() {
+    	return json_encode($this->getArrayJson());
+    }
 
 }
 
