@@ -12,5 +12,6 @@ require 'classes/WebmappTaskFactory.php';
 
 require 'classes/WebmappAbstractFeature.php';
 require 'classes/WebmappPoiFeature.php';
+require 'classes/WebmappTrackFeature.php';
 
 require 'classes/WebmappMap.php';
