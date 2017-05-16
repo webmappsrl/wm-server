@@ -186,7 +186,7 @@
         $key = 'contact:email'; $v = $poi[$key];
         if ($v) $feature['properties'][$key]= $v;
 
-        $key = 'openenig_hours'; $v = $poi[$key];
+        $key = 'opening_hours'; $v = $poi[$key];
         if ($v) $feature['properties'][$key]= $v;
 
         $key = 'capacity'; $v = $poi[$key];
