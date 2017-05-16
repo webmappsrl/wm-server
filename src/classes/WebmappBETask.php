@@ -168,8 +168,29 @@
         $addr = $poi['addr:street'];
         if ($addr) $feature['properties']['address']= $addr;
 
-        // Housenumber
-        $housenumber = $poi['addr:housenumber'];
+        $key = 'addr:street'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'addr:housenumber'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'addr:postcode'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'addr:city'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'contact:phone'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'contact:email'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'openenig_hours'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
+
+        $key = 'capacity'; $v = $poi[$key];
+        if ($v) $feature['properties'][$key]= $v;
 
         // Gallery
         $gallery = $poi['n7webmap_media_gallery'];
