@@ -192,6 +192,14 @@
         $key = 'capacity'; $v = $poi[$key];
         if ($v) $feature['properties'][$key]= $v;
 
+        // TODO: mappare meglio la presenza di più di un URL
+        if (isset($poi['n7webmap_rpt_related_url'])) {
+            $a = $poi['n7webmap_rpt_related_url'];
+            if (is_array($a) && count($a) >0) {
+                $feature['properties']['url']=$a[0]['net7webmap_related_url'];
+            }
+        }
+
         // Gallery
         $gallery = $poi['n7webmap_media_gallery'];
         if (is_array($gallery) && count($gallery)>0) {
