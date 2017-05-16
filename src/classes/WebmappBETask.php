@@ -227,6 +227,8 @@
         if (!is_null($track['duration:forward'])) $feature['properties']['duration:forward']=$track['duration:forward'];
         if (!is_null($track['duration:backward'])) $feature['properties']['duration:backward']=$track['duration:backward'];
         if (!is_null($track['cai_scale'])) $feature['properties']['cai_scale']=$track['cai_scale'];
+        if (!is_null($track['n7webmap_start'])) $feature['properties']['from']=$track['n7webmap_start'];
+        if (!is_null($track['n7webmap_end'])) $feature['properties']['to']=$track['n7webmap_end'];
 
         // color
         $color = $track['n7webmapp_track_color'];
