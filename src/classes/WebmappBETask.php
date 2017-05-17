@@ -163,28 +163,28 @@
         // color
         $color = $poi['color'];
         if ($color) $feature['properties']['color']= $color;
-
-        // Address
-        $addr = $poi['addr:street'];
-        if ($addr) $feature['properties']['address']= $addr;
-
+      
+        $address = '';
+        
         $key = 'addr:street'; $v = $poi[$key];
-        if ($v) $feature['properties'][$key]= $v;
+        if ($v) { $feature['properties'][$key]= $v; $address = $address . $v; }
 
         $key = 'addr:housenumber'; $v = $poi[$key];
-        if ($v) $feature['properties'][$key]= $v;
+        if ($v) { $feature['properties'][$key]= $v; $address = $address . ', '. $v; }
 
         $key = 'addr:postcode'; $v = $poi[$key];
-        if ($v) $feature['properties'][$key]= $v;
+        if ($v) { $feature['properties'][$key]= $v; $address = $address . ' - '. $v; }
 
         $key = 'addr:city'; $v = $poi[$key];
-        if ($v) $feature['properties'][$key]= $v;
+        if ($v) { $feature['properties'][$key]= $v; $address = $address . ' '. $v; }
+
+        if ($address) $feature['properties']['address']= $v;
 
         $key = 'contact:phone'; $v = $poi[$key];
-        if ($v) $feature['properties'][$key]= $v;
+        if ($v) $feature['properties']['phone']= $v;
 
         $key = 'contact:email'; $v = $poi[$key];
-        if ($v) $feature['properties'][$key]= $v;
+        if ($v) $feature['properties']['email']= $v;
 
         $key = 'opening_hours'; $v = $poi[$key];
         if ($v) $feature['properties'][$key]= $v;
