@@ -181,10 +181,10 @@
         if ($address) $feature['properties']['address']= $address;
 
         $key = 'contact:phone'; $v = $poi[$key];
-        if ($v) $feature['properties']['phone']= $v;
+        if ($v) $feature['properties']['contact:phone']= $v;
 
         $key = 'contact:email'; $v = $poi[$key];
-        if ($v) $feature['properties']['email']= $v;
+        if ($v) $feature['properties']['contact:email']= $v;
 
         $key = 'opening_hours'; $v = $poi[$key];
         if ($v) $feature['properties'][$key]= $v;
