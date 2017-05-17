@@ -178,7 +178,7 @@
         $key = 'addr:city'; $v = $poi[$key];
         if ($v) { $feature['properties'][$key]= $v; $address = $address . ' '. $v; }
 
-        if ($address) $feature['properties']['address']= $v;
+        if ($address) $feature['properties']['address']= $address;
 
         $key = 'contact:phone'; $v = $poi[$key];
         if ($v) $feature['properties']['phone']= $v;
