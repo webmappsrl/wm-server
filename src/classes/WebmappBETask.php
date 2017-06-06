@@ -207,8 +207,8 @@
             foreach ($gallery as $item ) {
                 // TODO: usare una grandezza standard
                 // ORIGINAL $images[]=array('src'=>$item['url']);
-                // MEDIUM:
-                $images[]=array('src'=>$item['sizes']['medium']);
+                // LARGE:
+                $images[]=array('src'=>$item['sizes']['large']);
             }
             $feature['properties']['imageGallery']=$images;
             $feature['properties']['image']=$images[0]['src'];
