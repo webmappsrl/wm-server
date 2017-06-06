@@ -71,7 +71,7 @@
         break;
 
         case 'single_route':
-        return $this->processSingleRoot($map);
+        return $this->processSingleRoute($map);
         break;
 
         case 'layers':
@@ -206,7 +206,9 @@
             $images = array();
             foreach ($gallery as $item ) {
                 // TODO: usare una grandezza standard
-                $images[]=array('src'=>$item['url']);
+                // ORIGINAL $images[]=array('src'=>$item['url']);
+                // MEDIUM:
+                $images[]=array('src'=>$item['sizes']['medium']);
             }
             $feature['properties']['imageGallery']=$images;
             $feature['properties']['image']=$images[0]['src'];
@@ -271,7 +273,7 @@
     return $result;
     }
 
-    private function processSingleRoot($map) {
+    private function processSingleRoute($map) {
         return FALSE;
     }
 
