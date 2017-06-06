@@ -208,7 +208,7 @@
                 // TODO: usare una grandezza standard
                 // ORIGINAL $images[]=array('src'=>$item['url']);
                 // LARGE:
-                $images[]=array('src'=>$item['sizes']['large']);
+                $images[]=array('src'=>$item['sizes']['medium_large']);
             }
             $feature['properties']['imageGallery']=$images;
             $feature['properties']['image']=$images[0]['src'];
