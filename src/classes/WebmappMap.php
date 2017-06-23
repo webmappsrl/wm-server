@@ -16,7 +16,8 @@ class WebmappMap {
     public function __construct($map,$structure) {
       $this->map = $map;
       $this->structure = $structure;
-      if(isset($this->map['n7webmap_type'])){
+      if(isset($this->map['n7webmap_type']))
+      {
         $this->type = $this->map['n7webmap_type'];
     }
     else {
@@ -70,8 +71,17 @@ class WebmappMap {
 
 
     public function writeConf() {
+
         $conf = $this->getConf();
-        file_put_contents($this->structure->getPathClientConf(), $conf);
+        $conf_path = $this->structure->getPathClientConf() ;
+        file_put_contents($conf_path, $conf);
+ 
+        // TODO: migliorare la gestione del file config.json a livello di progetto
+        // TODO: ancora meglio unificare una volta per tutte il file di configurazione in un unico file json
+        $conf_json_path = preg_replace('/config\.js/', 'config.json', $conf_path);
+        $conf_json = $this->getConfJson();
+        file_put_contents($conf_json_path, $conf_json);
+
     }
 
     public function writeIndex() {
@@ -281,6 +291,196 @@ angular.module('webmapp').constant('GENERAL_CONFIG', {
     PAGES: [],
 
 });
+
+
+EOS;
+return $conf;
+
+    }
+    public function getConfJson() {
+
+// Gestione degli ovlerlay_layers
+    $all_layers = array_merge($this->tracks_layers,$this->pois_layers);
+    $layers_string = '';
+    $geojsonBaseUrl = $this->structure->getURLGeojson();
+    if (count($all_layers)):
+        $first = true;
+        foreach ($all_layers as $layer) {
+            $label=$layer['label'];
+            $icon=$layer['icon'];
+            $color=$layer['color'];
+            $geojsonUrl=$layer['geojsonUrl'];
+            $geojsonUrl = str_replace($geojsonBaseUrl.'/', '', $geojsonUrl);
+            $showByDefault = 'true';
+            if(isset($layer['showByDefault']) && $layer['showByDefault']===false) {
+                $showByDefault = 'false';
+            } 
+            switch ($layer['type']) {
+                case 'pois':
+                    $type='poi_geojson';
+                    break;
+                case 'tracks':
+                    $type='line_geojson';
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
+            $out = <<<EOS
+
+        {
+            "label" : "$label",
+            "type": "$type",
+            "color": "$color",
+            "icon": "$icon",
+            "geojsonUrl": "$geojsonUrl",
+            "showByDefault": "$showByDefault"
+        }
+EOS;
+    if(!$first) $out = ','.$out;
+    $first = false;
+    $layers_string = $layers_string.$out;
+        }
+    endif;
+
+
+    $overlay_layers = '"OVERLAY_LAYERS" : [' . $layers_string . ']';
+
+$conf = <<<EOS
+{
+    "VERSION": "0.4", 
+
+    "OPTIONS": {
+        "title" : "$this->title",
+        "startUrl" : "/",
+        "useLocalStorageCaching" : false,
+        "advancedDebug" : false,
+        "hideHowToReach" : true,
+        "hideMenuButton" : false,
+        "hideExpanderInDetails" : true,
+        "hideFiltersInMap" : false,
+        "hideDeactiveCentralPointer" : true,
+        "hideShowInMapFromSearch" : true,
+        "avoidModalInDetails" : true,
+        "useAlmostOver" : false,
+        "filterIcon" : "wm-icon-layers"
+    },
+
+    "STYLE": {
+        "global" : {
+            "background" : "#F3F6E9",
+            "color" : "black",
+            "centralPointerActive" : "black",
+            "buttonsBackground" : "rgba(56, 126, 245, 0.78)"
+        },
+        "details" : {
+            "background" : "#F3F6E9",
+            "buttons" : "rgba(56, 126, 245, 0.78)",
+            "color" : "#929077"
+        },
+        "subnav" : {
+            "color" : "white",
+            "background" : "#387EF5"
+        },
+        "mainBar" : {
+            "color" : "white",
+            "background" : "#387EF5",
+            "overwrite" : true
+        },
+        "menu" : {
+            "color" : "black",
+            "background" : "#F3F6E9"
+        },
+        "search" : {
+            "color" : "#387EF5"
+        },
+        "images" : {
+            "background" : "#e6e8de"
+        },
+        "line" : {
+            "default": {
+                "color" : "red",
+                "weight" : 5,
+                "opacity" : 0.65
+            },
+            "highlight" : {
+                "color": "#00FFFF",
+                "weight": 6,
+                "opacity": 1
+            }
+        }
+    },
+
+    "ADVANCED_DEBUG": false,
+
+    "COMMUNICATION": {
+        "resourceBaseUrl": "$geojsonBaseUrl"
+    },
+
+    "SEARCH": {
+        "active": true,
+        "indexFields": ["name"],
+        "showAllByDefault": true,
+        "stemming": true,
+        "removeStopWords": true,
+        "indexStrategy": "AllSubstringsIndexStrategy", 
+        "TFIDFRanking": true
+    },
+
+     
+    "MENU" : [{
+                "label": "Esci dall'itinerario",
+                "type": "closeMap"
+              }, {
+                "label" : "Mappa",
+                "type" : "map"
+              },{
+                "label" : "Cerca",
+                "type" : "search"
+              }
+              ],
+
+    "MAP" : {
+         $this->bb
+         ,  "markerClustersOptions" : {
+            "spiderfyOnMaxZoom" : true,
+            "showCoverageOnHover" : false,
+            "maxClusterRadius" : 60,
+            "disableClusteringAtZoom" : 17
+        },
+        "showCoordinatesInMap" : true,
+        "showScaleInMap" : true,
+        "hideZoomControl" : false,
+        "hideLocationControl" : false,
+
+        "layers" : [{
+                   "label": "Mappa",
+                   "type": "mbtiles",
+                   "tilesUrl": "map.mbtiles",
+                   "default": true
+                }]
+    },
+
+    "DETAIL_MAPPING" : {
+        "default" : {
+            "table" : {
+                "phone" : "Telefono"
+            },
+            "fields" : {
+                "title" : "name",
+                "description" : "description",
+                "image" : "image",
+                "email" : "mail",
+                "phone" : "telefono",
+                "address" : "via"
+            }
+        }
+    },
+
+    $overlay_layers 
+
+}
 
 
 EOS;
