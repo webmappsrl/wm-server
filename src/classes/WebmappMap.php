@@ -478,6 +478,8 @@ $conf = <<<EOS
         }
     },
 
+    "PAGES" : [] ,
+
     $overlay_layers 
 
 }
