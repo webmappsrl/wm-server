@@ -1,0 +1,54 @@
+<?php
+use PHPUnit\Framework\TestCase;
+
+class WebmappRouteTaskTests extends TestCase
+{
+
+    public $name;
+    public $root;
+    public $project_structure;
+    public $options = array();
+
+    public function __construct() {
+        $this->name = 'prova';
+        $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
+        $path_base = __DIR__.'/../data/api.webmapp.it';
+        $this->project_structure = new WebmappProjectStructure($this->root,$path_base);
+
+        // http://dev.be.webmapp.it/wp-json/wp/v2/route/346
+        $this->options = array('code'=>'dev','id'=>346);
+    }
+
+    public function clearAll() {
+        // Pulizia delle directory
+        $cmd = 'rm -f '.$this->project_structure->getPathGeojson().'/*.geojson';
+        system($cmd);
+        $conf_path = $this->project_structure->getPathClientConf();
+        $cmd = 'rm -f '.$conf_path;
+        system($cmd);
+        $conf_index = $this->project_structure->getPathClientIndex();
+        $cmd = 'rm -f '.$conf_index;
+        system($cmd);        
+    }
+
+
+
+    public function testOk() {
+
+        $this->clearAll();
+
+        $t = new WebmappRouteTask($this->name,$this->options,$this->project_structure);
+        $this->assertTrue($t->check());
+        $this->assertEquals('dev',$t->getCode());
+        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/route/346',$t->getUrl());
+        $this->assertTrue($t->process());
+        $r = $t->getRoute();
+        $this->assertEquals('WebmappRoute',get_class($r));
+        $this->assertEquals('346',$r->getId());
+        $this->assertEquals('Next to Net7 ROUTE',$r->getTitle());
+
+
+    }
+
+
+}
