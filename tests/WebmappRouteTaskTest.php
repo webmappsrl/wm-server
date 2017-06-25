@@ -47,6 +47,9 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertEquals('346',$r->getId());
         $this->assertEquals('Next to Net7 ROUTE',$r->getTitle());
 
+        $tracks_layer = $t->getTracksLayer();
+        $this->assertEquals('WebmappLayer',get_class($tracks_layer));
+
 
     }
 

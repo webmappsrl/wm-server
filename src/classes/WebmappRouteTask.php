@@ -10,6 +10,9 @@
         // Oggetto WebmappRoute
         private $route;
 
+        // Tracks Layer: unico layer con tutte le tracce (non viene considerata la categoria)
+        private $tracks_layer;
+
         // Oggetto WebmappMap
         private $map;
 
@@ -36,8 +39,19 @@
 
         }
         public function getRoute() { return $this->route; }
+        public function getTracksLayer() {
+            return $this->tracks_layer;
+        }
         public function process(){
             $this->route= new WebmappRoute($this->getUrl());
+            $tracks = $this->route->getTracks();
+            if (is_array($tracks) && count($tracks)>0) {
+                $this->tracks_layer = new WebmappLayer('tracks',$this->project_structure->getRoot());
+                // LOOP sulle tracce
+                foreach ($tracks as $track) {
+                    $this->tracks_layer->addFeature($track);
+                }
+            }
             return TRUE;
         }
 
