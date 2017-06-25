@@ -1,0 +1,13 @@
+<?php // WebmappRouteTest.php
+
+use PHPUnit\Framework\TestCase;
+
+class WebmappRouteTest extends TestCase {
+
+	public function testOk() {
+		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
+		$this->assertEquals('346',$r->getId());
+		$this->assertEquals('Next to Net7 ROUTE',$r->getTitle());
+	}
+
+}
