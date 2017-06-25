@@ -7,6 +7,7 @@ class WebmappRouteTaskTests extends TestCase
     public $name;
     public $root;
     public $project_structure;
+    public $geojson_path;
     public $options = array();
 
     public function __construct() {
@@ -14,6 +15,8 @@ class WebmappRouteTaskTests extends TestCase
         $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
         $path_base = __DIR__.'/../data/api.webmapp.it';
         $this->project_structure = new WebmappProjectStructure($this->root,$path_base);
+        $this->geojson_path = $this->project_structure->getPathGeojson() ;
+
 
         // http://dev.be.webmapp.it/wp-json/wp/v2/route/346
         $this->options = array('code'=>'dev','id'=>346);
@@ -21,7 +24,7 @@ class WebmappRouteTaskTests extends TestCase
 
     public function clearAll() {
         // Pulizia delle directory
-        $cmd = 'rm -f '.$this->project_structure->getPathGeojson().'/*.geojson';
+        $cmd = 'rm -f '.$this->geojson_path .'/*.geojson';
         system($cmd);
         $conf_path = $this->project_structure->getPathClientConf();
         $cmd = 'rm -f '.$conf_path;
@@ -49,6 +52,7 @@ class WebmappRouteTaskTests extends TestCase
 
         $tracks_layer = $t->getTracksLayer();
         $this->assertEquals('WebmappLayer',get_class($tracks_layer));
+        $this->assertTrue(file_exists($this->geojson_path.'/tracks.geojson'));
 
 
     }

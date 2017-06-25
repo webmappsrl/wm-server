@@ -46,11 +46,13 @@
             $this->route= new WebmappRoute($this->getUrl());
             $tracks = $this->route->getTracks();
             if (is_array($tracks) && count($tracks)>0) {
-                $this->tracks_layer = new WebmappLayer('tracks',$this->project_structure->getRoot());
+                $this->tracks_layer = new WebmappLayer('tracks',$this->project_structure->getPathGeojson());
                 // LOOP sulle tracce
                 foreach ($tracks as $track) {
                     $this->tracks_layer->addFeature($track);
                 }
+                // Scrivi il file geojson di tutte le tracce
+                $this->tracks_layer->write();
             }
             return TRUE;
         }

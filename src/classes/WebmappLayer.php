@@ -29,7 +29,8 @@ class WebmappLayer {
     }
 
 	public function write() {
-		file_put_contents($this->path.'/'.$this->name.'.geojson', $this->getGeoJson());
+		$fname = $this->path.'/'.$this->name.'.geojson';
+		file_put_contents($fname, $this->getGeoJson());
 	}
 
 
