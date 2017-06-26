@@ -4,6 +4,9 @@ class WebmappLayer {
 	private $features = array();
 	private $name;
 	private $path;
+	private $label;
+	private $icon = 'wm-icon-generic';
+	private $color = '#FF3812';
 
 	public function __construct($name,$path) {
 		// TODO: check parameter
@@ -15,6 +18,32 @@ class WebmappLayer {
 		// TODO: check feature typeof Webmapp*Feature
         array_push($this->features, $feature);
 	}
+
+	public function getIcon() {
+		return $this->icon;
+	}
+
+	public function getColor() {
+		return $this->color;
+	}
+
+	public function getLabel() {
+		return $this->label;
+	}
+
+    public function loadMetaFromUrl($url) {
+    	// TODO: leggi API alla WP e poi setta label, icon e color
+    	$meta = json_decode(file_get_contents($url),TRUE);
+    	if (isset($meta['icon'])) {
+    		$this->icon=$meta['icon'];
+    	}
+    	if (isset($meta['name'])) {
+    		$this->label=$meta['name'];
+    	}
+    	if (isset($meta['color'])) {
+    		$this->color=$meta['color'];
+    	}
+    }
 
     public function getGeoJson() {
        $json["type"] ='FeatureCollection';

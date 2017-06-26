@@ -64,7 +64,7 @@
                                         // Creazione layer
                                         $l = new WebmappLayer('pois_'.$cat_id,$this->project_structure->getPathGeojson());
                                         $l->addFeature($poi);
-                                        $poi_layers[$cat_id]=$l; 
+                                        $poi_layers[$cat_id]=$l;
                                     }
                                     else {
                                         $l = $poi_layers[$cat_id];
@@ -84,6 +84,8 @@
                         $l->write();
                     }
                 }
+                // Creazione dei file della mappa (config.js config.json index.html)
+
             }
             return TRUE;
         }

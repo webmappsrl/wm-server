@@ -81,4 +81,14 @@ class WebmappLayerTest extends TestCase {
 		$this->assertRegExp('/43\.70904/',$json);
 
 	}
+
+	public function testLoadMetaFromUrl() {
+		$l = new WebmappLayer('test','');
+		$url = 'http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/30';
+		$l->loadMetaFromUrl($url);
+
+		$this->assertEquals('Bar',$l->getLabel());
+		$this->assertEquals('wm-icon-siti-interesse',$l->getIcon());
+		$this->assertEquals('#00ff00',$l->getColor());
+	}
 }
