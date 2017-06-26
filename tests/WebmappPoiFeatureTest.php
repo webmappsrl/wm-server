@@ -29,4 +29,12 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertRegExp('/10\.4015262/',$json);
         //$this->assertRegExp('/"":""/',$json);
         }
+
+        public function testGetWebmappCategoryIds() {
+                $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/610');
+                $ids = $poi->getWebmappCategoryIds();
+                $this->assertTrue(is_array($ids));
+                $this->assertEquals(1,count($ids));
+                $this->assertEquals(30,$ids[0]);
+        }
 }

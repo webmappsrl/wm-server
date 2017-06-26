@@ -48,4 +48,12 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertEquals(4,count($pois));
                 $this->assertEquals('WebmappPoiFeature',get_class($pois[0]));
         }
+
+        public function testGetWebmappCategoryIds() {
+                $poi = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
+                $ids = $poi->getWebmappCategoryIds();
+                $this->assertTrue(is_array($ids));
+                $this->assertEquals(1,count($ids));
+                $this->assertEquals(11,$ids[0]);
+        }
 }
