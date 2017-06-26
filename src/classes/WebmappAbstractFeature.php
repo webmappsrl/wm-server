@@ -7,6 +7,9 @@ abstract class WebmappAbstractFeature {
 	// Array associativo con la sezione properties
 	protected $properties;
 
+    // Array del json restituito dalle API
+    protected $json_array;
+
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
     // Esempio locale singolo POI: http://dev.be.webmapp.local/wp-json/wp/v2/poi/38
@@ -21,6 +24,10 @@ abstract class WebmappAbstractFeature {
 			throw new Exception("Lettura diretta array ancora anon implementato", 1);
 			$json_array = $array_or_url;
 		}
+
+        $this->json_array = $json_array;
+
+        // TODO: non passare $json_array ma usare la proprietà
 		$this->mappingStandard($json_array);
 		$this->mappingSpecific($json_array);
 		$this->mappingGeometry($json_array);

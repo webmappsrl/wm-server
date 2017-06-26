@@ -24,4 +24,23 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         // TODO: controllo esistenza coordinate
         $this->geometry=unserialize($json_array['n7webmap_geojson']);
 	}
+
+    // Restituisce un array di oggetti WebmappPoiFeature con i relatedPoi
+    public function getRelatedPois() {
+        $pois = array();
+        if (isset($this->json_array['n7webmap_related_poi']) && 
+            is_array($this->json_array['n7webmap_related_poi']) &&
+            count($this->json_array['n7webmap_related_poi'])>0) {
+            foreach ($this->json_array['n7webmap_related_poi'] as $poi) {
+                $guid = $poi['guid'];
+                $id = $poi['ID'];
+                // http://dev.be.webmapp.it/poi/bar-pasticceria-lilli/
+                $code = str_replace('http://', '', $guid);
+                $code = preg_replace('|\..*|', '', $code);
+                $poi_url = "http://$code.be.webmapp.it/wp-json/wp/v2/poi/$id";
+                $pois[] = new WebmappPoiFeature ($poi_url);
+            }
+        }
+        return $pois;
+    }
 }
