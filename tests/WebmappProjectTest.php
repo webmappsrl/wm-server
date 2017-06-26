@@ -23,5 +23,7 @@ class WebmappProjectTest extends TestCase
         $p = new WebmappProject($root);
         $this->assertTrue($p->check());
         $this->assertTrue($p->process());
+
+        
     }
 }

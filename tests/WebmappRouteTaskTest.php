@@ -54,6 +54,10 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertEquals('WebmappLayer',get_class($tracks_layer));
         $this->assertTrue(file_exists($this->geojson_path.'/tracks.geojson'));
 
+        $this->assertTrue(file_exists($this->geojson_path.'/pois_30.geojson'));
+        $this->assertTrue(file_exists($this->geojson_path.'/pois_7.geojson'));
+
+
 
     }
 
