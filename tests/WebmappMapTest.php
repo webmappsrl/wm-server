@@ -15,6 +15,18 @@ class WebmappMapTest extends TestCase
         $this-> project_structure = new WebmappProjectStructure($root,$path_base);;
     }
 
+    public function testLoadMetaFromUrl() {
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
+        $m->loadMetaFromUrl($url);
+
+        $this->assertEquals('DEV408 &#8211; MMP',$m->getTitle());
+        $this->assertEquals('https://api.mappalo.org/mappadeimontipisani_new/tiles/map/',$m->getTilesUrl());
+        //$this->assertEquals('',$m->get());
+        $j = $m->getConfJson();
+        $this->assertRegExp('/"VERSION":"0.4"/',$j);
+    }
+
     public function testOk() {
     $m = new WebmappMap($this->map,$this->project_structure);
     $m->addPoisLayer('https://api/layer-1.geojson','POI-1','#FF3812','wm-icon-generic-1',true);

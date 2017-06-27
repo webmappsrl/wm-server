@@ -75,8 +75,8 @@
                                         // Creazione layer
                                         $l = new WebmappLayer('pois_'.$cat_id,$this->project_structure->getPathGeojson());
                                         $l->addFeature($poi);
-
-                                        //$l->loadMetaFromUrl();
+                                        $url = $this->getApiBaseUrl().'/webmapp_category/'.$cat_id;
+                                        $l->loadMetaFromUrl($url);
                                         $poi_layers[$cat_id]=$l;
                                     }
                                     else {

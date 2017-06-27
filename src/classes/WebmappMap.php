@@ -13,7 +13,68 @@ class WebmappMap {
     private $pois_layers=array();
     private $tracks_layers=array();
 
-    public function __construct($map,$structure) {
+    // Questo array viene utilizzato per la costruzione del json usato per il file di 
+    // configurazione
+    private $conf_array = array();
+
+
+    // TODO: rifattorizzare il costruttore per averne uno unico. Va rivisto il BETASK
+    // TODO: rivedere il client in modo tale che utilizzi esclusivamente un json come file di configurazione
+    public function __construct($map,$structure='') {
+        if (getType($map) == 'object' && get_class($map) == 'WebmappProjectStructure') {
+            $this->simpleConstruct($map);
+        }
+        else {
+            $this->oldConstruct($map,$structure);
+        }
+    } 
+
+    public function simpleConstruct($structure) {
+       if(get_class($structure) != 'WebmappProjectStructure') {
+        throw new Exception("Il parametro del costruttore della classe WebmappMap deve essere di tipo WebmappProjectStructure", 1);
+       }
+       $this->structure=$structure;
+    }
+
+    // Legge i dati da un URL che risponde come le API di WP
+    // esempio: http://dev.be.webmapp.it/wp-json/wp/v2/map/408
+    public function loadMetaFromUrl($url) {
+        // ja è un abbreviazione per JSON ARRAY
+        $ja = json_decode(file_get_contents($url),TRUE);
+
+        // Qui vengono inseriti tutti i valori di default (dove ha senso)
+        $this->title = "Generic MAP";
+        $this->tilesUrl = "map.mbtiles" ;
+
+        if(isset($ja['title']['rendered'])) {
+            $this->title = $ja['title']['rendered'];
+        }
+        if(isset($ja['tiles'])) {
+            $this->tilesUrl=$ja['tiles'];
+        }
+
+        // Build conf_array
+        $this->buildConfArray();
+
+    }
+
+    // GETTERS
+    public function getTitle() {
+        return $this->title;
+    }
+    public function getTilesUrl() {
+        return $this->tilesUrl;
+    }
+    public function getType() { 
+        return $this->type;
+    }
+    public function getBB() { 
+        return $this->bb;
+    }
+
+
+    // TODO: eliminare questa funzione
+    public function oldConstruct($map,$structure) {
       $this->map = $map;
       $this->structure = $structure;
       if(isset($this->map['n7webmap_type']))
@@ -26,13 +87,8 @@ class WebmappMap {
       $this->title = $this->map['title']['rendered'];
       $this->bb = $this->map['n7webmap_map_bbox'];
       $this->tilesUrl = $this->map['tiles'];
+    }
 
-    } 
-
-    public function getType() { return $this->type;}
-    public function getTitle() { return $this->title;}
-    public function getBB() { return $this->bb;}
-    public function getTilesURL() { return $this->tilesUrl;}
 
     public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true) {
         $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault);
@@ -297,7 +353,18 @@ EOS;
 return $conf;
 
     }
+
     public function getConfJson() {
+        return json_encode($this->conf_array);
+    }
+
+    private function buildConfArray() {
+        // "VERSION": "0.4", 
+        $this->conf_array['VERSION'] = '0.4';
+    }
+
+    // TODO: da eliminare 
+    public function getOldConfJson() {
 
 // Gestione degli ovlerlay_layers
     $all_layers = array_merge($this->tracks_layers,$this->pois_layers);
