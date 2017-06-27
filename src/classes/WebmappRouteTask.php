@@ -34,6 +34,17 @@
 
     	// GETTERS
         public function getCode() { return $this->code; }
+
+        public function getBaseUrl() {
+            return 'http://' . $this->code .'.be.webmapp.it';
+
+        }
+
+        public function getApiBaseUrl() {
+            return 'http://' . $this->code .'.be.webmapp.it/wp-json/wp/v2';
+
+        }
+
         public function getUrl() {
             return 'http://' . $this->code .'.be.webmapp.it/wp-json/wp/v2/route/' . $this->id;
 
@@ -64,6 +75,8 @@
                                         // Creazione layer
                                         $l = new WebmappLayer('pois_'.$cat_id,$this->project_structure->getPathGeojson());
                                         $l->addFeature($poi);
+
+                                        //$l->loadMetaFromUrl();
                                         $poi_layers[$cat_id]=$l;
                                     }
                                     else {

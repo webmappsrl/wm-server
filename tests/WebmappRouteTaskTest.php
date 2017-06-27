@@ -59,5 +59,20 @@ class WebmappRouteTaskTests extends TestCase
 
     }
 
+    public function testUrls() {
+
+        $this->clearAll();
+
+        $t = new WebmappRouteTask($this->name,$this->options,$this->project_structure);
+        $t->check();
+        $t->process();
+
+        // http://dev.be.webmapp.it/wp-json/wp/v2/route/346
+        $this->assertEquals('http://dev.be.webmapp.it',$t->getBaseUrl());
+        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2',$t->getApiBaseUrl());
+        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/route/346',$t->getUrl());
+
+    }
+
 
 }
