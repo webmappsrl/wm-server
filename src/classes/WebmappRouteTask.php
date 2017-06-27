@@ -89,15 +89,20 @@
                     }
 
                 }
+                // Creazione dei file della mappa (config.js config.json index.html)
+                $map = new WebmappMap($this->project_structure);
+                $map->loadMetaFromUrl($this->getUrl());
                 // Scrivi il file geojson di tutte le tracce
                 $this->tracks_layer->write();
+                $map->addTracksWebmappLayer($this->tracks_layer);
                 // Scrivi i file geojson per i pois
                 if (count($poi_layers)>0) {
                     foreach ($poi_layers as $l) {
                         $l->write();
+                        $map->addPoisWebmappLayer($l);
                     }
                 }
-                // Creazione dei file della mappa (config.js config.json index.html)
+                $map->writeConf();
 
             }
             return TRUE;
