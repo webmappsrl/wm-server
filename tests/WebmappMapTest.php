@@ -20,110 +20,61 @@ class WebmappMapTest extends TestCase
         $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
         $m->loadMetaFromUrl($url);
 
+        // Add layers
+        $l1 = new WebmappLayer('pois','/');
+        $l1->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/30');
+        $m->addPoisWebmappLayer($l1);
+        $l2 = new WebmappLayer('tracks','/');
+        $l2->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/7');
+        $m->addTracksWebmappLayer($l2);
+
         $this->assertEquals('DEV408 &#8211; MMP',$m->getTitle());
         $this->assertEquals('https://api.mappalo.org/mappadeimontipisani_new/tiles/map/',$m->getTilesUrl());
         //$this->assertEquals('',$m->get());
         $j = $m->getConfJson();
         $this->assertRegExp('/"VERSION":"0.4"/',$j);
+        $this->assertRegExp('/"title":"DEV408 &#8211; MMP"/',$j);
+        $this->assertRegExp('/"filterIcon":"wm-icon-layers"/',$j);
+        $this->assertRegExp('/"background":"#F3F6E9"/',$j);
+        $this->assertRegExp('/"ADVANCED_DEBUG":false/',$j);
+        // TODO: migliorare questo controllo
+        $this->assertRegExp('/"resourceBaseUrl":".*geojson"/',$j);
+        $this->assertRegExp('/"showAllByDefault":true/',$j);
+        $this->assertRegExp('/"MENU":/',$j);
+        $this->assertRegExp('/"label":"Esci dall\'itinerario"/',$j);
+        $this->assertRegExp('/"label":"Mappa"/',$j);
+        $this->assertRegExp('/"label":"Cerca"/',$j);
+
+        // SEZIONE MAP
+        $this->assertRegExp('/"maxZoom":"16"/',$j);
+        $this->assertRegExp('/"minZoom":"10"/',$j);
+        $this->assertRegExp('/"defZoom":"13"/',$j);
+        // TODO: migliorare questo controllo
+        $this->assertRegExp('/"tilesUrl":".*mappadeimontipisani_new/',$j);
+
+        // DETAIL_MAPPING
+        $this->assertRegExp('/"DETAIL_MAPPING":{"default":{/',$j);
+        $this->assertRegExp('/"email":"mail"/',$j);
+        $this->assertRegExp('/"description":"description"/',$j);
+
+        // PAGES
+        $this->assertRegExp('/"PAGES":\[\]/',$j);
+
+        // OVERLAY LAYERS
+        $this->assertRegExp('/"type":"poi_geojson"/',$j);
+        $this->assertRegExp('/"type":"line_geojson"/',$j);
+        $this->assertRegExp('/"label":"Bar"/',$j);
+        $this->assertRegExp('/"label":"Ristoranti"/',$j);
+        $this->assertRegExp('/"geojsonUrl":"pois.geojson"/',$j);
+        $this->assertRegExp('/"geojsonUrl":"tracks.geojson"/',$j);
+        $this->assertRegExp('/"icon":"wm-icon-siti-interesse"/',$j);
+        $this->assertRegExp('/"icon":"wm-icon-restaurant"/',$j);
+
+        $m->writeConf();
+
     }
 
     public function testOk() {
-    $m = new WebmappMap($this->map,$this->project_structure);
-    $m->addPoisLayer('https://api/layer-1.geojson','POI-1','#FF3812','wm-icon-generic-1',true);
-    $m->addPoisLayer('https://api/layer-2.geojson','POI-2','#FF3813','wm-icon-generic-2',false);
-    $m->addTracksLayer('https://api/layer-3.geojson','TRACK-3','#FF3814','wm-icon-generic-3',true);
-    $m->addTracksLayer('https://api/layer-4.geojson','TRACK-4','#FF3815','wm-icon-generic-4',false);
-
-    $this->assertEquals('all',$m->getType());
-    $this->assertEquals('TEST ALL',$m->getTitle());
-    $this->assertRegExp('/maxZoom: 18/',$m->getBB());
-    $this->assertRegExp('/minZoom: 7/',$m->getBB());
-    $this->assertRegExp('/defZoom: 9/',$m->getBB());
-
-    // File di configurazione
-    $conf = $m->getConf();
-    $this->assertRegExp("/title: 'TEST ALL'/",$conf);
-    $this->assertRegExp('/maxZoom: 18/',$conf);
-    $this->assertRegExp('/minZoom: 7/',$conf);
-    $this->assertRegExp('/defZoom: 9/',$conf);
-
-    $this->assertRegExp("/label: 'POI-1'/",$conf);
-    $this->assertRegExp("/color: '#FF3812'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-1',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
-    $this->assertRegExp("/showByDefault: true/",$conf);
-
-    $this->assertRegExp("/label: 'POI-2'/",$conf);
-    $this->assertRegExp("/color: '#FF3813'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-2',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
-    $this->assertRegExp("/showByDefault: false/",$conf);
-
-    $this->assertRegExp("/label: 'TRACK-3'/",$conf);
-    $this->assertRegExp("/color: '#FF3814'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-3',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-3.geojson',/",$conf);
-
-    $this->assertRegExp("/label: 'TRACK-4'/",$conf);
-    $this->assertRegExp("/color: '#FF3815'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-4',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-4.geojson',/",$conf);
-
-    $this->assertRegExp("/tilesUrl: 'https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/'/",$conf);
-
-
-    $conf_path = $this->project_structure->getPathClientConf();
-    $cmd = 'rm -f '.$conf_path;
-    system($cmd);
-
-    $m->writeConf();
-    $this->assertTrue(file_exists($conf_path));
-
-    $conf = file_get_contents($conf_path);
-    $this->assertRegExp("/title: 'TEST ALL'/",$conf);
-    $this->assertRegExp('/maxZoom: 18/',$conf);
-    $this->assertRegExp('/minZoom: 7/',$conf);
-    $this->assertRegExp('/defZoom: 9/',$conf);
-
-    $this->assertRegExp("/label: 'POI-1'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-1',/",$conf);
-    $this->assertRegExp("/color: '#FF3812'/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
-    $this->assertRegExp("/showByDefault: true/",$conf);
-
-    $this->assertRegExp("/label: 'POI-2'/",$conf);
-    $this->assertRegExp("/color: '#FF3813'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-2',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-2.geojson',/",$conf);
-    $this->assertRegExp("/showByDefault: false/",$conf);
-
-    $this->assertRegExp("/label: 'TRACK-3'/",$conf);
-    $this->assertRegExp("/color: '#FF3814'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-3',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-3.geojson',/",$conf);
-
-    $this->assertRegExp("/label: 'TRACK-4'/",$conf);
-    $this->assertRegExp("/color: '#FF3815'/",$conf);
-    $this->assertRegExp("/icon: 'wm-icon-generic-4',/",$conf);
-    $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-4.geojson',/",$conf);
-
-    $this->assertRegExp("/tilesUrl: 'https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/'/",$conf);
-
-    // Index del client
-    $index = $m->getIndex();
-    $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
-    $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
-
-    $conf_index = $this->project_structure->getPathClientIndex();
-    $cmd = 'rm -f '.$conf_index;
-    system($cmd);
-
-    $m->writeIndex();
-    $this->assertTrue(file_exists($conf_index));
-
-    $index = file_get_contents($conf_index);
-    $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
-    $this->assertRegExp('/<title>TEST ALL<\/title>/',$index);
 
     }
 

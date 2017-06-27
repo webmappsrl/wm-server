@@ -31,6 +31,10 @@ class WebmappLayer {
 		return $this->label;
 	}
 
+	public function getName() {
+		return $this->name;
+	}
+
     public function loadMetaFromUrl($url) {
     	// TODO: leggi API alla WP e poi setta label, icon e color
     	$meta = json_decode(file_get_contents($url),TRUE);

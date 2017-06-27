@@ -10,8 +10,8 @@ class WebmappMap {
     private $title;
     private $bb;
     private $tilesUrl;
-    private $pois_layers=array();
-    private $tracks_layers=array();
+    private $pois_layers = array();
+    private $tracks_layers = array();
 
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
@@ -53,8 +53,11 @@ class WebmappMap {
             $this->tilesUrl=$ja['tiles'];
         }
 
-        // Build conf_array
-        $this->buildConfArray();
+        // Bounding box
+        // TODO: gestione del caso di default (vuoto!)
+        if (isset($ja['n7webmap_map_bbox'])) {
+            $this->bb = json_decode($ja['n7webmap_map_bbox'],TRUE);
+        }
 
     }
 
@@ -89,6 +92,21 @@ class WebmappMap {
       $this->tilesUrl = $this->map['tiles'];
     }
 
+    public function addPoisWebmappLayer($layer) {
+       $url = $layer->getName().'.geojson';
+       $label = $layer->getLabel();
+       $color = $layer->getColor();
+       $icon = $layer->getIcon();
+       $this->addPoisLayer($url,$label,$color,$icon,true);
+    }
+
+    public function addTracksWebmappLayer($layer) {
+       $url = $layer->getName().'.geojson';
+       $label = $layer->getLabel();
+       $color = $layer->getColor();
+       $icon = $layer->getIcon();
+       $this->addTracksLayer($url,$label,$color,$icon,true);
+    }
 
     public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true) {
         $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault);
@@ -103,13 +121,25 @@ class WebmappMap {
         if ($color == '' ) $color = '#FF3812';
         if ($icon == '' ) $icon = 'wm-icon-generic';
 
+        switch ($type) {
+            case 'pois':
+                $type_label='poi_geojson';
+                break;
+            case 'tracks':
+                $type_label='line_geojson';
+                break;
+            
+            default:
+                throw new Exception("Tipo $type non supportato", 1);
+                break;
+        }        
         $layer = array (
             'geojsonUrl' => $url,
             'label' => $label,
             'color' => $color,
             'icon' => $icon,
             'showByDefault' => $showByDefault,
-            'type' => $type
+            'type' => $type_label
             );
         switch ($type) {
             case 'pois':
@@ -128,9 +158,9 @@ class WebmappMap {
 
     public function writeConf() {
 
-        $conf = $this->getConf();
+        //$conf = $this->getConf();
         $conf_path = $this->structure->getPathClientConf() ;
-        file_put_contents($conf_path, $conf);
+        //file_put_contents($conf_path, $conf);
  
         // TODO: migliorare la gestione del file config.json a livello di progetto
         // TODO: ancora meglio unificare una volta per tutte il file di configurazione in un unico file json
@@ -170,7 +200,7 @@ class WebmappMap {
                     break;
                 
                 default:
-                    # code...
+                    $type='undefined';
                     break;
             }
             $out = <<<EOS
@@ -355,86 +385,68 @@ return $conf;
     }
 
     public function getConfJson() {
+        $this->buildConfArray();
         return json_encode($this->conf_array);
     }
 
     private function buildConfArray() {
-        // "VERSION": "0.4", 
+        // VERSION 
         $this->conf_array['VERSION'] = '0.4';
+
+        // OPTIONS
+        $this->conf_array['OPTIONS'] = $this->buildOptionsConfArray();
+
+        // STYLE
+        $this->conf_array['STYLE'] = $this->buildStyleConfArray();
+
+        // ADVANCED_DEBUG
+        $this->conf_array['ADVANCED_DEBUG'] = false;
+
+        // COMMUNICATION
+        $geojsonBaseUrl = $this->structure->getURLGeojson();
+        $this->conf_array['COMMUNICATION'] = array('resourceBaseUrl'=>$geojsonBaseUrl);
+
+        // SEARCH
+        $this->conf_array['SEARCH'] = $this->buildSearchConfArray();
+
+        // MENU
+        $this->conf_array['MENU'] = $this->buildMenuConfArray();
+
+        // MAP
+        $this->conf_array['MAP'] = $this->buildMapConfArray();
+
+        // DETAIL_MAPPING
+        $this->conf_array['DETAIL_MAPPING'] = $this->buildDetailMappingConfArray();
+
+        // PAGES
+        $this->conf_array['PAGES'] = array();
+
+        // OVERLAY_LAYERS
+        $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers);
+
+
     }
 
-    // TODO: da eliminare 
-    public function getOldConfJson() {
+    private function buildOptionsConfArray() {
+        $options["title"] = "$this->title";
+        $options["startUrl"] = "/";
+        $options["useLocalStorageCaching"] = false;
+        $options["advancedDebug"] = false;
+        $options["hideHowToReach"] = true;
+        $options["hideMenuButton"] = false;
+        $options["hideExpanderInDetails"] = true;
+        $options["hideFiltersInMap"] = false;
+        $options["hideDeactiveCentralPointer"] = true;
+        $options["hideShowInMapFromSearch"] = true;
+        $options["avoidModalInDetails"] = true;
+        $options["useAlmostOver"] = false;
+        $options["filterIcon"] = "wm-icon-layers";
+        return $options;
+    }
 
-// Gestione degli ovlerlay_layers
-    $all_layers = array_merge($this->tracks_layers,$this->pois_layers);
-    $layers_string = '';
-    $geojsonBaseUrl = $this->structure->getURLGeojson();
-    if (count($all_layers)):
-        $first = true;
-        foreach ($all_layers as $layer) {
-            $label=$layer['label'];
-            $icon=$layer['icon'];
-            $color=$layer['color'];
-            $geojsonUrl=$layer['geojsonUrl'];
-            $geojsonUrl = str_replace($geojsonBaseUrl.'/', '', $geojsonUrl);
-            $showByDefault = 'true';
-            if(isset($layer['showByDefault']) && $layer['showByDefault']===false) {
-                $showByDefault = 'false';
-            } 
-            switch ($layer['type']) {
-                case 'pois':
-                    $type='poi_geojson';
-                    break;
-                case 'tracks':
-                    $type='line_geojson';
-                    break;
-                
-                default:
-                    # code...
-                    break;
-            }
-            $out = <<<EOS
-
-        {
-            "label" : "$label",
-            "type": "$type",
-            "color": "$color",
-            "icon": "$icon",
-            "geojsonUrl": "$geojsonUrl",
-            "showByDefault": "$showByDefault"
-        }
-EOS;
-    if(!$first) $out = ','.$out;
-    $first = false;
-    $layers_string = $layers_string.$out;
-        }
-    endif;
-
-
-    $overlay_layers = '"OVERLAY_LAYERS" : [' . $layers_string . ']';
-
-$conf = <<<EOS
-{
-    "VERSION": "0.4", 
-
-    "OPTIONS": {
-        "title" : "$this->title",
-        "startUrl" : "/",
-        "useLocalStorageCaching" : false,
-        "advancedDebug" : false,
-        "hideHowToReach" : true,
-        "hideMenuButton" : false,
-        "hideExpanderInDetails" : true,
-        "hideFiltersInMap" : false,
-        "hideDeactiveCentralPointer" : true,
-        "hideShowInMapFromSearch" : true,
-        "avoidModalInDetails" : true,
-        "useAlmostOver" : false,
-        "filterIcon" : "wm-icon-layers"
-    },
-
-    "STYLE": {
+    private function buildStyleConfArray() {
+        $style = <<<EOS
+     {
         "global" : {
             "background" : "#F3F6E9",
             "color" : "black",
@@ -477,15 +489,14 @@ $conf = <<<EOS
                 "opacity": 1
             }
         }
-    },
+    }
+EOS;
+    return json_decode($style,TRUE);
+}
 
-    "ADVANCED_DEBUG": false,
-
-    "COMMUNICATION": {
-        "resourceBaseUrl": "$geojsonBaseUrl"
-    },
-
-    "SEARCH": {
+private function buildSearchConfArray() {
+    $search = <<<EOS
+    {
         "active": true,
         "indexFields": ["name"],
         "showAllByDefault": true,
@@ -493,10 +504,14 @@ $conf = <<<EOS
         "removeStopWords": true,
         "indexStrategy": "AllSubstringsIndexStrategy", 
         "TFIDFRanking": true
-    },
+    }
+EOS;
+   return json_decode($search,TRUE);
+}
 
-     
-    "MENU" : [{
+private function buildMenuConfArray() {
+    $menu = <<<EOS
+        [{
                 "label": "Esci dall'itinerario",
                 "type": "closeMap"
               }, {
@@ -505,31 +520,38 @@ $conf = <<<EOS
               },{
                 "label" : "Cerca",
                 "type" : "search"
-              }
-              ],
+        }]
+EOS;
+    return json_decode($menu,TRUE);
+}
 
-    "MAP" : {
-         $this->bb
-         ,  "markerClustersOptions" : {
-            "spiderfyOnMaxZoom" : true,
-            "showCoverageOnHover" : false,
-            "maxClusterRadius" : 60,
-            "disableClusteringAtZoom" : 17
-        },
-        "showCoordinatesInMap" : true,
-        "showScaleInMap" : true,
-        "hideZoomControl" : false,
-        "hideLocationControl" : false,
+private function buildMapConfArray() {
+    $map = $this->bb;
+    $map['markerClustersOptions'] = array (
+            "spiderfyOnMaxZoom" => true,
+            "showCoverageOnHover" => false,
+            "maxClusterRadius" => 60,
+            "disableClusteringAtZoom" => 17
+        );
+    $map["showCoordinatesInMap"]=true;
+    $map["showScaleInMap"]=true;
+    $map["hideZoomControl"]=false;
+    $map["hideLocationControl"]=false;
+    // TODO: gestione del layer dei satelliti
+    $map["layers"] = array(
+        array(
+                "label" => "Mappa",
+                "type" => "mbtiles",
+                "tilesUrl" => $this->tilesUrl,
+                "default" => true
+            )
+        );
+    return $map;
+}
 
-        "layers" : [{
-                   "label": "Mappa",
-                   "type": "mbtiles",
-                   "tilesUrl": "map.mbtiles",
-                   "default": true
-                }]
-    },
-
-    "DETAIL_MAPPING" : {
+private function buildDetailMappingConfArray() {
+    $detail_mapping = <<<EOS
+    {
         "default" : {
             "table" : {
                 "phone" : "Telefono"
@@ -543,19 +565,10 @@ $conf = <<<EOS
                 "address" : "via"
             }
         }
-    },
-
-    "PAGES" : [] ,
-
-    $overlay_layers 
-
-}
-
-
-EOS;
-return $conf;
-
     }
+EOS;
+   return json_decode($detail_mapping,TRUE);
+}
 
     public function getIndex() {
         $url=$this->structure->getURLClient().'/';
