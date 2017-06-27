@@ -58,6 +58,9 @@ class WebmappMap {
         if (isset($ja['n7webmap_map_bbox'])) {
             $this->bb = json_decode($ja['n7webmap_map_bbox'],TRUE);
         }
+        if (isset($ja['n7webmapp_route_bbox'])) {
+            $this->bb = json_decode($ja['n7webmapp_route_bbox'],TRUE);
+        }
 
     }
 
