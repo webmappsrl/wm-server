@@ -40,9 +40,9 @@ class WebmappLayerTest extends TestCase {
 		$this->assertRegExp('/"color":"#dd3333"/',$json);
 		$this->assertRegExp('/"icon":"wm-icon-generic"/',$json);
 		$this->assertRegExp('/"noDetails":false/',$json);
-		$this->assertRegExp('/"image":"http:.*dolomites-550349_960_720\.jpg"/',$json);
-		$this->assertRegExp('/"src":"http:.*dolomites-550349_960_720\.jpg/',$json);
-		$this->assertRegExp('/"src":"http:.*mountain-1077939_960_720\.jpg"/',$json);
+		$this->assertRegExp('/"image":"http:.*dolomites-550349_960_720/',$json);
+		$this->assertRegExp('/"src":"http:.*dolomites-550349_960_720/',$json);
+		$this->assertRegExp('/"src":"http:.*mountain-1077939_960_720/',$json);
 		$this->assertRegExp('/"addr:street":"Largo Parlascio"/',$json);
 		$this->assertRegExp('/"addr:housenumber":"1"/',$json);
 		$this->assertRegExp('/"addr:postcode":"56127"/',$json);
@@ -61,7 +61,7 @@ class WebmappLayerTest extends TestCase {
 		$this->assertRegExp('/"description":"<p>Un breve ma intenso giro in bicicletta per scoprire tutti i segreti di Pisa\.</',$json);
 		$this->assertRegExp('/"image":"http:.*Bici-Pisa\.jpg"/',$json);
 		$this->assertRegExp('/"src":"http:.*pisa_stazione_riparazione_gonfiaggio_bici_corso_italia_2\.jpg/',$json);
-		$this->assertRegExp('/"src":"http:.*Screenshot-2017-03-01-15\.06\.47\.png/',$json);
+		$this->assertRegExp('/"src":"http:.*Screenshot-2017-03-01-15\.06\.47/',$json);
 		$this->assertRegExp('/"color":"#81d742"/',$json);
 		$this->assertRegExp('/"from":"Stazione di Pisa"/',$json);
 		$this->assertRegExp('/"to":"Stazione di Pisa"/',$json);

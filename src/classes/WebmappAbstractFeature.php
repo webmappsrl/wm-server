@@ -81,7 +81,8 @@ abstract class WebmappAbstractFeature {
             $images = array();
             foreach ($gallery as $item ) {
                 // TODO: usare una grandezza standard
-                $images[]=array('src'=>$item['url']);
+                //$images[]=array('src'=>$item['url']);
+                $images[]=array('src'=>$item['sizes']['medium_large']);
             }
             $this->properties['imageGallery']=$images;
             $this->properties['image']=$images[0]['src'];

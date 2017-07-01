@@ -14,7 +14,7 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertRegExp('/"description":"<p>Un breve ma intenso giro in bicicletta per scoprire tutti i segreti di Pisa\.</',$json);
                 $this->assertRegExp('/"image":"http:.*Bici-Pisa\.jpg"/',$json);
                 $this->assertRegExp('/"src":"http:.*pisa_stazione_riparazione_gonfiaggio_bici_corso_italia_2\.jpg/',$json);
-                $this->assertRegExp('/"src":"http:.*Screenshot-2017-03-01-15\.06\.47\.png/',$json);
+                $this->assertRegExp('/"src":"http:.*Screenshot-2017-03-01-15\.06\.47/',$json);
 
                 // MAPPING SPECIFIC TRACK
                 $this->assertRegExp('/"color":"#81d742"/',$json);

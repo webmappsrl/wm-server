@@ -13,9 +13,9 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertRegExp('/"color":"#dd3333"/',$json);
                 $this->assertRegExp('/"icon":"wm-icon-generic"/',$json);
                 $this->assertRegExp('/"noDetails":false/',$json);
-                $this->assertRegExp('/"image":"http:.*dolomites-550349_960_720\.jpg"/',$json);
-                $this->assertRegExp('/"src":"http:.*dolomites-550349_960_720\.jpg/',$json);
-                $this->assertRegExp('/"src":"http:.*mountain-1077939_960_720\.jpg"/',$json);
+                $this->assertRegExp('/"image":"http:.*dolomites-550349_960_720/',$json);
+                $this->assertRegExp('/"src":"http:.*dolomites-550349_960_720/',$json);
+                $this->assertRegExp('/"src":"http:.*mountain-1077939_960_720/',$json);
                 $this->assertRegExp('/"addr:street":"Largo Parlascio"/',$json);
                 $this->assertRegExp('/"addr:housenumber":"1"/',$json);
                 $this->assertRegExp('/"addr:postcode":"56127"/',$json);
