@@ -17,6 +17,11 @@ class WebmappWPTest extends TestCase
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/map',$wp->getApiMaps());
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/webmapp_category',$wp->getApiCategories());
 
+		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/poi?webmapp_category=1',$wp->getApiPois(1));
+		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/track?webmapp_category=1',$wp->getApiTracks(1));
+		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/route?webmapp_category=1',$wp->getApiRoutes(1));
+		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/area?webmapp_category=1',$wp->getApiAreas(1));
+
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/poi/10',$wp->getApiPoi(10));
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/track/10',$wp->getApiTrack(10));
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/route/10',$wp->getApiRoute(10));
@@ -53,5 +58,5 @@ class WebmappWPTest extends TestCase
 		$this->assertTrue(in_array(4, $cats)); 
 	}
 
-	
+
 }

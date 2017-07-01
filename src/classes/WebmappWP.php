@@ -40,20 +40,36 @@ class WebmappWP {
 
 	// MULTIPLE API GETTERS
 
-	public function getApiPois() {
-		return $this->api_pois;
+	public function getApiPois($cat_id=0) {
+		$append = '';
+		if($cat_id!=0) {
+			$append="?webmapp_category=$cat_id";
+		}
+		return $this->api_pois.$append;
 	}
 
-	public function getApiTracks() {
-		return $this->api_tracks;
+	public function getApiTracks($cat_id=0) {
+		$append = '';
+		if($cat_id!=0) {
+			$append="?webmapp_category=$cat_id";
+		}
+		return $this->api_tracks.$append;
 	}
 
-	public function getApiRoutes() {
-		return $this->api_routes;
+	public function getApiRoutes($cat_id=0) {
+		$append = '';
+		if($cat_id!=0) {
+			$append="?webmapp_category=$cat_id";
+		}
+		return $this->api_routes.$append;
 	}
 
-	public function getApiAreas() {
-		return $this->api_areas;
+	public function getApiAreas($cat_id=0) {
+		$append = '';
+		if($cat_id!=0) {
+			$append="?webmapp_category=$cat_id";
+		}
+		return $this->api_areas.$append;
 	}
 
 	public function getApiMaps() {
@@ -138,6 +154,30 @@ class WebmappWP {
            $cats[] = $cat['id'];
  		}
  		return $cats;
+	}
+
+	// Restituisce un array di tutti i layer (piatto)
+	// $add_feature = true aggiunge anche tutte le features (poi / tracks o area) nel 
+	// layer corrispondente
+	private function getWebmappLayers($type, $add_features=false) {
+		switch ($type) {
+			case 'poi':
+				# code...
+				break;
+			case 'track':
+				# code...
+				break;
+			case 'area':
+				throw new Exception("Tipo area non ancora implementato", 1);
+				break;
+			case 'route':
+				throw new Exception("Tipo route non ancora implementato", 1);
+				break;
+			
+			default:
+				throw new Exception("Tipo $type non valido. Sono valido solamente i tipi poi, track e area.", 1);
+				break;
+		}
 	}
 
 }
