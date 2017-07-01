@@ -40,4 +40,18 @@ class WebmappWPTest extends TestCase
 		$this->assertTrue($wp->checkCategory(14));
 
 	}
+
+	public function testGetCategoriesArray() {
+		$wp = new WebmappWP('dev');
+		$cats = $wp -> getCategoriesArray();
+		$this->assertTrue(in_array(14, $cats)); 
+		$this->assertTrue(in_array(30, $cats)); 
+		$this->assertTrue(in_array(11, $cats)); 
+		$this->assertTrue(in_array(12, $cats)); 
+		$this->assertTrue(in_array(13, $cats)); 
+		$this->assertTrue(in_array(10, $cats)); 
+		$this->assertTrue(in_array(4, $cats)); 
+	}
+
+	
 }

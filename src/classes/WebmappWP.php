@@ -126,4 +126,18 @@ class WebmappWP {
 		return $this->checkUrl($this->getApiCategory($id));
 	}
 
+	// Categorie e layers
+
+	public function getCategoriesArray() {
+		$json = json_decode(file_get_contents($this->getApiCategories()),true);
+		if (!is_array($json) || count($json) == 0) {
+			return array();
+		}
+		$cats = array();
+		foreach ($json as $cat) {
+           $cats[] = $cat['id'];
+ 		}
+ 		return $cats;
+	}
+
 }
