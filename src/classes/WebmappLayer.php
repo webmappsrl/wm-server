@@ -3,12 +3,13 @@
 class WebmappLayer {
 	private $features = array();
 	private $name;
+	// TODO: togliere $path dalle properties
 	private $path;
 	private $label;
 	private $icon = 'wm-icon-generic';
 	private $color = '#FF3812';
 
-	public function __construct($name,$path) {
+	public function __construct($name,$path='') {
 		// TODO: check parameter
 		$this->name = $name;
 		$this->path = $path;
@@ -33,6 +34,10 @@ class WebmappLayer {
 
 	public function getName() {
 		return $this->name;
+	}
+
+	public function getFeatures() {
+		return $this->features;
 	}
 
     public function loadMetaFromUrl($url) {
@@ -61,8 +66,9 @@ class WebmappLayer {
        return json_encode($json);
     }
 
-	public function write() {
-		$fname = $this->path.'/'.$this->name.'.geojson';
+	public function write($path='') {
+		if($path=='') $path=$this->path;
+		$fname = $path.'/'.$this->name.'.geojson';
 		file_put_contents($fname, $this->getGeoJson());
 	}
 

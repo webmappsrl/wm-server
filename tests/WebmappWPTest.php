@@ -31,6 +31,13 @@ class WebmappWPTest extends TestCase
 
 	}
 
+	public function testGettersAndSetters() {
+		$wp = new WebmappWP('test');
+		$this->assertEquals(100,$wp->getPerPage());
+		$wp->setPerPage(5);
+		$this->assertEquals(5,$wp->getPerPage());
+	}
+
 	public function testCheck() {
 		$wp = new WebmappWP('notvalid');
 		$this->assertFalse($wp->check());
@@ -56,6 +63,22 @@ class WebmappWPTest extends TestCase
 		$this->assertTrue(in_array(13, $cats)); 
 		$this->assertTrue(in_array(10, $cats)); 
 		$this->assertTrue(in_array(4, $cats)); 
+	}
+
+	public function testGetPoiLayers() {
+		$wp = new WebmappWP('dev');
+		$wp->setPerPage(10);
+		$layers = $wp->getPoiLayers();
+		// print_r($layers);die();
+		$this->assertTrue(is_array($layers));
+		foreach ($layers as $layer) {
+			$this->assertEquals('WebmappLayer',get_class($layer));
+			$features = $layer -> getFeatures();
+			$this->assertTrue(count($features)>0);
+			foreach ($features as $feature) {
+				$this->assertEquals('WebmappPoiFeature',get_class($feature));
+			}
+		}
 	}
 
 

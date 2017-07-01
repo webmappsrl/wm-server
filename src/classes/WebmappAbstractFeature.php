@@ -20,11 +20,9 @@ abstract class WebmappAbstractFeature {
 			// E' Un URL quindi leggo API WP e converto in array
 			$json_array = json_decode(file_get_contents($array_or_url),true);
 		}
-		else {
-			// TODO: implementare la lettura dell'array diretta
-			throw new Exception("Lettura diretta array ancora anon implementato", 1);
-			$json_array = $array_or_url;
-		}
+        else {
+            $json_array = $array_or_url;
+        }
 
         $this->json_array = $json_array;
 

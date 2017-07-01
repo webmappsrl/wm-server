@@ -10,6 +10,7 @@ class WebmappWP {
 	private $api_areas;
 	private $api_maps;
 	private $api_categories;
+	private $per_page=100;
 
 	public function __construct($code) {
 		$this->code = $code;
@@ -26,6 +27,14 @@ class WebmappWP {
 
 	public function getCode() {
 		return $this->code;
+	}
+
+	public function setPerPage($per_page) {
+		$this->per_page=$per_page;
+	}
+
+	public function getPerPage() {
+		return $this->per_page;
 	}
 
 	// BASIC GETTERS
@@ -151,33 +160,77 @@ class WebmappWP {
 		}
 		$cats = array();
 		foreach ($json as $cat) {
-           $cats[] = $cat['id'];
- 		}
- 		return $cats;
+			$cats[] = $cat['id'];
+		}
+		return $cats;
+	}
+
+	public function getPoiLayers() {
+		return $this->getWebmappLayers('poi');
+	}
+
+	public function getTrackLayers() {
+		return $this->getWebmappLayers('track');
 	}
 
 	// Restituisce un array di tutti i layer (piatto)
 	// $add_feature = true aggiunge anche tutte le features (poi / tracks o area) nel 
 	// layer corrispondente
-	private function getWebmappLayers($type, $add_features=false) {
-		switch ($type) {
-			case 'poi':
-				# code...
+	private function getWebmappLayers($type) {
+		$cats = $this->getCategoriesArray();
+		if (count($cats)==0){
+			return $cats;
+		}
+		$layers = array();
+		foreach ($cats as $cat_id) {
+			switch ($type) {
+				case 'poi':
+				$api = $this->getApiPois($cat_id);
 				break;
-			case 'track':
-				# code...
+
+				case 'track':
+				$api = $this->getApiTracks($cat_id);
 				break;
-			case 'area':
+
+				case 'area':
+				$api = $this->getApiAreas($cat_id);
 				throw new Exception("Tipo area non ancora implementato", 1);
 				break;
-			case 'route':
+
+				case 'route':
+				$api = $this->getApiRoutes($cat_id);
 				throw new Exception("Tipo route non ancora implementato", 1);
 				break;
-			
-			default:
+
+				default:
 				throw new Exception("Tipo $type non valido. Sono valido solamente i tipi poi, track e area.", 1);
 				break;
+			}
+			$api = $api . '&per_page='.$this->per_page;
+			$features = json_decode(file_get_contents($api),true);
+			if(is_array($features) && count($features) > 0 ) {
+				$layer = new WebmappLayer($type.'_'.$cat_id);
+				$layer->loadMetaFromUrl($this->getApiCategory($cat_id));
+				foreach($features as $feature) {
+					// convetirw lo switch in featureFactory
+					switch ($type) 
+					{
+						case 'poi':
+						$wm_feature = new WebmappPoiFeature($feature);
+						break;
+						case 'track':
+						$wm_feature = new WebmappTrackFeature($feature);
+						break;
+						default:
+						throw new Exception("Errore $type è un tipo di feture non ancora implementato.", 1);
+						break;
+					}
+					$layer->addFeature($wm_feature);
+				}
+				$layers[]=$layer;
+			}
 		}
+		return $layers;
 	}
 
 }
