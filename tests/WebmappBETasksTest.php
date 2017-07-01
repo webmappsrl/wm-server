@@ -33,9 +33,6 @@ class WebmappBETasksTests extends TestCase
         $t = new WebmappBETask($this->name,$this->options,$this->project_structure);
         $this->assertTrue($t->check());
         $this->assertEquals('dev',$t->getCode());
-        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/map',$t->getAPI('wp','map'));
-        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/map/'.$this->options['id'],$t->getMapAPI());
-        $this->assertEquals('http://dev.be.webmapp.it/wp-json/webmapp/v1/pois.geojson',$t->getAPI('wm','pois.geojson'));
         $this->assertTrue($t->process());
         
         // File di POIS
@@ -59,7 +56,7 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/81d742/',$tracks_11);
         $this->assertRegExp('/Pisa Tour by Bike/',$tracks_11);
         $this->assertRegExp('/imageGallery/',$tracks_11);
-        $this->assertRegExp('/Screenshot-2017-03-01-15.06.47.png/',$tracks_11);
+        $this->assertRegExp('/Screenshot-2017-03-01-15/',$tracks_11);
         $this->assertRegExp('/ref/',$tracks_11);
         $this->assertRegExp('/descent/',$tracks_11);
         $this->assertRegExp('/ascent/',$tracks_11);
@@ -77,65 +74,13 @@ class WebmappBETasksTests extends TestCase
         $this->assertTrue(file_exists($conf_index));
         $conf = file_get_contents($conf_path);
         $index = file_get_contents($conf_index);
-        $this->assertRegExp("/title: 'DEV408 &#8211; MMP'/",$conf);
-        $this->assertRegExp('/maxZoom: 16/',$conf);
-        $this->assertRegExp('/minZoom: 10/',$conf);
-        $this->assertRegExp('/defZoom: 13/',$conf);
-        $this->assertRegExp("/label: 'Bar'/",$conf);
-        $this->assertRegExp("/color: '#00ff00'/",$conf);
-        $this->assertRegExp("/icon: 'wm-icon-generic',/",$conf);
-        $this->assertRegExp("/icon: 'wm-icon-restaurant',/",$conf);
-        // TODO: $this->assertRegExp("/geojsonUrl: 'https:\/\/api\/layer-1.geojson',/",$conf);
-        $this->assertRegExp("/showByDefault: true/",$conf);
-        $this->assertRegExp("/label: 'Ristoranti'/",$conf);
-        $this->assertRegExp("/tilesUrl: 'https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/'/",$conf);
-
-
-        $this->assertRegExp('|<base href="http://example.webmapp.it/"></base>|',$index);
-        $this->assertRegExp('/<title>DEV408 &#8211; MMP<\/title>/',$index);
+        $this->assertRegExp('/"title":"DEV408 &#8211; MMP"/',$conf);
+        $this->assertRegExp('/"maxZoom":"16"/',$conf);
+        $this->assertRegExp('/"minZoom":"10"/',$conf);
+        $this->assertRegExp('/"defZoom":"13"/',$conf);
+        $this->assertRegExp('/"label":"Bar"/',$conf);
+        $this->assertRegExp('/"color":"#00ff00"/',$conf);
+        $this->assertRegExp('/"icon":"wm-icon-generic",/',$conf);
+        $this->assertRegExp('/"icon":"wm-icon-restaurant",/',$conf);
     }
-
-    public function testGetLayersAPI() {
-        $t = new WebmappBETask($this->name,$this->options,$this->project_structure);
-        $t->check();
-        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category?per_page=100',$t->getLayersAPI());
-        
-    }
-
-    public function testLoadMap() {
-        $t = new WebmappBETask($this->name,$this->options,$this->project_structure);
-        $this->assertTrue($t->check());
-        $map=$t->loadAPI($t->getMapAPI());
-        $this->assertEquals($this->options['id'],$map['id']);
-    }
-
-    // Eccezioni
-    public function testKoNocode() {
-              // No code nell'array
-        $options = array('nocode'=>'dev');
-        $t = new WebmappBETask($this->name,$options,$this->project_structure);
-        $this->expectException(Exception::class);
-        $t->check();
-    }
-
-    public function testKoNoID() {
-              // No code nell'array
-        $options = array('code'=>'dev');
-        $t = new WebmappBETask($this->name,$options,$this->project_structure);
-        $this->expectException(Exception::class);
-        $t->check();
-    }
-
-    public function testKoNoMap() {
-              // No code nell'array
-        $options = array('code'=>'dev','id'=>1);
-        $t = new WebmappBETask($this->name,$options,$this->project_structure);
-        $t->check();
-        $this->expectException(Exception::class);
-        $t->process();
-    }
-
-
-
-
 }

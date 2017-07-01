@@ -161,16 +161,15 @@ class WebmappMap {
 
     public function writeConf() {
 
-        //$conf = $this->getConf();
         $conf_path = $this->structure->getPathClientConf() ;
-        //file_put_contents($conf_path, $conf);
  
-        // TODO: migliorare la gestione del file config.json a livello di progetto
-        // TODO: ancora meglio unificare una volta per tutte il file di configurazione in un unico file json
         $conf_json_path = preg_replace('/config\.js/', 'config.json', $conf_path);
         $conf_json = $this->getConfJson();
         file_put_contents($conf_json_path, $conf_json);
 
+        $conf = $this->getConf();
+        $conf_path = $this->structure->getPathClientConf() ;
+        file_put_contents($conf_path, $conf);
     }
 
     public function writeIndex() {
@@ -179,212 +178,7 @@ class WebmappMap {
     }
 
     public function getConf() {
-
-// Gestione degli ovlerlay_layers
-    $all_layers = array_merge($this->tracks_layers,$this->pois_layers);
-    $layers_string = '';
-    if (count($all_layers)):
-        $first = true;
-        foreach ($all_layers as $layer) {
-            $label=$layer['label'];
-            $icon=$layer['icon'];
-            $color=$layer['color'];
-            $geojsonUrl=$layer['geojsonUrl'];
-            $showByDefault = 'true';
-            if(isset($layer['showByDefault']) && $layer['showByDefault']===false) {
-                $showByDefault = 'false';
-            } 
-            switch ($layer['type']) {
-                case 'pois':
-                    $type='poi_geojson';
-                    break;
-                case 'tracks':
-                    $type='line_geojson';
-                    break;
-                
-                default:
-                    $type='undefined';
-                    break;
-            }
-            $out = <<<EOS
-
-        {
-            label: '$label',
-            type: '$type',
-            color: '$color',
-            icon: '$icon',
-            geojsonUrl: '$geojsonUrl',
-            showByDefault: $showByDefault
-        }
-EOS;
-    if(!$first) $out = ','.$out;
-    $first = false;
-    $layers_string = $layers_string.$out;
-        }
-    endif;
-
-
-    $overlay_layers = "OVERLAY_LAYERS: [$layers_string]";
-
-$conf = <<<EOS
-angular.module('webmapp').constant('GENERAL_CONFIG', {
-    VERSION: '0.4', // TODO: add clear localStorage if VERSION !==
-
-    OPTIONS: {
-        title: '$this->title',
-        startUrl: '/',
-        useLocalStorageCaching: false,
-        advancedDebug: false,
-        hideHowToReach: true,
-        hideMenuButton: true,
-        hideExpanderInDetails: true,
-        hideFiltersInMap: false,
-        hideDeactiveCentralPointer: true,
-        hideShowInMapFromSearch: true,
-        avoidModalInDetails: true,
-        useAlmostOver: false,
-        filterIcon: 'wm-icon-layers'
-    },
-
-    STYLE: {
-        global: {
-            background: '#F3F6E9',
-            color: 'black',
-            centralPointerActive: 'black',
-            buttonsBackground: 'rgba(56, 126, 245, 0.78)'
-        },
-        details: {
-            background: '#F3F6E9',
-            buttons: 'rgba(56, 126, 245, 0.78)',
-            color: '#929077'
-        },
-        subnav: {
-            color: 'white',
-            background: '#387EF5'
-        },
-        mainBar: {
-            color: 'white',
-            background: '#387EF5',
-            overwrite: true
-        },
-        menu: {
-            color: 'black',
-            background: '#F3F6E9'
-        },
-        search: {
-            color: '#387EF5'
-        },
-        images: {
-            background: '#e6e8de'
-        },
-        line: {
-            default: {
-                color: 'red',
-                weight: 5,
-                opacity: 0.65
-            },
-            highlight: {
-                color: '#00FFFF',
-                weight: 6,
-                opacity: 1
-            },
-        }
-    },
-
-    ADVANCED_DEBUG: false,
-
-    COMMUNICATION: {
-        // baseUrl: 'http://dev.be.webmapp.it/',
-        // endpoint: 'wp-json/webmapp/v1/',
-        // wordPressEndpoint: 'wp-json/wp/v2/'
-        // singleFeatureUrl: 'http://www.turismovallecamonica.it/it/get-single-feature-geojson/'
-    },
-
-    SEARCH: {
-        active: true,
-        // indexFields: ['name', 'body', 'email', 'address'],
-        indexFields: ['name'],
-        showAllByDefault: true,
-        stemming: true,
-        removeStopWords: true,
-        indexStrategy: 'AllSubstringsIndexStrategy', // AllSubstringsIndexStrategy || ExactWordIndexStrategy || PrefixIndexStrategy
-        TFIDFRanking: true
-    },
-
-     
-    // Da riempire solo con menu
-    MENU: [],
-
-    LOGIN: {
-        useLogin: false,
-        forceLogin: false
-    },
-
-    OFFLINE: {
-        // url: 'http://api.webmapp.it/elba/tiles/map.zip',
-        // tms: false,
-        // lastRelease: '2016-12-01'
-    },
-
-    TRACKING: {
-        active: false,
-    },
-
-    MAP: {
-         $this->bb
-         ,  markerClustersOptions: {
-            spiderfyOnMaxZoom: true,
-            showCoverageOnHover: false,
-            maxClusterRadius: 60, // or 40?
-            disableClusteringAtZoom: 17
-        },
-        showCoordinatesInMap: true,
-        showScaleInMap: true,
-        hideZoomControl: false,
-        hideLocationControl: false,
-
-        layers: [{
-            label: 'Mappa',
-            type: 'maptile',
-            // TODO: mettere OSM
-            tilesUrl: '$this->tilesUrl',
-            default: true
-        }, {
-            label: 'Satellite',
-            type: 'wms',
-            tilesUrl: 'http://213.215.135.196/reflector/open/service?',
-            layers: 'rv1',
-            format: 'image/jpeg'
-        }]
-    },
-
-    DETAIL_MAPPING: {
-        default: {
-            table: {
-                phone: 'Telefono'
-            },
-            fields: {
-                title: 'name',
-                description: 'description',
-                image: 'image',
-                email: 'mail',
-                phone: 'telefono',
-                address: 'via'
-            }
-        }
-    },
-
-    // Loop sui layers (da prendere nelle tracce)
-    $overlay_layers ,
-
-    PAGES: [],
-
-});
-
-
-EOS;
-return $conf;
-
+       return "angular.module('mappalo').constant('GENERAL_CONFIG', ".$this->getConfJson().");";
     }
 
     public function getConfJson() {

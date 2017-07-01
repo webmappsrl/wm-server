@@ -209,7 +209,7 @@ class WebmappWP {
 			$api = $api . '&per_page='.$this->per_page;
 			$features = json_decode(file_get_contents($api),true);
 			if(is_array($features) && count($features) > 0 ) {
-				$layer = new WebmappLayer($type.'_'.$cat_id);
+				$layer = new WebmappLayer($type.'s_'.$cat_id);
 				$layer->loadMetaFromUrl($this->getApiCategory($cat_id));
 				foreach($features as $feature) {
 					// convetirw lo switch in featureFactory

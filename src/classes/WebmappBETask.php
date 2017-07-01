@@ -51,7 +51,20 @@ class WebmappBETask extends WebmappAbstractTask {
 public function getCode() { return $this->code; }
 public function getId() { return $this->id; }
 public function process(){
-        // TODO: spostare la scrittura nella process generale
+    $poi_layers = $this->wp->getPoiLayers();
+    if(is_array($poi_layers) && count($poi_layers)>0) {
+        foreach($poi_layers as $layer) {
+            $layer->write($this->project_structure->getPathGeojson());
+            $this->map->addPoisWebmappLayer($layer);
+        }
+    }
+    $track_layers = $this->wp->getTrackLayers();
+    if(is_array($track_layers) && count($track_layers)>0) {
+        foreach($track_layers as $layer) {
+            $layer->write($this->project_structure->getPathGeojson());
+            $this->map->addTracksWebmappLayer($layer);
+        }
+    }
     $this->map->writeConf();
     $this->map->writeIndex();
     return TRUE;
