@@ -13,8 +13,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 	    $this->setProperty('contact:email',$json_array);
 	    $this->setProperty('opening_hours',$json_array);
 	    $this->setProperty('capacity',$json_array);
-
-
+        // Gestione dell'address
+        $address = $json_array['addr:street'].', '.$json_array['addr:housenumber'].' '.$json_array['addr:city'];
+        $this->properties['address'] = $address;
 	}
 
     // Impostazione della geometry a partire da formato API WP

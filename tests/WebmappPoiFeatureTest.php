@@ -20,6 +20,7 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertRegExp('/"addr:housenumber":"1"/',$json);
                 $this->assertRegExp('/"addr:postcode":"56127"/',$json);
                 $this->assertRegExp('/"addr:city":"Pisa"/',$json);
+                $this->assertRegExp('/"address":"Largo Parlascio, 1 Pisa"/',$json);
                 $this->assertRegExp('/"contact:email":"info@barsandomenico\.it"/',$json);
                 $this->assertRegExp('/"contact:phone":"\+39 050 7846161"/',$json);
                 $this->assertRegExp('/"opening_hours":"Sa-Su 00:00-24:00"/',$json);
