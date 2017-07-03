@@ -350,16 +350,25 @@ private function buildDetailMappingConfArray() {
     $detail_mapping = <<<EOS
     {
         "default" : {
-            "table" : {
-                "phone" : "Telefono"
-            },
             "fields" : {
                 "title" : "name",
-                "description" : "description",
                 "image" : "image",
-                "email" : "mail",
-                "phone" : "telefono",
-                "address" : "via"
+                "description" : "description",
+                "email" : "contact:email",
+                "phone" : "contact:phone",
+                "address" : "address"
+            },
+            "table" : {
+                "ref" : "Percorso",
+                "distance" : "Lunghezza",
+                "ascent" : "Dislivello positivo",
+                "descent" : "Dislivello negativo",
+                "duration:forward" : "Tempi",
+                "duration:backward" : "Tempi in direzione contraria",
+                "cai_scale" : "Difficoltà"
+            },
+            "urls" : {
+                "url" : "Vai al sito web"
             }
         }
     }

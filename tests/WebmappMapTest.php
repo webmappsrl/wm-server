@@ -54,7 +54,7 @@ class WebmappMapTest extends TestCase
 
         // DETAIL_MAPPING
         $this->assertRegExp('/"DETAIL_MAPPING":{"default":{/',$j);
-        $this->assertRegExp('/"email":"mail"/',$j);
+        $this->assertRegExp('/"email":"contact:email"/',$j);
         $this->assertRegExp('/"description":"description"/',$j);
 
         // PAGES
