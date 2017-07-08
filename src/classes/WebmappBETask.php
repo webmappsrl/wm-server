@@ -65,6 +65,7 @@ public function process(){
             $this->map->addTracksWebmappLayer($layer);
         }
     }
+    $this->map->buildStandardMenu();
     $this->map->writeConf();
     $this->map->writeIndex();
     return TRUE;

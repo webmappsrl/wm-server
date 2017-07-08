@@ -60,6 +60,10 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertTrue(file_exists($this->root.'/client/config.json'));
         // TODO: aggiungere controlli dettagliati su contenuto del file config
 
+        $json = file_get_contents($this->root.'/client/config.json');
+        $this->assertRegExp('/"label":"Mappa"/',$json);
+        $this->assertRegExp('/"label":"Cerca"/',$json);
+        $this->assertRegExp('/"label":"Esci dall\'itinerario"/',$json);
     }
 
     public function testUrls() {

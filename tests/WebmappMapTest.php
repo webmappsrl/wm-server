@@ -38,27 +38,33 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"background":"#F3F6E9"/',$j);
         $this->assertRegExp('/"ADVANCED_DEBUG":false/',$j);
         // TODO: migliorare questo controllo
-        $this->assertRegExp('/"resourceBaseUrl":".*geojson"/',$j);
+        $this->assertRegExp('|"baseUrl":"http:[^"]*example.webmapp.it"|',$j);
+        $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson"/',$j);
         $this->assertRegExp('/"showAllByDefault":true/',$j);
-        $this->assertRegExp('/"MENU":/',$j);
-        $this->assertRegExp('/"label":"Esci dall\'itinerario"/',$j);
-        $this->assertRegExp('/"label":"Mappa"/',$j);
-        $this->assertRegExp('/"label":"Cerca"/',$j);
 
         // SEZIONE STYLE
         $this->assertRegExp('/"background":"#FAFAFA"/',$j);
+
+        // SEZIONE SEARCH
+        $this->assertRegExp('/"indexFields":\["name","description","email","address"\]/',$j);
         
         // SEZIONE MAP
         $this->assertRegExp('/"maxZoom":"16"/',$j);
         $this->assertRegExp('/"minZoom":"10"/',$j);
         $this->assertRegExp('/"defZoom":"13"/',$j);
         // TODO: migliorare questo controllo
+        $this->assertRegExp('/"type":"maptile"/',$j);
         $this->assertRegExp('/"tilesUrl":".*mappadeimontipisani_new/',$j);
 
         // DETAIL_MAPPING
         $this->assertRegExp('/"DETAIL_MAPPING":{"default":{/',$j);
         $this->assertRegExp('/"email":"contact:email"/',$j);
         $this->assertRegExp('/"description":"description"/',$j);
+
+        // MENU
+        $this->assertRegExp('/"MENU":/',$j);
+        $this->assertRegExp('/"label":"Mappa"/',$j);
+        $this->assertRegExp('/"type":"map"/',$j);
 
         // PAGES
         $this->assertRegExp('/"PAGES":\[\]/',$j);
@@ -73,6 +79,7 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"icon":"wm-icon-siti-interesse"/',$j);
         $this->assertRegExp('/"icon":"wm-icon-restaurant"/',$j);
 
+        // TODO: a cosa serve questo se poi non lo uso nei test?
         $m->writeConf();
 
     }

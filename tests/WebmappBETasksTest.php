@@ -47,12 +47,10 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"image":/',$pois_30);
 
         // File di Tracks
-        $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/tracks_11.geojson'));
         $this->assertTrue(file_exists($this->project_structure->getPathGeojson().'/tracks_14.geojson'));
 
-        // 11 BIKE: http://dev.be.webmapp.it/wp-json/wp/v2/track?webmapp_category=11
         // Tour della cat 11: http://dev.be.webmapp.it/wp-admin/post.php?post=580&action=edit&lang=it
-        $tracks_11 = file_get_contents($this->project_structure->getPathGeojson().'/tracks_11.geojson');
+        $tracks_11 = file_get_contents($this->project_structure->getPathGeojson().'/tracks_14.geojson');
         $this->assertRegExp('/81d742/',$tracks_11);
         $this->assertRegExp('/Pisa Tour by Bike/',$tracks_11);
         $this->assertRegExp('/imageGallery/',$tracks_11);
@@ -82,5 +80,12 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"color":"#00ff00"/',$conf);
         $this->assertRegExp('/"icon":"wm-icon-generic",/',$conf);
         $this->assertRegExp('/"icon":"wm-icon-restaurant",/',$conf);
+
+        // Controllo Menu Standard (Mappa + layer)
+        $this->assertRegExp('/"label":"Punti di interesse",/',$conf);
+        $this->assertRegExp('/"type":"layer",/',$conf);
+        $this->assertRegExp('/"type":"layerGroup",/',$conf);
+        $this->assertRegExp('/"items":\["/',$conf);
+
     }
 }

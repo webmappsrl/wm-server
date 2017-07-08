@@ -45,7 +45,7 @@ class WebmappWPTest extends TestCase
 		$wp = new WebmappWP('dev');
 		$this->assertTrue($wp->check());
 		$this->assertTrue($wp->checkPoi(567));
-		$this->assertTrue($wp->checkTrack(606));
+		$this->assertTrue($wp->checkTrack(580));
 		$this->assertTrue($wp->checkRoute(346));
 		// TODO: test area $this->assertTrue($wp->checkArea());
 		$this->assertTrue($wp->checkMap(414));

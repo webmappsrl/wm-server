@@ -54,6 +54,6 @@ class WebmappTrackFeatureTests extends TestCase {
                 $ids = $poi->getWebmappCategoryIds();
                 $this->assertTrue(is_array($ids));
                 $this->assertEquals(1,count($ids));
-                $this->assertEquals(11,$ids[0]);
+                $this->assertEquals(14,$ids[0]);
         }
 }

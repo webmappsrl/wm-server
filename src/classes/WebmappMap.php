@@ -14,6 +14,20 @@ class WebmappMap {
     private $tracks_layers = array();
     private $style = array();
 
+    // Configurazione del menu
+    // TODO: generalizzare la lettura dei dati da interfaccia con un pportuno setters
+    // da impostare al momento della lettura dei meta della mappa loadMetaFromUrl
+    private $menu = array();
+    private $menu_map_label = 'Mappa';
+    private $menu_map_color = '#486C2C';
+    private $menu_map_icon = 'wm-icon-generic';
+    private $menu_pois_label = 'Punti di interesse';
+    private $menu_pois_color = '#E94C31';
+    private $menu_pois_icon = 'wm-icon-generic';
+    private $menu_tracks_label = 'Sentieri tematici';
+    private $menu_tracks_color = '#E79E19';
+    private $menu_tracks_icon = 'wm-icon-generic';
+
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
     private $conf_array = array();
@@ -30,6 +44,8 @@ class WebmappMap {
         }
         // Set default values;
         $this->style = $this->buildStyleConfArray();
+        // Set default values;
+        $this->menu = $this->buildMenuConfArray();
     } 
 
     public function simpleConstruct($structure) {
@@ -211,14 +227,19 @@ class WebmappMap {
         $this->conf_array['ADVANCED_DEBUG'] = false;
 
         // COMMUNICATION
+        $baseUrl = $this->structure->getUrlBase();
         $geojsonBaseUrl = $this->structure->getURLGeojson();
-        $this->conf_array['COMMUNICATION'] = array('resourceBaseUrl'=>$geojsonBaseUrl);
+        $this->conf_array['COMMUNICATION'] = 
+           array(
+            'baseUrl'=>$baseUrl,
+            'resourceBaseUrl'=>$geojsonBaseUrl
+           );
 
         // SEARCH
         $this->conf_array['SEARCH'] = $this->buildSearchConfArray();
 
         // MENU
-        $this->conf_array['MENU'] = $this->buildMenuConfArray();
+        $this->conf_array['MENU'] = $this->menu;
 
         // MAP
         $this->conf_array['MAP'] = $this->buildMapConfArray();
@@ -306,7 +327,7 @@ private function buildSearchConfArray() {
     $search = <<<EOS
     {
         "active": true,
-        "indexFields": ["name"],
+        "indexFields": ["name","description","email","address"],
         "showAllByDefault": true,
         "stemming": true,
         "removeStopWords": true,
@@ -333,6 +354,78 @@ EOS;
     return json_decode($menu,TRUE);
 }
 
+private function addMenuItem($label,$type,$color='',$icon='',$items=array()) {
+    $item = array();
+    $item['label'] = $label;
+    $item['type'] = $type;
+    if($color!='') {
+         $item['color'] = $color;        
+    }
+    if($icon != '' ) {
+        $item['icon'] = $icon;        
+    }
+    if(count($items)>0) {
+        $item['items']=$items;
+    }
+    array_push($this->menu, $item);
+}
+
+public function buildStandardMenu() {
+    // RESET MENU ARRAY
+    $this->menu = array();
+
+    //  MAP ITEM
+    $this->addMenuItem($this->menu_map_label,'map',$this->menu_map_color,$this->menu_map_icon);
+
+    // POIS
+    $c = count($this->pois_layers);
+    if ($c>0) {
+        if($c==1) {
+            // Add single layer
+            $label = $this->pois_layers[0]['label'];
+            $color = $this->pois_layers[0]['color'];
+            $icon = $this->pois_layers[0]['icon'];
+            $this->addMenuItem($label,'layer',$color,$icon);
+        }
+        else {
+            // Add Group layer
+            $items = array() ;
+            foreach ($this->pois_layers as $layer) {
+                $items[] = $layer['label'];
+            }
+            $label = $this->menu_pois_label;
+            $color = $this->menu_pois_color;
+            $icon = $this->menu_pois_icon;
+            $this->addMenuItem($label,'layerGroup',$color,$icon,$items);
+        }
+    }
+
+    // TRACKS
+    $c = count($this->tracks_layers);
+    if ($c>0) {
+        if($c==1) {
+            // Add single layer
+            $label = $this->tracks_layers[0]['label'];
+            $color = $this->tracks_layers[0]['color'];
+            $icon = $this->tracks_layers[0]['icon'];
+            $this->addMenuItem($label,'layer',$color,$icon);
+        }
+        else {
+            // Add Group layer
+            $items = arrray() ;
+            foreach ($this->tracks_layers as $layer) {
+                $items[] = $layer['label'];
+            }
+            $label = $this->menu_pois_label;
+            $color = $this->menu_pois_color;
+            $icon = $this->menu_pois_icon;
+            $this->addMenuItem($label,'layerGroup',$color,$icon,$items);
+        }
+    }
+
+    // PAGES
+}
+
 private function buildMapConfArray() {
     $map = $this->bb;
     $map['markerClustersOptions'] = array (
@@ -349,7 +442,7 @@ private function buildMapConfArray() {
     $map["layers"] = array(
         array(
                 "label" => "Mappa",
-                "type" => "mbtiles",
+                "type" => "maptile",
                 "tilesUrl" => $this->tilesUrl,
                 "default" => true
             )
