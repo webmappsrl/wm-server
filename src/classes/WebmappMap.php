@@ -12,6 +12,7 @@ class WebmappMap {
     private $tilesUrl;
     private $pois_layers = array();
     private $tracks_layers = array();
+    private $style = array();
 
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
@@ -27,6 +28,8 @@ class WebmappMap {
         else {
             $this->oldConstruct($map,$structure);
         }
+        // Set default values;
+        $this->style = $this->buildStyleConfArray();
     } 
 
     public function simpleConstruct($structure) {
@@ -62,6 +65,11 @@ class WebmappMap {
             $this->bb = json_decode($ja['n7webmapp_route_bbox'],TRUE);
         }
 
+        // STYLE
+        if(isset($ja['style']) && !empty($ja['style'])) {
+            $this->style = json_decode($ja['style'],TRUE);
+        } 
+
     }
 
     // GETTERS
@@ -76,6 +84,9 @@ class WebmappMap {
     }
     public function getBB() { 
         return $this->bb;
+    }
+    public function getStyle() {
+        return $this->style;
     }
 
 
@@ -194,7 +205,7 @@ class WebmappMap {
         $this->conf_array['OPTIONS'] = $this->buildOptionsConfArray();
 
         // STYLE
-        $this->conf_array['STYLE'] = $this->buildStyleConfArray();
+        $this->conf_array['STYLE'] = $this->style;
 
         // ADVANCED_DEBUG
         $this->conf_array['ADVANCED_DEBUG'] = false;

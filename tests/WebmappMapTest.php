@@ -45,6 +45,9 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"label":"Mappa"/',$j);
         $this->assertRegExp('/"label":"Cerca"/',$j);
 
+        // SEZIONE STYLE
+        $this->assertRegExp('/"background":"#FAFAFA"/',$j);
+        
         // SEZIONE MAP
         $this->assertRegExp('/"maxZoom":"16"/',$j);
         $this->assertRegExp('/"minZoom":"10"/',$j);
@@ -74,9 +77,16 @@ class WebmappMapTest extends TestCase
 
     }
 
-    public function testOk() {
-
+    public function testLoadMetaFromUrlDefault() {
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/414';
+        $m->loadMetaFromUrl($url);
+        //$this->assertEquals('',$m->get());
+        $j = $m->getConfJson();
+        // SEZIONE STYLE
+        $this->assertRegExp('/"background":"#F3F6E9"/',$j);
     }
+
 
 }
 
