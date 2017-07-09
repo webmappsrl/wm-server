@@ -14,6 +14,9 @@ class WebmappMap {
     private $tracks_layers = array();
     private $style = array();
 
+    // Gestione delle pagine
+    private $pages = array();
+
     // Configurazione del menu
     // TODO: generalizzare la lettura dei dati da interfaccia con un pportuno setters
     // da impostare al momento della lettura dei meta della mappa loadMetaFromUrl
@@ -27,6 +30,7 @@ class WebmappMap {
     private $menu_tracks_label = 'Sentieri tematici';
     private $menu_tracks_color = '#E79E19';
     private $menu_tracks_icon = 'wm-icon-generic';
+    private $menu_pages_title = 'About';
 
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
@@ -86,6 +90,29 @@ class WebmappMap {
             $this->style = json_decode($ja['style'],TRUE);
         } 
 
+        // Pages and menu pages title
+        if(isset($ja['pages_title']) && !empty($ja['pages_title'])) {
+            $this->menu_pages_title = $ja['pages_title'];
+        } 
+        if(isset($ja['pages']) && is_array($ja['pages']) && count($ja['pages'])>0) {
+            foreach($ja['pages'] as $page_obj) {
+                $guid = $page_obj['guid'];
+                $api = preg_replace('|\?page_id=|', 'wp-json/wp/v2/pages/', $guid);
+                $page_info = json_decode(file_get_contents($api),TRUE);
+                $page = array ("label" => $page_obj['post_title'],
+                               "type" => $page_obj['post_name'],
+                               "isCustom" => true,
+                    );
+                if(isset($page_info['menu_color']) && !empty($page_info['menu_color'])) {
+                    $page["color"]=$page_info['menu_color'];
+                }
+                if(isset($page_info['menu_icon']) && !empty($page_info['menu_icon'])) {
+                    $page["icon"]=$page_info['menu_icon'];
+                }
+
+                array_push($this->pages, $page);
+            }
+        } 
     }
 
     // GETTERS
@@ -248,7 +275,7 @@ class WebmappMap {
         $this->conf_array['DETAIL_MAPPING'] = $this->buildDetailMappingConfArray();
 
         // PAGES
-        $this->conf_array['PAGES'] = array();
+        $this->conf_array['PAGES'] = $this->pages;
 
         // OVERLAY_LAYERS
         $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers);
@@ -424,6 +451,13 @@ public function buildStandardMenu() {
     }
 
     // PAGES
+    if(count($this->pages)>0) {
+        $items = array();
+        foreach ($this->pages as $page) {
+            $items[]=$page['label'];
+        }
+        $this->addMenuItem($this->menu_pages_title,'pageGroup','','',$items);
+    }
 }
 
 private function buildMapConfArray() {

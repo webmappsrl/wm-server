@@ -2,19 +2,19 @@
 class WebmappBETask extends WebmappAbstractTask {
 
     	// Code
-   private $code;
+ private $code;
 
         // ID della mappa
-   private $id;
+ private $id;
 
         // Oggetto WebmappWP per la gestione delle API
-   private $wp;
+ private $wp;
 
         // Oggetto WebmappMap
-   private $map;
+ private $map;
 
 
-   public function check() {
+ public function check() {
 
             // Controllo parametro code http://[code].be.webmapp.it
     if(!array_key_exists('code', $this->options))
@@ -48,8 +48,12 @@ class WebmappBETask extends WebmappAbstractTask {
 }
 
     	// GETTERS
-public function getCode() { return $this->code; }
-public function getId() { return $this->id; }
+public function getCode() { 
+    return $this->code; 
+}
+public function getId() { 
+    return $this->id; 
+}
 public function process(){
     $poi_layers = $this->wp->getPoiLayers();
     if(is_array($poi_layers) && count($poi_layers)>0) {

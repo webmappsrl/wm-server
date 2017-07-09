@@ -65,9 +65,13 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"MENU":/',$j);
         $this->assertRegExp('/"label":"Mappa"/',$j);
         $this->assertRegExp('/"type":"map"/',$j);
+        
 
         // PAGES
-        $this->assertRegExp('/"PAGES":\[\]/',$j);
+        $this->assertRegExp('/"label":"Pagina Numero Uno"/',$j);
+        $this->assertRegExp('/"label":"Pagina Numero due"/',$j);
+        $this->assertRegExp('/"type":"pagina-numero-uno"/',$j);
+        $this->assertRegExp('/"isCustom":true/',$j);
 
         // OVERLAY LAYERS
         $this->assertRegExp('/"type":"poi_geojson"/',$j);

@@ -87,5 +87,12 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"type":"layerGroup",/',$conf);
         $this->assertRegExp('/"items":\["/',$conf);
 
+        $this->assertRegExp('/"label":"Informazioni"/',$conf);
+        $this->assertRegExp('/"type":"pageGroup"/',$conf);
+        $this->assertRegExp('/"items":\["Pagina Numero Uno","Pagina Numero due"\]/',$conf);
+        $this->assertRegExp('/"color":"#dd3333"/',$conf);
+        $this->assertRegExp('/"icon":"wm-icon-manor"/',$conf);
+
+
     }
 }
