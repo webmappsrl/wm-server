@@ -295,7 +295,7 @@ class WebmappMap {
         $options["advancedDebug"] = false;
         $options["hideHowToReach"] = true;
         $options["hideMenuButton"] = false;
-        $options["hideExpanderInDetails"] = true;
+        $options["hideExpanderInDetails"] = false;
         $options["hideFiltersInMap"] = false;
         $options["hideDeactiveCentralPointer"] = true;
         $options["hideShowInMapFromSearch"] = true;
