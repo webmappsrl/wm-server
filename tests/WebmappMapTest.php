@@ -17,6 +17,8 @@ class WebmappMapTest extends TestCase
         $cmd = "rm -f $root/client/config.json";system($cmd);
         $cmd = "rm -f $root/config.js";system($cmd);
         $cmd = "rm -f $root/config.json";system($cmd);
+        $cmd = "rm -f $root/index.html";system($cmd);
+        $cmd = "rm -f $root/client/index.html";system($cmd);
     }
 
     public function testLoadMetaFromUrl() {
@@ -102,6 +104,10 @@ class WebmappMapTest extends TestCase
         $this->assertTrue(file_exists($this->root . '/client/config.json'));
         $this->assertTrue(file_exists($this->root . '/config.js'));
         $this->assertTrue(file_exists($this->root . '/config.json'));
+
+        $m->writeIndex();
+        $this->assertTrue(file_exists($this->root . '/client/index.html'));
+        $this->assertTrue(file_exists($this->root . '/index.html'));
 
     }
 

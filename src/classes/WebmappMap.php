@@ -250,6 +250,8 @@ class WebmappMap {
     public function writeIndex() {
         $conf = $this->getIndex();
         file_put_contents($this->structure->getPathClientIndex(), $conf);
+        // TODO: lascare solo la index nella root
+        file_put_contents($this->structure->getRoot() . '/index.html', $conf);
     }
 
     public function getConf() {
