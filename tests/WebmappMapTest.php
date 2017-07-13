@@ -6,12 +6,17 @@ class WebmappMapTest extends TestCase
 
     private $map;
     private $project_structure;
+    private $root;
 
     public function __construct() {
-        $this->map = constructMap();
+        $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
+        $this-> project_structure = new WebmappProjectStructure($this->root);
+        $root = $this->root;
 
-        $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
-        $this-> project_structure = new WebmappProjectStructure($root);;
+        $cmd = "rm -f $root/client/config.js";system($cmd);
+        $cmd = "rm -f $root/client/config.json";system($cmd);
+        $cmd = "rm -f $root/config.js";system($cmd);
+        $cmd = "rm -f $root/config.json";system($cmd);
     }
 
     public function testLoadMetaFromUrl() {
@@ -91,8 +96,12 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$j);
         $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$j);
 
-        // TODO: a cosa serve questo se poi non lo uso nei test?
         $m->writeConf();
+
+        $this->assertTrue(file_exists($this->root . '/client/config.js'));
+        $this->assertTrue(file_exists($this->root . '/client/config.json'));
+        $this->assertTrue(file_exists($this->root . '/config.js'));
+        $this->assertTrue(file_exists($this->root . '/config.json'));
 
     }
 
@@ -107,10 +116,4 @@ class WebmappMapTest extends TestCase
     }
 
 
-}
-
-function constructMap() {
-// Preso da API DEV: view-source:http://dev.be.webmapp.it/wp-json/wp/v2/map/408
-$map_string = '{"id":408,"date":"2017-04-05T16:35:23","date_gmt":"2017-04-05T16:35:23","guid":{"rendered":"http:\/\/dev.be.webmapp.it\/?post_type=map&#038;p=408"},"modified":"2017-04-18T14:53:42","modified_gmt":"2017-04-18T14:53:42","slug":"test-all","status":"publish","type":"map","link":"http:\/\/dev.be.webmapp.it\/map\/test-all\/","title":{"rendered":"TEST ALL"},"content":{"rendered":"","protected":false},"excerpt":{"rendered":"","protected":false},"author":2,"featured_media":0,"template":"","webmapp_category":[],"n7webmap_type":"all","net7webmap_map_route":null,"layer_poi":null,"tiles":"https:\/\/api.mappalo.org\/mappadeimontipisani_new\/tiles\/map\/","n7webmap_map_bbox":"{\r\n    maxZoom: 18,\r\n    minZoom: 7,\r\n    defZoom: 9,\r\n    center: {\r\n        lat: 43.719287828277004,\r\n        lng: 10.39685368537899\r\n    },\r\n    bounds: {\r\n        southWest: [\r\n            43.34116005412307,\r\n            9.385070800781252\r\n        ],\r\n        northEast: [\r\n            44.09547572946637,\r\n            11.4093017578125\r\n        ]\r\n    }\r\n}","wpml_current_locale":"it_IT","wpml_translations":[],"_links":{"self":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map\/408"}],"collection":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map"}],"about":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/types\/map"}],"author":[{"embeddable":true,"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/users\/2"}],"version-history":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/map\/408\/revisions"}],"wp:attachment":[{"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/media?parent=408"}],"wp:term":[{"taxonomy":"webmapp_category","embeddable":true,"href":"http:\/\/dev.be.webmapp.it\/wp-json\/wp\/v2\/webmapp_category?post=408"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}}';
-return json_decode($map_string,true);
 }

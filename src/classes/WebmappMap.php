@@ -238,10 +238,13 @@ class WebmappMap {
         $conf_json_path = preg_replace('/config\.js/', 'config.json', $conf_path);
         $conf_json = $this->getConfJson();
         file_put_contents($conf_json_path, $conf_json);
+        // TODO: lo scriviamo anche nella root (poi si eliminerà la directory client che non ha senso)
+        file_put_contents($this->structure->getRoot() . '/config.json', $conf_json);
 
         $conf = $this->getConf();
         $conf_path = $this->structure->getPathClientConf() ;
         file_put_contents($conf_path, $conf);
+        file_put_contents($this->structure->getRoot() . '/config.js', $conf);
     }
 
     public function writeIndex() {
