@@ -18,15 +18,15 @@ class WebmappProjectStructure {
 	private $path_client;
 	private $path_client_index;
 	private $path_client_conf;
-
-
-	// Percorso dei geojson
-	private $path_geojson;
-	private $url_geojson;
 	// CLIENT
 	private $url_client;
 	private $url_client_index;
 	private $url_client_conf;
+
+	// Percorso dei geojson
+	private $path_geojson;
+	private $url_geojson;
+
 	// Percorso del file di configurazione del server
 	private $conf;
 	// Array dei tasks del progetto
@@ -90,7 +90,23 @@ class WebmappProjectStructure {
 	}
 
 	public function create() {
+		mkdir($this->root);
+		mkdir($this->root.'/client');
+		mkdir($this->root.'/server');
+		mkdir($this->root.'/geojson');
+		mkdir($this->root.'/tiles');
+		mkdir($this->root.'/media');
+		mkdir($this->root.'/media/images');
+		mkdir($this->root.'/resources');
+		mkdir($this->root.'/pages');
+	}
 
+	public function clean() {
+		$root = $this->root;
+      system("rm -f $root/client/*");
+      system("rm -f $root/geojson/*");
+      system("rm -f $root/media/images/*");
+      system("rm -f $root/media/*");
 	}
 
 	// Legge il file di configurazione e imposta i tasks da eseguire
