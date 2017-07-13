@@ -16,8 +16,10 @@ class WebmappMapTest extends TestCase
 
     public function testLoadMetaFromUrl() {
         $m = new WebmappMap($this->project_structure);
+        $this->assertFalse($m->hasOffline());
         $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
         $m->loadMetaFromUrl($url);
+        $this->assertTrue($m->hasOffline());
 
         // Add layers
         $l1 = new WebmappLayer('pois','/');
@@ -82,6 +84,12 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"geojsonUrl":"tracks.geojson"/',$j);
         $this->assertRegExp('/"icon":"wm-icon-siti-interesse"/',$j);
         $this->assertRegExp('/"icon":"wm-icon-restaurant"/',$j);
+
+        // OFFLINE
+        $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson"/',$j);
+        $this->assertRegExp('/"pagesUrl":"http:[^"]*example.webmapp.it[^"]*pages"/',$j);
+        $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$j);
+        $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$j);
 
         // TODO: a cosa serve questo se poi non lo uso nei test?
         $m->writeConf();

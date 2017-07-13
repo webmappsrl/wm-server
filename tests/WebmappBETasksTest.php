@@ -93,6 +93,10 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"color":"#dd3333"/',$conf);
         $this->assertRegExp('/"icon":"wm-icon-manor"/',$conf);
 
+        $this->assertRegExp('/"label":"Mappa Offline"/',$conf);
+        $this->assertRegExp('/"type":"settings"/',$conf);
+
+
 
     }
 }

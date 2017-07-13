@@ -18,6 +18,7 @@ class WebmappMap {
     private $pages = array();
 
     // Gestione della sezione OFFLINE
+    private $has_offline = false;
     private $offline = array();
 
     // Configurazione del menu
@@ -34,6 +35,7 @@ class WebmappMap {
     private $menu_tracks_color = '#E79E19';
     private $menu_tracks_icon = 'wm-icon-generic';
     private $menu_pages_title = 'About';
+    private $menu_offline_label = 'Mappa offline';
 
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
@@ -115,7 +117,17 @@ class WebmappMap {
 
                 array_push($this->pages, $page);
             }
-        } 
+        }
+        if(isset($ja['has_offline']) && $ja['has_offline'] == true ) {
+            $this->has_offline = true;
+        }
+        if(isset($ja['offline_menu_label']) && !empty($ja['offline_menu_label'])) {
+            $this->menu_offline_label = $ja['offline_menu_label'];
+        }
+
+        if ($this->has_offline) {
+            $this->buildOfflineConfArray();
+        }
     }
 
     // GETTERS
@@ -133,6 +145,9 @@ class WebmappMap {
     }
     public function getStyle() {
         return $this->style;
+    }
+    public function hasOffline() {
+        return $this->has_offline;
     }
 
 
@@ -278,7 +293,17 @@ class WebmappMap {
         $this->conf_array['DETAIL_MAPPING'] = $this->buildDetailMappingConfArray();
 
         // PAGES
-        $this->conf_array['PAGES'] = $this->pages;
+        if ($this->has_offline) {
+           $pages_with_offline = $this->pages; 
+           array_push($pages_with_offline,array(
+                               "label" => $this->menu_offline_label,
+                               "type" => 'settings',
+                               "isCustom" => false));
+           $this->conf_array['PAGES'] = $pages_with_offline;
+        }
+        else {
+           $this->conf_array['PAGES'] = $this->pages;            
+        }
 
         // OVERLAY_LAYERS
         $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers);
@@ -463,6 +488,11 @@ public function buildStandardMenu() {
         }
         $this->addMenuItem($this->menu_pages_title,'pageGroup','','',$items);
     }
+
+    // OFFLINE PAGE
+    if($this->has_offline) {
+        $this->addMenuItem($this->menu_offline_label,'page');
+    }
 }
 
 private function buildMapConfArray() {
@@ -517,6 +547,14 @@ private function buildDetailMappingConfArray() {
     }
 EOS;
    return json_decode($detail_mapping,TRUE);
+}
+
+private function buildOfflineConfArray() {
+    $baseUrl = $this->structure->getUrlBase();
+    $this->offline["resourceBaseUrl"] = $baseUrl . '/geojson';
+    $this->offline["pagesUrl"] = $baseUrl . '/pages';
+    $this->offline["urlMbtiles"] = $baseUrl . '/tiles/map.mbtiles';
+    $this->offline["urlImages"] = $baseUrl . '/media/images.zip';
 }
 
     public function getIndex() {
