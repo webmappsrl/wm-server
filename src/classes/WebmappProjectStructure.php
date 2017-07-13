@@ -12,16 +12,16 @@
 class WebmappProjectStructure {
 	// Root directory del progetto
 	private $root;
-	// Percorso dei geojson
-	private $path_geojson;
+	private $url_base;
+
 	// CLIENT
 	private $path_client;
 	private $path_client_index;
 	private $path_client_conf;
 
-	private $path_base;
-	private $url_base;
 
+	// Percorso dei geojson
+	private $path_geojson;
 	private $url_geojson;
 	// CLIENT
 	private $url_client;
@@ -33,10 +33,9 @@ class WebmappProjectStructure {
 	private $tasks = array();
 
 	// Costruttore
-	public function __construct($root,$path_base='/root/api.webmapp.it',$url_base='') {
+	public function __construct($root,$url_base='') {
 
 		$this->root = rtrim($root, '/');
-		$this->path_base=$path_base;
 		$this->path_geojson = $this->root.'/geojson';
 		$this->path_client = $this->root.'/client';
 		$this->path_client_index = $this->root.'/client/index.html';
@@ -63,7 +62,6 @@ class WebmappProjectStructure {
 
 	// Getters
 	public function getRoot() { return $this->root;}
-	public function getPathBase() { return $this->path_base;}
 	public function getUrlBase() { return $this->url_base;}
 	public function getPathGeojson() { return $this->path_geojson;}
 	public function getPathClient() { return $this->path_client;}
@@ -89,6 +87,10 @@ class WebmappProjectStructure {
 		// legge il file di configurazione e imposta i tasks da eseguire
 
 		return $this->readConf();
+	}
+
+	public function create() {
+
 	}
 
 	// Legge il file di configurazione e imposta i tasks da eseguire

@@ -5,17 +5,15 @@ class WebmappProjectStructureTest extends TestCase
 {
 
     private $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
-    private $path_base = __DIR__.'/../data/api.webmapp.it';
 
     public function testCheck() {
-        $p = new WebmappProjectStructure($this->root,$this->path_base);
+        $p = new WebmappProjectStructure($this->root);
         $this->assertTrue($p->check());
         $this->assertEquals($this->root,$p->getRoot());
         $this->assertEquals($this->root.'/geojson',$p->getPathGeojson());
         $this->assertEquals($this->root.'/client',$p->getPathClient());
         $this->assertEquals($this->root.'/client/index.html',$p->getPathClientIndex());
         $this->assertEquals($this->root.'/client/config.js',$p->getPathClientConf());
-        $this->assertEquals($this->path_base,$p->getPathBase());
         $this->assertEquals('http://example.webmapp.it',$p->getURLBase());
         $this->assertEquals('http://example.webmapp.it/geojson',$p->getURLGeojson());
         $this->assertEquals('http://example.webmapp.it',$p->getURLClient());
@@ -33,7 +31,14 @@ class WebmappProjectStructureTest extends TestCase
         $p->check();        
     }
 
-    // TODO: eccezione readConf json malformato
-    // TODO: eccezione readConf json senza chiave tasks
-    // TODO: eccezione readConf factorytask con un tipo non esistente
+    public function testCreate() {
+        $root = __DIR__.'/../data/api.webmapp.it/tmp.webmapp.it';
+        $cmd = "rm -Rf $root";
+        system($cmd);
+        
+    }
+
+
+
+
 }

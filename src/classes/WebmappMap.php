@@ -17,6 +17,9 @@ class WebmappMap {
     // Gestione delle pagine
     private $pages = array();
 
+    // Gestione della sezione OFFLINE
+    private $offline = array();
+
     // Configurazione del menu
     // TODO: generalizzare la lettura dei dati da interfaccia con un pportuno setters
     // da impostare al momento della lettura dei meta della mappa loadMetaFromUrl
@@ -279,6 +282,8 @@ class WebmappMap {
 
         // OVERLAY_LAYERS
         $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers);
+
+        $this->conf_array['OFFLINE'] = $this->offline;
 
 
     }

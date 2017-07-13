@@ -11,8 +11,7 @@ class WebmappMapTest extends TestCase
         $this->map = constructMap();
 
         $root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
-        $path_base = __DIR__.'/../data/api.webmapp.it';
-        $this-> project_structure = new WebmappProjectStructure($root,$path_base);;
+        $this-> project_structure = new WebmappProjectStructure($root);;
     }
 
     public function testLoadMetaFromUrl() {
@@ -72,6 +71,7 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"label":"Pagina Numero due"/',$j);
         $this->assertRegExp('/"type":"pagina-numero-uno"/',$j);
         $this->assertRegExp('/"isCustom":true/',$j);
+
 
         // OVERLAY LAYERS
         $this->assertRegExp('/"type":"poi_geojson"/',$j);
