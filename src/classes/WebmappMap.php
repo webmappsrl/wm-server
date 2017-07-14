@@ -275,13 +275,22 @@ class WebmappMap {
 
     // Write file info.json with APP Info (esempio: http://pnfc.j.webmapp.it/info.json)
     public function writeInfo() {
+
+        $version = '1.0.0';
+        // Gestione versione eventualmente già esistente
+        if(file_exists($this->structure->getRoot() . '/info.json')) {
+            $ja = json_decode(file_get_contents($this->structure->getRoot() . '/info.json'),true);
+            if (isset($ja['config.xml']['version'])) {
+                $version = $ja['config.xml']['version'];                
+            }
+        }
         $info = array();
         $info['configJs'] = $this->structure->getUrlBase() . '/config.js';
         $info['configJson'] = $this->structure->getUrlBase() . '/config.json';
         $info['config.xml']['id'] = $this->app_id;
         $info['config.xml']['description'] = $this->app_description;
         $info['config.xml']['name'] = $this->title;
-        $info['config.xml']['version'] = '1.0.0';
+        $info['config.xml']['version'] = $version;
         $info['resources']['icon'] = $this->app_icon;
         $info['resources']['splash'] = $this->app_splash;
         $file = $this->structure->getRoot() . '/info.json';
