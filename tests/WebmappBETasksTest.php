@@ -12,8 +12,7 @@ class WebmappBETasksTests extends TestCase
     public function __construct() {
         $this->name = 'prova';
         $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
-        $path_base = __DIR__.'/../data/api.webmapp.it';
-        $this->project_structure = new WebmappProjectStructure($this->root,$path_base);
+        $this->project_structure = new WebmappProjectStructure($this->root);
 
         // La mappa con ID 408 ha n7webmap_type='all';
         $this->options = array('code'=>'dev','id'=>408);
@@ -29,6 +28,9 @@ class WebmappBETasksTests extends TestCase
         $conf_index = $this->project_structure->getPathClientIndex();
         $cmd = 'rm -f '.$conf_index;
         system($cmd);
+        system('rm -f '.$this->root.'/info.json');
+
+        $this->assertEquals('http://example.webmapp.it',$this->project_structure->getUrlBase());
 
         $t = new WebmappBETask($this->name,$this->options,$this->project_structure);
         $this->assertTrue($t->check());
@@ -96,7 +98,20 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"label":"Mappa Offline"/',$conf);
         $this->assertRegExp('/"type":"settings"/',$conf);
 
+                // OFFLINE
+        $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson/',$conf);
+        $this->assertRegExp('/"pagesUrl":"http:[^"]*example.webmapp.it[^"]*pages/',$conf);
+        $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$conf);
+        $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$conf);
 
+        // Controllo file info.json
+        $this->assertTrue(file_exists($this->root . '/info.json'));
+        $ja = json_decode(file_get_contents($this->root . '/info.json'),true);
+        $this->assertEquals('http://example.webmapp.it/config.js',$ja['configJs']);
+        $this->assertEquals('http://example.webmapp.it/config.json',$ja['configJson']);
+        $this->assertEquals('it.webmapp.testpisa',$ja['config.xml']['id']);
+        $this->assertRegExp('/DEV408/',$ja['config.xml']['name']);
+        $this->assertEquals('Descrizione di test per la APP',$ja['config.xml']['description']);
 
     }
 }

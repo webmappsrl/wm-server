@@ -72,6 +72,7 @@ public function process(){
     $this->map->buildStandardMenu();
     $this->map->writeConf();
     $this->map->writeIndex();
+    $this->map->writeInfo();
     return TRUE;
 }
 

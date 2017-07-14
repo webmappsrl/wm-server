@@ -133,6 +133,8 @@ class WebmappMapTest extends TestCase
         $m->writeInfo();
         $this->assertTrue(file_exists($this->root . '/info.json'));
         $ja = json_decode(file_get_contents($this->root.'/info.json'),true);
+        $this->assertEquals('http://example.webmapp.it/config.js',$ja['configJs']);
+        $this->assertEquals('http://example.webmapp.it/config.json',$ja['configJson']);
         $this->assertEquals('it.webmapp.default',$ja['config.xml']['id']);
         $this->assertEquals('Titolo di prova',$ja['config.xml']['name']);
         $this->assertEquals('App description',$ja['config.xml']['description']);

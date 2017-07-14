@@ -134,6 +134,14 @@ class WebmappMap {
         if ($this->has_offline) {
             $this->buildOfflineConfArray();
         }
+        if(isset($ja['app_id']) && $ja['app_id'] != '' ) {
+            $this->app_id = $ja['app_id'];
+        }
+        if(isset($ja['app_description']) && $ja['app_description'] != '' ) {
+            $this->app_description = $ja['app_description'];
+        }
+
+
     }
 
     // GETTERS
@@ -268,8 +276,8 @@ class WebmappMap {
     // Write file info.json with APP Info (esempio: http://pnfc.j.webmapp.it/info.json)
     public function writeInfo() {
         $info = array();
-        $info['configJs'] = $this->structure->getRoot() . 'config.js';
-        $info['configJson'] = $this->structure->getRoot() . 'config.json';
+        $info['configJs'] = $this->structure->getUrlBase() . '/config.js';
+        $info['configJson'] = $this->structure->getUrlBase() . '/config.json';
         $info['config.xml']['id'] = $this->app_id;
         $info['config.xml']['description'] = $this->app_description;
         $info['config.xml']['name'] = $this->title;
