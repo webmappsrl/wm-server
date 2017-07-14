@@ -8,7 +8,7 @@ class WebmappMapTest extends TestCase
     private $project_structure;
     private $root;
 
-    public function __construct() {
+    private function init() {
         $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
         $this-> project_structure = new WebmappProjectStructure($this->root);
         $root = $this->root;
@@ -18,10 +18,14 @@ class WebmappMapTest extends TestCase
         $cmd = "rm -f $root/config.js";system($cmd);
         $cmd = "rm -f $root/config.json";system($cmd);
         $cmd = "rm -f $root/index.html";system($cmd);
-        $cmd = "rm -f $root/client/index.html";system($cmd);
+        $cmd = "rm -f $root/client/index.html";system($cmd);        
+        $cmd = "rm -f $root/client/info.json";system($cmd);        
     }
 
     public function testLoadMetaFromUrl() {
+
+        $this -> init();
+
         $m = new WebmappMap($this->project_structure);
         $this->assertFalse($m->hasOffline());
         $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
@@ -112,6 +116,7 @@ class WebmappMapTest extends TestCase
     }
 
     public function testLoadMetaFromUrlDefault() {
+        $this -> init();
         $m = new WebmappMap($this->project_structure);
         $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/414';
         $m->loadMetaFromUrl($url);
@@ -119,6 +124,18 @@ class WebmappMapTest extends TestCase
         $j = $m->getConfJson();
         // SEZIONE STYLE
         $this->assertRegExp('/"background":"#F3F6E9"/',$j);
+    }
+
+    public function testWriteInfo() {
+        $this -> init();
+        $m = new WebmappMap($this->project_structure);
+        $m->setTitle('Titolo di prova');
+        $m->writeInfo();
+        $this->assertTrue(file_exists($this->root . '/info.json'));
+        $ja = json_decode(file_get_contents($this->root.'/info.json'),true);
+        $this->assertEquals('it.webmapp.default',$ja['config.xml']['id']);
+        $this->assertEquals('Titolo di prova',$ja['config.xml']['name']);
+        $this->assertEquals('App description',$ja['config.xml']['description']);
     }
 
 

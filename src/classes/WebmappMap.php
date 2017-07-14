@@ -37,6 +37,12 @@ class WebmappMap {
     private $menu_pages_title = 'About';
     private $menu_offline_label = 'Mappa offline';
 
+    // APP Info
+    private $app_id = 'it.webmapp.default' ;
+    private $app_description = 'App description' ;
+    private $app_icon = 'http://api.webmapp.it/resources/icon.png';
+    private $app_splash = 'http://api.webmapp.it/resources/splash.png';
+
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
     private $conf_array = array();
@@ -150,6 +156,11 @@ class WebmappMap {
         return $this->has_offline;
     }
 
+    // SETTERS
+    public function setTitle($title) {
+        $this->title = $title;
+    }
+
 
     // TODO: eliminare questa funzione
     public function oldConstruct($map,$structure) {
@@ -254,8 +265,23 @@ class WebmappMap {
         file_put_contents($this->structure->getRoot() . '/index.html', $conf);
     }
 
+    // Write file info.json with APP Info (esempio: http://pnfc.j.webmapp.it/info.json)
+    public function writeInfo() {
+        $info = array();
+        $info['configJs'] = $this->structure->getRoot() . 'config.js';
+        $info['configJson'] = $this->structure->getRoot() . 'config.json';
+        $info['config.xml']['id'] = $this->app_id;
+        $info['config.xml']['description'] = $this->app_description;
+        $info['config.xml']['name'] = $this->title;
+        $info['config.xml']['version'] = '1.0.0';
+        $info['resources']['icon'] = $this->app_icon;
+        $info['resources']['splash'] = $this->app_splash;
+        $file = $this->structure->getRoot() . '/info.json';
+        file_put_contents($file, json_encode($info));
+    }
+
     public function getConf() {
-       return "angular.module('mappalo').constant('GENERAL_CONFIG', ".$this->getConfJson().");";
+       return "angular.module('webmapp').constant('GENERAL_CONFIG', ".$this->getConfJson().");";
     }
 
     public function getConfJson() {
