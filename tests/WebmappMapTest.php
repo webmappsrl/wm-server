@@ -97,8 +97,8 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"icon":"wm-icon-restaurant"/',$j);
 
         // OFFLINE
-        $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson"/',$j);
-        $this->assertRegExp('/"pagesUrl":"http:[^"]*example.webmapp.it[^"]*pages"/',$j);
+        $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson/',$j);
+        $this->assertRegExp('/"pagesUrl":"http:[^"]*example.webmapp.it[^"]*pages/',$j);
         $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$j);
         $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$j);
 

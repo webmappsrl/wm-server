@@ -605,96 +605,96 @@ $index = <<<EOS
         <title>$this->title</title>
 
         <!-- CSS -->
-        <link href="http://client.webmapp.it/core/fonts/webmapp-icons/style.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/fonts/webmapp-icons/style.css" rel="stylesheet">
         
-        <link href="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet-control-locate/L.Control.Locate.mapbox.css" rel="stylesheet">
-        <link href="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet-markercluster/MarkerCluster.css" rel="stylesheet">
-        <link href="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet-markercluster/MarkerCluster.Default.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet-control-locate/L.Control.Locate.mapbox.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet-markercluster/MarkerCluster.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet-markercluster/MarkerCluster.Default.css" rel="stylesheet">
 
-        <link href="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.min.css" rel="stylesheet">
-        <link href="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.vector-markers/leaflet-vector-markers.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.min.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.vector-markers/leaflet-vector-markers.css" rel="stylesheet">
 
-        <link href="http://client.webmapp.it/core/lib/ionic/css/ionic.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/ionic/css/ionic.css" rel="stylesheet">
         
-        <link href="http://client.webmapp.it/core/css/font-awesome.min.css" rel="stylesheet">
-        <link href="http://client.webmapp.it/core/lib/leaflet/leaflet.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/css/font-awesome.min.css" rel="stylesheet">
+        <link href="http://client2.webmapp.it/core/lib/leaflet/leaflet.css" rel="stylesheet">
         <!-- <link href='core/css/mapbox2.2.2.min.css' rel='stylesheet' /> -->
-        <!-- <link href="http://client.webmapp.it/core/css/fonts.css" rel="stylesheet" />
-        <link href="http://client.webmapp.it/core/css/style.min.css" rel="stylesheet" /> -->
+        <!-- <link href="http://client2.webmapp.it/core/css/fonts.css" rel="stylesheet" />
+        <link href="http://client2.webmapp.it/core/css/style.min.css" rel="stylesheet" /> -->
 
-        <link rel="stylesheet" type="text/css" href="http://client.webmapp.it/core/css/fonts.css" media="none" onload="document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {document.body.className+=' fontsloaded';}, 1000);}); this.media='all';">
-        <link rel="stylesheet" type="text/css" href="http://client.webmapp.it/core/css/style.min.css" media="none" onload="this.media='all';">
+        <link rel="stylesheet" type="text/css" href="http://client2.webmapp.it/core/css/fonts.css" media="none" onload="document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {document.body.className+=' fontsloaded';}, 1000);}); this.media='all';">
+        <link rel="stylesheet" type="text/css" href="http://client2.webmapp.it/core/css/style.min.css" media="none" onload="this.media='all';">
 
         <!-- JS -->
 
         <!-- LIB -->
-        <script src="http://client.webmapp.it/core/lib/LPF.js"></script>
-        <script src="http://client.webmapp.it/core/lib/jquery/dist/jquery.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/ionic/js/ionic.bundle.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/LPF.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/jquery/dist/jquery.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/ionic/js/ionic.bundle.min.js"></script>
 
-        <script src="http://client.webmapp.it/core/lib/clipboard/dist/clipboard.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/jsSHA/src/sha1.js"></script>
-        <script src="http://client.webmapp.it/core/lib/porter-stemmer/porterStemmer1980.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/js-search/dist/js-search.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/igTruncate/igTruncate.js"></script>
-        <script src="http://client.webmapp.it/core/lib/JsBarcode/dist/JsBarcode.all.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/clipboard/dist/clipboard.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/jsSHA/src/sha1.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/porter-stemmer/porterStemmer1980.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/js-search/dist/js-search.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/igTruncate/igTruncate.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/JsBarcode/dist/JsBarcode.all.min.js"></script>
         
-        <script src="http://client.webmapp.it/core/lib/leaflet/leaflet.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet-hash-mod/leaflet-hash.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.utfgrid.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.vector-markers/leaflet-vector-markers.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet-control-locate/L.Control.Locate.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet-markercluster/leaflet.markercluster.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.kkn.min.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.geometryutil.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/leaflet.almostover.js"></script>
-        <script src="http://client.webmapp.it/core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet/leaflet.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet-hash-mod/leaflet-hash.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.utfgrid.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.vector-markers/leaflet-vector-markers.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet-control-locate/L.Control.Locate.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet-markercluster/leaflet.markercluster.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.kkn.min.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.geometryutil.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/leaflet.almostover.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
         <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
 
-        <script src="http://client.webmapp.it/core/lib/ngCordova/dist/ng-cordova.js"></script>
+        <script src="http://client2.webmapp.it/core/lib/ngCordova/dist/ng-cordova.js"></script>
         
         <!-- DEVELOP -->
-        <!-- <script src="http://client.webmapp.it/core/lib/connector.js" data-channel="mp-vc" id="consolerescript"></script> -->
+        <!-- <script src="http://client2.webmapp.it/core/lib/connector.js" data-channel="mp-vc" id="consolerescript"></script> -->
         <!-- <script src="_cordova/cordova.js"></script> -->
 
         <!-- APP -->
         
         <script type="text/javascript">
-            var templateBasePath = 'http://client.webmapp.it/core/',
+            var templateBasePath = 'http://client2.webmapp.it/core/',
                 templateCustomPath = '';
         </script>
         
-        <script src="http://client.webmapp.it/core/js/app.js"></script>
-        <script src="http://client.webmapp.it/core/js/settings/overwrite.js"></script>
-        <script src="http://client.webmapp.it/core/js/settings/routes.js"></script>
-        <script src="http://client.webmapp.it/core/js/settings/run.js"></script>
-        <script src="http://client.webmapp.it/core/js/settings/filters.js"></script>
-        <script src="http://client.webmapp.it/core/js/settings/compile.js"></script>
+        <script src="http://client2.webmapp.it/core/js/app.js"></script>
+        <script src="http://client2.webmapp.it/core/js/settings/overwrite.js"></script>
+        <script src="http://client2.webmapp.it/core/js/settings/routes.js"></script>
+        <script src="http://client2.webmapp.it/core/js/settings/run.js"></script>
+        <script src="http://client2.webmapp.it/core/js/settings/filters.js"></script>
+        <script src="http://client2.webmapp.it/core/js/settings/compile.js"></script>
         <script src="config.js"></script>
         
-        <script src="http://client.webmapp.it/core/js/services/auth.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/account.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/tracking.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/search.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/model.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/utils.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/offline.factory.js"></script>
-        <script src="http://client.webmapp.it/core/js/services/map.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/auth.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/account.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/tracking.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/search.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/model.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/utils.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/offline.factory.js"></script>
+        <script src="http://client2.webmapp.it/core/js/services/map.factory.js"></script>
 
-        <script src="http://client.webmapp.it/core/js/components/welcome/welcome.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/coupons/coupons.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/packages/packages.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/settings/settings.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/search/search.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/mapView/mapView.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/list/list.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/card/card.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/details/details.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/main/main.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/menu/menu.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/custom/custom.controller.js"></script>
-        <script src="http://client.webmapp.it/core/js/components/webmapp/webmapp.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/welcome/welcome.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/coupons/coupons.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/packages/packages.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/settings/settings.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/search/search.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/mapView/mapView.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/list/list.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/card/card.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/details/details.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/main/main.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/menu/menu.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/custom/custom.controller.js"></script>
+        <script src="http://client2.webmapp.it/core/js/components/webmapp/webmapp.controller.js"></script>
     </head>
 
     <body ng-app="webmapp">
