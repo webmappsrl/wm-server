@@ -582,8 +582,8 @@ EOS;
 
 private function buildOfflineConfArray() {
     $baseUrl = $this->structure->getUrlBase();
-    $this->offline["resourceBaseUrl"] = $baseUrl . '/geojson';
-    $this->offline["pagesUrl"] = $baseUrl . '/pages';
+    $this->offline["resourceBaseUrl"] = $baseUrl . '/geojson/';
+    $this->offline["pagesUrl"] = $baseUrl . '/pages/';
     $this->offline["urlMbtiles"] = $baseUrl . '/tiles/map.mbtiles';
     $this->offline["urlImages"] = $baseUrl . '/media/images.zip';
 }
