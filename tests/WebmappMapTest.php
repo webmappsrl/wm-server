@@ -18,8 +18,10 @@ class WebmappMapTest extends TestCase
         $cmd = "rm -f $root/config.js";system($cmd);
         $cmd = "rm -f $root/config.json";system($cmd);
         $cmd = "rm -f $root/index.html";system($cmd);
-        $cmd = "rm -f $root/client/index.html";system($cmd);        
-        $cmd = "rm -f $root/client/info.json";system($cmd);        
+        $cmd = "rm -f $root/client/index.html";system($cmd);
+        $cmd = "rm -f $root/client/info.json";system($cmd);
+        $cmd = "rm -f $root/resources/icon.png";system($cmd);        
+        $cmd = "rm -f $root/resources/splash.png";system($cmd);        
     }
 
     public function testLoadMetaFromUrl() {
@@ -112,6 +114,14 @@ class WebmappMapTest extends TestCase
         $m->writeIndex();
         $this->assertTrue(file_exists($this->root . '/client/index.html'));
         $this->assertTrue(file_exists($this->root . '/index.html'));
+
+        $m->writeInfo();
+        $this->assertTrue(file_exists($this->root . '/info.json'));
+        $this->assertTrue(file_exists($this->root . '/resources/icon.png'));
+        $this->assertTrue(file_exists($this->root . '/resources/splash.png'));
+        $ja = json_decode(file_get_contents($this->root.'/info.json'),true);
+        $this->assertEquals('http://example.webmapp.it/resources/icon.png',$ja['resources']['icon']);
+        $this->assertEquals('http://example.webmapp.it/resources/splash.png',$ja['resources']['splash']);
 
     }
 

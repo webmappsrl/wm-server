@@ -134,12 +134,34 @@ class WebmappMap {
         if ($this->has_offline) {
             $this->buildOfflineConfArray();
         }
+
+        // Informazioni per la pubblicazione delle APP
         if(isset($ja['app_id']) && $ja['app_id'] != '' ) {
             $this->app_id = $ja['app_id'];
         }
         if(isset($ja['app_description']) && $ja['app_description'] != '' ) {
             $this->app_description = $ja['app_description'];
         }
+
+        if(isset($ja['app_icon']) && $ja['app_icon'] != '' ) {
+            $headers = get_headers($ja['app_icon']);
+            if (preg_match('/200/', $headers[0])) {
+                $this->app_icon = $this->structure->getUrlBase() . '/resources/icon.png';
+                $app_icon_path = $this->structure->getRoot() . '/resources/icon.png';
+                file_put_contents($app_icon_path, fopen($ja['app_icon'], 'r'));
+            }
+        }
+
+        if(isset($ja['app_splash']) && $ja['app_splash'] != '' ) {
+            $headers = get_headers($ja['app_splash']);
+            if (preg_match('/200/', $headers[0])) {
+                $this->app_splash = $this->structure->getUrlBase() . '/resources/splash.png';
+                $app_splash_path = $this->structure->getRoot() . '/resources/splash.png';
+                file_put_contents($app_splash_path, fopen($ja['app_splash'], 'r'));
+            }
+        }
+
+
 
 
     }
