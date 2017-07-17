@@ -32,6 +32,11 @@ abstract class WebmappAbstractFeature {
 		$this->mappingGeometry($json_array);
 	}
 
+    // Setters
+    public function setImage($url) {
+        $this->properties['image']=$url;
+    }
+
     // Restituisce l'array con l'id WP delle categorie
     public function getWebmappCategoryIds() {
         return $this->webmapp_category_ids;
@@ -83,7 +88,7 @@ abstract class WebmappAbstractFeature {
                 $images[]=array('src'=>$item['sizes']['medium_large']);
             }
             $this->properties['imageGallery']=$images;
-            $this->properties['image']=$images[0]['src'];
+            $this->setImage($images[0]['src']);
         }    	
     }
 
@@ -93,36 +98,6 @@ abstract class WebmappAbstractFeature {
     // Mapping della geometry 
     abstract protected function mappingGeometry($json_array);
     
-    // Restituisce la stringa del singolo elemento FEATURE
-    /** Esempio di stringa del singolo elemento del geoJson
-    {
-    "type": "Feature",
-    "properties": {
-        "description": "",
-        "id": 566,
-        "name": "117-01",
-        "image": "http://dev.be.webmapp.it/wp-content/uploads/2017/05/dolomites-550349_960_720.jpg",
-        "imageGallery": [
-            {
-                "src": "http://dev.be.webmapp.it/wp-content/uploads/2017/05/dolomites-550349_960_720.jpg"
-            },
-            {
-                "src": "http://dev.be.webmapp.it/wp-content/uploads/2017/05/mountain-1077939_960_720.jpg"
-            },
-            {
-                "src": "http://dev.be.webmapp.it/wp-content/uploads/2017/03/Pisa-lungarno03.jpg"
-            }
-        ]
-    },
-    "geometry": {
-        "coordinates": [
-            10.441684,
-            43.762954999999998
-        ],
-        "type": "Point"
-    }
-}
-    **/
     public function getArrayJson() {
 
         $json = array();
