@@ -2,19 +2,19 @@
 class WebmappDrupalTask extends WebmappAbstractTask {
 
     	// Code
- private $code;
+   private $code;
 
         // ID della mappa
- private $id;
+   private $id;
 
         // Oggetto WebmappWP per la gestione delle API
- private $wp;
+   private $wp;
 
         // Oggetto WebmappMap
- private $map;
+   private $map;
 
 
- public function check() {
+   public function check() {
 
             // Controllo parametro code http://[code].be.webmapp.it
     if(!array_key_exists('code', $this->options))
@@ -55,14 +55,43 @@ public function getId() {
     return $this->id; 
 }
 public function process(){
-    $this->map->addPoisLayer('poi.geojsons',"Luoghi");
-    $this->map->addTracksLayer('tracks.geojsons',"Percorsi");
+
+    $this->loadPois();
 
     $this->map->buildStandardMenu();
     $this->map->writeConf();
     $this->map->writeIndex();
     $this->map->writeInfo();
     return TRUE;
+}
+
+// TODO: prendere gli endpoint dalla piattaforma editoriale? (anche no)
+private function loadPois() {
+    $url = "http://www.tavarnellevp.it/json/node?parameters[type]=poi";
+    $pa = json_decode(file_get_contents($url),TRUE);
+    if(count($pa)>0) {
+        $layer = new WebmappLayer('pois');
+        foreach ($pa as $item) {
+            $uri = $item['uri'];
+            $pi = json_decode(file_get_contents($uri),TRUE);
+            // Mapping per renderlo compatibile con una Feature che arriva da WP
+            $wm = array();
+            $wm['id'] = $pi['nid'];
+            $wm['title']['rendered'] = $pi['title'];
+            $wm['content']['rendered'] = $pi['body']['und'][0]['value'];
+            $wm['n7webmap_coord']['lat'] = $pi['field_posizione']['und'][0]['latitude'];
+            $wm['n7webmap_coord']['lng'] = $pi['field_posizione']['und'][0]['longitude'];
+            //$wm[''] = $pi[''][''][''];
+
+            $poi = new WebmappPoiFeature($wm);
+            $layer->addFeature($poi);
+
+        }
+        $layer->write($this->project_structure->getPathGeojson());
+        $this->map->addPoisWebmappLayer($layer);
+
+    }
+
 }
 
 }

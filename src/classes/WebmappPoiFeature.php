@@ -14,8 +14,17 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 	    $this->setProperty('opening_hours',$json_array);
 	    $this->setProperty('capacity',$json_array);
         // Gestione dell'address
-        $address = $json_array['addr:street'].', '.$json_array['addr:housenumber'].' '.$json_array['addr:city'];
-        $this->properties['address'] = $address;
+        if (isset($json_array['address'])) {
+            $this->setProperty('address',$json_array);
+        }
+        else if (isset($json_array['addr:street']) && isset($json_array['addr:city'])) {
+            $num = '';
+            if (isset($json_array['addr:housenumber'])) {
+                $num = $json_array['addr:housenumber'];
+            }
+          $address = $json_array['addr:street'].', '.$num.' '.$json_array['addr:city'];
+          $this->properties['address'] = $address;
+        }
 	}
 
     // Impostazione della geometry a partire da formato API WP
