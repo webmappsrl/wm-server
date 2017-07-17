@@ -71,6 +71,7 @@ private function loadPois() {
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {
         $layer = new WebmappLayer('pois');
+        $layer->setLabel('Luoghi');
         foreach ($pa as $item) {
             $uri = $item['uri'];
             $pi = json_decode(file_get_contents($uri),TRUE);

@@ -15,6 +15,10 @@ class WebmappLayer {
 		$this->path = $path;
 	}
 
+	public function setLabel($label) {
+		$this->label=$label;
+	}
+
 	public function addFeature($feature) {
 		// TODO: check feature typeof Webmapp*Feature
         array_push($this->features, $feature);
