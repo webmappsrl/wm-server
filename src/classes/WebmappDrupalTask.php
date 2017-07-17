@@ -55,8 +55,8 @@ public function getId() {
     return $this->id; 
 }
 public function process(){
-    $this->m->addPoisLayer('poi.geojsons',"Luoghi");
-    $this->m->addTracksLayer('tracks.geojsons',"Percorsi");
+    $this->map->addPoisLayer('poi.geojsons',"Luoghi");
+    $this->map->addTracksLayer('tracks.geojsons',"Percorsi");
 
     $this->map->buildStandardMenu();
     $this->map->writeConf();
