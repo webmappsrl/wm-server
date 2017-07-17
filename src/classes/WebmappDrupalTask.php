@@ -86,7 +86,7 @@ private function loadPois() {
             $poi = new WebmappPoiFeature($wm);
             if(isset($pi['field_immagine_evento']['und'][0]['uri'])) {
                 $image = $pi['field_immagine_evento']['und'][0]['uri'];
-                $image = preg_replace('|public://|', 'http://http://www.tavarnellevp.it/files/', $image);
+                $image = preg_replace('|public://|', 'http://www.tavarnellevp.it/files/', $image);
                 $poi->setImage($image);
             }
             $layer->addFeature($poi);
