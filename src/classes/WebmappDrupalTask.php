@@ -82,6 +82,10 @@ private function loadPois() {
             $wm['content']['rendered'] = $pi['body']['und'][0]['value'];
             $wm['n7webmap_coord']['lat'] = $pi['field_posizione']['und'][0]['latitude'];
             $wm['n7webmap_coord']['lng'] = $pi['field_posizione']['und'][0]['longitude'];
+            if (isset($pi['field_posizione']['und'][0]['city'])) {
+                $wm['address'] = $pi['field_posizione']['und'][0]['street'].', '.
+                                 $pi['field_posizione']['und'][0]['city'];
+            }
 
             $poi = new WebmappPoiFeature($wm);
             if(isset($pi['field_immagine_evento']['und'][0]['uri'])) {
