@@ -37,6 +37,13 @@ class WebmappMap {
     private $menu_pages_title = 'About';
     private $menu_offline_label = 'Mappa offline';
 
+    // Multilanguages
+    private $has_languages = false;
+    private $languages_menu_label = 'Cambia lingua';
+    private $languages_list = array();
+    private $languages_actual;
+    private $languages = array();
+
     // APP Info
     private $app_id = 'it.webmapp.default' ;
     private $app_description = 'App description' ;
@@ -159,6 +166,29 @@ class WebmappMap {
                 $app_splash_path = $this->structure->getRoot() . '/resources/splash.png';
                 file_put_contents($app_splash_path, fopen($ja['app_splash'], 'r'));
             }
+        }
+
+        if (isset($ja['has_languages']) && $ja['has_languages']==true) {
+            $this->has_languages=false;
+            if (isset($ja['languages_menu_label']) && !empty($ja['languages_menu_label'])) {
+                $this->languages_menu_label=$ja['languages_menu_label'];
+            }
+            if (isset($ja['languages_list']) && !empty($ja['languages_list'])) {
+                $this->languages_list=$ja['languages_list'];
+            }
+            else {
+                $this->languages_list='it_IT,en_EN';
+            }
+            if (isset($ja['wpml_current_locale']) && !empty($ja['wpml_current_locale'])) {
+                $this->languages_actual=$ja['wpml_current_locale'];
+            }
+            else {
+                $this->languages_actual='it';
+            }
+            $this->buildLanguagesConfArray();
+            $page = array ("label" => $this->languages_menu_label,
+                           "type" => 'languages');
+            array_push($this->pages,$page);
         }
 
 
@@ -380,6 +410,8 @@ class WebmappMap {
 
         $this->conf_array['OFFLINE'] = $this->offline;
 
+        $this->conf_array['LANGUAGES'] = $this->languages;
+
 
     }
 
@@ -563,6 +595,11 @@ public function buildStandardMenu() {
     if($this->has_offline) {
         $this->addMenuItem($this->menu_offline_label,'page');
     }
+
+    // LANGUAGES
+    if($this->has_languages) {
+        $this->addMenuItem($this->menu_languages_label,'page');
+    }
 }
 
 private function buildMapConfArray() {
@@ -625,6 +662,11 @@ private function buildOfflineConfArray() {
     $this->offline["pagesUrl"] = $baseUrl . '/pages/';
     $this->offline["urlMbtiles"] = $baseUrl . '/tiles/map.mbtiles';
     $this->offline["urlImages"] = $baseUrl . '/media/images.zip';
+}
+
+private function buildLanguagesConfArray() {
+    $this->languages["actual"] = $this->languages_actual;
+    $this->languages["available"] = explode(',', $this->languages_list);
 }
 
     public function getIndex() {

@@ -104,6 +104,13 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$j);
         $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$j);
 
+        // LANGUAGES
+        $this->assertRegExp('/"actual":"it_IT"/',$j);
+        $this->assertRegExp('/"available":/',$j);
+        $this->assertRegExp('/"label":"Cambia linguo"/',$j);
+        $this->assertRegExp('/"type":"languages"/',$j);
+
+
         $m->writeConf();
 
         $this->assertTrue(file_exists($this->root . '/client/config.js'));
