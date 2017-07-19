@@ -107,7 +107,6 @@ class WebmappMapTest extends TestCase
         // LANGUAGES
         $this->assertRegExp('/"actual":"it_IT"/',$j);
         $this->assertRegExp('/"available":/',$j);
-        $this->assertRegExp('/"label":"Cambia linguo"/',$j);
         $this->assertRegExp('/"type":"languages"/',$j);
 
 

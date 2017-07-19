@@ -169,7 +169,7 @@ class WebmappMap {
         }
 
         if (isset($ja['has_languages']) && $ja['has_languages']==true) {
-            $this->has_languages=false;
+            $this->has_languages=true;
             if (isset($ja['languages_menu_label']) && !empty($ja['languages_menu_label'])) {
                 $this->languages_menu_label=$ja['languages_menu_label'];
             }
@@ -186,9 +186,6 @@ class WebmappMap {
                 $this->languages_actual='it';
             }
             $this->buildLanguagesConfArray();
-            $page = array ("label" => $this->languages_menu_label,
-                           "type" => 'languages');
-            array_push($this->pages,$page);
         }
 
 
@@ -393,17 +390,20 @@ class WebmappMap {
         $this->conf_array['DETAIL_MAPPING'] = $this->buildDetailMappingConfArray();
 
         // PAGES
+        $pages = $this->pages;
         if ($this->has_offline) {
-           $pages_with_offline = $this->pages; 
-           array_push($pages_with_offline,array(
+           array_push($pages,array(
                                "label" => $this->menu_offline_label,
                                "type" => 'settings',
                                "isCustom" => false));
-           $this->conf_array['PAGES'] = $pages_with_offline;
         }
-        else {
-           $this->conf_array['PAGES'] = $this->pages;            
+        if ($this->has_languages) {
+           array_push($pages,array(
+                               "label" => $this->languages_menu_label,
+                               "type" => 'languages',
+                               "isCustom" => false));
         }
+        $this->conf_array['PAGES'] = $pages;            
 
         // OVERLAY_LAYERS
         $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers);
@@ -598,7 +598,7 @@ public function buildStandardMenu() {
 
     // LANGUAGES
     if($this->has_languages) {
-        $this->addMenuItem($this->menu_languages_label,'page');
+        $this->addMenuItem($this->languages_menu_label,'page');
     }
 }
 

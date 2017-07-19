@@ -104,6 +104,10 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$conf);
         $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$conf);
 
+        // Languages
+        $this->assertRegExp('/"label":"Cambia linguo","type":"page"/',$conf);
+
+
         // Controllo file info.json
         $this->assertTrue(file_exists($this->root . '/info.json'));
         $ja = json_decode(file_get_contents($this->root . '/info.json'),true);
