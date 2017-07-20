@@ -10,6 +10,7 @@ class WebmappMap {
     private $title;
     private $bb;
     private $tilesUrl;
+    private $tilesType="maptile";
     private $pois_layers = array();
     private $tracks_layers = array();
     private $style = array();
@@ -217,7 +218,9 @@ class WebmappMap {
     public function setTitle($title) {
         $this->title = $title;
     }
-
+    public function setTilesType($type) {
+        $this->tilesType = $type;
+    }
 
     // TODO: eliminare questa funzione
     public function oldConstruct($map,$structure) {
@@ -618,7 +621,7 @@ private function buildMapConfArray() {
     $map["layers"] = array(
         array(
                 "label" => "Mappa",
-                "type" => "maptile",
+                "type" => $this->tilesType,
                 "tilesUrl" => $this->tilesUrl,
                 "default" => true
             )

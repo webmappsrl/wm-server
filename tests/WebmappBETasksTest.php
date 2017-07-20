@@ -97,8 +97,10 @@ class WebmappBETasksTests extends TestCase
 
         $this->assertRegExp('/"label":"Mappa Offline"/',$conf);
         $this->assertRegExp('/"type":"settings"/',$conf);
+        // MAPTILE
+        $this->assertRegExp('/"type":"maptile"/',$conf);
 
-                // OFFLINE
+        // OFFLINE
         $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson/',$conf);
         $this->assertRegExp('/"pagesUrl":"http:[^"]*example.webmapp.it[^"]*pages/',$conf);
         $this->assertRegExp('/"urlMbtiles":"http:[^"]*example.webmapp.it[^"]*tiles[^"]*map.mbtiles"/',$conf);

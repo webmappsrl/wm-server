@@ -102,7 +102,9 @@
                         $map->addPoisWebmappLayer($l);
                     }
                 }
+                $map->setTilesType("mbtiles");
                 $map->writeConf();
+
 
             }
             return TRUE;

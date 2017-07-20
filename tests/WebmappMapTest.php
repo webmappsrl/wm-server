@@ -108,6 +108,10 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"actual":"it_IT"/',$j);
         $this->assertRegExp('/"available":/',$j);
         $this->assertRegExp('/"type":"languages"/',$j);
+        
+        // MAPTILE
+        $this->assertRegExp('/"type":"maptile"/',$j);
+
 
 
         $m->writeConf();
