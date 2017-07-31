@@ -574,7 +574,7 @@ public function buildStandardMenu() {
         }
         else {
             // Add Group layer
-            $items = arrray() ;
+            $items = array() ;
             foreach ($this->tracks_layers as $layer) {
                 $items[] = $layer['label'];
             }
