@@ -578,9 +578,9 @@ public function buildStandardMenu() {
             foreach ($this->tracks_layers as $layer) {
                 $items[] = $layer['label'];
             }
-            $label = $this->menu_pois_label;
-            $color = $this->menu_pois_color;
-            $icon = $this->menu_pois_icon;
+            $label = $this->menu_tracks_label;
+            $color = $this->menu_tracks_color;
+            $icon = $this->menu_tracks_icon;
             $this->addMenuItem($label,'layerGroup',$color,$icon,$items);
         }
     }
