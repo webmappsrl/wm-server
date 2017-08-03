@@ -32,7 +32,7 @@ class WebmappMap {
     private $menu_pois_label = 'Punti di interesse';
     private $menu_pois_color = '#E94C31';
     private $menu_pois_icon = 'wm-icon-generic';
-    private $menu_tracks_label = 'Sentieri tematici';
+    private $menu_tracks_label = 'Percorsi';
     private $menu_tracks_color = '#E79E19';
     private $menu_tracks_icon = 'wm-icon-generic';
     private $menu_pages_title = 'About';
