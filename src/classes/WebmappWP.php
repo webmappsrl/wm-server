@@ -86,7 +86,7 @@ class WebmappWP {
 	}
 
 	public function getApiCategories() {
-		return $this->api_categories;
+		return $this->api_categories.'?per_page='.$this->per_page;
 	}
 
 	// SINGLE API GETTERS
