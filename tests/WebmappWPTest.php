@@ -15,7 +15,7 @@ class WebmappWPTest extends TestCase
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/route',$wp->getApiRoutes());
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/area',$wp->getApiAreas());
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/map',$wp->getApiMaps());
-		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/webmapp_category',$wp->getApiCategories());
+		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/webmapp_category?per_page=100',$wp->getApiCategories());
 
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/poi?webmapp_category=1',$wp->getApiPois(1));
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/track?webmapp_category=1',$wp->getApiTracks(1));
