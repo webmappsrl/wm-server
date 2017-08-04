@@ -136,6 +136,15 @@ private function loadTracks() {
                 }
             }
 
+            // DETTAGLI FAKE
+            $wm['n7webmap_start'] = "Morrocco";
+            $wm['n7webmap_end'] = "Tavarnelle";
+            $wm['ref'] = "CAI 131";
+            $wm['ascent'] = "250 m";
+            $wm['distance'] = "2,5 Km";
+            $wm['duration:forward'] = "1h 30m";
+            $wm['cai_scale'] = "T";
+
             $track = new WebmappTrackFeature($wm);
             if(isset($pi['field_immagine_evento']['und'][0]['uri'])) {
                 $image = $pi['field_immagine_evento']['und'][0]['uri'];
