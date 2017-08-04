@@ -19,6 +19,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
     // Impostazione della geometry a partire da formato API WP
     /**
+    SERIALIZED: a:2:{s:4:"type";s:10:"LineString";s:11:"coordinates";a:42:{i:0;a:2:{i:0;d:5.0802517309784996;i:1;d:52.019237307
+        JSON: { "type" : "LineString" ,
+                "coordinates": [
+                       [ 11.238753551237847, 43.55744054805567],
+              }
     **/
 	protected function mappingGeometry($json_array) {
         // TODO: controllo esistenza coordinate
