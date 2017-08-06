@@ -1,4 +1,8 @@
 <?php
+
+// VENDOR
+require 'vendor/gisconverter/gisconverter.php';
+
 // Caricamento classi obbligatorie
 
 require 'classes/WebmappProject.php';
