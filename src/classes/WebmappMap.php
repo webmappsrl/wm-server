@@ -711,6 +711,7 @@ $index = <<<EOS
         <!-- JS -->
 
         <!-- LIB -->
+        <script src="core/lib/proj4js/proj4.js"></script>
         <script src="core/lib/LPF.js"></script>
         <script src="core/lib/jquery/dist/jquery.min.js"></script>
         <script src="core/lib/ionic/js/ionic.bundle.min.js"></script>
@@ -734,6 +735,7 @@ $index = <<<EOS
         <script src="core/lib/leaflet_plugin/leaflet.almostover.js"></script>
         <script src="core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
 
+        <script src="core/lib/angular-translate/angular-translate.min.js"></script>
         <script src="core/lib/leaflet_plugin/sql.js"></script>
         <script src="core/lib/leaflet_plugin/Leaflet.TileLayer.MBTiles.js"></script>
         <script src="core/lib/ngCordova/dist/ng-cordova.js"></script>
