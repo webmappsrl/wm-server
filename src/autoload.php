@@ -11,6 +11,7 @@ require 'classes/WebmappProjectStructure.php';
 
 require 'classes/WebmappAbstractTask.php';
 require 'classes/WebmappOSMListTask.php';
+require 'classes/WebmappOSMCAIRelationsTask.php';
 require 'classes/WebmappBETask.php';
 require 'classes/WebmappDrupalTask.php';
 require 'classes/WebmappRouteTask.php';
