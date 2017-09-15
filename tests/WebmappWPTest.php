@@ -97,5 +97,13 @@ class WebmappWPTest extends TestCase
 		}
 	}
 
+	public function testExternalAPI() {
+		// Usiamo montepisanotree
+		$wp = new WebmappWP('http://www.montepisanotree.org');
+		$this->assertEquals($wp->getBaseUrl(),'http://www.montepisanotree.org');
+		//$this->assertTrue($wp->checkMap(954));
+
+	}
+
 
 }

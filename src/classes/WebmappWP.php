@@ -14,7 +14,14 @@ class WebmappWP {
 
 	public function __construct($code) {
 		$this->code = $code;
-		$this->base_url = "http://$code.be.webmapp.it";
+
+		if(preg_match('|^http://|', $code)) {
+			$this->base_url = $code;
+		}
+		else {
+			$this->base_url = "http://$code.be.webmapp.it";
+		}
+
 		$this->api_url = "{$this->base_url}/wp-json/wp/v2";
 		$this->api_pois = "{$this->api_url}/poi";
 		$this->api_tracks = "{$this->api_url}/track";
@@ -144,6 +151,7 @@ class WebmappWP {
 	}
 
 	public function checkMap($id) {
+		//echo $this->getApiMap($id);
 		return $this->checkUrl($this->getApiMap($id));
 	}
 
