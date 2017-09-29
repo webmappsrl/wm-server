@@ -155,6 +155,8 @@ tr:nth-child(even) {
 </head>
 <body>
 
+<h1>$title</h1>
+
 <table>
   <tr>
     <th>REF</th>
@@ -174,6 +176,14 @@ tr:nth-child(even) {
  $rows
 
 </table>
+
+<div id="footer">
+<p>
+  Questa pagina web è stata realizzata utilizzando i dati di <a href="http://openstreetmap.org">Openstreetmap</a>.
+  I metadati utilizzati sono tag di OSM definiti nella <a href="http://wiki.openstreetmap.org/wiki/CAI">convenzione</a> tra OSM e il Club Alpino Italiano.
+  Il software è stato realizzato da <a href="mailto:alessiopiccioli@webmapp.it">Alessio Piccioli (webmapp)</a>. 
+</p>
+</div>
 
 </body>
 </html>
