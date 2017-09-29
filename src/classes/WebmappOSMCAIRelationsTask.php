@@ -179,9 +179,9 @@ tr:nth-child(even) {
 
 <div id="footer">
 <p>
-  Questa pagina web &grave; stata realizzata utilizzando i dati di <a href="http://openstreetmap.org">Openstreetmap</a>.<br />
+  Questa pagina web &egrave; stata realizzata utilizzando i dati di <a href="http://openstreetmap.org">Openstreetmap</a>.<br />
   I metadati utilizzati sono tag di OSM definiti nella <a href="http://wiki.openstreetmap.org/wiki/CAI">convenzione</a> tra OSM e il Club Alpino Italiano.<br />
-  Il software &grave; stato realizzato da <a href="mailto:alessiopiccioli@webmapp.it">Alessio Piccioli</a> di <a href="http://webmapp.it">Webmapp s.r.l.</a>. 
+  Il software &egrave; stato realizzato da <a href="mailto:alessiopiccioli@webmapp.it">Alessio Piccioli</a> di <a href="http://webmapp.it">Webmapp s.r.l.</a>. 
 </p>
 </div>
 
