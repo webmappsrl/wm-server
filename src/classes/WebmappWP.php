@@ -214,7 +214,9 @@ class WebmappWP {
 				throw new Exception("Tipo $type non valido. Sono valido solamente i tipi poi, track e area.", 1);
 				break;
 			}
-			$api = $api . '&per_page='.$this->per_page;
+
+			//http://dev.be.webmapp.it/wp-json/wp/v2/poi?per_page=100&orderby=title&order=asc
+			$api = $api . '&per_page='.$this->per_page.'&orderby=title&order=asc' ;
 			$features = json_decode(file_get_contents($api),true);
 			if(is_array($features) && count($features) > 0 ) {
 				$layer = new WebmappLayer($type.'s_'.$cat_id);
