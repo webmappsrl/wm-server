@@ -8,6 +8,7 @@ class WebmappLayer {
 	private $label;
 	private $icon = 'wm-icon-generic';
 	private $color = '#FF3812';
+	private $showByDefault = true ;
 
 	public function __construct($name,$path='') {
 		// TODO: check parameter
@@ -22,6 +23,10 @@ class WebmappLayer {
 	public function addFeature($feature) {
 		// TODO: check feature typeof Webmapp*Feature
         array_push($this->features, $feature);
+	}
+
+	public function getShowByDefault() {
+		return $this->showByDefault;
 	}
 
 	public function getIcon() {
@@ -55,6 +60,9 @@ class WebmappLayer {
     	}
     	if (isset($meta['color'])) {
     		$this->color=$meta['color'];
+    	}
+    	if (isset($meta['show_by_default']) && $meta['show_by_default'] == false) {
+    		$this->showByDefault=false;
     	}
     }
 

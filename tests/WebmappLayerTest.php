@@ -90,5 +90,16 @@ class WebmappLayerTest extends TestCase {
 		$this->assertEquals('Bar',$l->getLabel());
 		$this->assertEquals('wm-icon-siti-interesse',$l->getIcon());
 		$this->assertEquals('#00ff00',$l->getColor());
+		$this->assertTrue($l->getShowByDefault());
+
+		$l = new WebmappLayer('test','');
+		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/14');
+		$this->assertFalse($l->getShowByDefault());
+
+		$l = new WebmappLayer('test','');
+		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/11');
+		$this->assertTrue($l->getShowByDefault());
+
 	}
+
 }

@@ -243,7 +243,8 @@ class WebmappMap {
        $label = $layer->getLabel();
        $color = $layer->getColor();
        $icon = $layer->getIcon();
-       $this->addPoisLayer($url,$label,$color,$icon,true);
+       $showByDefault = $layer->getShowByDefault();
+       $this->addPoisLayer($url,$label,$color,$icon,$showByDefault);
     }
 
     public function addTracksWebmappLayer($layer) {
@@ -251,7 +252,8 @@ class WebmappMap {
        $label = $layer->getLabel();
        $color = $layer->getColor();
        $icon = $layer->getIcon();
-       $this->addTracksLayer($url,$label,$color,$icon,true);
+       $showByDefault = $layer->getShowByDefault();
+       $this->addTracksLayer($url,$label,$color,$icon,$showByDefault);
     }
 
     public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true) {
