@@ -427,7 +427,7 @@ class WebmappMap {
         $options["hideMenuButton"] = false;
         $options["hideExpanderInDetails"] = false;
         $options["hideFiltersInMap"] = false;
-        $options["hideDeactiveCentralPointer"] = true;
+        $options["hideDeactiveCentralPointer"] = false;
         $options["hideShowInMapFromSearch"] = true;
         $options["avoidModalInDetails"] = true;
         $options["useAlmostOver"] = false;
