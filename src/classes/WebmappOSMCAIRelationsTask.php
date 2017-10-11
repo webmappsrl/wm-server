@@ -162,6 +162,7 @@ EOF;
 <html>
 <head>
 <title>$title</title>
+<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
 <style>
 table {
     font-family: arial, sans-serif;
@@ -182,12 +183,17 @@ td.red {
     background-color: #FF0000;
 }
 </style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
 </head>
 <body>
 
 <h1>$title</h1>
 
 <table>
+<thead>
   <tr>
     <th>REF</th>
     <th>OSM</th>
@@ -202,8 +208,11 @@ td.red {
     <th>osmc:symbol</th>
     <th>operator</th>
   </tr>
+</thead>
 
+<tbody>
  $rows
+</tbody>
 
 </table>
 
