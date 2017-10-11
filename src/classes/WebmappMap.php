@@ -30,10 +30,10 @@ class WebmappMap {
     private $menu_map_color = '#486C2C';
     private $menu_map_icon = 'wm-icon-generic';
     private $menu_pois_label = 'Punti di interesse';
-    private $menu_pois_color = '#E94C31';
+    private $menu_pois_color = '#E79E19';
     private $menu_pois_icon = 'wm-icon-generic';
     private $menu_tracks_label = 'Percorsi';
-    private $menu_tracks_color = '#E79E19';
+    private $menu_tracks_color = '#E94C31';
     private $menu_tracks_icon = 'wm-icon-generic';
     private $menu_pages_title = 'About';
     private $menu_offline_label = 'Mappa offline';
