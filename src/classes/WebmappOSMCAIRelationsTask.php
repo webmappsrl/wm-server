@@ -81,6 +81,13 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
         return 'ND';
     }
 
+    private function getTDClass($val) {
+        $ret = 'ok';
+        if ($val=='ND') $ret = 'red';
+        if (empty($val)) $ret = 'red';
+        return $ret;
+    }
+
     private function processIndex() {
         $features = $this->geojson['features'];
         $rows='';
@@ -88,6 +95,7 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
             $props = $feature['properties'];
 
             $ref = $this->setProps($props,'ref');
+            $class_ref = $this->getTDClass($ref);
 
             $id = $this->setProps($props,'id');
             $osm = "$id <br/>
@@ -98,30 +106,49 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
             ";
 
             $type = $this->setProps($props,'type');
+            $class_type = $this->getTDClass($type);
+
             $route = $this->setProps($props,'route');
+            $class_route = $this->getTDClass($route);
+
             $network = $this->setProps($props,'network');
+            $class_network = $this->getTDClass($network);
+
             $name = $this->setProps($props,'name');
+            $class_name = $this->getTDClass($name);
+
             $cai_scale = $this->setProps($props,'cai_scale');
+            $class_cai_scale = $this->getTDClass($cai_scale);
+
             $roundtrip = $this->setProps($props,'roundtrip');
+            $class_roundtrip = $this->getTDClass($roundtrip);
+
             $source = $this->setProps($props,'source');
+            $class_source = $this->getTDClass($source);
+
             $survey_date = $this->setProps($props,'survey:date');
+            $class_survey_date = $this->getTDClass($survey_date);
+
             $osmc_symbol = $this->setProps($props,'osmc:symbol');
+            $class_osmc_symbol = $this->getTDClass($osmc_symbol);
+
             $operator = $this->setProps($props,'operator');
+            $class_operator = $this->getTDClass($operator);
 
 $row = <<<EOF
 <tr>
-    <td>$ref</td>
+    <td class="$class_ref">$ref</td>
     <td>$osm</td>
-    <td>$type</td>
-    <td>$route</td>
-    <td>$network</td>
-    <td>$name</td>
-    <td>$cai_scale</td>
-    <td>$roundtrip</td>
-    <td>$source</td>
-    <td>$survey_date</td>
-    <td>$osmc_symbol</td>
-    <td>$operator</td>
+    <td class="$class_type">$type</td>
+    <td class="$class_route">$route</td>
+    <td class="$class_network">$network</td>
+    <td class="$class_name">$name</td>
+    <td class="$class_cai_scale">$cai_scale</td>
+    <td class="$class_roundtrip">$roundtrip</td>
+    <td class="$class_source">$source</td>
+    <td class="$class_survey_date">$survey_date</td>
+    <td class="$class_osmc_symbol">$osmc_symbol</td>
+    <td class="$class_operator">$operator</td>
   </tr>
 EOF;
         $rows = $rows . $row;
@@ -150,6 +177,9 @@ td, th {
 
 tr:nth-child(even) {
     background-color: #dddddd;
+}
+td.red {
+    background-color: #FF0000;
 }
 </style>
 </head>
