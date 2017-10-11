@@ -186,13 +186,17 @@ td.red {
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-
+<script>
+$(document).ready(function() {
+    $('#catasto').DataTable();
+} );
+</script>
 </head>
 <body>
 
 <h1>$title</h1>
 
-<table>
+<table id="catasto" >
 <thead>
   <tr>
     <th>REF</th>
