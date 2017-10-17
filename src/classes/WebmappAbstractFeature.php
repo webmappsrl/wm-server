@@ -50,6 +50,7 @@ abstract class WebmappAbstractFeature {
     	$this->setProperty('color',$json_array);
     	$this->setProperty('icon',$json_array);
         $this->setProperty('noDetails',$json_array);
+        $this->setProperty('noInteraction',$json_array);
         $this->setProperty('related_pois',$json_array);
 
     	// Gestione delle immagini
