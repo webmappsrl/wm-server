@@ -104,7 +104,8 @@
                 }
                 $map->setTilesType("mbtiles");
                 $map->writeConf();
-
+                $map->writeIndex();
+                $map->writeInfo();
 
             }
             return TRUE;
