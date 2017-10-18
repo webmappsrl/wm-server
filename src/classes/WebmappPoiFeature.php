@@ -17,7 +17,8 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         if (isset($json_array['address'])) {
             $this->setProperty('address',$json_array);
         }
-        else if (isset($json_array['addr:street']) && isset($json_array['addr:city'])) {
+        else if ((isset($json_array['addr:street']) && (!empty($json_array['addr:street'])))
+               &&(isset($json_array['addr:city']) && (!empty($json_array['addr:city']))) ) {
             $num = '';
             if (isset($json_array['addr:housenumber'])) {
                 $num = $json_array['addr:housenumber'];
