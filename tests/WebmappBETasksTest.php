@@ -44,7 +44,7 @@ class WebmappBETasksTests extends TestCase
         // 30 BAR: http://dev.be.webmapp.it/wp-json/wp/v2/poi?webmapp_category=30
         $pois_30 = file_get_contents($this->project_structure->getPathGeojson().'/pois_30.geojson');
         $this->assertRegExp('/0000ff/',$pois_30);
-        $this->assertRegExp('/"noDetails":"1"/',$pois_30);
+        $this->assertRegExp('/"noDetails":true/',$pois_30);
         $this->assertRegExp('/"icon":"wm-icon-mappalo"/',$pois_30);
         $this->assertRegExp('/"image":/',$pois_30);
 

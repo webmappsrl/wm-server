@@ -49,8 +49,8 @@ abstract class WebmappAbstractFeature {
     	$this->setProperty('rendered',$json_array['content'],'description');
     	$this->setProperty('color',$json_array);
     	$this->setProperty('icon',$json_array);
-        $this->setProperty('noDetails',$json_array);
-        $this->setProperty('noInteraction',$json_array);
+        $this->setPropertyBool('noDetails',$json_array);
+        $this->setPropertyBool('noInteraction',$json_array);
         $this->setProperty('related_pois',$json_array);
 
     	// Gestione delle immagini
@@ -73,11 +73,21 @@ abstract class WebmappAbstractFeature {
     }
 
     protected function setProperty($key,$json_array,$key_map='') {
-    	if (isset($json_array[$key]) && !is_null($json_array[$key])) {
-    		if($key_map=='') $key_map = $key;
-    		$this->properties[$key_map] = $json_array[$key] ;
-    	}
-    	// TODO: gestire un ELSE con eccezione per eventuali parametri obbligatori
+        if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+            if($key_map=='') $key_map = $key;
+            $this->properties[$key_map] = $json_array[$key] ;
+        }
+        // TODO: gestire un ELSE con eccezione per eventuali parametri obbligatori
+    }
+
+    protected function setPropertyBool($key,$json_array,$key_map='') {
+        if ($key_map=='') $key_map = $key;
+        $val = false;
+        if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+            $json_val = $json_array[$key];
+            if($json_val==true or $json_val=='true' or $json_val=='1') $val=true;
+        }
+        $this->properties[$key_map] = $val;
     }
 
     // Mapping della gallery e della imagine di base
