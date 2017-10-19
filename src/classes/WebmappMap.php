@@ -169,6 +169,13 @@ class WebmappMap {
             }
         }
 
+        // Cambiata la gestione dell'attivazione del Multilingue: viene settato il campo
+
+        if (isset($ja['wpml_current_locale']) && !empty($ja['wpml_current_locale'])) {
+            $this->languages_actual=$ja['wpml_current_locale'];
+            $this->buildLanguagesConfArray();
+        }
+
         if (isset($ja['has_languages']) && $ja['has_languages']==true) {
             $this->has_languages=true;
             if (isset($ja['languages_menu_label']) && !empty($ja['languages_menu_label'])) {
@@ -671,7 +678,9 @@ private function buildOfflineConfArray() {
 
 private function buildLanguagesConfArray() {
     $this->languages["actual"] = $this->languages_actual;
-    $this->languages["available"] = explode(',', $this->languages_list);
+    if (count($this->languages_list)>0) {
+        $this->languages["available"] = explode(',', $this->languages_list);        
+    }
 }
 
     public function getIndex() {

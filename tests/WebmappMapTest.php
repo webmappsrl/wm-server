@@ -160,5 +160,16 @@ class WebmappMapTest extends TestCase
         $this->assertEquals('App description',$ja['config.xml']['description']);
     }
 
+    public function testLangActualOnRoute() {
+        $this->init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/686';
+        $m->loadMetaFromUrl($url);
+        $j = $m->getConfJson();
+        $this->assertRegExp('/"LANGUAGES":/',$j);
+        $this->assertRegExp('/"actual":"it_IT"/',$j);
+
+    }
+
 
 }
