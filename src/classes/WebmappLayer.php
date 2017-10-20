@@ -9,6 +9,8 @@ class WebmappLayer {
 	private $icon = 'wm-icon-generic';
 	private $color = '#FF3812';
 	private $showByDefault = true ;
+	// Array associativo che contiene le traduzioni dei label del layer
+	private $languages = array();
 
 	public function __construct($name,$path='') {
 		// TODO: check parameter
@@ -49,6 +51,10 @@ class WebmappLayer {
 		return $this->features;
 	}
 
+	public function getLanguages() {
+		return $this->languages;
+	}
+
     public function loadMetaFromUrl($url) {
     	// TODO: leggi API alla WP e poi setta label, icon e color
     	$meta = json_decode(file_get_contents($url),TRUE);
@@ -63,6 +69,24 @@ class WebmappLayer {
     	}
     	if (isset($meta['show_by_default']) && $meta['show_by_default'] == false) {
     		$this->showByDefault=false;
+    	}
+
+    	// Gestione delle lingue
+    	// http://vn.be.webmapp.it/wp-json/wp/v2/webmapp_category/33
+    	// TODO: recuperare le lingue da altro parametro
+    	$langs = array('it','en');
+
+    	foreach ($langs as $lang) {
+    		if(preg_match('/\?/', $url) ) {
+    			$url_lang = $url . '&lang=' . $lang ;
+    		}
+    		else {
+    			$url_lang = $url . '?lang=' . $lang ;
+    		}
+    		$meta = json_decode(file_get_contents($url_lang),TRUE);
+    		if (is_array($meta) && isset($meta['name'])) {
+    			$this->languages[$lang]=$meta['name'];
+    		}
     	}
     }
 

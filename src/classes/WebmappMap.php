@@ -251,7 +251,7 @@ class WebmappMap {
        $color = $layer->getColor();
        $icon = $layer->getIcon();
        $showByDefault = $layer->getShowByDefault();
-       $this->addPoisLayer($url,$label,$color,$icon,$showByDefault);
+       $this->addPoisLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages());
     }
 
     public function addTracksWebmappLayer($layer) {
@@ -260,17 +260,17 @@ class WebmappMap {
        $color = $layer->getColor();
        $icon = $layer->getIcon();
        $showByDefault = $layer->getShowByDefault();
-       $this->addTracksLayer($url,$label,$color,$icon,$showByDefault);
+       $this->addTracksLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages());
     }
 
-    public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true) {
-        $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault);
+    public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array()) {
+        $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault,$languages);
     }
-    public function addTracksLayer($url,$label,$color='',$icon='',$showByDefault=true) {
-        $this->addLayer('tracks',$url,$label,$color,$icon,$showByDefault);
+    public function addTracksLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array()) {
+        $this->addLayer('tracks',$url,$label,$color,$icon,$showByDefault,$languages);
     }
 
-    public function addLayer($type,$url,$label,$color='',$icon='',$showByDefault=true) {
+    public function addLayer($type,$url,$label,$color='',$icon='',$showByDefault=true,$languages=array()) {
 
         // Manage default values
         if ($color == '' ) $color = '#FF3812';
@@ -296,6 +296,11 @@ class WebmappMap {
             'showByDefault' => $showByDefault,
             'type' => $type_label
             );
+
+        if(is_array($languages) && count($languages)>0) {
+          $layer['languages'] = $languages;
+        }
+
         switch ($type) {
             case 'pois':
                 array_push($this->pois_layers, $layer);

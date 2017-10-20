@@ -107,7 +107,9 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$conf);
 
         // Languages
-        // TODO: $this->assertRegExp('/"label":"Cambia linguo","type":"page"/',$conf);
+        $this->assertRegExp('/Ristoranti/',$conf);
+        $this->assertRegExp('/"it":"Ristoranti"/',$conf);
+        $this->assertRegExp('/"en":"Restaurants"/',$conf);
 
 
         // Controllo file info.json
