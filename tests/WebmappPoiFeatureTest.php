@@ -3,9 +3,11 @@
 use PHPUnit\Framework\TestCase;
 
 class WebmappPoiFeatureTest extends TestCase {
-	public function testOk() {
-		$poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
-		$json = $poi->getJson();
+        public function testOk() {
+                $wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/poi/522';
+                $poi = new WebmappPoiFeature($wp_url);
+                $this->assertEquals($wp_url,$poi->getWPUrl());
+                $json = $poi->getJson();
                 $this->assertRegExp('/"type":"Feature"/',$json);
                 $this->assertRegExp('/"id":522/',$json);
                 $this->assertRegExp('/"name":"Bar San Domenico"/',$json);
@@ -29,6 +31,14 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertRegExp('/"type":"Point"/',$json);
                 $this->assertRegExp('/43\.7223352/',$json);
                 $this->assertRegExp('/10\.4015262/',$json);
+        //$this->assertRegExp('/"":""/',$json);
+        }
+
+       public function testLanguages() {
+                $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
+                $json = $poi->getJson('en_US');
+                $this->assertRegExp('/EN title/',$json);
+                $this->assertRegExp('/"description":"<p>English version for Bar San Domenico.</',$json);
         //$this->assertRegExp('/"":""/',$json);
         }
 

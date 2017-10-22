@@ -13,12 +13,33 @@ abstract class WebmappAbstractFeature {
     // Array degli ID delle categorie webmapp
     protected $webmapp_category_ids = array();
 
+    // Array per la gestione delle traduzioni
+    protected $languages = array();
+
+    // WP URL
+    private $wp_url = '';
+
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
 	public function __construct ($array_or_url) {
 		if (!is_array($array_or_url)) {
 			// E' Un URL quindi leggo API WP e converto in array
 			$json_array = json_decode(file_get_contents($array_or_url),true);
+            $this->wp_url = $array_or_url;
+
+            if (isset($json_array['wpml_translations']) && 
+                is_array($json_array['wpml_translations']) &&
+                count($json_array['wpml_translations'])>0) {
+                foreach($json_array['wpml_translations'] as $t ) {
+                    $lang = $t['locale'];
+                    $id = $t['id'];
+                    $lang_url = preg_replace('|\d+$|', $id, $array_or_url);
+                    $json_t = json_decode(file_get_contents($lang_url),true);
+                    // TODO: estendere oltre a name e description (variabile globale?)
+                    $this->translate($lang,'name',$json_t['title']['rendered']);
+                    $this->translate($lang,'description',$json_t['content']['rendered']);
+                }
+            }
 		}
         else {
             $json_array = $array_or_url;
@@ -32,9 +53,18 @@ abstract class WebmappAbstractFeature {
 		$this->mappingGeometry($json_array);
 	}
 
+    // Simple Getters
+    public function getWPUrl() {
+        return $this->wp_url;
+    }
+
     // Setters
     public function setImage($url) {
         $this->properties['image']=$url;
+    }
+
+    private function translate($lang,$key,$val) {
+        $this->languages[$lang][$key]=$val;
     }
 
     // Restituisce l'array con l'id WP delle categorie
@@ -110,16 +140,30 @@ abstract class WebmappAbstractFeature {
     // Mapping della geometry 
     abstract protected function mappingGeometry($json_array);
     
-    public function getArrayJson() {
+    public function getArrayJson($lang='') {
+
+        $meta = $this->properties;
+        
+        // manage translations
+        if ($lang!='') {
+            if(array_key_exists($lang, $this->languages)) {
+                $t = $this->languages[$lang];
+                foreach($t as $key=>$value) {
+                    if (isset($meta[$key])) {
+                        $meta[$key]=$value;
+                    }
+                }
+            }
+        }
 
         $json = array();
         $json['type']='Feature';
-        $json['properties'] = $this->properties;
+        $json['properties'] = $meta;
         $json['geometry']=$this->geometry;
         return $json;
     }
-    public function getJson() {
-    	return json_encode($this->getArrayJson());
+    public function getJson($lang='') {
+    	return json_encode($this->getArrayJson($lang));
     }
 
 }
