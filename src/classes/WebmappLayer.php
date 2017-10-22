@@ -90,22 +90,22 @@ class WebmappLayer {
     	}
     }
 
-    public function getGeoJson() {
+    public function getGeoJson($lang='') {
        $json["type"] ='FeatureCollection';
        if (count($this->features) > 0 ) {
        	$features = array();
        	foreach ($this->features as $feature) {
-       		$features[] = $feature->getArrayJson();
+       		$features[] = $feature->getArrayJson($lang);
        	}
        	$json["features"]=$features;
        }
        return json_encode($json);
     }
 
-	public function write($path='') {
+	public function write($path='',$lang='') {
 		if($path=='') $path=$this->path;
 		$fname = $path.'/'.$this->name.'.geojson';
-		file_put_contents($fname, $this->getGeoJson());
+		file_put_contents($fname, $this->getGeoJson($lang));
 	}
 
 
