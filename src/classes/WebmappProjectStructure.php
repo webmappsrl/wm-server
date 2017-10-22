@@ -63,7 +63,14 @@ class WebmappProjectStructure {
 	// Getters
 	public function getRoot() { return $this->root;}
 	public function getUrlBase() { return $this->url_base;}
-	public function getPathGeojson() { return $this->path_geojson;}
+	public function getPathGeojson($lang='') { 
+		if ($lang=='') {
+			return $this->path_geojson;			
+		}
+		else {
+			return $this->path_geojson.'/languages/'.$lang;
+		}
+	}
 	public function getPathClient() { return $this->path_client;}
 	public function getPathClientIndex() { return $this->path_client_index;}
 	public function getPathClientConf() { return $this->path_client_conf;}

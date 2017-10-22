@@ -11,6 +11,7 @@ class WebmappProjectStructureTest extends TestCase
         $this->assertTrue($p->check());
         $this->assertEquals($this->root,$p->getRoot());
         $this->assertEquals($this->root.'/geojson',$p->getPathGeojson());
+        $this->assertEquals($this->root.'/geojson/languages/en',$p->getPathGeojson('en'));
         $this->assertEquals($this->root.'/client',$p->getPathClient());
         $this->assertEquals($this->root.'/client/index.html',$p->getPathClientIndex());
         $this->assertEquals($this->root.'/client/config.js',$p->getPathClientConf());
