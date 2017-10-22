@@ -102,8 +102,20 @@ class WebmappLayer {
        return json_encode($json);
     }
 
+    // Il Path viene costruito in base alla lingua
 	public function write($path='',$lang='') {
-		if($path=='') $path=$this->path;
+		if($path=='') {
+	      $path=$this->path;	
+		} 
+		if ($lang!='') {
+			if (!file_exists($path.'/languages')) {
+				mkdir ($path.'/languages');
+			}
+		  $path = $path .'/languages/'.$lang;
+		  if (!file_exists($path)) {
+		  	mkdir($path);
+		  }	
+		} 
 		$fname = $path.'/'.$this->name.'.geojson';
 		file_put_contents($fname, $this->getGeoJson($lang));
 	}
