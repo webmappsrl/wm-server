@@ -34,11 +34,19 @@ class WebmappPoiFeatureTest extends TestCase {
         //$this->assertRegExp('/"":""/',$json);
         }
 
-       public function testLanguages() {
+       public function testLanguagesEn() {
                 $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
                 $json = $poi->getJson('en_US');
                 $this->assertRegExp('/EN title/',$json);
                 $this->assertRegExp('/"description":"<p>English version for Bar San Domenico.</',$json);
+        //$this->assertRegExp('/"":""/',$json);
+        }
+
+       public function testLanguagesFr() {
+                $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
+                $json = $poi->getJson('fr_FR');
+                $this->assertRegExp('/french version/',$json);
+                $this->assertRegExp('/Descrizione in francese./',$json);
         //$this->assertRegExp('/"":""/',$json);
         }
 
