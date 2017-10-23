@@ -18,8 +18,8 @@ class WebmappRouteTest extends TestCase {
 	public function testGetLanguages() {
 		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
 		$ls = $r->getLanguages();
-		$this->assertContains('en_US',$ls);
-		$this->assertContains('fr_FR',$ls);
+		$this->assertContains('en',$ls);
+		$this->assertContains('fr',$ls);
 
 	}
 

@@ -167,7 +167,7 @@ class WebmappMapTest extends TestCase
         $m->loadMetaFromUrl($url);
         $j = $m->getConfJson();
         $this->assertRegExp('/"LANGUAGES":/',$j);
-        $this->assertRegExp('/"actual":"it_IT"/',$j);
+        $this->assertRegExp('/"actual":"it"/',$j);
 
     }
 

@@ -21,6 +21,8 @@ class WebmappRoute {
 			count($this->json_array['wpml_translations'])>0) {
 			foreach($this->json_array['wpml_translations'] as $t ) {
 				$lang = $t['locale'];
+				// Converti en_XX -> en
+				$lang=preg_replace('|_.*$|', '', $lang);
 				array_push($this->languages, $lang);
 			}
 		}

@@ -172,7 +172,9 @@ class WebmappMap {
         // Cambiata la gestione dell'attivazione del Multilingue: viene settato il campo
 
         if (isset($ja['wpml_current_locale']) && !empty($ja['wpml_current_locale'])) {
-            $this->languages_actual=$ja['wpml_current_locale'];
+            $lang=$ja['wpml_current_locale'];
+            $lang=preg_replace('|_.*$|','', $lang);
+            $this->languages_actual=$lang;
             $this->buildLanguagesConfArray();
         }
 
