@@ -55,6 +55,10 @@ class WebmappLayer {
 		return $this->languages;
 	}
 
+	public function translateLabel($lang,$label) {
+        $this->languages[$lang] = $label;
+	}
+
     public function loadMetaFromUrl($url) {
     	// TODO: leggi API alla WP e poi setta label, icon e color
     	$meta = json_decode(file_get_contents($url),TRUE);

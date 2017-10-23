@@ -59,6 +59,11 @@
             $tracks = $this->route->getTracks();
             if (is_array($tracks) && count($tracks)>0) {
                 $this->tracks_layer = new WebmappLayer('tracks',$this->project_structure->getPathGeojson());
+                // TODO: rivedere la logica del recupero delle lingue
+                $this->tracks_layer->setLabel('Itinerari');
+                $this->tracks_layer->translateLabel('it','Itinerari');
+                $this->tracks_layer->translateLabel('en','Routes');
+
                 // LOOP sulle tracce
                 foreach ($tracks as $track) {
                     $this->tracks_layer->addFeature($track);
