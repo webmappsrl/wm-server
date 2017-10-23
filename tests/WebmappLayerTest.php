@@ -36,20 +36,20 @@ class WebmappLayerTest extends TestCase {
 		$poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
 		$layer->addFeature($poi);
 
-		// TEST en_US
+		// TEST en
 		$json='';
-		$filename = $path.'/languages/en_US/'.$name.'.geojson';
+		$filename = $path.'/languages/en/'.$name.'.geojson';
 		system('rm -f '.$filename);
-		$layer->write('','en_US');
+		$layer->write('','en');
 		$json=file_get_contents($filename);
         $this->assertRegExp('/EN title/',$json);
         $this->assertRegExp('/"description":"<p>English version for Bar San Domenico.</',$json);
 
-		// TEST en_US
+		// TEST fr
 		$json='';
-		$filename = $path.'/languages/fr_FR/'.$name.'.geojson';
+		$filename = $path.'/languages/fr/'.$name.'.geojson';
 		system('rm -f '.$filename);
-		$layer->write('','fr_FR');
+		$layer->write('','fr');
 		$json=file_get_contents($filename);
         $this->assertRegExp('/french version/',$json);
         $this->assertRegExp('/Descrizione in francese./',$json);

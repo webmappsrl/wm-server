@@ -32,6 +32,7 @@ abstract class WebmappAbstractFeature {
                 count($json_array['wpml_translations'])>0) {
                 foreach($json_array['wpml_translations'] as $t ) {
                     $lang = $t['locale'];
+                    $lang = preg_replace('|_.*$|', '', $lang);
                     $id = $t['id'];
                     $lang_url = preg_replace('|\d+$|', $id, $array_or_url);
                     $json_t = json_decode(file_get_contents($lang_url),true);
