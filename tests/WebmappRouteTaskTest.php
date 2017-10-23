@@ -57,6 +57,12 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertTrue(file_exists($this->geojson_path.'/pois_30.geojson'));
         $this->assertTrue(file_exists($this->geojson_path.'/pois_7.geojson'));
 
+        // Languages
+        $this->assertTrue(file_exists($this->geojson_path.'/languages/en_US/pois_30.geojson'));
+        $this->assertTrue(file_exists($this->geojson_path.'/languages/fr_FR/pois_30.geojson'));
+
+
+
         $this->assertTrue(file_exists($this->root.'/client/config.json'));
         // TODO: aggiungere controlli dettagliati su contenuto del file config
 

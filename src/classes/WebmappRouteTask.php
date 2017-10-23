@@ -89,26 +89,40 @@
                     }
 
                 }
+
+                $langs = $this->route->getLanguages();
+
                 // Creazione dei file della mappa (config.js config.json index.html)
                 $map = new WebmappMap($this->project_structure);
                 $map->loadMetaFromUrl($this->getUrl());
                 // Scrivi il file geojson di tutte le tracce
                 $this->tracks_layer->write();
-                $map->addTracksWebmappLayer($this->tracks_layer);
+                if (count($langs)>0) {
+                    foreach ($langs as $lang) {
+                     $this->tracks_layer->write($lang); 
+                 }
+             }
+
+             $map->addTracksWebmappLayer($this->tracks_layer);
                 // Scrivi i file geojson per i pois
-                if (count($poi_layers)>0) {
-                    foreach ($poi_layers as $l) {
-                        $l->write();
-                        $map->addPoisWebmappLayer($l);
-                    }
-                }
-                $map->setTilesType("mbtiles");
-                $map->writeConf();
-                $map->writeIndex();
-                $map->writeInfo();
+             if (count($poi_layers)>0) {
+                foreach ($poi_layers as $l) {
+                    $l->write();
+                    if (count($langs)>0) {
+                        foreach ($langs as $lang) {
+                         $l->write($lang); 
+                     }
+                 }
+                 $map->addPoisWebmappLayer($l);
+             }
+         }
+         $map->setTilesType("mbtiles");
+         $map->writeConf();
+         $map->writeIndex();
+         $map->writeInfo();
 
-            }
-            return TRUE;
-        }
+     }
+     return TRUE;
+ }
 
-    }
+}
