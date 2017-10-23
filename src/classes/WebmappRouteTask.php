@@ -99,7 +99,7 @@
                 $this->tracks_layer->write();
                 if (count($langs)>0) {
                     foreach ($langs as $lang) {
-                     $this->tracks_layer->write($lang); 
+                        $this->tracks_layer->write('',$lang); 
                  }
              }
 
@@ -110,7 +110,7 @@
                     $l->write();
                     if (count($langs)>0) {
                         foreach ($langs as $lang) {
-                         $l->write($lang); 
+                         $l->write('',$lang); 
                      }
                  }
                  $map->addPoisWebmappLayer($l);
