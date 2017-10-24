@@ -2,21 +2,21 @@
 class WebmappDrupalTask extends WebmappAbstractTask {
 
     	// Code
-   private $code;
+ private $code;
 
         // ID della mappa
-   private $id;
+ private $id;
 
         // Oggetto WebmappWP per la gestione delle API
-   private $wp;
+ private $wp;
 
    // Oggetto WebmappMap
-   private $map;
+ private $map;
 
-   private $poiLayers = array();
+ private $poiLayers = array();
 
 
-   public function check() {
+ public function check() {
 
             // Controllo parametro code http://[code].be.webmapp.it
     if(!array_key_exists('code', $this->options))
@@ -71,6 +71,7 @@ public function process(){
 // TODO: prendere gli endpoint dalla piattaforma editoriale? (anche no)
 private function loadPois() {
 
+    $poi_layers = array();
     $url = "http://www.tavarnellevp.it/json/node?parameters[type]=poi";
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {
@@ -79,6 +80,8 @@ private function loadPois() {
         foreach ($pa as $item) {
             $uri = $item['uri'];
             $pi = json_decode(file_get_contents($uri),TRUE);
+            if(isset($pi['field_turismo']['und'][0]['value']) && 
+                $pi['field_turismo']['und'][0]['value'] == 1 ) {
             // Mapping per renderlo compatibile con una Feature che arriva da WP
             $wm = array();
             $wm['id'] = $pi['nid'];
@@ -88,7 +91,7 @@ private function loadPois() {
             $wm['n7webmap_coord']['lng'] = $pi['field_posizione']['und'][0]['longitude'];
             if (isset($pi['field_posizione']['und'][0]['city'])) {
                 $wm['address'] = $pi['field_posizione']['und'][0]['street'].', '.
-                                 $pi['field_posizione']['und'][0]['city'];
+                $pi['field_posizione']['und'][0]['city'];
             }
 
             $poi = new WebmappPoiFeature($wm);
@@ -99,13 +102,40 @@ private function loadPois() {
             }
             $layer->addFeature($poi);
 
+            // GESTIONE DELLA CATEGORIA dei POI:
+            $cat_id = $pi['field_categoria']['und'][0]['tid'];
+            $uri_cat = "http://www.tavarnellevp.it/json/taxonomy_term/$cat_id";
+            $jc = json_decode(file_get_contents($uri_cat),TRUE);
+
+            $cat_uid = $jc['field_codice_categoria_app']['und'][0]['value'];
+            if (!isset($poi_layers[$cat_uid])) {
+                // Crea il layer e aggiungilo all'array
+                echo "\nCreo categoria $cat_uid ($uri_cat) e aggiungo POI $uri\n";
+                $l = new WebmappLayer('pois_'.$cat_uid,$this->project_structure->getPathGeojson());
+                $l->addFeature($poi);
+                $l->setLabel($jc['name']);
+                $l->setColor($jc['field_colore']['und'][0]['value']);
+                $l->setIcon($jc['field_icona_marker']['und'][0]['value']);
+                $l->addFeature($poi);
+                $poi_layers[$cat_uid]=$l;
+            } 
+            else {
+                echo "\nCategoria $cat_uid e aggiungo POI $uri\n";
+                $l = $poi_layers[$cat_uid];
+                $l->addFeature($poi);
+            }
+
         }
-        $layer->write($this->project_structure->getPathGeojson());
-        $this->map->addPoisWebmappLayer($layer);
-
     }
-
+    if (count($poi_layers)>0) {
+        foreach ($poi_layers as $l) {
+            $l->write($this->project_structure->getPathGeojson());
+            $this->map->addPoisWebmappLayer($l);
+        }
+    }
 }
+}
+
 private function loadTracks() {
     $url = "http://www.tavarnellevp.it/json/node?parameters[type]=itinerari";
     $pa = json_decode(file_get_contents($url),TRUE);

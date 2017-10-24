@@ -18,8 +18,16 @@ class WebmappLayer {
 		$this->path = $path;
 	}
 
-	public function setLabel($label) {
-		$this->label=$label;
+	public function setLabel($v) {
+		$this->label=$v;
+	}
+
+	public function setColor($v) {
+		$this->color=$v;
+	}
+
+	public function setIcon($v) {
+		$this->icon=$v;
 	}
 
 	public function addFeature($feature) {
