@@ -44,8 +44,8 @@ class WebmappDrupalTask extends WebmappAbstractTask {
             // Crea la mappa carcando i meta dall'URL
     $this->wp = $wp;
     $this->map=new WebmappMap($this->project_structure);
-    $this->setFilterIcon('wm-icon-ios7-settings-strong');
-    $this->setStartUrl('/page/home');
+    $this->map->setFilterIcon('wm-icon-ios7-settings-strong');
+    $this->map->setStartUrl('/page/home');
     $this->map->loadMetaFromUrl($this->wp->getApiMap($this->id));
 
     return TRUE;
