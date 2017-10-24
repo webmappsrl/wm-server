@@ -109,7 +109,6 @@ private function loadPois() {
                 // Crea il layer e aggiungilo all'array
                 echo "\nCreo categoria $cat_uid ($uri_cat) e aggiungo POI $uri\n";
                 $l = new WebmappLayer('pois_'.$cat_uid,$this->project_structure->getPathGeojson());
-                $l->addFeature($poi);
                 $l->setLabel($jc['name']);
                 $l->setColor($jc['field_colore']['und'][0]['value']);
                 $l->setIcon($jc['field_icona_marker']['und'][0]['value']);
