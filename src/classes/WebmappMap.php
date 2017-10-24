@@ -39,6 +39,8 @@ class WebmappMap {
     private $menu_tracks_icon = 'wm-icon-generic';
     private $menu_pages_title = 'About';
     private $menu_offline_label = 'Mappa offline';
+    private $filterIcon = "wm-icon-layers";
+    private $startUrl = "/";
 
     // Multilanguages
     private $has_languages = false;
@@ -231,6 +233,14 @@ class WebmappMap {
 
     public function setRouteId($id) {
         $this->routeID = $id;
+    }
+
+    public function setFilterIcon($v){
+        $this->filterIcon=$v;
+    }
+
+    public function setStartUrl($v){
+        $this->startUrl=$v;
     }
 
     public function hasRouteId() {
@@ -455,7 +465,7 @@ class WebmappMap {
 
     private function buildOptionsConfArray() {
         $options["title"] = "$this->title";
-        $options["startUrl"] = "/";
+        $options["startUrl"] = $this->startUrl;
         $options["useLocalStorageCaching"] = false;
         $options["advancedDebug"] = false;
         $options["hideHowToReach"] = true;
@@ -466,7 +476,7 @@ class WebmappMap {
         $options["hideShowInMapFromSearch"] = true;
         $options["avoidModalInDetails"] = true;
         $options["useAlmostOver"] = false;
-        $options["filterIcon"] = "wm-icon-layers";
+        $options["filterIcon"] = $this->filterIcon;
         return $options;
     }
 
@@ -744,7 +754,7 @@ $index = <<<EOS
 
         <link rel="stylesheet" type="text/css" href="core/css/fonts.css" media="none" onload="document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {document.body.className+=' fontsloaded';}, 1000);}); this.media='all';">
         <link rel="stylesheet" type="text/css" href="core/css/style.min.css" media="none" onload="this.media='all';">
-
+        <link rel="stylesheet" type="text/css" href="resources/css/custom-style.css" media="none" onload="this.media='all';">
         <!-- JS -->
 
         <!-- LIB -->
@@ -773,6 +783,7 @@ $index = <<<EOS
         <script src="core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
 
         <script src="core/lib/angular-translate/angular-translate.min.js"></script>
+        <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
         <script src="core/lib/leaflet_plugin/sql.js"></script>
         <script src="core/lib/leaflet_plugin/Leaflet.TileLayer.MBTiles.js"></script>
         <script src="core/lib/ngCordova/dist/ng-cordova.js"></script>
