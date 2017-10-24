@@ -394,7 +394,7 @@ class WebmappMap {
         $this->conf_array['VERSION'] = '0.4';
 
         if ($this->hasRouteId()) {
-            $this->conf_array['routeID'] = $this->routeID;
+            $this->conf_array['routeID'] = (int) $this->routeID;
         }
 
         // OPTIONS
