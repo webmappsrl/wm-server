@@ -75,8 +75,6 @@ private function loadPois() {
     $url = "http://www.tavarnellevp.it/json/node?parameters[type]=poi";
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {
-        $layer = new WebmappLayer('pois');
-        $layer->setLabel('Luoghi');
         foreach ($pa as $item) {
             $uri = $item['uri'];
             $pi = json_decode(file_get_contents($uri),TRUE);
@@ -100,7 +98,6 @@ private function loadPois() {
                 $image = preg_replace('|public://|', 'http://www.tavarnellevp.it/files/', $image);
                 $poi->setImage($image);
             }
-            $layer->addFeature($poi);
 
             // GESTIONE DELLA CATEGORIA dei POI:
             $cat_id = $pi['field_categoria']['und'][0]['tid'];
