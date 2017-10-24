@@ -10,8 +10,10 @@ class WebmappDrupalTask extends WebmappAbstractTask {
         // Oggetto WebmappWP per la gestione delle API
    private $wp;
 
-        // Oggetto WebmappMap
+   // Oggetto WebmappMap
    private $map;
+
+   private $poiLayers = array();
 
 
    public function check() {
@@ -68,6 +70,7 @@ public function process(){
 
 // TODO: prendere gli endpoint dalla piattaforma editoriale? (anche no)
 private function loadPois() {
+
     $url = "http://www.tavarnellevp.it/json/node?parameters[type]=poi";
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {

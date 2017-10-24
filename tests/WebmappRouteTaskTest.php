@@ -71,6 +71,8 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertRegExp('/"label":"Cerca"/',$json);
         $this->assertRegExp('/"label":"Esci dall\'itinerario"/',$json);
         $this->assertRegExp('/"type":"mbtiles"/',$json);
+
+        $this->assertRegExp('/"routeID":346/',$json);
     }
 
     public function testUrls() {

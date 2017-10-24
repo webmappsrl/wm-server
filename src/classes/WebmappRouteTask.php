@@ -100,6 +100,7 @@
                 // Creazione dei file della mappa (config.js config.json index.html)
                 $map = new WebmappMap($this->project_structure);
                 $map->loadMetaFromUrl($this->getUrl());
+                $map->setRouteID($this->id);
                 // Scrivi il file geojson di tutte le tracce
                 $this->tracks_layer->write();
                 if (count($langs)>0) {

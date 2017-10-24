@@ -15,6 +15,8 @@ class WebmappMap {
     private $tracks_layers = array();
     private $style = array();
 
+    private $routeID = '' ;
+
     // Gestione delle pagine
     private $pages = array();
 
@@ -223,6 +225,19 @@ class WebmappMap {
         return $this->has_offline;
     }
 
+    public function getRouteId() {
+        return $this->routeID;
+    }
+
+    public function setRouteId($id) {
+        $this->routeID = $id;
+    }
+
+    public function hasRouteId() {
+        if ($this->routeID=='') return FALSE;
+        return TRUE;
+    }
+
     // SETTERS
     public function setTitle($title) {
         $this->title = $title;
@@ -377,6 +392,10 @@ class WebmappMap {
     private function buildConfArray() {
         // VERSION 
         $this->conf_array['VERSION'] = '0.4';
+
+        if ($this->hasRouteId()) {
+            $this->conf_array['routeID'] = $this->routeID;
+        }
 
         // OPTIONS
         $this->conf_array['OPTIONS'] = $this->buildOptionsConfArray();
