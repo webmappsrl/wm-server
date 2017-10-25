@@ -63,8 +63,8 @@ public function getId() {
 public function process(){
 
     // POI
-    $this->loadPois('http://www.tavarnellevp.it/json');
-    $this->loadPois('http://www.sancascianovp.net/json');
+    $this->loadPois('http://www.tavarnellevp.it');
+    $this->loadPois('http://www.sancascianovp.net');
     if (count($this->poi_layers)>0) {
         foreach ($this->poi_layers as $l) {
             $l->write($this->project_structure->getPathGeojson());
@@ -72,8 +72,8 @@ public function process(){
         }
     }
 
-    $this->loadTracks('http://www.tavarnellevp.it/json');
-    //$this->loadTracks('http://www.sancascianovp.net/json');
+    $this->loadTracks('http://www.tavarnellevp.it');
+    $this->loadTracks('http://www.sancascianovp.net');
     if (count($this->track_layers)>0) {
         foreach ($this->track_layers as $l) {
             $l->write($this->project_structure->getPathGeojson());
@@ -91,7 +91,7 @@ public function process(){
 // TODO: prendere gli endpoint dalla piattaforma editoriale? (anche no)
 private function loadPois($base_url) {
 
-    $url = "$base_url/node?parameters[type]=poi";
+    $url = "$base_url/json/node?parameters[type]=poi";
     echo "\n\n LOADING POIS from $url \n\n";
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {
@@ -122,7 +122,7 @@ private function loadPois($base_url) {
         $poi = new WebmappPoiFeature($wm);
         if(isset($pi['field_immagine_evento']['und'][0]['uri'])) {
             $image = $pi['field_immagine_evento']['und'][0]['uri'];
-            $image = preg_replace('|public://|', 'http://www.tavarnellevp.it/files/', $image);
+            $image = preg_replace('|public://|', $base_url.'/files/', $image);
             $poi->setImage($image);
         }
 
@@ -141,7 +141,7 @@ private function loadPois($base_url) {
 }
 
 private function getPoiLayer($cat_id,$base_url) {
-    $uri_cat = "$base_url/taxonomy_term/$cat_id";
+    $uri_cat = "$base_url/json/taxonomy_term/$cat_id";
     $jc = json_decode(file_get_contents($uri_cat),TRUE);
 
     $cat_uid = $jc['field_codice_categoria_app']['und'][0]['value'];
@@ -162,7 +162,7 @@ private function getPoiLayer($cat_id,$base_url) {
 }
 
 private function getTrackLayer($cat_id,$base_url) {
-    $uri_cat = "$base_url/taxonomy_term/$cat_id";
+    $uri_cat = "$base_url/json/taxonomy_term/$cat_id";
     $jc = json_decode(file_get_contents($uri_cat),TRUE);
 
     $cat_uid = $jc['field_codice_categoria_app']['und'][0]['value'];
@@ -183,7 +183,7 @@ private function getTrackLayer($cat_id,$base_url) {
 }
 
 private function loadTracks($base_url) {
-    $url = "$base_url/node?parameters[type]=itinerari";
+    $url = "$base_url/json/node?parameters[type]=itinerari";
     echo "\n\n LOADING TRACKS from $url \n\n";
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {
@@ -193,14 +193,13 @@ private function loadTracks($base_url) {
             $name = $pi['title'];
             echo "\nTRACK $name ($uri) - ";
         
-            //if(isset($pi['field_turismo']['und'][0]['value']) && $pi['field_turismo']['und'][0]['value'] == 1 ) {
-            if(true) {
+            if(isset($pi['field_turismo']['und'][0]['value']) && $pi['field_turismo']['und'][0]['value'] == 1 ) {
             $wm = array();
             $wm['id'] = $pi['nid'];
             $wm['title']['rendered'] = $pi['title'];
             $wm['content']['rendered'] = $pi['body']['und'][0]['value'];
             $gpx_filename = $pi['field_geometria']['und'][0]['filename'];
-            $gpx_uri = "http://www.tavarnellevp.it/files/itinerari/$gpx_filename";
+            $gpx_uri = "$base_url/files/itinerari/$gpx_filename";
             $decoder = new gisconverter\GPX();
             $wm['n7webmap_geojson'] = serialize(json_decode($decoder->geomFromText(file_get_contents($gpx_uri))->toGeoJSON(),true));
             if (isset($pi['field_punti_correlati']['und'])) {
@@ -224,7 +223,7 @@ private function loadTracks($base_url) {
             $track = new WebmappTrackFeature($wm);
             if(isset($pi['field_immagine_evento']['und'][0]['uri'])) {
                 $image = $pi['field_immagine_evento']['und'][0]['uri'];
-                $image = preg_replace('|public://|', 'http://www.tavarnellevp.it/files/', $image);
+                $image = preg_replace('|public://|', $base_url.'/files/', $image);
                 $poi->setImage($image);
             }
 
