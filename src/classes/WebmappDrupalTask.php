@@ -90,8 +90,13 @@ public function process(){
 
 // TODO: prendere gli endpoint dalla piattaforma editoriale? (anche no)
 private function loadPois($base_url) {
+    $this->loadPoisPage($base_url,0);
+    $this->loadPoisPage($base_url,1);
+}
 
-    $url = "$base_url/json/node?parameters[type]=poi";
+private function loadPoisPage($base_url,$page) {
+
+    $url = "$base_url/json/node?parameters[type]=poi&page=$page";
     echo "\n\n LOADING POIS from $url \n\n";
     $pa = json_decode(file_get_contents($url),TRUE);
     if(count($pa)>0) {
@@ -169,7 +174,7 @@ private function getTrackLayer($cat_id,$base_url) {
     if (!isset($this->track_layers[$cat_uid])) {
                 // Crea il layer e aggiungilo all'array
         echo " Creo categoria $cat_uid ($uri_cat) ";
-        $l = new WebmappLayer('pois_'.$cat_uid,$this->project_structure->getPathGeojson());
+        $l = new WebmappLayer('track_'.$cat_uid,$this->project_structure->getPathGeojson());
         $l->setLabel($jc['name']);
         $l->setColor($jc['field_colore']['und'][0]['value']);
         $l->setIcon($jc['field_icona_marker']['und'][0]['value']);

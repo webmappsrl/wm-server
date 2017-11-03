@@ -121,6 +121,20 @@ abstract class WebmappAbstractFeature {
         $this->properties[$key_map] = $val;
     }
 
+    public function addProperty($key,$val) {
+        $this->properties[$key]=$val;
+    }
+
+    public function map($a) {
+        foreach ($a as $key => $val) {
+            $this->addProperty($key,$val);
+        }
+    }
+
+    public function setDescription ($val) {
+        $this->addProperty('description',$val);
+    }
+
     // Mapping della gallery e della imagine di base
     private function mappingImage($gallery) {
         if (is_array($gallery) && count($gallery)>0) {

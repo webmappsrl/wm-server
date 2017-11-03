@@ -1,80 +1,135 @@
 <?php
 class WebmappOSMListTask extends WebmappAbstractTask {
 
+    private $csv;
+    private $layer;
+
+    private $counter = 0 ;
+
 	public function check() {
 
-		// Controllo parametro list
-		if(!array_key_exists('list', $this->options))
-			throw new Exception("L'array options deve avere la chiave 'list'", 1);
+        // Controllo parametro list
+        if(!array_key_exists('url', $this->options))
+            throw new Exception("L'array options deve avere la chiave 'url'", 1);
 
-		// Controllo esistenza file lista
-		if(!file_exists($this->getPathList()))
-			throw new Exception("Il file ".$this->getPathList()." non esiste.", 1);
+        // Controllo parametro list
+        if(!array_key_exists('column', $this->options))
+            throw new Exception("L'array options deve avere la chiave 'column'", 1);
+ 
+        // Controlla che il file esista
+        // COntrolla che la colonna esista
+        $this->csv = array_map('str_getcsv', file($this->options['url']));
 
-		// TODO: controllo dell'esistenza di almeno un elemento (?)
-			
 		return TRUE;
-	}
-
-	public function getPathList() {
-        $root = $this->project_structure->getRoot();
-		return $root . '/' . ltrim($this->options['list'], '/');
 	}
 
     public function process(){
 
-        // TODO: passare ad un sistema di LOG
-        echo "Processing task: {$this->getName()}\n\n";
+        $this->layer = new WebmappLayer('rifugi');
 
-        $root = $this->project_structure->getRoot();
-    	$path_osm = $root.'/server/osm';
-    	if(!file_exists($path_osm)) mkdir ($path_osm);
-    	$urls = file($this->getPathList(),FILE_IGNORE_NEW_LINES);
-        $first = true;
-    	foreach($urls as $url) {
-            //echo "Processing URL: $url\n";
-
-            // NODE https://www.openstreetmap.org/node/353049774
-            // WAY https://www.openstreetmap.org/way/284449666
-    		// RELATION https://www.openstreetmap.org/relation/4174475
-    		$components = explode('/', $url);
-    		$type = $components[3];
-    		$id = $components[4];
-            $file_osm = $path_osm.'/'.$id.'.'.$type.'.osm';
-
-    		file_put_contents($file_osm, file_get_contents($this->getOverpassUrl($type,$id)));
-
-            // TODO: Generalizzare questa parte inserendo in un file di configurazione
-            //       i parametri di connessione per pgsql
-
-            // OSM2SQL - Parte funzionante solo sul server mappalo
-            // osm2pgsql -c -d gis -H localhost -U webmapp rifugi.osm --style /var/www/mappalo-server/openstreetmap-carto.style
-            $option='--append';
-            if ($first) {
-                $first = FALSE;
-                $option = '-c';
+        if (count($this->csv)>0){
+            foreach ($this->csv as $row_num => $row) {
+                $val = $row[$this->options['column']];
+                echo "Processing ROW: $row_num, value: $val";
+                if ( preg_match('|^https://www.openstreetmap.org|', $val)) {
+                    if($this->counter<=1000) {
+                       echo ' C='.$this->counter.' ';
+                       $this->processVal($val);
+                       $this->counter = $this->counter + 1;
+                   }
+                   else {
+                    echo " SKIP (too much) \n";
+                   }
+                }
+                else {
+                    echo " SKIP! \n";
+                }
             }
+        }
 
-            $cmd = "osm2pgsql $option -d gis -H localhost -U webmapp $file_osm --style /var/www/mappalo-server/openstreetmap-carto.style"; 
-            // TODO: passare ad un sistema di LOG
-            //echo "$cmd \n";
-            //system($cmd);
+        $this->layer->write($this->project_structure->getPathGeojson());
 
-  			// TODO: ogr2ogr per la creazione dei file geojson
-
-
-    	}
     	return TRUE;
     }
 
-    // TODO: creare una classe per la gestione delle query overpass
-    private function getOverpassUrl($type,$id) {
-$overpass_query = <<<EOF
-[out:xml][timeout:1200];
-$type($id);
-(._;>;);
-out meta;
-EOF;
-    return 'https://overpass-api.de/api/interpreter?data='.urlencode($overpass_query);
+    private function processVal($val) {
+
+        if (preg_match('|www.openstreetmap.org/node|', $val )) {
+            $this->processNode($val);
+        }
+        elseif (preg_match('|www.openstreetmap.org/way|', $val )) {
+            $this->processWay($val);
+        }
+        else {
+            echo "WARN - tipo non valido (node,way) SKIP\n";
+            return;
+        }
+        
+        echo " OK \n";
+        return;
     }
+
+    private function processNode($val) {
+        echo " NODE ";
+        $id = preg_replace("|https://www.openstreetmap.org/node/|",'', $val);
+        $json = $this->getOverpassJson($val,'node');
+
+        if (isset($json['elements'][0]) && isset($json['elements'][0]['tags'])) {
+            $a=array();
+            $a['title']='';
+            $a['content']='';
+            $lat = $json['elements'][0]['lat'];
+            $lon = $json['elements'][0]['lon'];
+            $a['n7webmap_coord']['lat'] = $lat;
+            $a['n7webmap_coord']['lng'] = $lon;
+
+            $rifugio = new WebmappPoiFeature($a);
+            $rifugio->map($json['elements'][0]['tags']);
+            $rifugio->setDescription("COORD: $lat $lon");
+            $rifugio->addProperty('osm',$val);
+
+            $this->layer->addFeature($rifugio);
+        }
+        else {
+            echo " ERROR - No elements found (!) ";
+        }
+
+
+    }
+
+    private function processWay($val) {
+        echo " WAY ";
+        $json = $this->getOverpassJson($val,'way');
+        $id = preg_replace("|https://www.openstreetmap.org/way/|",'', $val);
+        if (isset($json['elements'][0]) && isset($json['elements'][0]['tags'])) {
+            $a = array();
+            $a['title']='';
+            $a['content']='';
+
+            $lat = $json['elements'][1]['lat'];
+            $lon = $json['elements'][1]['lon'];
+            $a['n7webmap_coord']['lat'] = $lat;
+            $a['n7webmap_coord']['lng'] = $lon;
+
+            $rifugio = new WebmappPoiFeature($a);
+            $rifugio->map($json['elements'][0]['tags']);
+            $rifugio->setDescription("COORD: $lat $lon");
+            $rifugio->addProperty('osm',$val);
+            $this->layer->addFeature($rifugio);
+        }
+        else {
+            echo " ERROR - No elements found (!) ";
+        }
+
+    }
+
+    private function getOverpassJson($val,$type) {
+        $id = preg_replace("|https://www.openstreetmap.org/$type/|",'', $val);
+        echo " $id ";
+        $overpass_query = "[out:json][timeout:25];($type($id););out body;>;out skel qt;";
+        $url = 'https://overpass-api.de/api/interpreter?data='.urlencode($overpass_query);
+        return json_decode(file_get_contents($url),TRUE);
+    }
+
+
 }

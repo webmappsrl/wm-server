@@ -47,4 +47,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         $this->geometry['coordinates']=array((float) $lng, (float) $lat);
 	}
 
+    public function setGeometry($lng,$lat) {
+        $this->geometry['type'] = 'Point' ;
+        $this->geometry['coordinates']=array((float) $lng, (float) $lat);        
+    }
+
 }
