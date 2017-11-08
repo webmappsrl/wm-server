@@ -54,6 +54,9 @@ class WebmappMap {
     private $app_description = 'App description' ;
     private $app_icon = 'http://api.webmapp.it/resources/icon.png';
     private $app_splash = 'http://api.webmapp.it/resources/splash.png';
+    
+    // Sezione REPORT
+    private $report = array();
 
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
@@ -460,6 +463,8 @@ class WebmappMap {
 
         $this->conf_array['LANGUAGES'] = $this->languages;
 
+        $this->conf_array['REPORT'] = $this->report;
+
 
     }
 
@@ -561,7 +566,38 @@ EOS;
     return json_decode($menu,TRUE);
 }
 
-private function addMenuItem($label,$type,$color='',$icon='',$items=array()) {
+public function resetMenu() {
+    $this->menu = array();
+}
+
+public function resetPages() {
+    $this->pages = array();
+}
+
+public function resetReport() {
+    $this->report = array();    
+}
+/**
+        "REPORT": {
+        "active": true,
+        "type": "email",
+        "defaultEmail": "alessiopiccioli@webmapp.it",
+        "apiUrl": "https://api.webmapp.it/services/share.php"
+    },
+**/
+public function activateReport($defaultEmail,$apiUrl='https://api.webmapp.it/services/share.php') {
+   $this->report['active']=true;    
+   $this->report['type']='email';    
+   $this->report['defaultEmail']=$defaultEmail;    
+   $this->report['apiUrl']=$apiUrl;    
+}
+
+public function addPage($label,$type,$isCustom=true) {
+   $page = array('label'=>$label,'type'=>$type,'isCustom'=>$isCustom);
+   array_push($this->pages, $page);
+}
+
+public function addMenuItem($label,$type,$color='',$icon='',$items=array()) {
     $item = array();
     $item['label'] = $label;
     $item['type'] = $type;
@@ -575,6 +611,22 @@ private function addMenuItem($label,$type,$color='',$icon='',$items=array()) {
         $item['items']=$items;
     }
     array_push($this->menu, $item);
+}
+
+public function addMenuLayerGroup($layers,$label='',$color='',$icon='') {
+
+    if (count($this->pois_layers)>0) {
+            // Add Group layer
+            $items = array() ;
+            foreach ($this->pois_layers as $layer) {
+                $items[] = $layer['label'];
+            }
+            $label = $label;
+            $color = $color;
+            $icon = $icon;
+            $this->addMenuItem($label,'layerGroup',$color,$icon,$items);
+        
+    }
 }
 
 public function buildStandardMenu() {

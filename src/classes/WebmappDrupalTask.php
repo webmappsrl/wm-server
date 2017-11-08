@@ -81,7 +81,27 @@ public function process(){
         }
     }
 
-    $this->map->buildStandardMenu();
+    //$this->map->buildStandardMenu();
+    $this->map->resetMenu();
+    $this->map->addMenuItem('Home','home','#486C2C','wm-icon-generic');
+    $this->map->addMenuItem('Mappa','map','#486C2C','wm-icon-generic');
+    if (count($this->poi_layers)>0) {
+       $this->map->addMenuLayerGroup($this->poi_layers,'Luoghi','#E79E19','wm-icon-generic');        
+    }
+    if (count($this->track_layers)>0) {
+        $this->map->addMenuLayerGroup($this->track_layers,'Itinerari','#E79E19','wm-icon-generic');
+    }
+    $this->map->addMenuItem('Offline','page');
+
+    //Manage Pages
+    $this->map->resetPages();
+    $this->map->addPage('Home','home',false);
+
+    //REPORT
+    $this->map->resetReport();
+    $this->map->activateReport('alessiopiccioli@webmapp.it');
+
+
     $this->map->writeConf();
     $this->map->writeIndex();
     $this->map->writeInfo();
