@@ -465,6 +465,8 @@ class WebmappMap {
 
         $this->conf_array['REPORT'] = $this->report;
 
+        $this->conf_array['INCLUDE']['url']='/config.json';
+
 
     }
 
