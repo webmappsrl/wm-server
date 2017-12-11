@@ -31,6 +31,7 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
 
         $this->processGeoJson();
         $this->processIndex();
+        $this->processGPX();
 
     	return TRUE;
     }
@@ -156,7 +157,7 @@ EOF;
         }
 
         $title = 'Catasto - ' . $this->name;
-
+        $zip = '/resources/all_gpx_' . $this->name . '.zip';
         $html = <<<EOF
 <!DOCTYPE html>
 <html>
@@ -196,6 +197,8 @@ $(document).ready(function() {
 
 <h1>$title</h1>
 
+<p><a href="$zip">Download all GPX (created by WMT)</a></p>
+
 <table id="catasto" >
 <thead>
   <tr>
@@ -234,5 +237,30 @@ $(document).ready(function() {
 EOF;
 
 file_put_contents($this->project_structure->getRoot().'/index.html', $html);
+    }
+
+    public function processGPX() {
+
+        $features = $this->geojson['features'];
+        $root = $this->project_structure->getRoot();
+        $zip_path = $root . '/resources/all_gpx_' . $this->name . '.zip';
+        $zip = new ZipArchive();
+        if($zip->open($zip_path,ZIPARCHIVE::CREATE) !== true) {
+            throw new Exception("Error Opening ZIP file $zip_path", 1);
+        }
+
+        foreach($features as $feature) {
+            $props = $feature['properties'];
+            $ref = $this->setProps($props,'ref');
+            $id = $this->setProps($props,'id');
+            $WMT_GPX_URL = "https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx";
+            $gpx_path = $root . "/resources/$ref-$id.gpx";
+            echo "processing GPX: from $WMT_GPX_URL to $gpx_path ... ";
+            file_put_contents($gpx_path, fopen($WMT_GPX_URL, 'r'));
+            $zip->addFile($gpx_path,$gpx_path);
+            echo "DONE! \n";
+        }
+        $zip->close();
+        echo "FILE ZIP $zip_path created. \n";
     }
 }
