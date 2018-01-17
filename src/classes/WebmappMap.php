@@ -58,6 +58,9 @@ class WebmappMap {
     // Sezione REPORT
     private $report = array();
 
+    // Sezione INCLUDE 
+    private $include = '/config.json';
+
     // Questo array viene utilizzato per la costruzione del json usato per il file di 
     // configurazione
     private $conf_array = array();
@@ -257,6 +260,9 @@ class WebmappMap {
     }
     public function setTilesType($type) {
         $this->tilesType = $type;
+    }
+    public function setInclude($v) {
+        $this->include = $v;
     }
 
     // TODO: eliminare questa funzione
@@ -465,7 +471,9 @@ class WebmappMap {
 
         $this->conf_array['REPORT'] = $this->report;
 
-        $this->conf_array['INCLUDE']['url']='/config.json';
+        if (!empty($this->include)) {
+            $this->conf_array['INCLUDE']['url']=$this->include;
+        }
 
 
     }

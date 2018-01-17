@@ -122,6 +122,7 @@
                  $map->addPoisWebmappLayer($l);
              }
          }
+         $map->setInclude('');
          $map->setTilesType("mbtiles");
          $map->writeConf();
          $map->writeIndex();
