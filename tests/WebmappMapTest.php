@@ -43,7 +43,7 @@ class WebmappMapTest extends TestCase
         $m->addTracksWebmappLayer($l2);
 
         $this->assertEquals('DEV408 &#8211; MMP',$m->getTitle());
-        $this->assertEquals('https://api.mappalo.org/mappadeimontipisani_new/tiles/map/',$m->getTilesUrl());
+        $this->assertEquals('http://{s}.tile.osm.org/',$m->getTilesUrl());
         //$this->assertEquals('',$m->get());
         $j = $m->getConfJson();
         $this->assertRegExp('/"VERSION":"0.4"/',$j);
@@ -68,7 +68,7 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"defZoom":"13"/',$j);
         // TODO: migliorare questo controllo
         $this->assertRegExp('/"type":"maptile"/',$j);
-        $this->assertRegExp('/"tilesUrl":".*mappadeimontipisani_new/',$j);
+        $this->assertRegExp('/"tilesUrl":".*tile.osm.org.*"/',$j);
 
         // DETAIL_MAPPING
         $this->assertRegExp('/"DETAIL_MAPPING":{"default":{/',$j);
@@ -112,6 +112,10 @@ class WebmappMapTest extends TestCase
         // MAPTILE
         $this->assertRegExp('/"type":"maptile"/',$j);
 
+        // REPORT
+        $this->assertRegExp('/"apiUrl":".*share.php"/',$j);
+        $this->assertRegExp('/"default":"alessiopiccioli@webmapp.it"/',$j);
+        $this->assertRegExp('/"default":"\+39 328 5360803"/',$j);
 
 
         $m->writeConf();

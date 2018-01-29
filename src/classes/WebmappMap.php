@@ -208,6 +208,14 @@ class WebmappMap {
             $this->buildLanguagesConfArray();
         }
 
+        if (isset($ja['report_email']) && !empty($ja['report_email'])) {
+            $this->setReportEmail($ja['report_email']);
+        }
+
+        if (isset($ja['report_sms']) && !empty($ja['report_sms'])) {
+            $this->setReportSMS($ja['report_sms']);
+        }
+
 
 
 
@@ -600,6 +608,15 @@ public function activateReport($defaultEmail,$apiUrl='https://api.webmapp.it/ser
    $this->report['type']='email';    
    $this->report['defaultEmail']=$defaultEmail;    
    $this->report['apiUrl']=$apiUrl;    
+}
+
+public function setReportEmail($default,$apiUrl='https://api.webmapp.it/services/share.php') {
+    $this->report['email']['apiUrl']=$apiUrl;
+    $this->report['email']['default']=$default;
+}
+
+public function setReportSMS($default) {
+    $this->report['sms']['default']=$default;
 }
 
 public function addPage($label,$type,$isCustom=true) {
