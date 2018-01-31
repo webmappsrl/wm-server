@@ -15,7 +15,7 @@ class WebmappWP {
 	public function __construct($code) {
 		$this->code = $code;
 
-		if(preg_match('|^http://|', $code)) {
+		if(preg_match('|^http://|', $code) || preg_match('|^https://|', $code)) {
 			$this->base_url = $code;
 		}
 		else {

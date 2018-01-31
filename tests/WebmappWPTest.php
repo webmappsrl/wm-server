@@ -29,6 +29,17 @@ class WebmappWPTest extends TestCase
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/map/10',$wp->getApiMap(10));
 		$this->assertEquals('http://test.be.webmapp.it/wp-json/wp/v2/webmapp_category/10',$wp->getApiCategory(10));
 
+		// HTTP
+		$wp = new WebmappWP('http://www.external.it/');
+		$this->assertEquals('http://www.external.it/',$wp->getCode());
+		$this->assertEquals('http://www.external.it/',$wp->getBaseUrl());
+
+		// HTTPS
+		$wp = new WebmappWP('https://www.external.it/');
+		$this->assertEquals('https://www.external.it/',$wp->getCode());
+		$this->assertEquals('https://www.external.it/',$wp->getBaseUrl());
+
+
 	}
 
 	public function testGettersAndSetters() {
