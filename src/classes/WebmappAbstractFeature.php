@@ -155,6 +155,12 @@ abstract class WebmappAbstractFeature {
     // Mapping della geometry 
     abstract protected function mappingGeometry($json_array);
     
+    // Lat e Lng Max  e MIN (usate per il BB)
+    abstract public function getLatMax();
+    abstract public function getLatMin();
+    abstract public function getLngMax();
+    abstract public function getLngMin();
+
     public function getArrayJson($lang='') {
 
         $meta = $this->properties;
@@ -180,6 +186,7 @@ abstract class WebmappAbstractFeature {
     public function getJson($lang='') {
     	return json_encode($this->getArrayJson($lang));
     }
+
 
 }
 

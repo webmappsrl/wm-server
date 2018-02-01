@@ -38,6 +38,13 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertRegExp('/43\.70904/',$json);
 
                 //$this->assertRegExp('/"":""/',$json);
+                //LngMin: 10.38781 LngMax: 10.41875 LatMin: 43.70904 LatMax: 43.72496
+                $this->assertEquals(10.38781,$track->getLngMin());
+                $this->assertEquals(10.41875,$track->getLngMax());
+                $this->assertEquals(43.70904,$track->getLatMin());
+                $this->assertEquals(43.72496,$track->getLatMax());
+
+                
 
         }
 

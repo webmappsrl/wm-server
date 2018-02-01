@@ -52,4 +52,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         $this->geometry['coordinates']=array((float) $lng, (float) $lat);        
     }
 
+    public function getLatMax(){ return $this->geometry['coordinates'][1];}
+    public function getLatMin(){ return $this->geometry['coordinates'][1];}
+    public function getLngMax(){ return $this->geometry['coordinates'][0];}
+    public function getLngMin(){ return $this->geometry['coordinates'][0];}
+
 }

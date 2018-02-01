@@ -31,6 +31,11 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertRegExp('/"type":"Point"/',$json);
                 $this->assertRegExp('/43\.7223352/',$json);
                 $this->assertRegExp('/10\.4015262/',$json);
+
+                $this->assertEquals($poi->getLatMax(),43.7223352);
+                $this->assertEquals($poi->getLngMax(),10.4015262);
+                $this->assertEquals($poi->getLatMin(),43.7223352);
+                $this->assertEquals($poi->getLngMin(),10.4015262);
         //$this->assertRegExp('/"":""/',$json);
         }
 

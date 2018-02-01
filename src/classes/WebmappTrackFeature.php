@@ -2,6 +2,12 @@
 
 class WebmappTrackFeature extends WebmappAbstractFeature {
 
+    private $lngMin;
+    private $lngMax;
+    private $latMin;
+    private $latMax;
+    private $bb_computed = false;
+
 	// Mapping dei meta specifici delle tracks
     // 
 	protected function mappingSpecific($json_array) {
@@ -48,4 +54,33 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         }
         return $pois;
     }
+
+    private function computeBB() {
+        $coords = $this->geometry['coordinates'];
+        $first = true;
+        foreach ($coords as $coord) {
+            $lng = $coord[0];
+            $lat = $coord[1];
+            if($first) {
+                $this->lngMin = $lng;
+                $this->lngMax = $lng;
+                $this->latMin = $lat;
+                $this->latMax = $lat;
+                $first = false;
+            }
+            else {
+                if ($lng<$this->lngMin) $this->lngMin = $lng;
+                if ($lng>$this->lngMax) $this->lngMax = $lng;
+                if ($lat<$this->latMin) $this->latMin = $lat;
+                if ($lat>$this->latMax) $this->latMax = $lat;       
+            }
+        }
+        $this->bb_computed = true;
+    }
+
+    public function getLatMax(){if(!$this->bb_computed) $this->computeBB(); return $this->latMax;}
+    public function getLatMin(){if(!$this->bb_computed) $this->computeBB(); return $this->latMin;}
+    public function getLngMax(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMax;}
+    public function getLngMin(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMin;}
+
 }
