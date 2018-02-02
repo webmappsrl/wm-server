@@ -44,6 +44,15 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertEquals(43.70904,$track->getLatMin());
                 $this->assertEquals(43.72496,$track->getLatMax());
 
+                $bb=$track->getBB();
+                $this->assertEquals($bb['bounds']['southWest'][0],43.70904);
+                $this->assertEquals($bb['bounds']['southWest'][1],10.38781);
+                $this->assertEquals($bb['bounds']['northEast'][0],43.72496);
+                $this->assertEquals($bb['bounds']['northEast'][1],10.41875);
+                $this->assertEquals($bb['center']['lat'],(43.72496+43.70904)/2);
+                $this->assertEquals($bb['center']['lng'],(10.38781+10.41875)/2);
+
+
                 
 
         }

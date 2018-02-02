@@ -61,18 +61,68 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertTrue(file_exists($this->geojson_path.'/languages/en_US/pois_30.geojson'));
         $this->assertTrue(file_exists($this->geojson_path.'/languages/fr_FR/pois_30.geojson'));
 
+        $this->assertTrue(file_exists($this->root.'/client/config.json'));
+        $ja = json_decode(file_get_contents($this->root.'/client/config.json'),TRUE);
+        //$this->assertRegExp('/"label":"Mappa"/',$json);
+        $this->assertEquals($ja['MAP']['layers'][0]['label'],'Mappa');
+        $this->assertEquals($ja['MAP']['layers'][0]['type'],'mbtiles');
+        $this->assertEquals($ja['MENU'][1]['label'],'Mappa');
+        $this->assertEquals($ja['MENU'][0]['label'],'Esci dall\'itinerario');
+        $this->assertEquals($ja['routeID'],'346');
 
+        // BOUNDING BOX
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][0],43.569839999999999);
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][1],10.21466);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][0],43.877560000000003);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][1],10.685499999999999);
+        $this->assertEquals($ja['MAP']['center']['lat'],43.744);
+        $this->assertEquals($ja['MAP']['center']['lng'],10.531000000000001);
+
+    }
+    public function testBB() {
+
+        $this->clearAll();
+        // http://dev.be.webmapp.it/wp-json/wp/v2/route/772
+        $this->options = array('code'=>'dev','id'=>772);
+
+        $t = new WebmappRouteTask('772-BB',$this->options,$this->project_structure);
+        $this->assertTrue($t->check());
+        $this->assertEquals('dev',$t->getCode());
+        $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/route/772',$t->getUrl());
+        $this->assertTrue($t->process());
+        $r = $t->getRoute();
+        $this->assertEquals('WebmappRoute',get_class($r));
+        $this->assertEquals('772',$r->getId());
+        $this->assertEquals('COPIA DI Next to Net7 ROUTE',$r->getTitle());
+
+        $tracks_layer = $t->getTracksLayer();
+        $this->assertEquals('WebmappLayer',get_class($tracks_layer));
+        $this->assertTrue(file_exists($this->geojson_path.'/tracks.geojson'));
+
+        $this->assertTrue(file_exists($this->geojson_path.'/pois_30.geojson'));
+        $this->assertTrue(file_exists($this->geojson_path.'/pois_7.geojson'));
+
+        // Languages
+        $this->assertTrue(file_exists($this->geojson_path.'/languages/en_US/pois_30.geojson'));
+        $this->assertTrue(file_exists($this->geojson_path.'/languages/fr_FR/pois_30.geojson'));
 
         $this->assertTrue(file_exists($this->root.'/client/config.json'));
-        // TODO: aggiungere controlli dettagliati su contenuto del file config
+        $ja = json_decode(file_get_contents($this->root.'/client/config.json'),TRUE);
+        //$this->assertRegExp('/"label":"Mappa"/',$json);
+        $this->assertEquals($ja['MAP']['layers'][0]['label'],'Mappa');
+        $this->assertEquals($ja['MAP']['layers'][0]['type'],'mbtiles');
+        $this->assertEquals($ja['MENU'][1]['label'],'Mappa');
+        $this->assertEquals($ja['MENU'][0]['label'],'Esci dall\'itinerario');
+        $this->assertEquals($ja['routeID'],'772');
 
-        $json = file_get_contents($this->root.'/client/config.json');
-        $this->assertRegExp('/"label":"Mappa"/',$json);
-        $this->assertRegExp('/"label":"Cerca"/',$json);
-        $this->assertRegExp('/"label":"Esci dall\'itinerario"/',$json);
-        $this->assertRegExp('/"type":"mbtiles"/',$json);
+        // BOUNDING BOX
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][0],43.569839999999999);
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][1],10.21466);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][0],43.877560000000003);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][1],10.685499999999999);
+        $this->assertEquals($ja['MAP']['center']['lat'],43.744);
+        $this->assertEquals($ja['MAP']['center']['lng'],10.531000000000001);
 
-        $this->assertRegExp('/"routeID":346/',$json);
     }
 
     public function testUrls() {

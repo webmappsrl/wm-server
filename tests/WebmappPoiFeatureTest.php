@@ -36,7 +36,14 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertEquals($poi->getLngMax(),10.4015262);
                 $this->assertEquals($poi->getLatMin(),43.7223352);
                 $this->assertEquals($poi->getLngMin(),10.4015262);
-        //$this->assertRegExp('/"":""/',$json);
+
+                $bb=$poi->getBB();
+                $this->assertEquals($bb['bounds']['southWest'][0],43.7223352);
+                $this->assertEquals($bb['bounds']['southWest'][1],10.4015262);
+                $this->assertEquals($bb['bounds']['northEast'][0],43.7223352);
+                $this->assertEquals($bb['bounds']['northEast'][1],10.4015262);
+                $this->assertEquals($bb['center']['lat'],43.7223352);
+                $this->assertEquals($bb['center']['lng'],10.4015262);
         }
 
        public function testLanguagesEn() {

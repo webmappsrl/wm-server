@@ -161,6 +161,20 @@ abstract class WebmappAbstractFeature {
     abstract public function getLngMax();
     abstract public function getLngMin();
 
+    // ARRAY pronto per essere convertito in json
+    // ['bounds']['southWest']array(lat,lng)
+    // ['bounds']['northEast']array(lat,lng)
+    // ['center']array(lat,lng)
+    // NON FARLA ASTRATTA MA IN FUNZIONE DELLE PRECEDENTI
+    public function getBB() {
+        $bb = array();
+        $bb['bounds']['southWest']=array($this->getLatMin(),$this->getLngMin());
+        $bb['bounds']['northEast']=array($this->getLatMax(),$this->getLngMax());
+        $bb['center']['lat']=($this->getLatMin()+$this->getLatMax())/2;
+        $bb['center']['lng']=($this->getLngMin()+$this->getLngMax())/2;
+        return $bb;
+    }
+
     public function getArrayJson($lang='') {
 
         $meta = $this->properties;
