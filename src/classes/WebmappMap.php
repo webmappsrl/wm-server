@@ -8,13 +8,14 @@ class WebmappMap {
     private $structure;
     private $type;
     private $title;
-    private $bb;
     private $tilesUrl;
     private $tilesType="maptile";
     private $pois_layers = array();
     private $tracks_layers = array();
     private $style = array();
 
+    // Bounding BOX array associativo
+    private $bb;
     private $routeID = '' ;
 
     // Gestione delle pagine
@@ -271,6 +272,37 @@ class WebmappMap {
     }
     public function setInclude($v) {
         $this->include = $v;
+    }
+
+    /**
+    {
+    maxZoom: 17,
+    minZoom: 7,
+    defZoom: 9,
+    center: {
+        lat: 43.71615042181035,
+        lng: 10.396804999999983
+    },
+    bounds: {
+        southWest: [
+            43.704367081989325,
+            10.366287231445314
+        ],
+        northEast: [
+            43.72794077927287,
+            10.427398681640627
+        ]
+    }
+    }
+   **/
+    public function setBB($latMin,$lngMin,$latMax,$lngMax,$maxZoom=17,$minZoom=7,$defZoom=9) {
+        $this->bb['maxZoom']=$maxZoom;
+        $this->bb['minZoom']=$minZoom;
+        $this->bb['defZoom']=$defZoom;
+        $this->bb['center']['lat']=($latMax+$latMin)/2;
+        $this->bb['center']['lng']=($lngMin+$lngMax)/2;
+        $this->bb['bounds']['southWest']=array($latMin,$lngMin);
+        $this->bb['bounds']['northEast']=array($latMax,$lngMax);
     }
 
     // TODO: eliminare questa funzione

@@ -54,6 +54,10 @@
             return $this->tracks_layer;
         }
         public function process(){
+
+            // Bounding Box
+            $BBfirst = true;
+
             $poi_layers = array();
             $this->route= new WebmappRoute($this->getUrl());
             $tracks = $this->route->getTracks();
@@ -66,12 +70,31 @@
 
                 // LOOP sulle tracce
                 foreach ($tracks as $track) {
+                    // Bounding Box
+                    if ($BBfirst) {
+                        $latMin = $track->getLatMin();
+                        $latMax = $track->getLatMax();
+                        $lngMin = $track->getLngMin();
+                        $lngMax = $track->getLngMax();
+                        $BBfirst=false;
+                    }
+                    else {
+                        if($track->getLatMin()<$latMin) $latMin=$track->getLatMin();
+                        if($track->getLatMax()>$latMax) $latMax=$track->getLatMax();
+                        if($track->getLngMin()<$lngMin) $lngMin=$track->getLngMin();
+                        if($track->getLngMax()>$lngMax) $lngMax=$track->getLngMax();
+                    }
                     $this->tracks_layer->addFeature($track);
 
                     // LOOP sui POI delle tracce
                     $pois = $track->getRelatedPois();
                     if (is_array($pois) && count($pois) >0) {
                         foreach ($pois as $poi) {
+                            // Bounding BOX
+                            if($poi->getLatMin()<$latMin) $latMin=$poi->getLatMin();
+                            if($poi->getLatMax()>$latMax) $latMax=$poi->getLatMax();
+                            if($poi->getLngMin()<$lngMin) $lngMin=$poi->getLngMin();
+                            if($poi->getLngMax()>$lngMax) $lngMax=$poi->getLngMax();
                             // Aggiungi all'array di layer
                             $cat_ids = $poi -> getWebmappCategoryIds();
                             if (is_array($cat_ids) && count($cat_ids) >0 ) {
@@ -100,6 +123,13 @@
                 // Creazione dei file della mappa (config.js config.json index.html)
                 $map = new WebmappMap($this->project_structure);
                 $map->loadMetaFromUrl($this->getUrl());
+
+                // Bounding Box
+                // TODO: gestione del delta 0.045 (costante, modificabile?)
+                if(empty($map->getBB())) {
+                    $map->setBB($latMin-0.045,$lngMin-0.045,$latMax+0.045,$lngMax+0.045);
+                }
+
                 $map->setRouteID($this->id);
                 // Scrivi il file geojson di tutte le tracce
                 $this->tracks_layer->write();

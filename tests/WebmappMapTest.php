@@ -139,6 +139,40 @@ class WebmappMapTest extends TestCase
 
     }
 
+    public function testBB() {
+
+        $this -> init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/772';
+        $m->loadMetaFromUrl($url);
+        $this->assertTrue(empty($m->getBB()));
+        $m->setBB(0,0,2,2);
+        $bb=$m->getBB();
+        $this->assertEquals($bb['maxZoom'],17);
+        $this->assertEquals($bb['minZoom'],7);
+        $this->assertEquals($bb['defZoom'],9);
+        $this->assertEquals($bb['bounds']['southWest'][0],0);
+        $this->assertEquals($bb['bounds']['southWest'][1],0);
+        $this->assertEquals($bb['bounds']['northEast'][0],2);
+        $this->assertEquals($bb['bounds']['northEast'][1],2);
+        $this->assertEquals($bb['center']['lat'],1);
+        $this->assertEquals($bb['center']['lng'],1);
+
+        // TODO: verificare anche la configurazione?
+        $j=$m->getConfJson();
+        $ja=json_decode($j,TRUE);
+        $this->assertEquals($ja['MAP']['maxZoom'],17);
+        $this->assertEquals($ja['MAP']['minZoom'],7);
+        $this->assertEquals($ja['MAP']['defZoom'],9);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][0],0);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][1],0);
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][0],2);
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][1],2);
+        $this->assertEquals($ja['MAP']['center']['lat'],1);
+        $this->assertEquals($ja['MAP']['center']['lng'],1);
+    }
+
+
     public function testLoadMetaFromUrlDefault() {
         $this -> init();
         $m = new WebmappMap($this->project_structure);

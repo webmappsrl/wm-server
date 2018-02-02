@@ -116,13 +116,15 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertEquals($ja['routeID'],'772');
 
         // BOUNDING BOX
-        $this->assertEquals($ja['MAP']['bounds']['northEast'][0],43.569839999999999);
-        $this->assertEquals($ja['MAP']['bounds']['northEast'][1],10.21466);
-        $this->assertEquals($ja['MAP']['bounds']['southWest'][0],43.877560000000003);
-        $this->assertEquals($ja['MAP']['bounds']['southWest'][1],10.685499999999999);
-        $this->assertEquals($ja['MAP']['center']['lat'],43.744);
-        $this->assertEquals($ja['MAP']['center']['lng'],10.531000000000001);
-
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][0],43.7702642);
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][1],10.4752324);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][0],43.6627041);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][1],10.3372971);
+        $this->assertEquals($ja['MAP']['center']['lat'],43.71648415);
+        $this->assertEquals($ja['MAP']['center']['lng'],10.40626475);
+        $this->assertEquals($ja['MAP']['maxZoom'],17);
+        $this->assertEquals($ja['MAP']['minZoom'],7);
+        $this->assertEquals($ja['MAP']['defZoom'],9);
     }
 
     public function testUrls() {
