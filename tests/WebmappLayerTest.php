@@ -28,6 +28,35 @@ class WebmappLayerTest extends TestCase {
 
 	}
 
+	public function testBB() {
+		$path = __DIR__.'/../data';
+		$name = 'layerTestOk';
+		$filename = $path.'/'.$name.'.geojson';
+		system('rm -f '.$filename);
+
+		$layer = new WebmappLayer($name,$path);
+		$poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
+		$layer->addFeature($poi);
+
+		$poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/546');
+		$layer->addFeature($poi);
+
+		$track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/576');
+		$layer->addFeature($track);
+
+		$track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/576');
+		$layer->addFeature($track);
+
+		$bb = $layer->getBB();
+		$this->assertEquals($bb['bounds']['northEast'][0],43.72326);
+        $this->assertEquals($bb['bounds']['northEast'][1],10.4029019);
+        $this->assertEquals($bb['bounds']['southWest'][0],43.70904);
+        $this->assertEquals($bb['bounds']['southWest'][1],10.39471);
+        $this->assertEquals($bb['center']['lat'],43.71615);
+        $this->assertEquals($bb['center']['lng'],10.39880595);
+
+	}
+
 	public function testLanguages() {
 		$path = __DIR__.'/../data';
 		$name = 'layerTestOk';

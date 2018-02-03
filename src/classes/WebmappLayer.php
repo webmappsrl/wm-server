@@ -132,5 +132,33 @@ class WebmappLayer {
 		file_put_contents($fname, $this->getGeoJson($lang));
 	}
 
+    // Restituisce un array con il BB
+	public function getBB() {
+		$bb = array();
+		if(count($this->features)>0){
+			$first = true;
+			foreach ($this->features as $f) {
+				if ($first) {
+					$latMin = $f->getLatMin();
+					$latMax = $f->getLatMax();
+					$lngMin = $f->getLngMin();
+					$lngMax = $f->getLngMax();
+					$first=false;
+				}
+				else {
+					if($f->getLatMin()<$latMin) $latMin=$f->getLatMin();
+					if($f->getLatMax()>$latMax) $latMax=$f->getLatMax();
+					if($f->getLngMin()<$lngMin) $lngMin=$f->getLngMin();
+					if($f->getLngMax()>$lngMax) $lngMax=$f->getLngMax();
+				}
+			}
+			$bb['bounds']['southWest']=array($latMin,$lngMin);
+			$bb['bounds']['northEast']=array($latMax,$lngMax);
+			$bb['center']['lat']=($latMin+$latMax)/2;
+			$bb['center']['lng']=($lngMin+$lngMax)/2;
+		}
+		return $bb;
+	}
+
 
 }
