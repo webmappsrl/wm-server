@@ -13,6 +13,13 @@ class WebmappBETask extends WebmappAbstractTask {
         // Oggetto WebmappMap
  private $map;
 
+ private $BBfirst=true;
+ private $lngMax;
+ private $lngMin;
+ private $latMax;
+ private $latMin;
+
+
 
  public function check() {
 
@@ -58,6 +65,7 @@ public function process(){
     $poi_layers = $this->wp->getPoiLayers();
     if(is_array($poi_layers) && count($poi_layers)>0) {
         foreach($poi_layers as $layer) {
+            $this->computeBB($layer);
             $layer->write($this->project_structure->getPathGeojson());
             $this->map->addPoisWebmappLayer($layer);
         }
@@ -65,16 +73,45 @@ public function process(){
     $track_layers = $this->wp->getTrackLayers();
     if(is_array($track_layers) && count($track_layers)>0) {
         foreach($track_layers as $layer) {
+            $this->computeBB($layer);
             $layer->write($this->project_structure->getPathGeojson());
             $this->map->addTracksWebmappLayer($layer);
         }
+    }
+
+    // Bounding Box
+    // TODO: gestione del delta 0.045 (costante, modificabile?)
+    if(empty($this->map->getBB())) {
+        $this->map->setBB($this->latMin-0.045,$this->lngMin-0.045,$this->latMax+0.045,$this->lngMax+0.045);
     }
     $this->map->buildStandardMenu();
     $this->map->writeConf();
     $this->map->writeIndex();
     $this->map->writeInfo();
-
     return TRUE;
+}
+
+private function computeBB($l) {
+    $bb=$l->getBB();
+    if(is_array($bb)&&count($bb>0)){
+        $lngMin=$bb['bounds']['southWest'][1];
+        $lngMax=$bb['bounds']['northEast'][1];
+        $latMin=$bb['bounds']['southWest'][0];
+        $latMax=$bb['bounds']['northEast'][0];
+        if ($this->BBfirst) {
+            $this->latMin = $latMin;
+            $this->latMax = $latMax;
+            $this->lngMin = $lngMin;
+            $this->lngMax = $lngMax;
+            $this->BBfirst=false;
+        }
+        else {
+            if($latMin<$this->latMin) $this->latMin=$latMin;
+            if($latMax>$this->latMax) $this->latMax=$latMax;
+            if($lngMin<$this->lngMin) $this->lngMin=$lngMin;
+            if($lngMax>$this->lngMax) $this->lngMax=$lngMax;
+        }
+    }
 }
 
 }

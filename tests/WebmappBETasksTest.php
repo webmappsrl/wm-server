@@ -122,4 +122,41 @@ class WebmappBETasksTests extends TestCase
         $this->assertEquals('Descrizione di test per la APP',$ja['config.xml']['description']);
 
     }
+
+    public function testBB() {
+
+        // Pulizia delle directory
+        $cmd = 'rm -f '.$this->project_structure->getPathGeojson().'/*.geojson';
+        system($cmd);
+        $conf_path = $this->project_structure->getPathClientConf();
+        $cmd = 'rm -f '.$conf_path;
+        system($cmd);
+        $conf_index = $this->project_structure->getPathClientIndex();
+        $cmd = 'rm -f '.$conf_index;
+        system($cmd);
+        system('rm -f '.$this->root.'/info.json');
+        $json_conf_file = $this->root.'/config.json';
+        system('rm -f '.$json_conf_file);
+
+        $this->assertEquals('http://example.webmapp.it',$this->project_structure->getUrlBase());
+        $options = array('code'=>'dev','id'=>780);
+
+        $t = new WebmappBETask($this->name,$options,$this->project_structure);
+        $this->assertTrue($t->check());
+        $this->assertEquals('dev',$t->getCode());
+        $this->assertTrue($t->process());
+        
+        $ja = json_decode(file_get_contents($json_conf_file),TRUE);
+        // BOUNDING BOX
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][0],46.08409);
+        $this->assertEquals($ja['MAP']['bounds']['northEast'][1],12.781930847168);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][0],38.046336607512);
+        $this->assertEquals($ja['MAP']['bounds']['southWest'][1],6.61582);
+        $this->assertEquals($ja['MAP']['center']['lat'],42.065213303756);
+        $this->assertEquals($ja['MAP']['center']['lng'],9.698875423584);
+        $this->assertEquals($ja['MAP']['maxZoom'],17);
+        $this->assertEquals($ja['MAP']['minZoom'],7);
+        $this->assertEquals($ja['MAP']['defZoom'],9);
+
+    }
 }
