@@ -656,7 +656,7 @@ public function addPage($label,$type,$isCustom=true) {
    array_push($this->pages, $page);
 }
 
-public function addMenuItem($label,$type,$color='',$icon='',$items=array()) {
+public function addMenuItem($label,$type,$color='',$icon='',$items=array(),$options=array()) {
     $item = array();
     $item['label'] = $label;
     $item['type'] = $type;
@@ -668,6 +668,11 @@ public function addMenuItem($label,$type,$color='',$icon='',$items=array()) {
     }
     if(count($items)>0) {
         $item['items']=$items;
+    }
+    if(count($options)>0){
+        foreach ($options as $key => $value) {
+            $item[$key]=$value;
+        }
     }
     array_push($this->menu, $item);
 }
@@ -752,7 +757,8 @@ public function buildStandardMenu() {
 
     // OFFLINE PAGE
     if($this->has_offline) {
-        $this->addMenuItem($this->menu_offline_label,'page');
+        $options = array('hideInBrowser'=>true);
+        $this->addMenuItem($this->menu_offline_label,'page','','',array(),$options);
     }
 
     // LANGUAGES

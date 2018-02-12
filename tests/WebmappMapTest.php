@@ -46,6 +46,7 @@ class WebmappMapTest extends TestCase
         $this->assertEquals('http://{s}.tile.osm.org/',$m->getTilesUrl());
         //$this->assertEquals('',$m->get());
         $j = $m->getConfJson();
+
         $this->assertRegExp('/"VERSION":"0.4"/',$j);
         $this->assertRegExp('/"title":"DEV408 &#8211; MMP"/',$j);
         $this->assertRegExp('/"filterIcon":"wm-icon-layers"/',$j);
@@ -137,6 +138,17 @@ class WebmappMapTest extends TestCase
         $this->assertEquals('http://example.webmapp.it/resources/icon.png',$ja['resources']['icon']);
         $this->assertEquals('http://example.webmapp.it/resources/splash.png',$ja['resources']['splash']);
 
+    }
+
+
+    public function testHideInBrowser() {
+        $this -> init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
+        $m->loadMetaFromUrl($url);
+        $m->buildStandardMenu();
+        $ja = json_decode($m->getConfJson(),TRUE);
+        $this->assertTrue($ja['MENU'][2]['hideInBrowser']);
     }
 
     public function testBB() {
