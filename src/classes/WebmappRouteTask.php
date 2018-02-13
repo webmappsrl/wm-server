@@ -153,7 +153,7 @@
              }
          }
 
-         $map->addMenuItem('Itinerari','layer','','');
+         $map->addMenuItem('Tappe','layer','','');
          $map->setInclude('');
          $map->setTilesType("mbtiles");
          $map->writeConf();
