@@ -67,7 +67,7 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertEquals($ja['MAP']['layers'][0]['label'],'Mappa');
         $this->assertEquals($ja['MAP']['layers'][0]['type'],'mbtiles');
         $this->assertEquals($ja['MENU'][1]['label'],'Mappa');
-        $this->assertEquals($ja['MENU'][3]['label'],'Itinerari');
+        $this->assertEquals($ja['MENU'][3]['label'],'Tappe');
         $this->assertEquals($ja['MENU'][0]['label'],'Esci dall\'itinerario');
         $this->assertEquals($ja['routeID'],'346');
 
