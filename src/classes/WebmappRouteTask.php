@@ -152,6 +152,8 @@
                  $map->addPoisWebmappLayer($l);
              }
          }
+
+         $map->addMenuItem('Itinerari','layer','','');
          $map->setInclude('');
          $map->setTilesType("mbtiles");
          $map->writeConf();
