@@ -281,6 +281,9 @@ class WebmappMap {
     public function setInclude($v) {
         $this->include = $v;
     }
+    public function addOption($key,$val) {
+        $this->options[$key]=$val;
+    }
 
     /**
     {

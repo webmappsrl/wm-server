@@ -85,6 +85,8 @@ public function process(){
         $this->map->setBB($this->latMin-0.045,$this->lngMin-0.045,$this->latMax+0.045,$this->lngMax+0.045);
     }
     $this->map->buildStandardMenu();
+    $this->map->addOption('mainMenuHideWebmappPage',true);
+    $this->map->addOption('mainMenuHideAttributionPage',true);
     $this->map->writeConf();
     $this->map->writeIndex();
     $this->map->writeInfo();
