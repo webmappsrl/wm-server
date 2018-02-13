@@ -79,6 +79,11 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertEquals($ja['MAP']['center']['lat'],43.744);
         $this->assertEquals($ja['MAP']['center']['lng'],10.531000000000001);
 
+        // SKIP Menu Options
+        $this->assertTrue($ja['OPTIONS']['mainMenuHideAttributionPage']);
+        $this->assertTrue($ja['OPTIONS']['mainMenuHideWebmappPage']);
+
+
     }
     public function testBB() {
 

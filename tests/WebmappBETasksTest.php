@@ -122,12 +122,6 @@ class WebmappBETasksTests extends TestCase
         $this->assertEquals('Descrizione di test per la APP',$ja['config.xml']['description']);
 
 
-        $json_conf_file = $this->root.'/config.json';
-        $ja = json_decode(file_get_contents($json_conf_file),TRUE);
-
-        // SKIP Menu Options
-        $this->assertTrue($ja['OPTIONS']['mainMenuHideAttributionPage']);
-        $this->assertTrue($ja['OPTIONS']['mainMenuHideWebmappPage']);
      
     }
 

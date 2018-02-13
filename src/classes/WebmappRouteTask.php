@@ -152,7 +152,9 @@
                  $map->addPoisWebmappLayer($l);
              }
          }
-
+         
+         $map->addOption('mainMenuHideWebmappPage',true);
+         $map->addOption('mainMenuHideAttributionPage',true);
          $map->addMenuItem('Tappe','layer','','');
          $map->setInclude('');
          $map->setTilesType("mbtiles");
