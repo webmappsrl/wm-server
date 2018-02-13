@@ -46,7 +46,10 @@ class WebmappMapTest extends TestCase
         $this->assertEquals('http://{s}.tile.osm.org/',$m->getTilesUrl());
         //$this->assertEquals('',$m->get());
         $j = $m->getConfJson();
+        $ja = json_decode($j,TRUE);
 
+        // OPTIONS
+        $this->assertTrue($ja['OPTIONS']['activateZoomControl']);
         $this->assertRegExp('/"VERSION":"0.4"/',$j);
         $this->assertRegExp('/"title":"DEV408 &#8211; MMP"/',$j);
         $this->assertRegExp('/"filterIcon":"wm-icon-layers"/',$j);

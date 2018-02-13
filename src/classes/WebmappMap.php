@@ -14,6 +14,9 @@ class WebmappMap {
     private $tracks_layers = array();
     private $style = array();
 
+    // OPTIONS section
+    private $options = array();
+
     // Bounding BOX array associativo
     private $bb;
     private $routeID = '' ;
@@ -78,8 +81,8 @@ class WebmappMap {
         }
         // Set default values;
         $this->style = $this->buildStyleConfArray();
-        // Set default values;
         $this->menu = $this->buildMenuConfArray();
+
     } 
 
     public function simpleConstruct($structure) {
@@ -87,6 +90,8 @@ class WebmappMap {
         throw new Exception("Il parametro del costruttore della classe WebmappMap deve essere di tipo WebmappProjectStructure", 1);
        }
        $this->structure=$structure;
+       $this->buildOptionsConfArray();
+
     }
 
     // Legge i dati da un URL che risponde come le API di WP
@@ -217,9 +222,12 @@ class WebmappMap {
             $this->setReportSMS($ja['report_sms']);
         }
 
+        // Activate zoom control
+        if(isset($ja['activate_zoom_control']) && $ja['activate_zoom_control']==true) {
+            $this->options['activateZoomControl']=true;
+        }
 
-
-
+        $this->buildOptionsConfArray();
     }
 
     // GETTERS
@@ -457,7 +465,7 @@ class WebmappMap {
         }
 
         // OPTIONS
-        $this->conf_array['OPTIONS'] = $this->buildOptionsConfArray();
+        $this->conf_array['OPTIONS'] = $this->options;
 
         // STYLE
         $this->conf_array['STYLE'] = $this->style;
@@ -519,20 +527,19 @@ class WebmappMap {
     }
 
     private function buildOptionsConfArray() {
-        $options["title"] = "$this->title";
-        $options["startUrl"] = $this->startUrl;
-        $options["useLocalStorageCaching"] = false;
-        $options["advancedDebug"] = false;
-        $options["hideHowToReach"] = true;
-        $options["hideMenuButton"] = false;
-        $options["hideExpanderInDetails"] = false;
-        $options["hideFiltersInMap"] = false;
-        $options["hideDeactiveCentralPointer"] = false;
-        $options["hideShowInMapFromSearch"] = true;
-        $options["avoidModalInDetails"] = true;
-        $options["useAlmostOver"] = false;
-        $options["filterIcon"] = $this->filterIcon;
-        return $options;
+        $this->options["title"] = "$this->title";
+        $this->options["startUrl"] = $this->startUrl;
+        $this->options["useLocalStorageCaching"] = false;
+        $this->options["advancedDebug"] = false;
+        $this->options["hideHowToReach"] = true;
+        $this->options["hideMenuButton"] = false;
+        $this->options["hideExpanderInDetails"] = false;
+        $this->options["hideFiltersInMap"] = false;
+        $this->options["hideDeactiveCentralPointer"] = false;
+        $this->options["hideShowInMapFromSearch"] = true;
+        $this->options["avoidModalInDetails"] = true;
+        $this->options["useAlmostOver"] = false;
+        $this->options["filterIcon"] = $this->filterIcon;
     }
 
     private function buildStyleConfArray() {
