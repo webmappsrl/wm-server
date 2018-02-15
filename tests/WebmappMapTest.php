@@ -133,6 +133,19 @@ class WebmappMapTest extends TestCase
         $this->assertTrue(file_exists($this->root . '/client/index.html'));
         $this->assertTrue(file_exists($this->root . '/index.html'));
 
+        // Controlla la index
+/*        
+
+*/
+
+        $index = file_get_contents($this->root . '/client/index.html');
+        $this->assertRegExp('/<script src="core\/js\/components\/webmapp\/webmapp.controller.js"><\/script>/',$index);
+        $this->assertRegExp('/<script src="core\/js\/components\/attribution\/attribution.controller.js"><\/script>/',$index);
+        $this->assertRegExp('/<script src="core\/js\/components\/home\/home.controller.js"><\/script>/',$index);
+        $this->assertRegExp('/<script src="core\/lib\/leaflet_plugin\/leaflet-polylinedecorator\/dist\/leaflet.polylineDecorator.js"><\/script>/',$index);
+        $this->assertRegExp('/<script src="core\/lib\/ng-country-select\/dist\/ng-country-select.js"><\/script>/',$index);
+        $this->assertRegExp('/<script src="core\/js\/components\/languages\/languages.controller.js"><\/script>/',$index);
+
         $m->writeInfo();
         $this->assertTrue(file_exists($this->root . '/info.json'));
         $this->assertTrue(file_exists($this->root . '/resources/icon.png'));

@@ -914,12 +914,14 @@ $index = <<<EOS
         <script src="core/lib/leaflet_plugin/leaflet.geometryutil.js"></script>
         <script src="core/lib/leaflet_plugin/leaflet.almostover.js"></script>
         <script src="core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
+        <script src="core/lib/leaflet_plugin/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
 
         <script src="core/lib/angular-translate/angular-translate.min.js"></script>
         <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
         <script src="core/lib/leaflet_plugin/sql.js"></script>
         <script src="core/lib/leaflet_plugin/Leaflet.TileLayer.MBTiles.js"></script>
         <script src="core/lib/ngCordova/dist/ng-cordova.js"></script>
+        <script src="core/lib/ng-country-select/dist/ng-country-select.js"></script>
         <script src="core/lib/pouchdb/pouchdb.min.js"></script>
         <script src="cordova.js"></script>
 
@@ -955,6 +957,7 @@ $index = <<<EOS
         <script src="core/js/services/offline.factory.js"></script>
         <script src="core/js/services/map.factory.js"></script>
 
+        <script src="core/js/components/languages/languages.controller.js"></script>
         <script src="core/js/components/welcome/welcome.controller.js"></script>
         <script src="core/js/components/coupons/coupons.controller.js"></script>
         <script src="core/js/components/packages/packages.controller.js"></script>
@@ -969,6 +972,9 @@ $index = <<<EOS
         <script src="core/js/components/menu/menu.controller.js"></script>
         <script src="core/js/components/custom/custom.controller.js"></script>
         <script src="core/js/components/webmapp/webmapp.controller.js"></script>
+        <script src="core/js/components/attribution/attribution.controller.js"></script>
+        <script src="core/js/components/home/home.controller.js"></script>
+
     </head>
 
     <body ng-app="webmapp">
