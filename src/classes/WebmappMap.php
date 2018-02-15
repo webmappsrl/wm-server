@@ -222,9 +222,15 @@ class WebmappMap {
             $this->setReportSMS($ja['report_sms']);
         }
 
-        // Activate zoom control
+        // OPTIONS
         if(isset($ja['activate_zoom_control']) && $ja['activate_zoom_control']==true) {
             $this->options['activateZoomControl']=true;
+        }
+        if(isset($ja['hide_webmapp_page']) && $ja['hide_webmapp_page']==true) {
+            $this->options['mainMenuHideWebmappPage']=true;
+        }
+        if(isset($ja['hide_attribution_page']) && $ja['hide_attribution_page']==true) {
+            $this->options['mainMenuHideAttributionPage']=true;
         }
 
         $this->buildOptionsConfArray();

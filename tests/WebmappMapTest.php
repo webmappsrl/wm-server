@@ -143,7 +143,6 @@ class WebmappMapTest extends TestCase
 
     }
 
-
     public function testHideInBrowser() {
         $this -> init();
         $m = new WebmappMap($this->project_structure);
@@ -152,6 +151,17 @@ class WebmappMapTest extends TestCase
         $m->buildStandardMenu();
         $ja = json_decode($m->getConfJson(),TRUE);
         $this->assertTrue($ja['MENU'][2]['hideInBrowser']);
+    }
+
+    public function testHidePages() {
+        $this -> init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
+        $m->loadMetaFromUrl($url);
+        $m->buildStandardMenu();
+        $ja = json_decode($m->getConfJson(),TRUE);
+        $this->assertTrue($ja['OPTIONS']['mainMenuHideWebmappPage']);        
+        $this->assertTrue($ja['OPTIONS']['mainMenuHideAttributionPage']);        
     }
 
     public function testBB() {
