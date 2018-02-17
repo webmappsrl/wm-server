@@ -2,8 +2,11 @@
 
 // VENDOR
 require 'vendor/gisconverter/gisconverter.php';
+require 'vendor/GPXIngest/GPXIngest.php';
 
 // Caricamento classi obbligatorie
+
+require 'classes/WebmappUtils.php';
 
 require 'classes/WebmappProject.php';
 require 'classes/WebmappProjectStructure.php';
