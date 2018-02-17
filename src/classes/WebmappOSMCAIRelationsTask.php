@@ -257,6 +257,10 @@ file_put_contents($this->project_structure->getRoot().'/index.html', $html);
             $gpx_path = $root . "/resources/$ref-$id.gpx";
             echo "processing GPX: from $WMT_GPX_URL to $gpx_path ... ";
             file_put_contents($gpx_path, fopen($WMT_GPX_URL, 'r'));
+
+            // GPX Analyze
+            
+
             $zip->addFile($gpx_path,$gpx_path);
             echo "DONE! \n";
         }

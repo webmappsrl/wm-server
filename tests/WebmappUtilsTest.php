@@ -11,6 +11,11 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(27542,floor($info['distance']));
 		$this->assertEquals(1029,floor($info['ele_max']));
 		$this->assertEquals(192,floor($info['ele_min']));
+		$this->assertEquals(194,floor($info['ele_start']));
+		$this->assertEquals(721,floor($info['ele_end']));
+		$this->assertEquals(1886,floor($info['ele_gain_positive']));
+		$this->assertEquals(1331,floor($info['ele_gain_negative']));
+
 	}
 	public function testSimple() {
 		$gpx = __DIR__.'/fixtures/simple.gpx';
