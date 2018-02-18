@@ -39,4 +39,34 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals('1:30',WebmappUtils::formatDuration(1.5));
 	}
 
+	public function testBingEle() {
+		// Monte Bianco ele 4808
+		$monte_bianco = array(45.832905,6.864688);
+		// Monte Rosa ele 4634
+		$monte_rosa = array(45.93689,7.86676);
+		$points = array(
+			$monte_bianco,
+			$monte_rosa
+			);
+		$ele = WebmappUtils::getBingElevations($points);
+		$this->assertEquals(4821,$ele[0]);
+		$this->assertEquals(4465,$ele[1]);
+	}
+	public function testBingEleExceptionArray() {
+		$points_error = 'error';
+		$this->expectException(Exception::class);
+		WebmappUtils::getBingElevations($points_error);
+	}
+	public function testBingEleExceptionEmptyArray() {
+		$points_error = array();
+		$this->expectException(Exception::class);
+		WebmappUtils::getBingElevations($points_error);
+	}
+	public function testBinSingleEle(){
+        // Monte Bianco
+		$this->assertEquals(4824,WebmappUtils::getBingElevation(45.832905,6.864688));
+		// Monte Rosa
+		$this->assertEquals(4465,WebmappUtils::getBingElevation(45.93689,7.86676));
+	}
+
 }

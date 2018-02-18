@@ -98,7 +98,38 @@ class WebmappUtils {
 		return "$hs:$ms";
 	}
 
-	public static function getElevations($points) {
+	/**
+	$points = array (
+	  array(lat1,lng1),
+	  array(lat2,lng2),
+	  ...
+	  array(latN,lngN)
+	)
+	**/
+	public static function getBingElevations($points) {
+		if(!is_array($points)) {
+			throw new Exception("Points must be array", 1);
+		}
+		if (count($points)==0) {
+			throw new Exception("No elements in array", 1);
+		}
+		// Prepare Points
+		$p1 = array();
+		foreach($points as $point) {
+          $p1[]=implode(',', $point);
+		}
+		$p2=implode(',', $p1);
 
+		$bing_url = 'http://dev.virtualearth.net/REST/v1/Elevation/List';
+		$bing_key='Amw2lh34kxU-6D0i5kpZjjsBw8HecF7ZjVDtSNixG3H2-MEOw-14JS-lgCT9W0BD';
+		$post = "points=$p2&heights=ellipsoid&key=$bing_key";
+		$url_get = "$bing_url?$post";
+		$r = json_decode(file_get_contents($url_get),TRUE);
+		return $r['resourceSets'][0]['resources'][0]['elevations'];
+
+	}
+	public static function getBingElevation($lat,$lng) {
+		$ele = self::getBingElevations(array(array($lat,$lng)));
+		return $ele[0];
 	}
 }
