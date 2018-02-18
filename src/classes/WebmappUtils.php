@@ -1,5 +1,9 @@
 <?php 
 
+// CUSTOM Exceptions
+class ExceptionWebmappUtilsGPXAddEleMultipleSegments extends Exception {}
+class ExceptionWebmappUtilsGPXAddEleMultipleTracks extends Exception {}
+
 class WebmappUtils {
 	/**
 	returns an has array with stats info
@@ -39,13 +43,18 @@ class WebmappUtils {
 
         $t = $g->getTrack($ts[0]);
 
+        $info['has_multi_segments'] = false;
+        if(isset($t->segments->seg1)) {
+        	$info['has_multi_segments'] = true;
+        }
+
         if($info['tracks']>0) {
         	if (!empty($t->segments->seg0->points->trackpt0->elevation)) {
         		$info['has_ele']=true;
         	}
         }
 
-        if($info['tracks']==1) {
+        if($info['tracks']==1 && !$info['has_multi_segments']) {
         	$info['ele_start'] = $t->segments->seg0->points->trackpt0->elevation;
         	$trackpt = 'trackpt'.($info['trackpoints']-1);
         	$info['ele_end'] = $t->segments->seg0->points->$trackpt->elevation;
@@ -77,6 +86,56 @@ class WebmappUtils {
 
 
         return $info;
+	}
+
+	/**
+	Add elevation info on GPX with no Elevation:
+	IN <trkpt lat="46.0820515873" lon="11.1021300999" />
+	OUT <trkpt lat="46.0820515873" lon="11.1021300999"><ele>194.0</ele></trkpt>
+		$in = GPX file input (no ele)
+		$out = GPX file output (with)
+	**/
+	public static function GPXAddEle($in,$out) {
+
+		// File input deve esistere
+		if(!file_exists($in)) {
+			throw new Exception("File $in does not exists", 1);
+			
+		}
+		$info = self::GPXAnalyze($in);
+
+		// Se ha più di una traccia non funziona
+		if($info['tracks']>1) {
+			throw new ExceptionWebmappUtilsGPXAddEleMultipleTracks("GPX not valid: multiple tracks not supported.", 1);	
+		}
+		// Se ha più di una traccia non funziona
+		if($info['has_multi_segments']) {
+			throw new ExceptionWebmappUtilsGPXAddEleMultipleSegments("GPX not valid: multiple segments not supported.", 1);	
+		}
+
+		// Se ha già elevation copia IN -> OUT ritorna TRUE
+		if ($info['has_ele']) {
+			$cmd = "cp $in $out";
+			system($cmd);
+			return true;
+		}
+
+		// Da qui in poi assumo di avere singola traccia e singolo SEG
+		$xml = simplexml_load_string(file_get_contents($in));
+		$points = array();
+		foreach($xml->trk->trkseg->trkpt as $pt) {
+			$lat = (float) $pt->attributes()->lat->__toString();
+			$lon = (float) $pt->attributes()->lon->__toString();
+			$points[]=array($lat,$lon);
+		}
+		$elevations = self::getBingElevations($points);
+		$i=0;
+		foreach($xml->trk->trkseg->trkpt as $pt) {
+			$pt->addChild('ele',$elevations[$i]);
+			$i = $i+1;
+		}
+		return $xml->asXML($out);
+
 	}
 
 	public static function formatDuration($h){

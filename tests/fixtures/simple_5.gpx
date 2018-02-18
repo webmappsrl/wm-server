@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx creator="waymarkedtrails.org" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+	<metadata>
+		<name>[181]</name>
+		<copyright author="OpenStreetMap and Contributors">
+			<license>http://www.openstreetmap.org/copyright</license>
+		</copyright>
+		<link href="/#route?id=3303292">
+			<text>Waymarked Trails</text>
+		</link>
+		<time>2018-02-17T12:56:28.294128</time>
+	</metadata>
+	<trk>
+		<trkseg>
+			<trkpt lat="44.1324820" lon="10.1863900"/>
+			<trkpt lat="44.1326130" lon="10.1863420"/>
+			<trkpt lat="44.1327620" lon="10.1863400"/>
+			<trkpt lat="44.1328230" lon="10.1863760"/>
+			<trkpt lat="44.1329360" lon="10.1865520"/>
+		</trkseg>
+	</trk>
+</gpx>

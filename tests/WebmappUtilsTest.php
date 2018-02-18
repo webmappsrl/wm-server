@@ -18,6 +18,8 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(1331,$info['ele_gain_negative']);
 		$this->assertEquals("13:10",$info['duration_forward']);
 		$this->assertEquals("11:30",$info['duration_backward']);
+		$this->assertFalse($info['has_multi_segments']);
+
 	}
 	public function testSimple() {
 		$gpx = __DIR__.'/fixtures/simple.gpx';
@@ -26,9 +28,20 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(359,$info['trackpoints']);
 		$this->assertEquals(5.1,$info['distance']);
 		$this->assertFalse($info['has_ele']);
+		$this->assertFalse($info['has_multi_segments']);
+	}
+	public function testMultiSegments() {
+		$gpx = __DIR__.'/fixtures/singletrack_multiseg.gpx';
+		$info = WebmappUtils::GPXAnalyze($gpx);
+		$this->assertTrue($info['has_multi_segments']);
+	}
+	public function testMultiTracks() {
+		$gpx = __DIR__.'/fixtures/multitrack.gpx';
+		$info = WebmappUtils::GPXAnalyze($gpx);
+		$this->assertTrue($info['tracks']>1);
 	}
 
-	public function testFormatDuraion() {
+	public function testFormatDuration() {
 		$this->assertEquals('0:00',WebmappUtils::formatDuration(0));
 		$this->assertEquals('0:05',WebmappUtils::formatDuration(0.01));
 		$this->assertEquals('0:15',WebmappUtils::formatDuration(0.25));
@@ -69,4 +82,65 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(4465,WebmappUtils::getBingElevation(45.93689,7.86676));
 	}
 
+	/**
+	* @group WebmappUtils_GPXAddEle
+	**/
+	public function testGPXAddEle() {
+		$in_ele = __DIR__.'/fixtures/3DandPoints.gpx';
+		$in_no_ele = __DIR__.'/fixtures/simple_5.gpx';
+		$out = '/tmp/out.gpx';
+
+		// FILE con ele: esegue la copia
+		$cmd = "rm -f $out";
+		system($cmd);
+		$this->assertFalse(file_exists($out));
+		$this->assertTrue(WebmappUtils::GPXAddEle($in_ele,$out));
+		$this->assertEquals(file_get_contents($in_ele),file_get_contents($out));
+		$this->assertTrue(WebmappUtils::GPXAddEle($in_no_ele,$out));
+
+		// Controlli sul risultato ottenuto
+		$info = WebmappUtils::GPXAnalyze($out);
+		$this->assertEquals(1,$info['tracks']);
+		$this->assertEquals(5,$info['trackpoints']);
+		$this->assertEquals(0.1,$info['distance']);
+		$this->assertTrue($info['has_ele']);
+		$this->assertEquals(1533,$info['ele_max']);
+		$this->assertEquals(1530,$info['ele_min']);
+		$this->assertEquals(1533,$info['ele_start']);
+		$this->assertEquals(1530,$info['ele_end']);
+		$this->assertEquals(0,$info['ele_gain_positive']);
+		$this->assertEquals(0,$info['ele_gain_negative']);
+		$this->assertEquals("0:05",$info['duration_forward']);
+		$this->assertEquals("0:05",$info['duration_backward']);
+		$this->assertFalse($info['has_multi_segments']);
+
+	}
+
+	/**
+	* @group WebmappUtils_GPXAddEle
+	**/
+	public function testGPXAddEleExceptionNoFile() {
+		$in ='/nowhere/track.pgx';
+		$out = '/tmp/out.gpx';
+		$this->expectException(Exception::class);
+		WebmappUtils::GPXAddEle($in,$out);		
+	}
+	/**
+	* @group WebmappUtils_GPXAddEle
+	**/
+	public function testGPXAddEleExceptionMultipleSegments() {
+		$in =__DIR__.'/fixtures/singletrack_multiseg.gpx';
+		$out = '/tmp/out.gpx';
+		$this->expectException(ExceptionWebmappUtilsGPXAddEleMultipleSegments::class);
+		WebmappUtils::GPXAddEle($in,$out);		
+	}
+	/**
+	* @group WebmappUtils_GPXAddEle
+	**/
+	public function testGPXAddEleExceptionMultipleTracks() {
+		$in =__DIR__.'/fixtures/multitrack.gpx';
+		$out = '/tmp/out.gpx';
+		$this->expectException(ExceptionWebmappUtilsGPXAddEleMultipleTracks::class);
+		WebmappUtils::GPXAddEle($in,$out);		
+	}
 }
