@@ -1,6 +1,21 @@
 <?php 
 
 class WebmappUtils {
+	/**
+	returns an has array with stats info
+	$info['tracks'] Number of tracks
+	$info['trackpoints'] Number of trackpoints
+	$info['distance'] Overall distance
+	$info['has_ele'] Has elevation info (true/false)
+	$info['ele_max']) Elevation max
+	$info['ele_min']) Elevation min
+	$info['ele_start']) Elevation @ start point
+	$info['ele_end']) Elevation @ end point
+	$info['ele_gain_positive']) D+ (from start to stop)
+	$info['ele_gain_negative']) D- (from start to stop)
+	$info['duration_forward']) Durata (solo se disponibile ELE, calcolato con sforzo equivalente)
+	$info['duration_backward']) Durata (solo se disponibile ELE, calcolato con sforzo equivalente)
+	**/
 	public static function GPXAnalyze($file) {
 		$g = new GPXIngest\GPXIngest();
 		$g->enableExperimental('calcElevationGain');
@@ -51,10 +66,39 @@ class WebmappUtils {
 
         $info['ele_max']=$stats->elevation->max;
         $info['ele_min']=$stats->elevation->min;
-        $info['distance']=$stats->distanceTravelled*0.3048;
+        $info['distance']=round($stats->distanceTravelled/3280,1);
 
-        print_r($info);
+        // Average speed 3.5 Km / h
+        $hiking_mean_speed = 3.5;
+        $df = ( $info['distance'] + ($info['ele_gain_positive'] / 100)) / $hiking_mean_speed;
+        $db = ( $info['distance'] + ($info['ele_gain_negative'] / 100)) / $hiking_mean_speed;
+        $info['duration_forward'] = self::formatDuration($df);
+        $info['duration_backward'] = self::formatDuration($db);
+
 
         return $info;
+	}
+
+	public static function formatDuration($h){
+		if ($h==0) return '0:00';
+		$hs = floor($h);
+		$ms = ($h*60) % 60;
+		if ($h>=0.5) {
+			$ms = floor($ms/10)*10;
+		}
+		else {
+			$ms = floor($ms/5)*5;
+		}
+		if ($hs==0 && $ms==0) {
+			$ms = '05';
+		}
+		else {
+			$ms = str_pad($ms,2,'0');
+		}
+		return "$hs:$ms";
+	}
+
+	public static function getElevations($points) {
+
 	}
 }
