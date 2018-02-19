@@ -32,7 +32,7 @@ class WebmappGeoJson {
 		$coordinates=array();
 		for ($i=0; $i < $nv/2; $i++) {
 			$j=2*$i;
-			$coordinates[]=array($v[$j+1],$v[$j]);
+			$coordinates[]=array((float)$v[$j+1],(float)$v[$j]);
 		}
 		return $this->addLineString($coordinates,$properties);
 	}
