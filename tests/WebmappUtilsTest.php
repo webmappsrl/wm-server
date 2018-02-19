@@ -65,6 +65,18 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(4821,$ele[0]);
 		$this->assertEquals(4465,$ele[1]);
 	}
+
+	public function testEle() {
+		$serra = array(43.7510,10.5536);
+		$pania_della_croce = array(44.0344,10.3241);
+		$points = array(
+			$serra,
+			$pania_della_croce
+			);
+		$ele = WebmappUtils::getElevations($points);
+		$this->assertEquals(902,$ele[0]);
+		$this->assertEquals(1770,$ele[1]);
+	}
 	public function testBingEleExceptionArray() {
 		$points_error = 'error';
 		$this->expectException(Exception::class);
@@ -104,10 +116,10 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(5,$info['trackpoints']);
 		$this->assertEquals(0.1,$info['distance']);
 		$this->assertTrue($info['has_ele']);
-		$this->assertEquals(1533,$info['ele_max']);
-		$this->assertEquals(1530,$info['ele_min']);
-		$this->assertEquals(1533,$info['ele_start']);
-		$this->assertEquals(1530,$info['ele_end']);
+		$this->assertEquals(1478,$info['ele_max']);
+		$this->assertEquals(1475,$info['ele_min']);
+		$this->assertEquals(1477,$info['ele_start']);
+		$this->assertEquals(1478,$info['ele_end']);
 		$this->assertEquals(0,$info['ele_gain_positive']);
 		$this->assertEquals(0,$info['ele_gain_negative']);
 		$this->assertEquals("0:05",$info['duration_forward']);

@@ -129,7 +129,7 @@ class WebmappUtils {
 			$lon = (float) $pt->attributes()->lon->__toString();
 			$points[]=array($lat,$lon);
 		}
-		$elevations = self::getBingElevations($points);
+		$elevations = self::getElevations($points);
 		$i=0;
 		foreach($xml->trk->trkseg->trkpt as $pt) {
 			$pt->addChild('ele',$elevations[$i]);
@@ -202,6 +202,39 @@ class WebmappUtils {
 		$url_get = "$bing_url?$post";
 		$r = json_decode(file_get_contents($url_get),TRUE);
 		return $r['resourceSets'][0]['resources'][0]['elevations'];
+
+	}
+	/**
+	$points = array (
+	  array(lat1,lng1),
+	  array(lat2,lng2),
+	  ...
+	  array(latN,lngN)
+	)
+	**/
+	public static function getElevations($points) {
+		if(!is_array($points)) {
+			throw new Exception("Points must be array", 1);
+		}
+		if (count($points)==0) {
+			throw new Exception("No elements in array", 1);
+		}
+		// Prepare Points
+		$p1 = array();
+		foreach($points as $point) {
+          $p1[]=implode(',', $point);
+		}
+		$p2=implode(',', $p1);
+
+		$url = 'https://api.webmapp.it/services/3d/get3dgeojsonbylatlonlist.php';
+		$url_get = "$url?l=$p2";
+		$r = json_decode(file_get_contents($url_get),TRUE);
+		$elevations = array();
+		foreach($r['features'][0]['geometry']['coordinates'] as $coord) {
+			$elevations[]=floor($coord[2]);
+		}
+
+		return $elevations;
 
 	}
 	public static function getBingElevation($lat,$lng) {
