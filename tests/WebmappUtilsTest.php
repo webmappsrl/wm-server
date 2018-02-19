@@ -143,4 +143,45 @@ class WebmappUtilsTests extends TestCase {
 		$this->expectException(ExceptionWebmappUtilsGPXAddEleMultipleTracks::class);
 		WebmappUtils::GPXAddEle($in,$out);		
 	}
+
+	/**
+	* @group WebmappUtils_GPXGenerateProfile
+	**/
+	public function testGPXGenerateProfileNoFile() {
+		$in ='/nowhere/multitrack.gpx';
+		$out = '/tmp/out.gpx';
+		$this->expectException(WebmappExceptionNofile::class);
+		WebmappUtils::GPXGenerateProfile($in,$out);		
+	}
+
+	/**
+	* @group WebmappUtils_GPXGenerateProfile
+	**/
+	public function testGPXGenerateProfileNoDirectory() {
+		$in ='/nowhere/multitrack.gpx';
+		$out = '/nowhere/out.gpx';
+		$this->expectException(WebmappExceptionNofile::class);
+		WebmappUtils::GPXGenerateProfile($in,$out);		
+	}
+
+	/**
+	* @group WebmappUtils_GPXGenerateProfile
+	**/
+	public function testGPXGenerateProfileNoEle() {
+		$in =__DIR__.'/fixtures/simple_5.gpx';
+		$out = '/tmp/out.gpx';
+		$this->expectException(WebmappUtilsExceptionsGPXNoEle::class);
+		WebmappUtils::GPXGenerateProfile($in,$out);		
+	}
+
+	/**
+	* @group WebmappUtils_GPXGenerateProfile
+	**/
+	public function testGPXGenerateProfile() {
+		$in =__DIR__.'/fixtures/3DandPoints.gpx';
+		$out = '/tmp/out.jpg';
+		$this->assertTrue(WebmappUtils::GPXGenerateProfile($in,$out))w;		
+	}
+
+
 }

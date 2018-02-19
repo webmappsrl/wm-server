@@ -3,6 +3,7 @@
 // CUSTOM Exceptions
 class ExceptionWebmappUtilsGPXAddEleMultipleSegments extends Exception {}
 class ExceptionWebmappUtilsGPXAddEleMultipleTracks extends Exception {}
+class WebmappUtilsExceptionsGPXNoEle extends Exception {}
 
 class WebmappUtils {
 	/**
@@ -135,6 +136,22 @@ class WebmappUtils {
 			$i = $i+1;
 		}
 		return $xml->asXML($out);
+
+	}
+
+	public static function GPXGenerateProfile($in,$out) {
+		if(!file_exists($in)) {
+			throw new WebmappExceptionNoFile('File $in does not exist');
+		}
+		if(!file_exists(dirname($out))) {
+			throw new WebmappExceptionNoDirectory('Directory '.dirname($out).' does not exist');
+		}
+		$info = self::GPXAnalyze($in);
+		if(!$info['has_ele']) {
+			throw new WebmappUtilsExceptionsGPXNoEle('Invalid GPX: no elevation data needed for profile');
+		}
+
+		return false;
 
 	}
 

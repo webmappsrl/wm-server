@@ -6,6 +6,7 @@ require 'vendor/GPXIngest/GPXIngest.php';
 
 // Caricamento classi obbligatorie
 
+require 'classes/WebmappExceptions.php';
 require 'classes/WebmappUtils.php';
 
 require 'classes/WebmappProject.php';
