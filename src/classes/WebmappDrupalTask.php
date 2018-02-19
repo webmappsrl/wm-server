@@ -1,13 +1,13 @@
 <?php
 class WebmappDrupalTask extends WebmappAbstractTask {
 
-    	// Code
+   // Code
    private $code;
 
-        // ID della mappa
+   // ID della mappa
    private $id;
 
-        // Oggetto WebmappWP per la gestione delle API
+   // Oggetto WebmappWP per la gestione delle API
    private $wp;
 
    // Oggetto WebmappMap
@@ -143,6 +143,8 @@ private function loadPoisPage($base_url,$page) {
             $wm['address'] = $pi['field_posizione']['und'][0]['street'].', '.
             $pi['field_posizione']['und'][0]['city'];
         }
+
+        
 
         $poi = new WebmappPoiFeature($wm);
         if(isset($pi['field_immagine_evento']['und'][0]['uri'])) {
