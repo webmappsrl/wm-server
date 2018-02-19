@@ -180,7 +180,7 @@ class WebmappUtilsTests extends TestCase {
 	public function testGPXGenerateProfile() {
 		$in =__DIR__.'/fixtures/3DandPoints.gpx';
 		$out = '/tmp/out.jpg';
-		$this->assertTrue(WebmappUtils::GPXGenerateProfile($in,$out))w;		
+		$this->assertTrue(WebmappUtils::GPXGenerateProfile($in,$out));		
 	}
 
 

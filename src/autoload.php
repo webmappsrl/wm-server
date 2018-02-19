@@ -8,6 +8,7 @@ require 'vendor/GPXIngest/GPXIngest.php';
 
 require 'classes/WebmappExceptions.php';
 require 'classes/WebmappUtils.php';
+require 'classes/WebmappGeoJson.php';
 
 require 'classes/WebmappProject.php';
 require 'classes/WebmappProjectStructure.php';
