@@ -30,8 +30,11 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
     public function process(){
 
         $this->processGeoJson();
-        $this->processIndex();
         $this->processGPX();
+        $this->processIndex();
+
+        $out_file = $this->project_structure->getRoot() . '/geojson/' . $this->name . '_relations.json';
+        file_put_contents($out_file, json_encode($this->geojson));
 
     	return TRUE;
     }
@@ -70,8 +73,6 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
 
         $geojson['features']=$features;
         $this->geojson=$geojson;
-        $out_file = $this->project_structure->getRoot() . '/geojson/' . $this->name . '_relations.json';
-        file_put_contents($out_file, json_encode($geojson));
 
     }
 
@@ -90,6 +91,37 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
     }
 
     private function processIndex() {
+
+        $keys = array('type',
+                      'route',
+                      'network',
+                      'name',
+                      'cai_scale',
+                      'roundtrip',
+                      'source',
+                      'survey:date',
+                      'osmc:symbol',
+                      'operator',
+                      'tracks',
+                      'has_multi_segments',
+                      'trackpoints',
+                      'has_ele',
+                      'distance',
+                      'ele_gain_positive',
+                      'ele_gain_negative',
+                      'ele_start',
+                      'ele_end',
+                      'ele_max',
+                      'duration_forward',
+                      'duration_backward'
+                      );
+
+        $thead ="<thead><tr><th>REF</th><th>OSM</th>";
+        foreach ($keys as $key ) {
+            $thead .= "<th>$key</th>";
+        }
+        $thead .= "</tr></thead>";
+
         $features = $this->geojson['features'];
         $rows='';
         foreach($features as $feature) {
@@ -106,52 +138,18 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
             <a href=\"https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx\" target=\"_blank\">[G]</a>
             ";
 
-            $type = $this->setProps($props,'type');
-            $class_type = $this->getTDClass($type);
+            if ($props['has_ele']==1) {
+                $osm .= "<a href=\"resources/$ref-$id-3d.gpx\" target=\"_blank\">[G3]</a>";
+            }
 
-            $route = $this->setProps($props,'route');
-            $class_route = $this->getTDClass($route);
+            $row="<tr><td class=\"$class_ref\">$ref</td><td>$osm</td>";
+            foreach ($keys as $key) {
+                $val=$this->setProps($props,$key);
+                $class=$this->getTDClass($val);
+                $row .= "<td class=\"$class\">$val</td>";
+            }
+            $row .= "</tr>";
 
-            $network = $this->setProps($props,'network');
-            $class_network = $this->getTDClass($network);
-
-            $name = $this->setProps($props,'name');
-            $class_name = $this->getTDClass($name);
-
-            $cai_scale = $this->setProps($props,'cai_scale');
-            $class_cai_scale = $this->getTDClass($cai_scale);
-
-            $roundtrip = $this->setProps($props,'roundtrip');
-            $class_roundtrip = $this->getTDClass($roundtrip);
-
-            $source = $this->setProps($props,'source');
-            $class_source = $this->getTDClass($source);
-
-            $survey_date = $this->setProps($props,'survey:date');
-            $class_survey_date = $this->getTDClass($survey_date);
-
-            $osmc_symbol = $this->setProps($props,'osmc:symbol');
-            $class_osmc_symbol = $this->getTDClass($osmc_symbol);
-
-            $operator = $this->setProps($props,'operator');
-            $class_operator = $this->getTDClass($operator);
-
-$row = <<<EOF
-<tr>
-    <td class="$class_ref">$ref</td>
-    <td>$osm</td>
-    <td class="$class_type">$type</td>
-    <td class="$class_route">$route</td>
-    <td class="$class_network">$network</td>
-    <td class="$class_name">$name</td>
-    <td class="$class_cai_scale">$cai_scale</td>
-    <td class="$class_roundtrip">$roundtrip</td>
-    <td class="$class_source">$source</td>
-    <td class="$class_survey_date">$survey_date</td>
-    <td class="$class_osmc_symbol">$osmc_symbol</td>
-    <td class="$class_operator">$operator</td>
-  </tr>
-EOF;
         $rows = $rows . $row;
 
         }
@@ -200,23 +198,7 @@ $(document).ready(function() {
 <p><a href="$zip">Download all GPX (created by WMT)</a></p>
 
 <table id="catasto" >
-<thead>
-  <tr>
-    <th>REF</th>
-    <th>OSM</th>
-    <th>type</th>
-    <th>route</th>
-    <th>network</th>
-    <th>name</th>
-    <th>cai_scale</th>
-    <th>roundtrip</th>
-    <th>source</th>
-    <th>survey:date</th>
-    <th>osmc:symbol</th>
-    <th>operator</th>
-  </tr>
-</thead>
-
+$thead
 <tbody>
  $rows
 </tbody>
@@ -248,22 +230,33 @@ file_put_contents($this->project_structure->getRoot().'/index.html', $html);
         if($zip->open($zip_path,ZIPARCHIVE::CREATE) !== true) {
             throw new Exception("Error Opening ZIP file $zip_path", 1);
         }
-
+        $features_new = array();
         foreach($features as $feature) {
             $props = $feature['properties'];
             $ref = $this->setProps($props,'ref');
             $id = $this->setProps($props,'id');
             $WMT_GPX_URL = "https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx";
             $gpx_path = $root . "/resources/$ref-$id.gpx";
+            $gpx3d_path = $root . "/resources/$ref-$id-3d.gpx";
             echo "processing GPX: from $WMT_GPX_URL to $gpx_path ... ";
             file_put_contents($gpx_path, fopen($WMT_GPX_URL, 'r'));
 
             // GPX Analyze
-            
-
+            $info = WebmappUtils::GPXAnalyze($gpx_path);
+            $track_num=$info['tracks'];
+            $multi=$info['has_multi_segments'];
+            if($track_num==1 && !$multi) {
+                WebmappUtils::GPXAddEle($gpx_path,$gpx3d_path);
+                $info=WebmappUtils::GPXAnalyze($gpx3d_path);
+            }
+            foreach ($info as $key => $value) {
+                $feature['properties'][$key]=$value;
+            }
+            $features_new[]=$feature;
             $zip->addFile($gpx_path,$gpx_path);
             echo "DONE! \n";
         }
+        $this->geojson['features']=$features_new;
         $zip->close();
         echo "FILE ZIP $zip_path created. \n";
     }
