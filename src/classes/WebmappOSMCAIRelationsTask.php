@@ -111,6 +111,7 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
                       'ele_gain_negative',
                       'ele_start',
                       'ele_end',
+                      'ele_min',
                       'ele_max',
                       'duration_forward',
                       'duration_backward'
