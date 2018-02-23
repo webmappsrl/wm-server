@@ -6,6 +6,8 @@ class WebmappTrackFeatureTests extends TestCase {
 	public function testOk() {
 		$track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
 		$json = $track->getJson();
+                // TODO: testare con ja
+                $ja = json_decode($json,TRUE);
 
                 // MAPPING STANDARD
                 $this->assertRegExp('/"type":"Feature"/',$json);
@@ -52,9 +54,12 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertEquals($bb['center']['lat'],(43.72496+43.70904)/2);
                 $this->assertEquals($bb['center']['lng'],(10.38781+10.41875)/2);
 
-
-                
-
+                // RELATED POIS
+                $ids = $ja['properties']['id_pois'];
+                $this->assertTrue(in_array(487, $ids));
+                $this->assertTrue(in_array(488, $ids));
+                $this->assertTrue(in_array(465, $ids));
+                $this->assertTrue(in_array(510, $ids));
         }
 
         public function testGetRelatedPois() {
@@ -69,7 +74,7 @@ class WebmappTrackFeatureTests extends TestCase {
                 $poi = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
                 $ids = $poi->getWebmappCategoryIds();
                 $this->assertTrue(is_array($ids));
-                $this->assertEquals(1,count($ids));
+                $this->assertEquals(2,count($ids));
                 $this->assertEquals(14,$ids[0]);
         }
 }

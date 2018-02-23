@@ -11,6 +11,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 	// Mapping dei meta specifici delle tracks
     // 
 	protected function mappingSpecific($json_array) {
+
         $this->setProperty('n7webmapp_track_color',$json_array,'color');
         $this->setProperty('n7webmap_start',$json_array,'from');
         $this->setProperty('n7webmap_end',$json_array,'to');
@@ -21,6 +22,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         $this->setProperty('duration:forward',$json_array);
         $this->setProperty('duration:backward',$json_array);
         $this->setProperty('cai_scale',$json_array);
+        // ADD id_pois
+        $json_array['id_pois']=$this->getRelatedPoisId();
+        $this->setProperty('id_pois',$json_array);
 }
 
     // Impostazione della geometry a partire da formato API WP
@@ -50,6 +54,18 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $code = preg_replace('|\..*|', '', $code);
                 $poi_url = "http://$code.be.webmapp.it/wp-json/wp/v2/poi/$id";
                 $pois[] = new WebmappPoiFeature ($poi_url);
+            }
+        }
+        return $pois;
+    }
+
+    private function getRelatedPoisId() {
+        $pois = array();
+        if (isset($this->json_array['n7webmap_related_poi']) && 
+            is_array($this->json_array['n7webmap_related_poi']) &&
+            count($this->json_array['n7webmap_related_poi'])>0) {
+            foreach ($this->json_array['n7webmap_related_poi'] as $poi) {
+                $pois[] = $poi['ID'];
             }
         }
         return $pois;
