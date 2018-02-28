@@ -85,11 +85,16 @@ class WebmappRouteTaskTests extends TestCase
 
         // OVERLAY LAYERS
         $icon = '';
+        $alert = false;
         foreach ($ja['OVERLAY_LAYERS'] as $layer ) {
             if($layer['geojsonUrl']=="tracks.geojson") {
                 $icon = $layer['icon'];
             }
+            if($layer['geojsonUrl']=="pois_34.geojson") {
+                $alert = $layer['alert'];
+            } 
         }
+        $this->assertTrue($alert);
         $this->assertEquals('wm-icon-trail',$icon);
 
 

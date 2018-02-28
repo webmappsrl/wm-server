@@ -66,7 +66,7 @@ class WebmappTrackFeatureTests extends TestCase {
                 $track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/348');
                 $pois = $track->getRelatedPois();
                 $this->assertTrue(is_array($pois));
-                $this->assertEquals(4,count($pois));
+                $this->assertEquals(5,count($pois));
                 $this->assertEquals('WebmappPoiFeature',get_class($pois[0]));
         }
 

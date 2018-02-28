@@ -343,8 +343,9 @@ class WebmappMap {
        $label = $layer->getLabel();
        $color = $layer->getColor();
        $icon = $layer->getIcon();
+       $alert = $layer->getAlert();
        $showByDefault = $layer->getShowByDefault();
-       $this->addPoisLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages());
+       $this->addPoisLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages(),$alert);
     }
 
     public function addTracksWebmappLayer($layer) {
@@ -352,18 +353,19 @@ class WebmappMap {
        $label = $layer->getLabel();
        $color = $layer->getColor();
        $icon = $layer->getIcon();
+       $alert = $layer -> getAlert();
        $showByDefault = $layer->getShowByDefault();
-       $this->addTracksLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages());
+       $this->addTracksLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages(),$alert);
     }
 
-    public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array()) {
-        $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault,$languages);
+    public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array(),$alert=false) {
+        $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault,$languages,$alert);
     }
-    public function addTracksLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array()) {
-        $this->addLayer('tracks',$url,$label,$color,$icon,$showByDefault,$languages);
+    public function addTracksLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array(),$alert=false) {
+        $this->addLayer('tracks',$url,$label,$color,$icon,$showByDefault,$languages,$alert);
     }
 
-    public function addLayer($type,$url,$label,$color='',$icon='',$showByDefault=true,$languages=array()) {
+    public function addLayer($type,$url,$label,$color='',$icon='',$showByDefault=true,$languages=array(),$alert=false) {
 
         // Manage default values
         if ($color == '' ) $color = '#FF3812';
@@ -387,7 +389,8 @@ class WebmappMap {
             'color' => $color,
             'icon' => $icon,
             'showByDefault' => $showByDefault,
-            'type' => $type_label
+            'type' => $type_label,
+            'alert' => $alert
             );
 
         if(is_array($languages) && count($languages)>0) {

@@ -26,6 +26,11 @@ class WebmappLayerTest extends TestCase {
 		$json=file_get_contents($filename);
 		$this->verifyBlock($json);
 
+		// TEST ALERT FEATURE
+		$this->assertFalse($layer->getAlert());
+		$layer->setAlert(true);
+		$this->assertTrue($layer->getAlert());
+
 	}
 
 	public function testBB() {
@@ -152,10 +157,18 @@ class WebmappLayerTest extends TestCase {
 		$l = new WebmappLayer('test','');
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/14');
 		$this->assertFalse($l->getShowByDefault());
+		$this->assertFalse($l->getAlert());
 
 		$l = new WebmappLayer('test','');
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/11');
 		$this->assertTrue($l->getShowByDefault());
+		$this->assertFalse($l->getAlert());
+
+		$l = new WebmappLayer('test','');
+		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/34');
+		$this->assertTrue($l->getShowByDefault());
+		$this->assertTrue($l->getAlert());
+
 
 	}
 
