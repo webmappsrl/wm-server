@@ -67,6 +67,7 @@
                 $this->tracks_layer->setLabel('Tappe');
                 $this->tracks_layer->translateLabel('it','Tappe');
                 $this->tracks_layer->translateLabel('en','Stages');
+                $this->tracks_layer->setIcon('wm-icon-trail');
 
                 // LOOP sulle tracce
                 foreach ($tracks as $track) {

@@ -83,6 +83,15 @@ class WebmappRouteTaskTests extends TestCase
         $this->assertTrue($ja['OPTIONS']['mainMenuHideAttributionPage']);
         $this->assertTrue($ja['OPTIONS']['mainMenuHideWebmappPage']);
 
+        // OVERLAY LAYERS
+        $icon = '';
+        foreach ($ja['OVERLAY_LAYERS'] as $layer ) {
+            if($layer['geojsonUrl']=="tracks.geojson") {
+                $icon = $layer['icon'];
+            }
+        }
+        $this->assertEquals('wm-icon-trail',$icon);
+
 
     }
     public function testBB() {
