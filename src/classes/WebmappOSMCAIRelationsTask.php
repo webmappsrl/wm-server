@@ -7,6 +7,51 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
 
     private $geojson;
 
+    // Da usare in versioni future rifattorizzando il tutto con classi OSM / OSM CAI / ecc. ecc.
+    private $fields = array(
+      // CAMPI PRINCIPALI
+     'regione',
+     'area',
+     'settore',
+     'codice_REI',
+     'ref',
+     'name',
+     'cai_scale',
+     'operator',
+     'distance',
+     'ele_gain_positive',
+     'ele_gain_negative',
+     'ele_start',
+     'ele_end',
+     'ele_min',
+     'ele_max',
+     'duration_forward',
+     'duration_backward',
+
+     // LINK a servizi OSM e GPX generati
+     'gpx',
+     'gpx_3d',
+     'osm_reltion',
+     'wmt_relation',
+     'analizer_relation',
+
+     // CAMPI OSM PIU' TECNICI
+     'osm_id',
+     'type',
+     'route',
+     'network',
+     'roundtrip',
+     'source',
+     'survey:date',
+     'osmc:symbol',
+
+     // CAMPI ANALISI TRACCE
+     'tracks',
+     'has_multi_segments',
+     'trackpoints',
+     'has_ele',
+     );
+
 	public function check() {
 
 		// Controllo parametro list
@@ -117,7 +162,7 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
                       'duration_backward'
                       );
 
-        $thead ="<thead><tr><th>REF</th><th>OSM</th>";
+        $thead ="<thead><tr><th>REF</th><th>ID OSM</th><th>LINK</th>";
         foreach ($keys as $key ) {
             $thead .= "<th>$key</th>";
         }
@@ -132,18 +177,19 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
             $class_ref = $this->getTDClass($ref);
 
             $id = $this->setProps($props,'id');
-            $osm = "$id <br/>
-            <a href=\"http://www.openstreetmap.org/relation/$id\" target=\"_blank\">[O]</a>
-            <a href=\"http://ra.osmsurround.org/analyzeRelation?relationId=$id\" target=\"_blank\">[A]</a>
-            <a href=\"http://hiking.waymarkedtrails.org/#route?id=$id\" target=\"_blank\">[W]</a>
-            <a href=\"https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx\" target=\"_blank\">[G]</a>
+            $link = "<br/>
+            <a href=\"http://www.openstreetmap.org/relation/$id\" target=\"_blank\">[OSM]</a>
+            <a href=\"http://www.openstreetmap.org/edit?relation=$id\" target=\"_blank\">[OSM_EDIT]</a>
+            <a href=\"http://ra.osmsurround.org/analyzeRelation?relationId=$id\" target=\"_blank\">[ANALYZER]</a>
+            <a href=\"http://hiking.waymarkedtrails.org/#route?id=$id\" target=\"_blank\">[WMT]</a>
+            <a href=\"https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx\" target=\"_blank\">[GPX]</a>
             ";
 
             if ($props['has_ele']==1) {
-                $osm .= "<a href=\"resources/$ref-$id-3d.gpx\" target=\"_blank\">[G3]</a>";
+                $link .= "<a href=\"resources/$ref-$id-3d.gpx\" target=\"_blank\">[GPX_3D]</a>";
             }
 
-            $row="<tr><td class=\"$class_ref\">$ref</td><td>$osm</td>";
+            $row="<tr><td class=\"$class_ref\">$ref</td><td>$id</td><td>$link</td>";
             foreach ($keys as $key) {
                 $val=$this->setProps($props,$key);
                 $class=$this->getTDClass($val);
