@@ -163,11 +163,14 @@ class WebmappLayerTest extends TestCase {
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/11');
 		$this->assertTrue($l->getShowByDefault());
 		$this->assertFalse($l->getAlert());
+		$this->assertFalse($l->getExclude());
+
 
 		$l = new WebmappLayer('test','');
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/34');
 		$this->assertTrue($l->getShowByDefault());
 		$this->assertTrue($l->getAlert());
+		$this->assertTrue($l->getExclude());
 
 
 	}

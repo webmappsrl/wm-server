@@ -111,7 +111,6 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/"it":"Ristoranti"/',$conf);
         $this->assertRegExp('/"en":"Restaurants"/',$conf);
 
-
         // Controllo file info.json
         $this->assertTrue(file_exists($this->root . '/info.json'));
         $ja = json_decode(file_get_contents($this->root . '/info.json'),true);
@@ -121,7 +120,15 @@ class WebmappBETasksTests extends TestCase
         $this->assertRegExp('/DEV408/',$ja['config.xml']['name']);
         $this->assertEquals('Descrizione di test per la APP',$ja['config.xml']['description']);
 
-
+        // config.json
+        $config_json=$this->root."/config.json";
+        $this->assertTrue(file_exists($config_json));
+        $ja = json_decode(file_get_contents($config_json),TRUE);
+        $labels = array();
+        foreach($ja['OVERLAY_LAYERS'] as $layer) {
+            $labels[]=$layer['label'];
+        }
+        $this->assertFalse(in_array('attenzione', $labels));
      
     }
 

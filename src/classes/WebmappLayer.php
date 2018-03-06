@@ -9,6 +9,7 @@ class WebmappLayer {
 	private $icon = 'wm-icon-generic';
 	private $color = '#FF3812';
 	private $alert = false;
+	private $exclude = false;
 	private $showByDefault = true ;
 	// Array associativo che contiene le traduzioni dei label del layer
 	private $languages = array();
@@ -35,6 +36,10 @@ class WebmappLayer {
 		$this->alert=$v;
 	}
 
+	public function setExclude($v) {
+		$this->exclude=$v;
+	}
+
 	public function addFeature($feature) {
 		// TODO: check feature typeof Webmapp*Feature
         array_push($this->features, $feature);
@@ -50,6 +55,10 @@ class WebmappLayer {
 
 	public function getAlert() {
 		return $this->alert;
+	}
+
+	public function getExclude() {
+		return $this->exclude;
 	}
 
 	public function getColor() {
@@ -93,6 +102,9 @@ class WebmappLayer {
     	}
     	if (isset($meta['alert']) && $meta['alert'] == true) {
     		$this->alert=true;
+    	}
+    	if (isset($meta['exclude']) && $meta['exclude'] == true) {
+    		$this->exclude=true;
     	}
 
     	// Gestione delle lingue
