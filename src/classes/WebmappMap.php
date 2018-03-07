@@ -918,6 +918,7 @@ $index = <<<EOS
         <script src="core/lib/leaflet_plugin/leaflet.almostover.js"></script>
         <script src="core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
         <script src="core/lib/leaflet_plugin/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+        <script src="core/lib/leaflet_plugin/leaflet-knn/leaflet-knn.js"></script>
 
         <script src="core/lib/angular-translate/angular-translate.min.js"></script>
         <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
@@ -977,6 +978,10 @@ $index = <<<EOS
         <script src="core/js/components/webmapp/webmapp.controller.js"></script>
         <script src="core/js/components/attribution/attribution.controller.js"></script>
         <script src="core/js/components/home/home.controller.js"></script>
+        <script src="core/js/components/help/help.controller.js"></script>
+        <script src="core/js/components/detailTaxonomy/detailTaxonomy.controller.js"></script>
+        <script src="core/js/components/taxonomy/taxonomy.controller.js"></script>
+
 
     </head>
 
