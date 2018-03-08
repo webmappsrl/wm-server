@@ -12,6 +12,7 @@ class WebmappMap {
     private $tilesType="maptile";
     private $pois_layers = array();
     private $tracks_layers = array();
+    private $additional_overlay_layers = array();
     private $style = array();
 
     // OPTIONS section
@@ -231,6 +232,11 @@ class WebmappMap {
         }
         if(isset($ja['hide_attribution_page']) && $ja['hide_attribution_page']==true) {
             $this->options['mainMenuHideAttributionPage']=true;
+        }
+
+        // ADVANCED OPTIONS
+        if(isset($ja['additional_overlay_layers']) && !empty($ja['additional_overlay_layers'])) {
+            $this->additional_overlay_layers=json_decode($ja['additional_overlay_layers'],TRUE);
         }
 
         $this->buildOptionsConfArray();
@@ -523,7 +529,7 @@ class WebmappMap {
         $this->conf_array['PAGES'] = $pages;            
 
         // OVERLAY_LAYERS
-        $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers);
+        $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers,$this->additional_overlay_layers);
 
         $this->conf_array['OFFLINE'] = $this->offline;
 

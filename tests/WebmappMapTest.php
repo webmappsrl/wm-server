@@ -102,6 +102,16 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"icon":"wm-icon-siti-interesse"/',$j);
         $this->assertRegExp('/"icon":"wm-icon-restaurant"/',$j);
 
+        // Additional Overlay Layers
+        $labels = array();
+        foreach($ja['OVERLAY_LAYERS'] as $layer) {
+            $labels[]=$layer['label'];
+        }
+        $this->assertTrue(in_array('ADD1',$labels));
+        $this->assertTrue(in_array('ADD2',$labels));
+
+
+
         // OFFLINE
         $this->assertRegExp('/"resourceBaseUrl":"http:[^"]*example.webmapp.it[^"]*geojson/',$j);
         $this->assertRegExp('/"pagesUrl":"http:[^"]*example.webmapp.it[^"]*pages/',$j);

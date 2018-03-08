@@ -129,6 +129,11 @@ class WebmappBETasksTests extends TestCase
             $labels[]=$layer['label'];
         }
         $this->assertFalse(in_array('attenzione', $labels));
+
+        // ADvanced Options
+        // additional overlay Layers
+        $this->assertTrue(in_array('ADD1',$labels));
+        $this->assertTrue(in_array('ADD2',$labels));
      
     }
 
