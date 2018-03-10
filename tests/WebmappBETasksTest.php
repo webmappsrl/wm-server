@@ -9,16 +9,11 @@ class WebmappBETasksTests extends TestCase
     public $project_structure;
     public $options = array();
 
-    public function __construct() {
+
+    private function init($url) {
         $this->name = 'prova';
-        $this->root = __DIR__.'/../data/api.webmapp.it/example.webmapp.it';
+        $this->root = __DIR__.'/../data/api.webmapp.it/'.$url;
         $this->project_structure = new WebmappProjectStructure($this->root);
-
-        // La mappa con ID 408 ha n7webmap_type='all';
-        $this->options = array('code'=>'dev','id'=>408);
-    }
-    public function testOk() {
-
         // Pulizia delle directory
         $cmd = 'rm -f '.$this->project_structure->getPathGeojson().'/*.geojson';
         system($cmd);
@@ -29,6 +24,16 @@ class WebmappBETasksTests extends TestCase
         $cmd = 'rm -f '.$conf_index;
         system($cmd);
         system('rm -f '.$this->root.'/info.json');
+
+
+    }
+
+    public function testOk() {
+        $this->init('example.webmapp.it');
+        $conf_path = $this->project_structure->getPathClientConf();
+        $conf_index = $this->project_structure->getPathClientIndex();
+        // La mappa con ID 408 ha n7webmap_type='all';
+        $this->options = array('code'=>'dev','id'=>408);        
 
         $this->assertEquals('http://example.webmapp.it',$this->project_structure->getUrlBase());
 
@@ -138,6 +143,11 @@ class WebmappBETasksTests extends TestCase
     }
 
     public function testBB() {
+        $this->init('example.webmapp.it');
+        $conf_path = $this->project_structure->getPathClientConf();
+        $conf_index = $this->project_structure->getPathClientIndex();
+        // La mappa con ID 408 ha n7webmap_type='all';
+        $this->options = array('code'=>'dev','id'=>408);        
 
         // Pulizia delle directory
         $cmd = 'rm -f '.$this->project_structure->getPathGeojson().'/*.geojson';

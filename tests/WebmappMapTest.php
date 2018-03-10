@@ -166,6 +166,18 @@ class WebmappMapTest extends TestCase
 
     }
 
+    public function testAdditionalOverlayLayers() {
+        $this->init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'https://www.montepisano.travel/wp-json/wp/v2/map/7834';
+        $m->loadMetaFromUrl($url);
+        $j = $m->getConfJson();
+        $ja = json_decode($j,TRUE);
+        $this->assertEquals('Sentieri',$ja['OVERLAY_LAYERS'][0]['label']);
+        $this->assertEquals('tile_utfgrid_geojson',$ja['OVERLAY_LAYERS'][0]['type']);
+        $this->assertEquals('https://api.mappalo.org/mappadeimontipisani_new/geojson/sentieri.geojson',$ja['OVERLAY_LAYERS'][0]['geojsonUrl']);
+    }
+
     public function testHideInBrowser() {
         $this -> init();
         $m = new WebmappMap($this->project_structure);
