@@ -6,6 +6,7 @@
 class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
 
     private $geojson;
+    private $list;
 
     // Da usare in versioni future rifattorizzando il tutto con classi OSM / OSM CAI / ecc. ecc.
     private $fields = array(
@@ -72,11 +73,18 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
 		return $root . '/' . ltrim($this->options['list'], '/');
 	}
 
+    private function readList() {
+       $this->list = file($this->getPathList(),FILE_IGNORE_NEW_LINES);
+    }
+
     public function process(){
+
+        $this->readList();
 
         $this->processGeoJson();
         $this->processGPX();
         $this->processIndex();
+        $this->processSHP();
 
         $out_file = $this->project_structure->getRoot() . '/geojson/' . $this->name . '_relations.json';
         file_put_contents($out_file, json_encode($this->geojson));
@@ -203,6 +211,7 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
 
         $title = 'Catasto - ' . $this->name;
         $zip = '/resources/all_gpx_' . $this->name . '.zip';
+        $shp = '/resources/' . $this->name . '_shp.zip';
         $html = <<<EOF
 <!DOCTYPE html>
 <html>
@@ -242,7 +251,10 @@ $(document).ready(function() {
 
 <h1>$title</h1>
 
-<p><a href="$zip">Download all GPX (created by WMT)</a></p>
+<p>
+  <a href="$zip">Download all GPX (created by WMT)</a>
+  <a href="$shp">Download SHP file</a>
+</p>
 
 <table id="catasto" >
 $thead
@@ -307,4 +319,30 @@ file_put_contents($this->project_structure->getRoot().'/index.html', $html);
         $zip->close();
         echo "FILE ZIP $zip_path created. \n";
     }
+
+    private function processSHP() {
+        $root = $this->project_structure->getRoot();
+        $resources_path = $root.'/resources';
+        $path = $root.'/resources/shp';
+        if(!file_exists($path)) {
+            $cmd = "mkdir $path";
+            system($cmd);
+        }
+        $shp = "$path/$this->name";
+        // Create SHP DIR
+        $new_list = array();
+        foreach ($this->list as $item) {
+           $new_list[] = "'-".$item."'";
+        }
+        // pgsql2shp -P T1tup4atmA -f rel_6080932 -h 46.101.124.52 -u webmapp osm_hiking 
+        $where = "(" . implode(',', $new_list) .")";
+        $query = "SELECT osm_id, type, route, route_name, name, ref, operator, state, cai_scale, ST_transform(way, 25832) as way FROM planet_osm_line WHERE osm_id IN $where";
+        $cmd = "pgsql2shp -P T1tup4atmA -f $shp -h 46.101.124.52 -u webmapp osm_hiking \"$query\"";
+        system($cmd);
+        $zip_name = $this->name ."_shp.zip";
+        echo $cmd = "cd $resources_path && zip -r shp shp && mv shp.zip $zip_name";
+        system($cmd);
+
+    }
+
 }
