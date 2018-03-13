@@ -1,5 +1,42 @@
 <?php 
 
+/*
+// Esempio di MAPPING per la creazione di un POI
+$j=array();
+
+// GENERAL
+$j['id']=$ja[''];
+$j['title']['rendered']=$ja[''];
+$j['content']['rendered']=$ja[''];
+$j['color']=$ja[''];
+$j['icon']=$ja[''];
+$j['noDetails']=$ja[''];
+$j['noInteractions']=$ja[''];
+
+// TODO RELATED POI
+
+// IMAGES
+$j['n7webmap_media_gallery']=$j[''];
+
+// SPECIFIC POI
+$j['addr:street']=$ja[''];
+$j['addr:housenumber']=$ja[''];
+$j['addr:postcode']=$ja[''];
+$j['addr:city']=$ja[''];
+$j['contact:phone']=$ja[''];
+$j['contact:email']=$ja[''];
+$j['opening_hours']=$ja[''];
+$j['capacity']=$ja[''];
+$j['address']=$ja[''];
+
+// GEOMETRY
+$j['n7webmap_coord']['lng']=$ja[''];
+$j['n7webmap_coord']['lat']=$ja[''];
+
+// Creazione del POI
+$poi = new WebmappPoiFeature($j);
+*/
+
 class WebmappPoiFeature extends WebmappAbstractFeature {
 
 	// Mapping dei meta specifici dei punti

@@ -31,3 +31,6 @@ require 'classes/WebmappRoute.php';
 require 'classes/WebmappMap.php';
 
 require 'classes/WebmappWP.php';
+
+// CUSTOM
+require 'classes/custom/WebmappVetrinaToscanaTask.php';
