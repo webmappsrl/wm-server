@@ -54,21 +54,27 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					$j['id']=$ja['id'];
 					$j['title']['rendered']=$ja['title']['rendered'];
 					$j['content']['rendered']=$ja['content']['rendered'];
-					if (isset($j['acf']['vt_gallery'])) $j['n7webmap_media_gallery']=$j['acf']['vt_gallery'];
-					if (isset($j['acf']['vt_indirizzo'])) $j['address']=$ja['acf']['vt_indirizzo'];
-					if (isset($j['acf']['vt_telefono'])) $j['contact:phone']=$ja['acf']['vt_telefono'];
-					if (isset($j['acf']['vt_email'])) $j['contact:email']=$ja['acf']['vt_email'];
+					if(isset($ja['acf'])){
+						if (isset($ja['acf']['vt_gallery'])) $j['n7webmap_media_gallery']=$ja['acf']['vt_gallery'];
+						if (isset($ja['acf']['vt_google_map']['address'])) $j['address']=$ja['acf']['vt_google_map']['address'];
+						if (isset($ja['acf']['vt_telefono'])) $j['contact:phone']=$ja['acf']['vt_telefono'];
+						if (isset($ja['acf']['vt_email'])) $j['contact:email']=$ja['acf']['vt_email'];
+					} else {
+							echo "warning no acf " . $ja['id'] . "\n";
+						}
 				/* TODO: orari di apertura
 				  vt_chiusura: "domenica",
                   vt_dalleorepranzo: "12,30",
                   vt_alleorepranzo: "15.00",
                   vt_dalleorecena: "19,30",
                   vt_alleorecena: "23",
-				  $j['opening_hours']=$ja['acf'][''];
 				*/
+				  $j['opening_hours']='test';
+
 				//$j['capacity']=$ja['acf'][''];
 				  $j['n7webmap_coord']['lng']=$ja['acf']['vt_google_map']['lng'];
 				  $j['n7webmap_coord']['lat']=$ja['acf']['vt_google_map']['lat'];
+				  //print_r($j);
 				  $poi = new WebmappPoiFeature($j);
 				  $l->addFeature($poi);
 				}
