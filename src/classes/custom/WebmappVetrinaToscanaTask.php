@@ -148,11 +148,11 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 						$j['content']['rendered'] .= "<br /><a href=" . $ja['acf']['vt_facebook'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
 					}
 
-					if ( isset( $ja['acf']['vt_facebook'] ) && $ja['acf']['vt_facebook'] != '' ) {
+					if ( isset( $ja['acf']['vt_twitter'] ) && $ja['acf']['vt_twitter'] != '' ) {
 						$j['content']['rendered'] .= "<a href=" . $ja['acf']['vt_twitter'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-tw.svg\" width=\"35px\"></span></a> ";
 					}
 
-					if ( isset( $ja['acf']['vt_facebook'] ) && $ja['acf']['vt_facebook'] != '' ) {
+					if ( isset( $ja['acf']['vt_googleplus'] ) && $ja['acf']['vt_googleplus'] != '' ) {
 						$j['content']['rendered'] .= "<a href=" . $ja['acf']['vt_googleplus'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-gplus.svg\" width=\"35px\"></span></a> ";
 					}
 
