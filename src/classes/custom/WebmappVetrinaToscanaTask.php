@@ -157,7 +157,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					}
 
 
-					if ( isset( $ja['meta-fields']['vt_website'][0] ) ) {
+					if ( isset( $ja['meta-fields']['vt_website'][0] ) && $ja['meta-fields']['vt_website'][0] != '' ) {
 						$j['content']['rendered'] .= "<br />Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a>";
 					}
 					//print_r(json_decode($ja['meta-fields']['vt_google_map']));
