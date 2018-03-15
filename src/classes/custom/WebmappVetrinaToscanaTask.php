@@ -48,7 +48,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 		$total = 0;
 		do {
 			$page ++;
-			$api = $this->url . '/' . $type . "?per_page=10&page=$page";
+			$api = $this->url . '/' . $type . "?per_page=10&page=$page"."&orderby=slug&order=asc";
 			echo "Getting data form URL $api ... ";
 			$items = WebmappUtils::getJsonFromApi( $api );
 			if (isset($items['data']['status']) && $items['data']['status'] == 400 ) {
@@ -164,11 +164,11 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 
 
 					if ( !empty( $ja['meta-fields']['vt_website'][0] ) ) {
-						$j['content']['rendered'] .= "<br />Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a>";
+						$j['content']['rendered'] .= "<p>Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a></p>";
 					}
 
 					if ( !empty( $ja['link'] ) ) {
-						$j['content']['rendered'] .= "<br />Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a>";
+						$j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a></p>";
 					}
 
 					$poi = new WebmappPoiFeature( $j );
