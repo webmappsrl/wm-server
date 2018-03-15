@@ -66,102 +66,103 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 
 				    if ($type == 'event'){
 
-						if ( isset( $ja['meta-fields']['subtitle'][0] ) ) {
-							$j['content']['rendered'] = "<h2 class=\"subtitle\">" . $ja['meta-fields']['subtitle'][0] . "</h2>";
-							$j['content']['rendered'] .= $ja['content']['rendered'];
+						if ( !empty( $ja['meta-fields']['subtitle'][0] ) ) {
+							$j['content']['rendered'] = "<h4 class=\"subtitle\">" . $ja['meta-fields']['subtitle'][0] . "</h4>";
 						}
+
+					    if ( !empty( $ja['meta-fields']['vt_data_inizio'][0] ) ) {
+						    $j['content']['rendered'] .= "Dal " . $ja['meta-fields']['vt_data_inizio'][0] . " ";
+					    }
+					    if ( !empty( $ja['meta-fields']['vt_data_fine'][0] ) ) {
+						    $j['content']['rendered'] .= "Al " . $ja['meta-fields']['vt_data_fine'][0] . " ";
+					    }
+					    if ( !empty( $ja['meta-fields']['orari'][0] ) ) {
+						    $j['content']['rendered'] .= "<br />Orari " . $ja['meta-fields']['orari'][0] . " ";
+					    }
+
+					    $j['content']['rendered'] .= $ja['content']['rendered'];
+
 				    } else {
 					    $j['content']['rendered'] = $ja['content']['rendered'];
 				    }
 
 
-					if ( isset( $ja['acf']['vt_gallery'] ) ) {
+					if ( !empty( $ja['acf']['vt_gallery'] ) ) {
 						$j['n7webmap_media_gallery'] = $ja['acf']['vt_gallery'];
 					}
-					if ( isset( $ja['acf']['vt_google_map']['address'] ) ) {
+					if ( !empty( $ja['acf']['vt_google_map']['address'] ) ) {
 						$j['address'] = $ja['acf']['vt_google_map']['address'];
 					}
-					if ( isset( $ja['acf']['vt_google_map']['lng'] ) ) {
+					if ( !empty( $ja['acf']['vt_google_map']['lng'] ) ) {
 						$j['n7webmap_coord']['lng'] = $ja['acf']['vt_google_map']['lng'];
 					}
-					if ( isset( $ja['acf']['vt_google_map']['lat'] ) ) {
+					if ( !empty( $ja['acf']['vt_google_map']['lat'] ) ) {
 						$j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
 					}
-					if ( isset( $ja['meta-fields']['vt_telefono'][0] ) ) {
+					if ( !empty( $ja['meta-fields']['vt_telefono'][0] ) ) {
 						$j['contact:phone'] = $ja['meta-fields']['vt_telefono'][0];
 					}
-					if ( isset( $ja['meta-fields']['vt_email'][0] ) ) {
+					if ( !empty( $ja['meta-fields']['vt_email'][0] ) ) {
 						$j['contact:email'] = $ja['meta-fields']['vt_email'][0];
 					}
 
 					$j['opening_hours'] = "";
 					if ( $type == 'restaurant' || $type == 'shop' ) {
-						if ( isset( $ja['meta-fields']['vt_dalleorepranzo'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_dalleorepranzo'][0] ) ) {
 							$j['opening_hours'] .= "Dalle " . $ja['meta-fields']['vt_dalleorepranzo'][0] . " ";
 						}
-						if ( isset( $ja['meta-fields']['vt_alleorepranzo'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_alleorepranzo'][0] ) ) {
 							$j['opening_hours'] .= "Alle " . $ja['meta-fields']['vt_alleorepranzo'][0] . " ";
 						}
-						if ( isset( $ja['meta-fields']['vt_dalleorecena'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_dalleorecena'][0] ) ) {
 							$j['opening_hours'] .= "Dalle " . $ja['meta-fields']['vt_dalleorecena'][0] . " ";
 						}
-						if ( isset( $ja['meta-fields']['vt_alleorecena'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_alleorecena'][0] ) ) {
 							$j['opening_hours'] .= "Alle " . $ja['meta-fields']['vt_alleorecena'][0] . " - ";
 						}
 					} else if ( $type == 'producer' ) {
 
-						if ( isset( $ja['meta-fields']['vt_aperturainizioda'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_aperturainizioda'][0] ) ) {
 							$j['opening_hours'] .= "Da " . $ja['meta-fields']['vt_aperturainizioda'][0] . " ";
 						}
-						if ( isset( $ja['meta-fields']['vt_aperturainizioa'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_aperturainizioa'][0] ) ) {
 							$j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturainizioa'][0] . " ";
 						}
-						if ( isset( $ja['meta-fields']['vt_aperturafineda'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_aperturafineda'][0] ) ) {
 							$j['opening_hours'] .= "Da " . $ja['meta-fields']['vt_aperturafineda'][0] . " ";
 						}
-						if ( isset( $ja['meta-fields']['vt_aperturafinea'][0] ) ) {
+						if ( !empty( $ja['meta-fields']['vt_aperturafinea'][0] ) ) {
 							$j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturafinea'][0] . " - ";
 						}
 
-					} else if ($type == 'event'){
-
-						if ( isset( $ja['meta-fields']['vt_data_inizio'][0] ) ) {
-							$j['opening_hours'] .= "Dal " . $ja['meta-fields']['vt_data_inizio'][0] . " ";
-						}
-						if ( isset( $ja['meta-fields']['vt_data_fine'][0] ) ) {
-							$j['opening_hours'] .= "Al " . $ja['meta-fields']['vt_data_fine'][0] . " ";
-						}
-						if ( isset( $ja['meta-fields']['orari'][0] ) ) {
-							$j['opening_hours'] .= "Orari " . $ja['meta-fields']['orari'][0] . " ";
-						}
 					}
 
-					if ( isset( $ja['meta-fields']['vt_chiusura'][0] ) ) {
+					if ( !empty( $ja['meta-fields']['vt_chiusura'][0] ) ) {
 						$j['opening_hours'] .= "Giorno di chiusura " . $ja['meta-fields']['vt_chiusura'][0];
 					}
 
-					if ( isset( $ja['acf']['vt_carte'] ) ) {
-						$j['content']['rendered'] .= "Carte accettate: " . $ja['acf']['vt_carte'];
+					if ( !empty( $ja['meta-fields']['vt_carte'][0] ) ) {
+						$j['content']['rendered'] .= "Carte accettate: " . $ja['meta-fields']['vt_carte'][0];
 					}
 
-					if ( isset( $ja['acf']['vt_facebook'] ) && $ja['acf']['vt_facebook'] != '' ) {
-						$j['content']['rendered'] .= "<br /><a href=" . $ja['acf']['vt_facebook'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
+					if ( !empty( $ja['meta-fields']['vt_facebook'][0] ) ) {
+						$j['content']['rendered'] .= "<br /><a href=" . $ja['meta-fields']['vt_facebook'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
 					}
 
-					if ( isset( $ja['acf']['vt_twitter'] ) && $ja['acf']['vt_twitter'] != '' ) {
-						$j['content']['rendered'] .= "<a href=" . $ja['acf']['vt_twitter'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-tw.svg\" width=\"35px\"></span></a> ";
+					if ( !empty( $ja['meta-fields']['vt_twitter'][0] ) ) {
+						$j['content']['rendered'] .= "<a href=" . $ja['meta-fields']['vt_twitter'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-tw.svg\" width=\"35px\"></span></a> ";
 					}
 
-					if ( isset( $ja['acf']['vt_googleplus'] ) && $ja['acf']['vt_googleplus'] != '' ) {
-						$j['content']['rendered'] .= "<a href=" . $ja['acf']['vt_googleplus'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-gplus.svg\" width=\"35px\"></span></a> ";
+					if ( !empty( $ja['meta-fields']['vt_googleplus'][0] ) ) {
+						$j['content']['rendered'] .= "<a href=" . $ja['meta-fields']['vt_googleplus'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-gplus.svg\" width=\"35px\"></span></a> ";
 					}
 
 
-					if ( isset( $ja['meta-fields']['vt_website'][0] ) && $ja['meta-fields']['vt_website'][0] != '' ) {
+					if ( !empty( $ja['meta-fields']['vt_website'][0] ) ) {
 						$j['content']['rendered'] .= "<br />Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a>";
 					}
-					//print_r(json_decode($ja['meta-fields']['vt_google_map']));
-					if ( isset( $ja['link'] ) ) {
+
+					if ( !empty( $ja['link'] ) ) {
 						$j['content']['rendered'] .= "<br />Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a>";
 					}
 
