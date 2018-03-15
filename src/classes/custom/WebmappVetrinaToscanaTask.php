@@ -68,6 +68,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					$j                        = [];
 					$j['id']                  = $ja['id'];
 					$j['title']['rendered']   = $ja['title']['rendered'];
+					$j['content']['rendered'] = '';
 
 				    if ($type == 'event'){
 
@@ -88,7 +89,10 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					    $j['content']['rendered'] .= $ja['content']['rendered'];
 
 				    } else {
-					    $j['content']['rendered'] = $ja['content']['rendered'];
+					    if ( !empty( $ja['meta-fields']['vt_chiusura'][0] ) ) {
+						    $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['meta-fields']['vt_chiusura'][0] . "</p>";
+					    }
+					    $j['content']['rendered'] .= $ja['content']['rendered'];
 				    }
 
 
@@ -140,10 +144,6 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 							$j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturafinea'][0] . " - ";
 						}
 
-					}
-
-					if ( !empty( $ja['meta-fields']['vt_chiusura'][0] ) ) {
-						$j['content']['rendered'] .= "<p>Giorno di chiusura " . $ja['meta-fields']['vt_chiusura'][0] . "</p>";
 					}
 
 					if ( !empty( $ja['meta-fields']['vt_carte'][0] ) ) {
