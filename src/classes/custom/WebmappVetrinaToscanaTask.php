@@ -51,15 +51,20 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 			$api = $this->url . '/' . $type . "?per_page=10&page=$page";
 			echo "Getting data form URL $api ... ";
 			$items = WebmappUtils::getJsonFromApi( $api );
-			$count = count( $items );
+			if (isset($items['data']['status']) && $items['data']['status'] == 400 ) {
+				$count = 0;
+			} else 
+			{
+				$count = count($items);
+			}
 			$total += $count;
 			if ( $count > 0 ) {
 				echo "Found $count items... adding to layer\n";
 
 				foreach ( $items as $ja ) {
-					if (empty($ja['id'])){
-						break;
-					}
+					//if (empty($ja['id'])){
+					//	break;
+					//}
 					$j                        = [];
 					$j['id']                  = $ja['id'];
 					$j['title']['rendered']   = $ja['title']['rendered'];
