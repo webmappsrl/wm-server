@@ -71,13 +71,13 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 						}
 
 					    if ( !empty( $ja['meta-fields']['vt_data_inizio'][0] ) ) {
-						    $j['content']['rendered'] .= "Dal " . $ja['meta-fields']['vt_data_inizio'][0] . " ";
+						    $j['content']['rendered'] .= "<h5 class=\"event-date\">Dal " . $ja['meta-fields']['vt_data_inizio'][0] . "</h5> ";
 					    }
 					    if ( !empty( $ja['meta-fields']['vt_data_fine'][0] ) ) {
-						    $j['content']['rendered'] .= "Al " . $ja['meta-fields']['vt_data_fine'][0] . " ";
+						    $j['content']['rendered'] .= "<h5 class=\"event-date\"Al " . $ja['meta-fields']['vt_data_fine'][0] . "<h5> ";
 					    }
 					    if ( !empty( $ja['meta-fields']['orari'][0] ) ) {
-						    $j['content']['rendered'] .= "<br />Orari " . $ja['meta-fields']['orari'][0] . " ";
+						    $j['content']['rendered'] .= "<h5 class=\"event-date\">Orari " . $ja['meta-fields']['orari'][0] . "</h5>";
 					    }
 
 					    $j['content']['rendered'] .= $ja['content']['rendered'];
