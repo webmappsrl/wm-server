@@ -146,7 +146,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					}
 
 					if ( !empty( $ja['meta-fields']['vt_facebook'][0] ) ) {
-						$j['content']['rendered'] .= "<br /><a href=" . $ja['meta-fields']['vt_facebook'] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
+						$j['content']['rendered'] .= "<br /><a href=" . $ja['meta-fields']['vt_facebook'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
 					}
 
 					if ( !empty( $ja['meta-fields']['vt_twitter'][0] ) ) {
