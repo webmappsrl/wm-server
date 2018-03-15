@@ -143,11 +143,11 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					}
 
 					if ( !empty( $ja['meta-fields']['vt_chiusura'][0] ) ) {
-						$j['opening_hours'] .= "Giorno di chiusura " . $ja['meta-fields']['vt_chiusura'][0];
+						$j['content']['rendered'] .= "<p>Giorno di chiusura " . $ja['meta-fields']['vt_chiusura'][0] . "</p>";
 					}
 
 					if ( !empty( $ja['meta-fields']['vt_carte'][0] ) ) {
-						$j['content']['rendered'] .= "Carte accettate: " . $ja['meta-fields']['vt_carte'][0];
+						$j['content']['rendered'] .= "<p>Carte accettate: " . $ja['meta-fields']['vt_carte'][0] . "</p>";
 					}
 
 					if ( !empty( $ja['meta-fields']['vt_facebook'][0] ) ) {
