@@ -210,8 +210,8 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
         }
 
         $title = 'Catasto - ' . $this->name;
-        $zip = '/resources/all_gpx_' . $this->name . '.zip';
-        $shp = '/resources/' . $this->name . '_shp.zip';
+        $zip = '/resources/' . $this->name . '_all_gpx_.zip';
+        $shp = '/resources/' . $this->name . '_all_shp.zip';
         $html = <<<EOF
 <!DOCTYPE html>
 <html>
@@ -284,40 +284,45 @@ file_put_contents($this->project_structure->getRoot().'/index.html', $html);
 
         $features = $this->geojson['features'];
         $root = $this->project_structure->getRoot();
-        $zip_path = $root . '/resources/all_gpx_' . $this->name . '.zip';
-        $zip = new ZipArchive();
-        if($zip->open($zip_path,ZIPARCHIVE::CREATE) !== true) {
-            throw new Exception("Error Opening ZIP file $zip_path", 1);
+        $gpx_path = $root.'/resources/gpx';
+
+        if(!file_exists($gpx_path)) {
+            system("mkdir $gpx_path");
         }
+
         $features_new = array();
         foreach($features as $feature) {
             $props = $feature['properties'];
             $ref = $this->setProps($props,'ref');
             $id = $this->setProps($props,'id');
             $WMT_GPX_URL = "https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx";
-            $gpx_path = $root . "/resources/$ref-$id.gpx";
-            $gpx3d_path = $root . "/resources/$ref-$id-3d.gpx";
+            $gpx_route_path = $root . "/resources/gpx/$ref-$id.gpx";
+            $gpx3d_path = $root . "/resources/gpx/$ref-$id-3d.gpx";
             echo "processing GPX: from $WMT_GPX_URL to $gpx_path ... ";
-            file_put_contents($gpx_path, fopen($WMT_GPX_URL, 'r'));
+            file_put_contents($gpx_route_path, fopen($WMT_GPX_URL, 'r'));
 
             // GPX Analyze
-            $info = WebmappUtils::GPXAnalyze($gpx_path);
+            $info = WebmappUtils::GPXAnalyze($gpx_route_path);
             $track_num=$info['tracks'];
             $multi=$info['has_multi_segments'];
             if($track_num==1 && !$multi) {
-                WebmappUtils::GPXAddEle($gpx_path,$gpx3d_path);
+                WebmappUtils::GPXAddEle($gpx_route_path,$gpx3d_path);
                 $info=WebmappUtils::GPXAnalyze($gpx3d_path);
             }
             foreach ($info as $key => $value) {
                 $feature['properties'][$key]=$value;
             }
             $features_new[]=$feature;
-            $zip->addFile($gpx_path,$gpx_path);
             echo "DONE! \n";
         }
         $this->geojson['features']=$features_new;
-        $zip->close();
-        echo "FILE ZIP $zip_path created. \n";
+
+        // Creazione ZIP
+        $zip_name = $this->name ."_all_gpx.zip";
+        echo $cmd = "cd $root/resources && zip -r gpx gpx && mv gpx.zip $zip_name";
+        system($cmd);
+
+
     }
 
     private function processSHP() {
@@ -339,10 +344,9 @@ file_put_contents($this->project_structure->getRoot().'/index.html', $html);
         $query = "SELECT osm_id, type, route, route_name, name, ref, operator, state, cai_scale, ST_transform(way, 25832) as way FROM planet_osm_line WHERE osm_id IN $where";
         $cmd = "pgsql2shp -P T1tup4atmA -f $shp -h 46.101.124.52 -u webmapp osm_hiking \"$query\"";
         system($cmd);
-        $zip_name = $this->name ."_shp.zip";
+        $zip_name = $this->name ."_all_shp.zip";
         echo $cmd = "cd $resources_path && zip -r shp shp && mv shp.zip $zip_name";
         system($cmd);
-
     }
 
 }

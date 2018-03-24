@@ -15,8 +15,6 @@ require 'classes/WebmappProjectStructure.php';
 
 
 require 'classes/WebmappAbstractTask.php';
-require 'classes/WebmappOSMListTask.php';
-require 'classes/WebmappOSMCAIRelationsTask.php';
 require 'classes/WebmappBETask.php';
 require 'classes/WebmappDrupalTask.php';
 require 'classes/WebmappRouteTask.php';
@@ -31,6 +29,10 @@ require 'classes/WebmappRoute.php';
 require 'classes/WebmappMap.php';
 
 require 'classes/WebmappWP.php';
+
+// CAIOSM
+require 'classes/caiosm/WebmappOSMListTask.php';
+require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 
 // CUSTOM
 require 'classes/custom/WebmappVetrinaToscanaTask.php';
