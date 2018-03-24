@@ -210,7 +210,7 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
         }
 
         $title = 'Catasto - ' . $this->name;
-        $zip = '/resources/' . $this->name . '_all_gpx_.zip';
+        $zip = '/resources/' . $this->name . '_all_gpx.zip';
         $shp = '/resources/' . $this->name . '_all_shp.zip';
         $html = <<<EOF
 <!DOCTYPE html>
