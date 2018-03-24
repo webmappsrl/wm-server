@@ -77,6 +77,18 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(902,$ele[0]);
 		$this->assertEquals(1770,$ele[1]);
 	}
+
+	public function testEleLong() {
+		$max = 1000;
+		$serra = array(43.7510,10.5536);
+		$points=array();
+		for ($i=0; $i < $max; $i++) { 
+			$points[]=$serra;
+		}
+		$ele = WebmappUtils::getElevations($points);
+		$this->assertEquals(902,$ele[0]);
+		$this->assertEquals(902,$ele[$max-1]);
+	}
 	public function testBingEleExceptionArray() {
 		$points_error = 'error';
 		$this->expectException(Exception::class);

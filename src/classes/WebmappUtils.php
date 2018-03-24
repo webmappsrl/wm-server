@@ -226,9 +226,14 @@ class WebmappUtils {
 		}
 		$p2=implode(',', $p1);
 
-		$url = 'https://api.webmapp.it/services/3d/get3dgeojsonbylatlonlist.php';
-		$url_get = "$url?l=$p2";
-		$r = json_decode(file_get_contents($url_get),TRUE);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,'https://api.webmapp.it/services/3d/get3dgeojsonbylatlon.php');
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS,"l=$p2");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$server_output = curl_exec ($ch);
+		curl_close ($ch);
+		$r = json_decode($server_output,TRUE);
 		$elevations = array();
 		foreach($r['features'][0]['geometry']['coordinates'] as $coord) {
 			$elevations[]=floor($coord[2]);
