@@ -101,8 +101,19 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
             $overpass_query .= 'relation('.$id.');';
         }
         $overpass_query .= '); out tags;';
-        $overpass_url = 'https://overpass-api.de/api/interpreter?data='.urlencode($overpass_query);
-        $results = json_decode(file_get_contents($overpass_url),TRUE);
+        //$overpass_url = 'https://overpass-api.de/api/interpreter?data='.urlencode($overpass_query);
+        $overpass_url = 'https://overpass-api.de/api/interpreter';
+        $data=urlencode($overpass_query);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$overpass_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,"data=$data");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $server_output = curl_exec ($ch);
+        curl_close ($ch);
+        $results = json_decode($server_output,TRUE);
+
+        //$results = json_decode(file_get_contents($overpass_url),TRUE);
 
         $geojson = array();
         $geojson['type'] = 'FeatureCollection';
