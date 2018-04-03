@@ -188,12 +188,18 @@ class WebmappMap {
 
         // Cambiata la gestione dell'attivazione del Multilingue: viene settato il campo
 
-        if (isset($ja['wpml_current_locale']) && !empty($ja['wpml_current_locale'])) {
+
+        if (isset($ja['default_language']) && !empty($ja['default_language'])) {
+            $lang=$ja['default_language'];
+        } else if (isset($ja['wpml_current_locale']) && !empty($ja['wpml_current_locale'])) {
             $lang=$ja['wpml_current_locale'];
             $lang=preg_replace('|_.*$|','', $lang);
-            $this->languages_actual=$lang;
-            $this->buildLanguagesConfArray();
+        } 
+        else {
+            $lang='it';
         }
+        $this->languages_actual=$lang;
+        $this->buildLanguagesConfArray();            
 
         if (isset($ja['has_languages']) && $ja['has_languages']==true) {
             $this->has_languages=true;
@@ -205,12 +211,6 @@ class WebmappMap {
             }
             else {
                 $this->languages_list='it_IT,en_EN';
-            }
-            if (isset($ja['wpml_current_locale']) && !empty($ja['wpml_current_locale'])) {
-                $this->languages_actual=$ja['wpml_current_locale'];
-            }
-            else {
-                $this->languages_actual='it';
             }
             $this->buildLanguagesConfArray();
         }

@@ -119,7 +119,7 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"urlImages":"http:[^"]*example.webmapp.it[^"]*media[^"]*images.zip"/',$j);
 
         // LANGUAGES
-        $this->assertRegExp('/"actual":"it_IT"/',$j);
+        $this->assertRegExp('/"actual":"it"/',$j);
         $this->assertRegExp('/"available":/',$j);
         $this->assertRegExp('/"type":"languages"/',$j);
         
@@ -267,6 +267,16 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"LANGUAGES":/',$j);
         $this->assertRegExp('/"actual":"it"/',$j);
 
+    }
+
+    public function testLangDeafultEnNoMulti() {
+        $this->init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/797';
+        $m->loadMetaFromUrl($url);
+        $j = $m->getConfJson();
+        $this->assertRegExp('/"LANGUAGES":/',$j);
+        $this->assertRegExp('/"actual":"en"/',$j);        
     }
 
 
