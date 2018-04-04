@@ -949,6 +949,7 @@ $index = <<<EOS
         <script src="core/js/app.js"></script>
 
         <script src="core/js/settings/configProvider.js"></script>
+        <script src="core/js/settings/translate.js"></script>
         <script src="core/js/settings/overwrite.js"></script>
         <script src="core/js/settings/routes.js"></script>
         <script src="core/js/settings/run.js"></script>
@@ -966,6 +967,8 @@ $index = <<<EOS
         <script src="core/js/services/utils.factory.js"></script>
         <script src="core/js/services/offline.factory.js"></script>
         <script src="core/js/services/map.factory.js"></script>
+        <script src="core/js/services/languages.factory.js"></script>
+        <script src="core/js/services/package.factory.js"></script>
 
         <script src="core/js/components/languages/languages.controller.js"></script>
         <script src="core/js/components/welcome/welcome.controller.js"></script>
