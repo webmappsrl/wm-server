@@ -166,6 +166,14 @@ class WebmappMapTest extends TestCase
 
     }
 
+    public function testIndexTitle() {
+        $this -> init();
+        $m = new WebmappMap($this->project_structure);
+        $m->setTitle('MY TITLE');
+        $index = $m->getIndex();
+        $this->assertEquals(1,preg_match('/<title>MY TITLE<\/title>/',$index));
+    }
+
     public function testAdditionalOverlayLayers() {
         $this->init();
         $m = new WebmappMap($this->project_structure);
@@ -175,7 +183,7 @@ class WebmappMapTest extends TestCase
         $ja = json_decode($j,TRUE);
         $this->assertEquals('Sentieri',$ja['OVERLAY_LAYERS'][0]['label']);
         $this->assertEquals('tile_utfgrid_geojson',$ja['OVERLAY_LAYERS'][0]['type']);
-        $this->assertEquals('https://api.mappalo.org/mappadeimontipisani_new/geojson/sentieri.geojson',$ja['OVERLAY_LAYERS'][0]['geojsonUrl']);
+        $this->assertEquals('sentieri.geojson',$ja['OVERLAY_LAYERS'][0]['geojsonUrl']);
     }
 
     public function testHideInBrowser() {

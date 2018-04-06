@@ -26,7 +26,7 @@ require 'classes/WebmappTrackFeature.php';
 require 'classes/WebmappLayer.php';
 require 'classes/WebmappRoute.php';
 
-require 'classes/WebmappMap.php';
+require 'classes/map/WebmappMap.php';
 
 require 'classes/WebmappWP.php';
 
