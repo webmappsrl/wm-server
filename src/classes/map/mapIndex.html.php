@@ -128,6 +128,8 @@ $index = <<<EOS
         <script src="core/js/components/detailTaxonomy/detailTaxonomy.controller.js"></script>
         <script src="core/js/components/taxonomy/taxonomy.controller.js"></script>
 
+        <script src="core/js/components/popupOpener/popupOpener.controller.js"></script>
+
 
     </head>
 
