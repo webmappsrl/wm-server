@@ -42,6 +42,7 @@ $(document).ready(function() {
 <p>
   <a href="$zip">Download all GPX (created by WMT)</a>
   <a href="$shp">Download SHP file</a>
+  <a href="sezioni.html">Sezioni</a>
 </p>
 
 <table id="catasto" >

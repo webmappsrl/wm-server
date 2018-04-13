@@ -257,4 +257,37 @@ class WebmappUtils {
 		curl_close($ch);
 		return json_decode($output,TRUE);
 	}
+	public static function slugify($text)
+	{
+		$text = preg_replace('~[^\pL\d]+~u', '-', $text);
+		$text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+		$text = preg_replace('~[^-\w]+~', '', $text);
+		$text = trim($text, '-');
+		$text = preg_replace('~-+~', '-', $text);
+		$text = strtolower($text);
+		if (empty($text)) {
+			return 'n-a';
+		}
+		return $text;
+	}
+	public static function getSettoriByOSMID($osmid) {
+		$settori = '';
+		$q = "SELECT DISTINCT CONCAT(settori_cai_toscana.area,settori_cai_toscana.settore) as settore FROM settori_cai_toscana, planet_osm_line WHERE planet_osm_line.osm_id=-$osmid AND ST_Intersects(settori_cai_toscana.geom, ST_transform(planet_osm_line.way,4326));";
+        $d = pg_connect("host=46.101.124.52 port=5432 dbname=general user=webmapp password=T1tup4atmA");
+        $r = pg_query($d,$q);
+        while($row = pg_fetch_array($r)) {
+        	$settori = $settori .' ' . $row['settore'];
+        }
+		return $settori;
+	}
+	public static function getSettoriIDByOSMID($osmid) {
+		$ids = '';
+		$q = "SELECT DISTINCT settori_cai_toscana.id as id FROM settori_cai_toscana, planet_osm_line WHERE planet_osm_line.osm_id=-$osmid AND ST_Intersects(settori_cai_toscana.geom, ST_transform(planet_osm_line.way,4326));";
+        $d = pg_connect("host=46.101.124.52 port=5432 dbname=general user=webmapp password=T1tup4atmA");
+        $r = pg_query($d,$q);
+        while($row = pg_fetch_array($r)) {
+        	$ids = $ids .' ' . $row['id'];
+        }
+		return $ids;
+	}
 }

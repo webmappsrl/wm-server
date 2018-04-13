@@ -31,6 +31,7 @@ require 'classes/map/WebmappMap.php';
 require 'classes/WebmappWP.php';
 
 // CAIOSM
+require 'classes/caiosm/WebmappOSMCAI.php';
 require 'classes/caiosm/WebmappOSMListTask.php';
 require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 
