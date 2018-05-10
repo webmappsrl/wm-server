@@ -65,7 +65,7 @@ class WebmappProjectStructureTest extends TestCase
         $ps->clean();
 
         $this->assertEquals(2,count(scandir($root.'/client')));
-        $this->assertEquals(2,count(scandir($root.'/geojson')));
+        $this->assertEquals(4,count(scandir($root.'/geojson')));
         $this->assertEquals(2,count(scandir($root.'/media/images')));
         $this->assertEquals(3,count(scandir($root.'/media')));
 

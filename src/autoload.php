@@ -14,17 +14,16 @@ require 'classes/WebmappProject.php';
 require 'classes/WebmappProjectStructure.php';
 
 
-require 'classes/WebmappAbstractTask.php';
-require 'classes/WebmappBETask.php';
-require 'classes/WebmappDrupalTask.php';
-require 'classes/WebmappRouteTask.php';
-require 'classes/WebmappTaskFactory.php';
+require 'classes/task/WebmappAbstractTask.php';
+require 'classes/task/WebmappBETask.php';
+require 'classes/task/WebmappRouteTask.php';
+require 'classes/task/WebmappTaskFactory.php';
 
-require 'classes/WebmappAbstractFeature.php';
-require 'classes/WebmappPoiFeature.php';
-require 'classes/WebmappTrackFeature.php';
-require 'classes/WebmappLayer.php';
-require 'classes/WebmappRoute.php';
+require 'classes/features/WebmappAbstractFeature.php';
+require 'classes/features/WebmappPoiFeature.php';
+require 'classes/features/WebmappTrackFeature.php';
+require 'classes/features/WebmappLayer.php';
+require 'classes/features/WebmappRoute.php';
 
 require 'classes/map/WebmappMap.php';
 
@@ -37,3 +36,4 @@ require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 
 // CUSTOM
 require 'classes/custom/WebmappVetrinaToscanaTask.php';
+require 'classes/custom/WebmappDrupalTask.php';

@@ -19,6 +19,9 @@ class WebmappBETask extends WebmappAbstractTask {
  private $latMax;
  private $latMin;
 
+ // TODO: leggere il parametro da options
+ private $add_related = false;
+
 
 
  public function check() {
@@ -64,8 +67,27 @@ public function getId() {
 public function process(){
     $poi_layers = $this->wp->getPoiLayers();
     if(is_array($poi_layers) && count($poi_layers)>0) {
+
+        // Primo loop Inserisci nel POSTGIS (da eliminare dopo sync)
+        if ($this->add_related) {
         foreach($poi_layers as $layer) {
             if (!$layer->getExclude()) {
+             // Aggiungi i singoli POI del layer al DB Postgis
+                foreach($layer->getFeatures() as $poi) {
+                    $poi->writeToPostGis();
+                }
+
+        } }
+
+        }
+        // Secondo LOOP Trova i vicni e scrivi singolo
+        foreach($poi_layers as $layer) {
+            if (!$layer->getExclude()) {
+                if($this->add_related) {
+                foreach($layer->getFeatures() as $poi) {
+                    $poi->addRelated();
+                    $poi->write($this->project_structure->getPathGeojson().'/poi');
+                }}
             $this->computeBB($layer);
             $layer->write($this->project_structure->getPathGeojson());
             $this->map->addPoisWebmappLayer($layer);

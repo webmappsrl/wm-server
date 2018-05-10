@@ -101,6 +101,8 @@ class WebmappProjectStructure {
 		mkdir($this->root.'/client');
 		mkdir($this->root.'/server');
 		mkdir($this->root.'/geojson');
+		mkdir($this->root.'/geojson/poi');
+		mkdir($this->root.'/geojson/track');
 		mkdir($this->root.'/tiles');
 		mkdir($this->root.'/media');
 		mkdir($this->root.'/media/images');

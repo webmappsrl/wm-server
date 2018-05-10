@@ -201,6 +201,54 @@ abstract class WebmappAbstractFeature {
     	return json_encode($this->getArrayJson($lang));
     }
 
+    public function write($path) {
+        $id = $this->properties['id'];
+        $fname = $path . "/$id.json";
+        if(!file_exists($path)) {
+            $cmd = "mkdir $path";
+            system($cmd);
+        }
+        file_put_contents($fname,$this->getJson());
+    }
+
+    public function writeToPostGis($suffix="tmp") {
+
+        // pgsql2shp -P T1tup4atmA -f rel_6080932 -h 46.101.124.52 -u webmapp osm_hiking
+        $name = "webmapptest";
+        $poi_table = "poi_".$suffix;
+        $id = $this->properties['id'];
+
+        // Cancella PUNTO
+        $q="DELETE from $poi_table where id=$id";
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"$q\"";
+        system($cmd);
+
+        // Crea nuovo punto
+        $lon = $this->geometry['coordinates'][0];
+        $lat = $this->geometry['coordinates'][1];
+        $q="INSERT INTO $poi_table(id, wkb_geometry) VALUES($id, ST_Transform(ST_GeomFromText('POINT($lon $lat )', 4326),3857)   );";
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"$q\"";
+        system($cmd);
+
+    }
+
+    public function addRelated() {
+        // TODO: dinamicizzare il nome della tabella
+        $id = $this->properties['id'];
+        $q = "SELECT poi_b.id as id, ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) as distance
+              FROM  poi_tmp as poi_a, poi_tmp as poi_b
+              WHERE poi_a.id = $id AND poi_b.id <> $id AND ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) < 5000
+              ORDER BY distance
+              LIMIT 10;";
+        $d = pg_connect("host=46.101.124.52 port=5432 dbname=webmapptest user=webmapp password=T1tup4atmA");
+        $r = pg_query($d,$q);
+        $neighbors = array();
+        while($row = pg_fetch_array($r)) {
+            $neighbors[] = $row['id'];
+        }
+        $this->properties['related']['poi']['neighbors']=$neighbors;
+    }
+
 
 }
 

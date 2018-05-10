@@ -36,7 +36,7 @@ class WebmappProjectTest extends TestCase
         $this->assertTrue($p->process());
         $this->assertTrue(file_exists($conf));
         $ja = json_decode(file_get_contents($conf),TRUE);
-        $this->assertEquals('Retista',$ja['OVERLAY_LAYERS'][0]['label']);
-        $this->assertEquals('Sentieri',$ja['OVERLAY_LAYERS'][1]['label']);
+        $this->assertEquals('Aree protette e Natura',$ja['OVERLAY_LAYERS'][0]['label']);
+        $this->assertEquals('Borghi e Paesi',$ja['OVERLAY_LAYERS'][1]['label']);
     }
 }
