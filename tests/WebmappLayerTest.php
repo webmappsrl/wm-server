@@ -62,6 +62,9 @@ class WebmappLayerTest extends TestCase {
 
 	}
 
+	
+
+
 	public function testLanguages() {
 		$path = __DIR__.'/../data';
 		$name = 'layerTestOk';
@@ -87,6 +90,23 @@ class WebmappLayerTest extends TestCase {
 		$json=file_get_contents($filename);
         $this->assertRegExp('/french version/',$json);
         $this->assertRegExp('/Descrizione in francese./',$json);
+
+	}
+
+	public function testOverlayLanguages() {
+		$path = __DIR__.'/../data';
+		$name = 'layerTestOk';
+
+		$l = new WebmappLayer($name,$path); 
+		// TODO: Impostare IT, EN, FR, DE
+		$url = 'http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/35';
+		$l->setAvailableLanguages(array('it','en','fr','de'));
+		$l->loadMetaFromUrl($url);
+		$langs = $l->getLanguages();
+		$this->assertEquals('test IT',$langs['it']);
+		$this->assertEquals('test EN',$langs['en']);
+		$this->assertEquals('test FR',$langs['fr']);
+		$this->assertEquals('test DE',$langs['de']);
 
 	}
 

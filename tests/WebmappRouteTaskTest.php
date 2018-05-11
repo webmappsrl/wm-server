@@ -86,16 +86,30 @@ class WebmappRouteTaskTests extends TestCase
         // OVERLAY LAYERS
         $icon = '';
         $alert = false;
+        $has_35 = false;
+        $langs=array();
         foreach ($ja['OVERLAY_LAYERS'] as $layer ) {
             if($layer['geojsonUrl']=="tracks.geojson") {
                 $icon = $layer['icon'];
             }
             if($layer['geojsonUrl']=="pois_34.geojson") {
                 $alert = $layer['alert'];
-            } 
+            }
+
+            // LANGUAGES
+            if($layer['geojsonUrl']=="pois_35.geojson") {
+                $has_35 = true;
+                $langs = $layer['languages'];
+            }
+
         }
         $this->assertTrue($alert);
         $this->assertEquals('wm-icon-trail',$icon);
+        $this->assertTrue($has_35);
+        $this->assertEquals('test IT',$langs['it']);
+        $this->assertEquals('test EN',$langs['en']);
+        $this->assertEquals('test DE',$langs['de']);
+        $this->assertEquals('test FR',$langs['fr']);
 
 
     }

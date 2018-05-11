@@ -11,8 +11,12 @@ class WebmappLayer {
 	private $alert = false;
 	private $exclude = false;
 	private $showByDefault = true ;
+
+	// Available languages
+	private $available_languages = array('it','en');
 	// Array associativo che contiene le traduzioni dei label del layer
 	private $languages = array();
+
 
 	public function __construct($name,$path='') {
 		// TODO: check parameter
@@ -43,6 +47,10 @@ class WebmappLayer {
 	public function addFeature($feature) {
 		// TODO: check feature typeof Webmapp*Feature
         array_push($this->features, $feature);
+	}
+
+	public function setAvailableLanguages($ar) {
+		$this->available_languages = $ar;
 	}
 
 	public function getShowByDefault() {
@@ -110,7 +118,7 @@ class WebmappLayer {
     	// Gestione delle lingue
     	// http://vn.be.webmapp.it/wp-json/wp/v2/webmapp_category/33
     	// TODO: recuperare le lingue da altro parametro
-    	$langs = array('it','en');
+    	$langs = $this->available_languages;
 
     	foreach ($langs as $lang) {
     		if(preg_match('/\?/', $url) ) {

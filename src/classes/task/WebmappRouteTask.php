@@ -60,6 +60,7 @@
 
             $poi_layers = array();
             $this->route= new WebmappRoute($this->getUrl());
+            $langs = $this->route->getLanguages();
             $tracks = $this->route->getTracks();
             if (is_array($tracks) && count($tracks)>0) {
                 $this->tracks_layer = new WebmappLayer('tracks',$this->project_structure->getPathGeojson());
@@ -68,6 +69,7 @@
                 $this->tracks_layer->translateLabel('it','Tappe');
                 $this->tracks_layer->translateLabel('en','Stages');
                 $this->tracks_layer->setIcon('wm-icon-trail');
+                $this->tracks_layer->setAvailableLanguages($langs);
 
                 // LOOP sulle tracce
                 foreach ($tracks as $track) {
@@ -105,6 +107,7 @@
                                         $l = new WebmappLayer('pois_'.$cat_id,$this->project_structure->getPathGeojson());
                                         $l->addFeature($poi);
                                         $url = $this->getApiBaseUrl().'/webmapp_category/'.$cat_id;
+                                        $l->setAvailableLanguages($langs);
                                         $l->loadMetaFromUrl($url);
                                         $poi_layers[$cat_id]=$l;
                                     }
@@ -119,7 +122,6 @@
 
                 }
 
-                $langs = $this->route->getLanguages();
 
                 // Creazione dei file della mappa (config.js config.json index.html)
                 $map = new WebmappMap($this->project_structure);
