@@ -154,7 +154,10 @@ abstract class WebmappAbstractFeature {
             foreach ($gallery as $item ) {
                 // TODO: usare una grandezza standard
                 //$images[]=array('src'=>$item['url']);
-                $images[]=array('src'=>$item['sizes']['medium_large']);
+                $images[]=array(
+                     'src'=>$item['sizes']['medium_large'],
+                     'id'=>$item['id'],
+                     'caption'=>$item['caption']);
             }
             $this->properties['imageGallery']=$images;
             $this->setImage($images[0]['src']);

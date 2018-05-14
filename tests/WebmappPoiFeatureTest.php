@@ -84,4 +84,19 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertTrue($j['properties']['access_food_check']);
                 $this->assertRegExp('|<p>test</p>|',$j['properties']['access_food_description']);     
         }
+
+        public function testImageCaption() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/567');
+            $j = json_decode($poi->getJson(),true);
+            $g = $j['properties']['imageGallery'];
+            $has_572 = false;
+            foreach($g as $image) {
+                if($image['id']==572) {
+                    $has_572=true;
+                    $caption = $image['caption'];
+                }
+            }
+            $this->assertTrue($has_572);
+            $this->assertEquals('CAPTION TEST',$caption);
+        }
 }
