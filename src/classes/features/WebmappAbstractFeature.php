@@ -84,6 +84,18 @@ abstract class WebmappAbstractFeature {
         $this->setPropertyBool('noInteraction',$json_array);
         $this->setProperty('related_pois',$json_array);
 
+        // ACCESSIBILITA
+        $this->setPropertyBool('access_mobility_check',$json_array);
+        $this->setProperty('access_mobility_description',$json_array);
+        $this->setPropertyBool('access_hearing_check',$json_array);
+        $this->setProperty('access_hearing_description',$json_array);
+        $this->setPropertyBool('access_vision_check',$json_array);
+        $this->setProperty('access_vision_description',$json_array);
+        $this->setPropertyBool('access_cognitive_check',$json_array);
+        $this->setProperty('access_cognitive_description',$json_array);
+        $this->setPropertyBool('access_food_check',$json_array);
+        $this->setProperty('access_food_description',$json_array);
+
     	// Gestione delle immagini
     	// TODO: migliorare la gestione unificando il nome per POI e track
     	if (isset($json_array['n7webmap_media_gallery'])) {

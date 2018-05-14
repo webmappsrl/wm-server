@@ -69,4 +69,19 @@ class WebmappPoiFeatureTest extends TestCase {
                 $this->assertEquals(1,count($ids));
                 $this->assertEquals(30,$ids[0]);
         }
+
+        public function testAccessibility() {
+                $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+                $j = json_decode($poi->getJson(),true);
+                $this->assertTrue($j['properties']['access_mobility_check']);
+                $this->assertRegExp('|<p>test</p>|',$j['properties']['access_mobility_description']);     
+                $this->assertTrue($j['properties']['access_hearing_check']);
+                $this->assertRegExp('|<p>test</p>|',$j['properties']['access_hearing_description']);     
+                $this->assertTrue($j['properties']['access_vision_check']);
+                $this->assertRegExp('|<p>test</p>|',$j['properties']['access_vision_description']);     
+                $this->assertTrue($j['properties']['access_cognitive_check']);
+                $this->assertRegExp('|<p>test</p>|',$j['properties']['access_cognitive_description']);     
+                $this->assertTrue($j['properties']['access_food_check']);
+                $this->assertRegExp('|<p>test</p>|',$j['properties']['access_food_description']);     
+        }
 }
