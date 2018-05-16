@@ -79,19 +79,21 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 	protected function mappingGeometry($json_array) {
         // TODO: controllo esistenza coordinate
 
+        $id = $json_array['id'];
+
         if (!array_key_exists('n7webmap_coord', $json_array) ) {
             print_r($json_array);
-            throw new Exception("INVALID POI", 1);
+            throw new Exception("INVALID POI id:$id", 1);
         }
 
         if (!is_array($json_array['n7webmap_coord']) ) {
             print_r($json_array);
-            throw new Exception("INVALID POI", 1);
+            throw new Exception("INVALID POI id:$id", 1);
         }
 
         if (!array_key_exists('lng', $json_array['n7webmap_coord']) ) {
             print_r($json_array);
-            throw new Exception("INVALID POI", 1);
+            throw new Exception("INVALID POI id:$id", 1);
         }
 
         $lng = $json_array['n7webmap_coord']['lng'];
