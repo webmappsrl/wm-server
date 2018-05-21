@@ -234,10 +234,15 @@ class WebmappMap {
             $this->options['mainMenuHideAttributionPage']=true;
         }
 
+        if(isset($ja['show_accessibility_buttons']) && $ja['show_accessibility_buttons']==true) {
+            $this->options['showAccessibilityButtons']=true;
+        }
+
         // ADVANCED OPTIONS
         if(isset($ja['additional_overlay_layers']) && !empty($ja['additional_overlay_layers'])) {
             $this->additional_overlay_layers=json_decode($ja['additional_overlay_layers'],TRUE);
         }
+
 
         $this->buildOptionsConfArray();
     }

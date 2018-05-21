@@ -186,6 +186,16 @@ class WebmappMapTest extends TestCase
         $this->assertEquals('sentieri.geojson',$ja['OVERLAY_LAYERS'][0]['geojsonUrl']);
     }
 
+    public function testAccessibility() {
+        $this->init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/408';
+        $m->loadMetaFromUrl($url);
+        $j = $m->getConfJson();
+        $ja = json_decode($j,TRUE);
+        $this->assertTrue($ja['OPTIONS']['showAccessibilityButtons']);
+    } 
+
     public function testHideInBrowser() {
         $this -> init();
         $m = new WebmappMap($this->project_structure);
