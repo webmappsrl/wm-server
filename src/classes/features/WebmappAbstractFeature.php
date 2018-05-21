@@ -84,18 +84,6 @@ abstract class WebmappAbstractFeature {
         $this->setPropertyBool('noInteraction',$json_array);
         $this->setProperty('related_pois',$json_array);
 
-        // ACCESSIBILITA
-        $this->setPropertyBool('access_mobility_check',$json_array);
-        $this->setProperty('access_mobility_description',$json_array);
-        $this->setPropertyBool('access_hearing_check',$json_array);
-        $this->setProperty('access_hearing_description',$json_array);
-        $this->setPropertyBool('access_vision_check',$json_array);
-        $this->setProperty('access_vision_description',$json_array);
-        $this->setPropertyBool('access_cognitive_check',$json_array);
-        $this->setProperty('access_cognitive_description',$json_array);
-        $this->setPropertyBool('access_food_check',$json_array);
-        $this->setProperty('access_food_description',$json_array);
-
     	// Gestione delle immagini
     	// TODO: migliorare la gestione unificando il nome per POI e track
     	if (isset($json_array['n7webmap_media_gallery'])) {
@@ -113,6 +101,10 @@ abstract class WebmappAbstractFeature {
             count($this->json_array['webmapp_category'])>0) {
             $this->webmapp_category_ids = $json_array['webmapp_category'];
         }
+
+        // set Accessibility
+        $this->setAccessibility($json_array);
+
     }
 
     protected function setProperty($key,$json_array,$key_map='') {
@@ -121,6 +113,27 @@ abstract class WebmappAbstractFeature {
             $this->properties[$key_map] = $json_array[$key] ;
         }
         // TODO: gestire un ELSE con eccezione per eventuali parametri obbligatori
+    }
+
+    protected function setAccessibility($json_array) {
+
+        // ACCESSIBILITA' 
+        // TODO: GESTIRE IL CASO VUOTO
+
+        $types = array('mobility','hearing','vision','cognitive','food');
+
+        $access = array() ;
+
+        foreach ($types as $type) {
+            $check_var = 'access_'.$type.'_check';
+            $descr_var = 'access_'.$type.'_description';
+            $check = false; $descr='';
+            if(isset($json_array[$check_var])) $check = $json_array[$check_var];
+            if(isset($json_array[$descr_var])) $descr = $json_array[$descr_var];
+            $access[$type]['check'] = $check;
+            $access[$type]['description'] = $descr;            
+        }
+        $this->properties['accessibility'] = $access;
     }
 
     protected function setPropertyBool($key,$json_array,$key_map='') {
