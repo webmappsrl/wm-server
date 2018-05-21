@@ -1,5 +1,7 @@
 <?php
 
+$now = date("Y-m-d H:i:s");
+
 $html = <<<EOF
 <!DOCTYPE html>
 <html>
@@ -38,6 +40,8 @@ $(document).ready(function() {
 <body>
 
 <h1>$title</h1>
+
+<p>Data di pubblicazione del presente documento: $now</p>
 
 <p>
   <a href="$zip">Download all GPX (created by WMT)</a>

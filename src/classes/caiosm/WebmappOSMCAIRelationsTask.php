@@ -196,12 +196,14 @@ class WebmappOSMCAIRelationsTask extends WebmappAbstractTask {
             $class_ref = $this->getTDClass($ref);
 
             $id = $this->setProps($props,'id');
+            $wmt_gpx_url = "https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx";
             $link = "<br/>
             <a href=\"http://www.openstreetmap.org/relation/$id\" target=\"_blank\">[OSM]</a>
             <a href=\"http://www.openstreetmap.org/edit?relation=$id\" target=\"_blank\">[OSM_EDIT]</a>
             <a href=\"http://ra.osmsurround.org/analyzeRelation?relationId=$id\" target=\"_blank\">[ANALYZER]</a>
             <a href=\"http://hiking.waymarkedtrails.org/#route?id=$id\" target=\"_blank\">[WMT]</a>
-            <a href=\"https://hiking.waymarkedtrails.org/api/details/relation/$id/gpx\" target=\"_blank\">[GPX]</a>
+            <a href=\"$wmt_gpx_url\" target=\"_blank\">[GPX]</a>
+            <a href=\"https://api.webmapp.it/services/caiosm/scheda_sentiero.php?relation_id=$id\" target=\"_blank\">[SCHEDA]</a>
             ";
 
             if ($props['has_ele']==1) {
