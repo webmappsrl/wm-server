@@ -105,6 +105,19 @@ abstract class WebmappAbstractFeature {
         // set Accessibility
         $this->setAccessibility($json_array);
 
+        // Related URL
+        $this->setRelatedUrl($json_array);
+
+    }
+
+    private function setRelatedUrl($ja) {
+        if(isset($ja['n7webmap_rpt_related_url']) && is_array($ja['n7webmap_rpt_related_url'])) {
+            $urls=array();
+            foreach ($ja['n7webmap_rpt_related_url'] as $item) {
+                $urls[] = $item['net7webmap_related_url'];
+            }
+            $this->properties['related_url']=$urls;
+        }
     }
 
     protected function setProperty($key,$json_array,$key_map='') {

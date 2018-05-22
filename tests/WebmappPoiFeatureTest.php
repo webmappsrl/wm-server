@@ -80,6 +80,15 @@ class WebmappPoiFeatureTest extends TestCase {
                 }
         }
 
+        public function testRelatedUrl() {
+                $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+                $j = json_decode($poi->getJson(),true);
+                $this->assertTrue(isset($j['properties']['related_url']));
+                $urls=$j['properties']['related_url'];
+                $this->assertTrue(in_array('http://www.google.it',$urls));
+                $this->assertTrue(in_array('http://www.webmapp.it',$urls));
+        }
+
         public function testImageCaption() {
             $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/567');
             $j = json_decode($poi->getJson(),true);
