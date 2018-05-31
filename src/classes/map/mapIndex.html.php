@@ -76,6 +76,9 @@ $index = <<<EOS
         <!-- <script src="core/lib/connector.js" data-channel="mp-vc" id="consolerescript"></script> -->
         <!-- <script src="_cordova/cordova.js"></script> -->
 
+        <script src="core/lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
+        <script src="core/lib/turf/outTurf.js"></script>
+
         <!-- APP -->
 
         <script type="text/javascript">
