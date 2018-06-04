@@ -350,33 +350,22 @@ class WebmappMap {
     }
 
     public function addPoisWebmappLayer($layer) {
+        $this->addLayer('pois',$layer);
+    }
+
+    public function addTracksWebmappLayer($layer) {
+        $this->addLayer('tracks',$layer);
+    }
+
+    public function addLayer($type,$layer) {
+
        $url = $layer->getName().'.geojson';
        $label = $layer->getLabel();
        $color = $layer->getColor();
        $icon = $layer->getIcon();
        $alert = $layer->getAlert();
        $showByDefault = $layer->getShowByDefault();
-       $this->addPoisLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages(),$alert);
-    }
-
-    public function addTracksWebmappLayer($layer) {
-       $url = $layer->getName().'.geojson';
-       $label = $layer->getLabel();
-       $color = $layer->getColor();
-       $icon = $layer->getIcon();
-       $alert = $layer -> getAlert();
-       $showByDefault = $layer->getShowByDefault();
-       $this->addTracksLayer($url,$label,$color,$icon,$showByDefault,$layer->getLanguages(),$alert);
-    }
-
-    public function addPoisLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array(),$alert=false) {
-        $this->addLayer('pois',$url,$label,$color,$icon,$showByDefault,$languages,$alert);
-    }
-    public function addTracksLayer($url,$label,$color='',$icon='',$showByDefault=true,$languages=array(),$alert=false) {
-        $this->addLayer('tracks',$url,$label,$color,$icon,$showByDefault,$languages,$alert);
-    }
-
-    public function addLayer($type,$url,$label,$color='',$icon='',$showByDefault=true,$languages=array(),$alert=false) {
+       $languages = $layer->getLanguages();
 
         // Manage default values
         if ($color == '' ) $color = '#FF3812';
