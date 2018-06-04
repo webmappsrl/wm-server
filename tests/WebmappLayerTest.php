@@ -168,7 +168,7 @@ class WebmappLayerTest extends TestCase {
 		$l = new WebmappLayer('test','');
 		$url = 'http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/30';
 		$l->loadMetaFromUrl($url);
-
+		$this->assertEquals('30',$l->getID());
 		$this->assertEquals('Bar',$l->getLabel());
 		$this->assertEquals('wm-icon-siti-interesse',$l->getIcon());
 		$this->assertEquals('#00ff00',$l->getColor());
@@ -176,11 +176,13 @@ class WebmappLayerTest extends TestCase {
 
 		$l = new WebmappLayer('test','');
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/14');
+		$this->assertEquals('14',$l->getID());
 		$this->assertFalse($l->getShowByDefault());
 		$this->assertFalse($l->getAlert());
 
 		$l = new WebmappLayer('test','');
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/11');
+		$this->assertEquals('11',$l->getID());
 		$this->assertTrue($l->getShowByDefault());
 		$this->assertFalse($l->getAlert());
 		$this->assertFalse($l->getExclude());
@@ -188,6 +190,7 @@ class WebmappLayerTest extends TestCase {
 
 		$l = new WebmappLayer('test','');
 		$l->loadMetaFromUrl('http://dev.be.webmapp.it/wp-json/wp/v2/webmapp_category/34');
+		$this->assertEquals('34',$l->getID());
 		$this->assertTrue($l->getShowByDefault());
 		$this->assertTrue($l->getAlert());
 		$this->assertTrue($l->getExclude());

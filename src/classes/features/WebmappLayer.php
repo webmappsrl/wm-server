@@ -11,6 +11,7 @@ class WebmappLayer {
 	private $alert = false;
 	private $exclude = false;
 	private $showByDefault = true ;
+	private $id = 'NO-ID';
 
 	// Available languages
 	private $available_languages = array('it','en');
@@ -57,6 +58,10 @@ class WebmappLayer {
 		return $this->showByDefault;
 	}
 
+	public function getID() {
+		return $this->id;
+	}
+
 	public function getIcon() {
 		return $this->icon;
 	}
@@ -96,6 +101,9 @@ class WebmappLayer {
     public function loadMetaFromUrl($url) {
     	// TODO: leggi API alla WP e poi setta label, icon e color
     	$meta = json_decode(file_get_contents($url),TRUE);
+    	if (isset($meta['id'])) {
+    		$this->id=$meta['id'];
+    	}
     	if (isset($meta['icon'])) {
     		$this->icon=$meta['icon'];
     	}

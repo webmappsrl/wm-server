@@ -104,11 +104,15 @@ class WebmappMapTest extends TestCase
 
         // Additional Overlay Layers
         $labels = array();
+        $ids = array();
         foreach($ja['OVERLAY_LAYERS'] as $layer) {
             $labels[]=$layer['label'];
+            $ids[]=$layer['id'];
         }
         $this->assertTrue(in_array('ADD1',$labels));
         $this->assertTrue(in_array('ADD2',$labels));
+        $this->assertTrue(in_array('30',$ids));
+        $this->assertTrue(in_array('7',$ids));
 
 
 

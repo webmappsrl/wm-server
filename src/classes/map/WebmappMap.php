@@ -241,6 +241,18 @@ class WebmappMap {
         // ADVANCED OPTIONS
         if(isset($ja['additional_overlay_layers']) && !empty($ja['additional_overlay_layers'])) {
             $this->additional_overlay_layers=json_decode($ja['additional_overlay_layers'],TRUE);
+
+            // AGIUNGI UN ID ARTIFICIALE
+            $counter = 1 ;
+            $layers= array();
+            foreach ($this->additional_overlay_layers as $layer) {
+                if(!isset($layer['id'])) {
+                    $layer['id'] ='ADD-' . $counter;
+                    $counter ++ ;
+                }
+                $layers[]=$layer;
+            }
+            $this->additional_overlay_layers=$layers;
         }
 
 
@@ -359,6 +371,7 @@ class WebmappMap {
 
     public function addLayer($type,$layer) {
 
+       $id = $layer->getId();
        $url = $layer->getName().'.geojson';
        $label = $layer->getLabel();
        $color = $layer->getColor();
@@ -384,6 +397,7 @@ class WebmappMap {
                 break;
         }        
         $layer = array (
+            'id' => $id,
             'geojsonUrl' => $url,
             'label' => $label,
             'color' => $color,
@@ -409,6 +423,7 @@ class WebmappMap {
                 throw new Exception("Tipo $type non supportato", 1);
                 break;
         }
+
     }
 
 
