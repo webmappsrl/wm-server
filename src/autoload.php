@@ -37,3 +37,4 @@ require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 // CUSTOM
 require 'classes/custom/WebmappVetrinaToscanaTask.php';
 require 'classes/custom/WebmappDrupalTask.php';
+require 'classes/custom/WebmappPNABAlgorabTask.php';
