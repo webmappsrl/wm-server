@@ -103,4 +103,11 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertTrue($has_572);
             $this->assertEquals('CAPTION TEST',$caption);
         }
+
+        public function testFeaturedImage() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/567');
+            $j = json_decode($poi->getJson(),true);
+            $image = $j['properties']['image'];
+            $this->assertEquals('http://dev.be.webmapp.it/wp-content/uploads/2017/03/IMG_0056-768x576.jpg',$image);
+        }
 }

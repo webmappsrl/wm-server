@@ -93,6 +93,19 @@ abstract class WebmappAbstractFeature {
     		$this->mappingImage($json_array['n7webmap_track_media_gallery']);
     	}
 
+        // Se è presente la featured image viene messa come immagine principale
+        if(isset($json_array['featured_media']) 
+            && 
+           !is_null($json_array['featured_media']) 
+            && 
+           $json_array['featured_media']!=0
+           ) {
+            $jm = WebmappUtils::getJsonFromApi($json_array['_links']['wp:featuredmedia'][0]['href']);
+            if (isset($jm['media_details']['sizes']['medium_large'])){
+               $this->setImage($jm['media_details']['sizes']['medium_large']['source_url']);
+            }
+        }
+
         // Gestione delle categorie WEBMAPP
         // http://dev.be.webmapp.it/wp-json/wp/v2/poi/610
         // http://dev.be.webmapp.it/wp-json/wp/v2/track/580
