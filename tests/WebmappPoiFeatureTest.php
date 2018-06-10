@@ -110,4 +110,11 @@ class WebmappPoiFeatureTest extends TestCase {
             $image = $j['properties']['image'];
             $this->assertEquals('http://dev.be.webmapp.it/wp-content/uploads/2017/03/IMG_0056-768x576.jpg',$image);
         }
+
+        public function testContentFrom() {
+            $poi = new WebmappPoiFeature('http://pnab.it/wp-json/wp/v2/poi/1034');
+            $j = json_decode($poi->getJson(),true);
+            $d = $j['properties']['description'];
+            $this->assertRegExp('|16 giugno a dom|',$d);            
+        }
 }

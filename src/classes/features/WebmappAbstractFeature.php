@@ -121,6 +121,11 @@ abstract class WebmappAbstractFeature {
         // Related URL
         $this->setRelatedUrl($json_array);
 
+        // CONTENT FROM
+        if (isset($json_array['content_from']) && is_array($json_array['content_from']) && count($json_array['content_from'])>0) {
+            $this->setProperty('description',array('description'=>nl2br($json_array['content_from'][0]['post_content'])));
+        }
+
     }
 
     private function setRelatedUrl($ja) {
