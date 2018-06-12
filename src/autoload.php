@@ -6,12 +6,13 @@ require 'vendor/GPXIngest/GPXIngest.php';
 
 // Caricamento classi obbligatorie
 
-require 'classes/WebmappExceptions.php';
-require 'classes/WebmappUtils.php';
-require 'classes/WebmappGeoJson.php';
+require 'classes/utils/WebmappExceptions.php';
+require 'classes/utils/WebmappUtils.php';
+require 'classes/utils/WebmappGeoJson.php';
+require 'classes/utils/WebmappOSMRelation.php';
 
-require 'classes/WebmappProject.php';
-require 'classes/WebmappProjectStructure.php';
+require 'classes/task/WebmappProject.php';
+require 'classes/task/WebmappProjectStructure.php';
 
 
 require 'classes/task/WebmappAbstractTask.php';
@@ -27,9 +28,10 @@ require 'classes/features/WebmappRoute.php';
 
 require 'classes/map/WebmappMap.php';
 
-require 'classes/WebmappWP.php';
+require 'classes/utils/WebmappWP.php';
 
 // CAIOSM
+require 'classes/caiosm/WebmappOCListTask.php';
 require 'classes/caiosm/WebmappOSMCAI.php';
 require 'classes/caiosm/WebmappOSMListTask.php';
 require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';

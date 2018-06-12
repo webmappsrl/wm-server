@@ -37,7 +37,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     **/
 	protected function mappingGeometry($json_array) {
         // TODO: controllo esistenza coordinate
-        $this->geometry=unserialize($json_array['n7webmap_geojson']);
+        if (isset($json_array['n7webmap_geojson'])) {
+           $this->geometry=unserialize($json_array['n7webmap_geojson']);            
+        }
 	}
 
     // Restituisce un array di oggetti WebmappPoiFeature con i relatedPoi

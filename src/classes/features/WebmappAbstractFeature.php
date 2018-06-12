@@ -76,8 +76,10 @@ abstract class WebmappAbstractFeature {
 	// Costruisce la parte di array $properties comune a tutte le features (name, description, id)
     private function mappingStandard($json_array) {
     	$this->setProperty('id',$json_array);
-    	$this->setProperty('rendered',$json_array['title'],'name');
-    	$this->setProperty('rendered',$json_array['content'],'description');
+        if (isset($json_array['title'])) 
+    	    $this->setProperty('rendered',$json_array['title'],'name');
+        if (isset($json_array['content'])) 
+         	$this->setProperty('rendered',$json_array['content'],'description');
     	$this->setProperty('color',$json_array);
     	$this->setProperty('icon',$json_array);
         $this->setPropertyBool('noDetails',$json_array);
@@ -262,7 +264,7 @@ abstract class WebmappAbstractFeature {
 
     public function write($path) {
         $id = $this->properties['id'];
-        $fname = $path . "/$id.json";
+        $fname = $path . "/$id.geojson";
         if(!file_exists($path)) {
             $cmd = "mkdir $path";
             system($cmd);
