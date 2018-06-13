@@ -39,12 +39,77 @@ class WebmappOCListTask extends WebmappAbstractTask {
                 echo "$osmid $sezione";
                 $a = array('id'=>$osmid);
                 $f = new WebmappTrackFeature($a);
-                $f->addProperty('sezione',$sezione);
-                $f->write($this->project_structure->getPathGeoJson());
+                $rel = new WebmappOSMRelation($osmid);
+                try {
+                   $rel->load();
+                   $f->addProperty('sezione',$sezione);
+                   $f->addProperty('osm',$rel->getProperties());
+                   $f->addProperty('quality',$this->getQuality($rel));
+                   $f->write($this->project_structure->getPathGeoJson());     
+                } catch (WebmappExceptionNoOSMRelation $e) {
+                    echo $e;
+                }
             }
             echo "\n"; 
         }
       return TRUE;
+    }
+
+    private function getQuality($rel) {
+        $q = array();
+        $empty = array('val'=>0,'notes'=>'Non verificato');
+        $q['mandatory_tags'] = $empty;
+        $q['source'] = $empty;
+        $q['geometry'] = $empty;
+        $q['other_tags'] = $empty;
+        $q['rei'] = $empty;
+
+        $p = $rel->getProperties();
+        // Mandatory_tags
+        $val = 1;
+        $notes = '';
+
+        if(!isset($p['type'])) {
+            $val = 0;
+            $notes .= 'Tag type non presente.';
+        } else if ($p['type']!='route') {
+            $val = 0;
+            $notes .= 'Tag type diverso da route.';
+        }
+
+        if(!isset($p['route'])) {
+            $val = 0;
+            $notes .= 'Tag route non presente. ';
+        } else if ($p['route']!='hiking') {
+            $val = 0;
+            $notes .= 'Tag route diverso da hiking.';
+        }
+        
+        if(!isset($p['network'])) {
+            $val = 0;
+            $notes .= 'Tag network non presente. ';
+        } else if (!in_array($p['network'], array('lwn','rwn','nwn','iwn'))) {
+            $val = 0;
+            $notes .= 'Tag network non ha uno dei valori consentiti lwn rwn nwn iwn. ';
+        }
+        if(!isset($p['name'])) {
+            $val = 0;
+            $notes .= 'Tag name non presente. ';
+        }
+        if(!isset($p['ref'])) {
+            $val = 0;
+            $notes .= 'Tag ref non presente. ';
+        }
+        if(!isset($p['cai_scale'])) {
+            $val = 0;
+            $notes .= 'Tag cai_scale non presente. ';
+        } else if (!in_array($p['cai_scale'], array('T','E','EE','EEA'))) {
+            $val = 0;
+            $notes .= 'Tag cai_scale non ha uno dei valori consentiti T E EE EEA. ';
+        }
+        $q['mandatory_tags']['val']=$val;
+        $q['mandatory_tags']['notes']=$notes;
+        return $q;
     }
 
 }
