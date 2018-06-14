@@ -10,6 +10,8 @@
 class WebmappOCListTask extends WebmappAbstractTask {
   private $items=array();
 
+  private $layer;
+
   public function check() {
 
     // Controllo parametro list
@@ -28,8 +30,10 @@ class WebmappOCListTask extends WebmappAbstractTask {
   }
 
     public function process(){
+        $this->layer=new WebmappLayer('ALL',$this->project_structure->getPathGeoJson());
         foreach($this->items as $num => $item) {
-            echo "Processing row $num ... ";
+            $row_num=$num+2;
+            echo "Processing row $row_num ... ";
             $sezione = $item['Sezione'];
             $osmid = $item['OSMid'] ;
             if (empty($osmid)) {
@@ -46,13 +50,46 @@ class WebmappOCListTask extends WebmappAbstractTask {
                    $f->addProperty('osm',$rel->getProperties());
                    $f->addProperty('osm_quality',$this->getQuality($rel));
                    $f->cleanProperties();
-                   $f->write($this->project_structure->getPathGeoJson());     
+                   $path = $this->project_structure->getPathGeoJson().'/track';
+                   if (!file_exists($path)) {
+                    $cmd = "mkdir $path";
+                    system($cmd);
+                   }
+                   $this->layer->addFeature($f);
+                   $f->write($path);     
                 } catch (Exception $e) {
                     echo $e;
                 }
             }
             echo "\n"; 
         }
+
+        $tracks = $this->layer->getFeatures();
+        if(count($tracks)>0) {
+          echo "\n\n CREATING CSV FILE ";
+          $csv_path = $this->project_structure->getRoot().'/resources/cai_osm_'.$this->name.'_'.date('Y_m_d').'.csv';
+          $fp=fopen($csv_path,'w');
+          $header = array('sezione','ref','q_score','osmid','osm_url','geojson_url');
+          fputcsv($fp,$header);
+          foreach ($tracks as $t) {
+            $j = $t->getArrayJson();
+            $v=array();
+            $p=$j['properties'];
+            isset($p['sezione']) ? $v[] = $p['sezione'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['ref']) ? $v[] = $p['osm']['ref'] : $v[]='';
+            isset($p['osm_quality']) ? $v[] = $p['osm_quality']['score'] : $v[]='';
+            isset($p['id']) ? $v[] = $p['id'] : $v[]='';
+            isset($p['id']) ? $v[] = 'https://openstreetmap.org/relation/'.$p['id'] : $v[]='';
+            isset($p['id']) ? $v[] = $this->project_structure->getUrlGeojson().'/track/'.$p['id'].'.geojson' : $v[]='';
+            fputcsv($fp,$v);
+            echo ".";
+          }
+          echo " DONE!\n";
+          fclose($fp);
+        } else {
+            echo "\n\n No tracks found: no CSV file generated \n\n";
+        }
+
       return TRUE;
     }
 
@@ -64,6 +101,8 @@ class WebmappOCListTask extends WebmappAbstractTask {
         $q['geometry'] = $empty;
         $q['other_tags'] = $empty;
         $q['rei'] = $empty;
+
+        $val_tot = 0;
 
         $p = $rel->getProperties();
         // Mandatory_tags
@@ -110,6 +149,38 @@ class WebmappOCListTask extends WebmappAbstractTask {
         }
         $q['mandatory_tags']['val']=$val;
         $q['mandatory_tags']['notes']=$notes;
+        $val_tot = $val_tot + $val;
+
+        // SOURCE TAGS
+        $val = 1;
+        $notes = '';
+        if(!isset($p['source'])) {
+            $val = 0;
+            $notes .= 'Tag source non presente. ';
+        } else if ($p['source']=='survey:CAI') {
+            $val = 0;
+            $notes .= 'Tag source non è survey:CAI. ';
+        }
+        if(!isset($p['survey:date'])) {
+            $val = 0;
+            $notes .= 'Tag survey:date non presente. ';
+        } else {
+            $today = date("Y-m-d");
+            $survey_date = $p['survey:date'];
+            $today_time = strtotime($today);
+            $survey_time = strtotime($survey_date);
+            $expire_time = $survey_time + 31536000;
+            if( $today_time > $expire_time ) {
+              $val = 0;
+              $notes .= 'La survey:date è passata da più di un anno. ';
+            }
+        }
+        $q['source']['val']=$val;
+        $q['source']['notes']=$notes;
+        $val_tot = $val_tot + $val;
+
+        $q['score'] = $val_tot;
+
         return $q;
     }
 
