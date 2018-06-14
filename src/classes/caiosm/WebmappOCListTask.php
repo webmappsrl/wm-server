@@ -44,9 +44,10 @@ class WebmappOCListTask extends WebmappAbstractTask {
                    $rel->load();
                    $f->addProperty('sezione',$sezione);
                    $f->addProperty('osm',$rel->getProperties());
-                   $f->addProperty('quality',$this->getQuality($rel));
+                   $f->addProperty('osm_quality',$this->getQuality($rel));
+                   $f->cleanProperties();
                    $f->write($this->project_structure->getPathGeoJson());     
-                } catch (WebmappExceptionNoOSMRelation $e) {
+                } catch (Exception $e) {
                     echo $e;
                 }
             }

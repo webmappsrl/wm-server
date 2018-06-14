@@ -111,6 +111,27 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals('http://dev.be.webmapp.it/wp-content/uploads/2017/03/IMG_0056-768x576.jpg',$image);
         }
 
+        public function testRemoveProperty() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/567');
+            $j = json_decode($poi->getJson(),true);
+            $props=$j['properties'];
+            $this->assertTrue(array_key_exists('noInteraction', $props));
+
+            $poi->removeProperty('noInteraction');
+            $j = json_decode($poi->getJson(),true);
+            $props=$j['properties'];
+            $this->assertFalse(array_key_exists('noInteraction', $props));
+
+            $poi->cleanProperties();
+            $j = json_decode($poi->getJson(),true);
+            $props=$j['properties'];
+            $this->assertFalse(array_key_exists('noInteraction', $props));
+            $this->assertFalse(array_key_exists('noDetails', $props));
+            $this->assertFalse(array_key_exists('accessibility', $props));
+            $this->assertFalse(array_key_exists('id_pois', $props));
+
+        }
+
         public function testContentFrom() {
             $poi = new WebmappPoiFeature('http://pnab.it/wp-json/wp/v2/poi/1034');
             $j = json_decode($poi->getJson(),true);

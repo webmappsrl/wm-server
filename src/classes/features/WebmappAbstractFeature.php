@@ -182,6 +182,16 @@ abstract class WebmappAbstractFeature {
     public function addProperty($key,$val) {
         $this->properties[$key]=$val;
     }
+    public function removeProperty($key) {
+        unset($this->properties[$key]);
+    }
+
+    public function cleanProperties() {
+        $this->removeProperty('noInteraction');
+        $this->removeProperty('noDetails');
+        $this->removeProperty('accessibility');
+        $this->removeProperty('id_pois');
+    } 
 
     public function map($a) {
         foreach ($a as $key => $val) {

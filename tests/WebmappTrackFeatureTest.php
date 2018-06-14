@@ -77,4 +77,26 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertEquals(2,count($ids));
                 $this->assertEquals(14,$ids[0]);
         }
+
+        public function testRemoveProperty() {
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
+            $j = json_decode($t->getJson(),true);
+            $props=$j['properties'];
+            $this->assertTrue(array_key_exists('noInteraction', $props));
+
+            $t->removeProperty('noInteraction');
+            $j = json_decode($t->getJson(),true);
+            $props=$j['properties'];
+            $this->assertFalse(array_key_exists('noInteraction', $props));
+
+            $t->cleanProperties();
+            $j = json_decode($t->getJson(),true);
+            $props=$j['properties'];
+            $this->assertFalse(array_key_exists('noInteraction', $props));
+            $this->assertFalse(array_key_exists('noDetails', $props));
+            $this->assertFalse(array_key_exists('accessibility', $props));
+            $this->assertFalse(array_key_exists('id_pois', $props));
+
+        }
+
 }
