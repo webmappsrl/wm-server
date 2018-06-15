@@ -66,7 +66,8 @@ class WebmappOCListTask extends WebmappAbstractTask {
                     system($cmd);
                    }
 
-
+                   $scheda= "https://api.webmapp.it/services/caiosm/scheda_sentiero.php?relation_id=$osmid&source=".$this->name;
+                   $f->addProperty('card',$scheda);
 
                    $this->layer->addFeature($f);
                    $f->write($path);     
@@ -83,8 +84,11 @@ class WebmappOCListTask extends WebmappAbstractTask {
           $csv_path = $this->project_structure->getRoot().'/resources/cai_osm_'.$this->name.'_'.date('Y_m_d').'.csv';
           $fp=fopen($csv_path,'w');
           $header = array('sezione','ref','q_score',
-                          'osmid','osm_user','osm_url','geojson_url','gpx',
-                          'q_mandatory_tags','q_mandatory_tags_notes','q_source','q_source_notes');
+                          'osmid','osm_user','osm_url','geojson_url','gpx','card',
+                          'q_mandatory_tags','q_mandatory_tags_notes','type','route','network','name','from','to','ref','cai_scale',
+                          'q_source','q_source_notes','source','survey:cai'
+                          );
+
           fputcsv($fp,$header);
           foreach ($tracks as $t) {
             $j = $t->getArrayJson();
@@ -99,11 +103,26 @@ class WebmappOCListTask extends WebmappAbstractTask {
             isset($p['id']) ? $v[] = 'https://openstreetmap.org/relation/'.$p['id'] : $v[]='';
             isset($p['id']) ? $v[] = $this->project_structure->getUrlGeojson().'/track/'.$p['id'].'.geojson' : $v[]='';
             isset($p['gpx']) ? $v[] = $p['gpx'] : $v[]='';
+            isset($p['card']) ? $v[] = $p['card'] : $v[]='';
 
+            // Mandatory TAGS
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['mandatory_tags']['val'] : $v[]='';
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['mandatory_tags']['notes'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['type']) ? $v[] = $p['osm']['type'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['route']) ? $v[] = $p['osm']['route'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['network']) ? $v[] = $p['osm']['network'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['name']) ? $v[] = $p['osm']['name'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['from']) ? $v[] = $p['osm']['from'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['to']) ? $v[] = $p['osm']['to'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['ref']) ? $v[] = $p['osm']['ref'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['cai_scale']) ? $v[] = $p['osm']['cai_scale'] : $v[]='';
+
+
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['source']['val'] : $v[]='';
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['source']['notes'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['source']) ? $v[] = $p['osm']['source'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['survey:date']) ? $v[] = $p['osm']['survey:date'] : $v[]='';
+
             fputcsv($fp,$v);
             echo ".";
           }
