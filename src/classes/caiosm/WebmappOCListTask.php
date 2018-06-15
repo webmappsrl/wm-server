@@ -50,11 +50,24 @@ class WebmappOCListTask extends WebmappAbstractTask {
                    $f->addProperty('osm',$rel->getProperties());
                    $f->addProperty('osm_quality',$this->getQuality($rel));
                    $f->cleanProperties();
+                   
+                   $gpx_relative_path="/resources/gpx/$osmid.gpx";
+                   $WMT_GPX_URL = "https://hiking.waymarkedtrails.org/api/details/relation/$osmid/gpx";
+                   $gpx_path = $this->project_structure->getRoot() . $gpx_relative_path ;
+                   echo " processing GPX: from $WMT_GPX_URL to $gpx_path ... ";
+                   file_put_contents($gpx_path, fopen($WMT_GPX_URL, 'r'));
+                   $gpx_url = $this->project_structure->getUrlBase() . $gpx_relative_path;
+                   $f->addProperty('gpx',$gpx_url);
+
+
                    $path = $this->project_structure->getPathGeoJson().'/track';
                    if (!file_exists($path)) {
                     $cmd = "mkdir $path";
                     system($cmd);
                    }
+
+
+
                    $this->layer->addFeature($f);
                    $f->write($path);     
                 } catch (Exception $e) {
@@ -69,8 +82,9 @@ class WebmappOCListTask extends WebmappAbstractTask {
           echo "\n\n CREATING CSV FILE ";
           $csv_path = $this->project_structure->getRoot().'/resources/cai_osm_'.$this->name.'_'.date('Y_m_d').'.csv';
           $fp=fopen($csv_path,'w');
-          $header = array('sezione','ref','q_score','osmid','osm_user','osm_url','geojson_url',
-                           'q_mandatory_tags','q_mandatory_tags_notes','q_source','q_source_notes');
+          $header = array('sezione','ref','q_score',
+                          'osmid','osm_user','osm_url','geojson_url','gpx',
+                          'q_mandatory_tags','q_mandatory_tags_notes','q_source','q_source_notes');
           fputcsv($fp,$header);
           foreach ($tracks as $t) {
             $j = $t->getArrayJson();
@@ -79,10 +93,13 @@ class WebmappOCListTask extends WebmappAbstractTask {
             isset($p['sezione']) ? $v[] = $p['sezione'] : $v[]='';
             isset($p['osm']) && isset($p['osm']['ref']) ? $v[] = $p['osm']['ref'] : $v[]='';
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['score'] : $v[]='';
+
             isset($p['id']) ? $v[] = $p['id'] : $v[]='';
             isset($p['osm']) && isset($p['osm']['user']) ? $v[] = $p['osm']['user'] : $v[]='';
             isset($p['id']) ? $v[] = 'https://openstreetmap.org/relation/'.$p['id'] : $v[]='';
             isset($p['id']) ? $v[] = $this->project_structure->getUrlGeojson().'/track/'.$p['id'].'.geojson' : $v[]='';
+            isset($p['gpx']) ? $v[] = $p['gpx'] : $v[]='';
+
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['mandatory_tags']['val'] : $v[]='';
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['mandatory_tags']['notes'] : $v[]='';
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['source']['val'] : $v[]='';
@@ -165,7 +182,7 @@ class WebmappOCListTask extends WebmappAbstractTask {
         if(!isset($p['source'])) {
             $val = $val - 0.5;
             $notes .= 'Tag source non presente. ';
-        } else if (preg_match('/survey/',$p['source'])) {
+        } else if (!preg_match('/survey/',$p['source'])) {
             $val = $val - 0.5;
             $notes .= 'Tag source non è di tipo survey ';
         }
