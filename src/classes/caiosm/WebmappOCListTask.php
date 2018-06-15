@@ -69,7 +69,8 @@ class WebmappOCListTask extends WebmappAbstractTask {
           echo "\n\n CREATING CSV FILE ";
           $csv_path = $this->project_structure->getRoot().'/resources/cai_osm_'.$this->name.'_'.date('Y_m_d').'.csv';
           $fp=fopen($csv_path,'w');
-          $header = array('sezione','ref','q_score','osmid','osm_url','geojson_url');
+          $header = array('sezione','ref','q_score','osmid','osm_user','osm_url','geojson_url',
+                           'q_mandatory_tags','q_mandatory_tags_notes','q_source','q_source_notes');
           fputcsv($fp,$header);
           foreach ($tracks as $t) {
             $j = $t->getArrayJson();
@@ -79,8 +80,13 @@ class WebmappOCListTask extends WebmappAbstractTask {
             isset($p['osm']) && isset($p['osm']['ref']) ? $v[] = $p['osm']['ref'] : $v[]='';
             isset($p['osm_quality']) ? $v[] = $p['osm_quality']['score'] : $v[]='';
             isset($p['id']) ? $v[] = $p['id'] : $v[]='';
+            isset($p['osm']) && isset($p['osm']['user']) ? $v[] = $p['osm']['user'] : $v[]='';
             isset($p['id']) ? $v[] = 'https://openstreetmap.org/relation/'.$p['id'] : $v[]='';
             isset($p['id']) ? $v[] = $this->project_structure->getUrlGeojson().'/track/'.$p['id'].'.geojson' : $v[]='';
+            isset($p['osm_quality']) ? $v[] = $p['osm_quality']['mandatory_tags']['val'] : $v[]='';
+            isset($p['osm_quality']) ? $v[] = $p['osm_quality']['mandatory_tags']['notes'] : $v[]='';
+            isset($p['osm_quality']) ? $v[] = $p['osm_quality']['source']['val'] : $v[]='';
+            isset($p['osm_quality']) ? $v[] = $p['osm_quality']['source']['notes'] : $v[]='';
             fputcsv($fp,$v);
             echo ".";
           }
@@ -110,41 +116,43 @@ class WebmappOCListTask extends WebmappAbstractTask {
         $notes = '';
 
         if(!isset($p['type'])) {
-            $val = 0;
+            $val = $val - 0.1;
             $notes .= 'Tag type non presente.';
         } else if ($p['type']!='route') {
-            $val = 0;
+            $val = $val - 0.1;
             $notes .= 'Tag type diverso da route.';
         }
 
         if(!isset($p['route'])) {
-            $val = 0;
+            $val = $val - 0.2;
             $notes .= 'Tag route non presente. ';
         } else if ($p['route']!='hiking') {
-            $val = 0;
+            $val = $val - 0.2;
             $notes .= 'Tag route diverso da hiking.';
         }
         
         if(!isset($p['network'])) {
-            $val = 0;
+            $val = $val - 0.2;
             $notes .= 'Tag network non presente. ';
         } else if (!in_array($p['network'], array('lwn','rwn','nwn','iwn'))) {
-            $val = 0;
+            $val = $val - 0.2;
             $notes .= 'Tag network non ha uno dei valori consentiti lwn rwn nwn iwn. ';
         }
         if(!isset($p['name'])) {
-            $val = 0;
-            $notes .= 'Tag name non presente. ';
+            if (!isset($p['from']) || !isset($p['to'])) {
+               $val = $val - 0.2;
+               $notes .= 'Tag name o from / to non presenti. ';
+            } 
         }
         if(!isset($p['ref'])) {
-            $val = 0;
+            $val = $val - 0.2 ;
             $notes .= 'Tag ref non presente. ';
         }
         if(!isset($p['cai_scale'])) {
-            $val = 0;
+            $val = $val - 0.2;
             $notes .= 'Tag cai_scale non presente. ';
         } else if (!in_array($p['cai_scale'], array('T','E','EE','EEA'))) {
-            $val = 0;
+            $val = $val - 0.2;
             $notes .= 'Tag cai_scale non ha uno dei valori consentiti T E EE EEA. ';
         }
         $q['mandatory_tags']['val']=$val;
@@ -155,14 +163,14 @@ class WebmappOCListTask extends WebmappAbstractTask {
         $val = 1;
         $notes = '';
         if(!isset($p['source'])) {
-            $val = 0;
+            $val = $val - 0.5;
             $notes .= 'Tag source non presente. ';
-        } else if ($p['source']=='survey:CAI') {
-            $val = 0;
-            $notes .= 'Tag source non è survey:CAI. ';
+        } else if (preg_match('/survey/',$p['source'])) {
+            $val = $val - 0.5;
+            $notes .= 'Tag source non è di tipo survey ';
         }
         if(!isset($p['survey:date'])) {
-            $val = 0;
+            $val = $val - 0.5;
             $notes .= 'Tag survey:date non presente. ';
         } else {
             $today = date("Y-m-d");
@@ -171,7 +179,7 @@ class WebmappOCListTask extends WebmappAbstractTask {
             $survey_time = strtotime($survey_date);
             $expire_time = $survey_time + 31536000;
             if( $today_time > $expire_time ) {
-              $val = 0;
+              $val = $val - 0.5;
               $notes .= 'La survey:date è passata da più di un anno. ';
             }
         }
