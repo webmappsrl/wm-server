@@ -24,6 +24,7 @@ class WebmappMap {
 
     // Gestione delle pagine
     private $pages = array();
+    private $pages_no_first_level = false ;
 
     // Gestione della sezione OFFLINE
     private $has_offline = false;
@@ -129,6 +130,10 @@ class WebmappMap {
         // Pages and menu pages title
         if(isset($ja['pages_title']) && !empty($ja['pages_title'])) {
             $this->menu_pages_title = $ja['pages_title'];
+        } 
+        // Pages and menu pages title
+        if(isset($ja['pages_no_first_level']) && !empty($ja['pages_no_first_level'])) {
+            $this->pages_no_first_level = $ja['pages_no_first_level'];
         } 
         if(isset($ja['pages']) && is_array($ja['pages']) && count($ja['pages'])>0) {
             foreach($ja['pages'] as $page_obj) {
@@ -782,11 +787,21 @@ public function buildStandardMenu() {
 
     // PAGES
     if(count($this->pages)>0) {
-        $items = array();
-        foreach ($this->pages as $page) {
-            $items[]=$page['label'];
+        if ($this->pages_no_first_level) {
+            foreach ($this->pages as $page) {
+                $label = $page['label'];
+                $color = isset($page['color']) ? $page['color'] : '';
+                $icon = isset($page['icon']) ? $page['icon'] : '';
+                $this->addMenuItem($label,'page',$color,$icon);
+            }
         }
-        $this->addMenuItem($this->menu_pages_title,'pageGroup','','',$items);
+        else {
+            $items = array();
+            foreach ($this->pages as $page) {
+                $items[]=$page['label'];
+            }
+            $this->addMenuItem($this->menu_pages_title,'pageGroup','','',$items);
+        }
     }
 
     // OFFLINE PAGE

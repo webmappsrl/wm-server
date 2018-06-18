@@ -301,5 +301,23 @@ class WebmappMapTest extends TestCase
         $this->assertRegExp('/"actual":"en"/',$j);        
     }
 
+    public function testNoFirstLevelPage() {
+        $this->init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/822';
+        $m->loadMetaFromUrl($url);
+        $m->buildStandardMenu();
+        $j = json_decode($m->getConfJson(),TRUE);
+        $m = $j['MENU'];
+        $labels = array();
+        foreach($m as $item) {
+            $labels[]=$item['label'];
+        }
+        $this->assertFalse(in_array('About', $labels));
+        $this->assertTrue(in_array('Home', $labels));
+        $this->assertTrue(in_array('Pagina Numero Uno', $labels));
+        $this->assertTrue(in_array('Pagina Numero due', $labels));
+    }
+
 
 }
