@@ -105,6 +105,15 @@ public function process(){
             $this->computeBB($layer);
             $layer->write($this->project_structure->getPathGeojson());
             $this->map->addTracksWebmappLayer($layer);
+            $tracks = $layer->getFeatures();
+            // ADD RELATED
+            if($this->add_related) {
+                // First LOOP create geojson and add to POSTGIS
+                foreach($tracks as $track) {
+                    $track->write($this->project_structure->getPathGeojson().'/track');
+                }
+
+            }
             }
         }
     }
