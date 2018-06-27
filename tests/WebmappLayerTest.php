@@ -198,4 +198,36 @@ class WebmappLayerTest extends TestCase {
 
 	}
 
+	public function testWriteAllFeatures() {
+		$path = __DIR__.'/../data/layers';
+		$name = 'WRITEALLFEATURES';
+		if(file_exists($path)) {
+			$cmd = "rm -f $path/*";
+			system($cmd);
+		}
+
+		// TEST ON POI
+		$l = new WebmappLayer($name,$path);
+		$p = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
+		$l->addFeature($p);
+		$p = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+		$l->addFeature($p);
+
+		$l->writeAllFeatures();
+		$this->assertTrue(file_exists($path."/522.geojson"));
+		$this->assertTrue(file_exists($path."/800.geojson"));
+
+		// TEST ON TRACK
+		$l = new WebmappLayer($name,$path);
+		$t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/769');
+		$l->addFeature($t);
+		$t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/711');
+		$l->addFeature($t);
+
+		$l->writeAllFeatures();
+		$this->assertTrue(file_exists($path."/769.geojson"));
+		$this->assertTrue(file_exists($path."/711.geojson"));
+
+	}
+
 }

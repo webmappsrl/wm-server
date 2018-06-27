@@ -172,6 +172,15 @@ class WebmappLayer {
 		file_put_contents($fname, $this->getGeoJson($lang));
 	}
 
+	public function writeAllFeatures($path='') {
+		if($path=='') {
+	      $path=$this->path;	
+		} 
+		foreach ($this->features as $feature) {
+			$feature->write($path);
+		}
+	}
+
     // Restituisce un array con il BB
 	public function getBB() {
 		$bb = array();

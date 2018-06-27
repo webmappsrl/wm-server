@@ -34,6 +34,10 @@ class WebmappBETask extends WebmappAbstractTask {
     if(!array_key_exists('id', $this->options))
         throw new Exception("L'array options deve avere la chiave 'id' corrispondente all'id della mappa", 1);
 
+    if(array_key_exists('add_related', $this->options)) {
+        $this->add_related = $this->options['add_related'];
+    }
+
             // Controlla esistenza della mappa prima di procedere
 
     $this->code = $this->options['code'];
