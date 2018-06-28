@@ -112,4 +112,36 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
     public function getLngMax(){ return $this->geometry['coordinates'][0];}
     public function getLngMin(){ return $this->geometry['coordinates'][0];}
 
+    public function writeToPostGis() {
+
+        // PER TRACK
+        // ogr2ogr -update -f "PostgreSQL" PG:"dbname=webmapptest user=webmapp host=46.101.124.52" "/root/api.webmapp.it/j/pf.j.webmapp.it/geojson/track/1452.geojson"  -s_srs 4326 -t_srs 3857 -nln track_tmp
+
+        // pgsql2shp -P T1tup4atmA -f rel_6080932 -h 46.101.124.52 -u webmapp osm_hiking
+        $name = "webmapptest";
+        $poi_table = "poi_tmp";
+        $id = $this->properties['id'];
+
+        // Crea nuovo punto
+        $lon = $this->geometry['coordinates'][0];
+        $lat = $this->geometry['coordinates'][1];
+        $q="INSERT INTO $poi_table(id, wkb_geometry) VALUES($id, ST_Transform(ST_GeomFromText('POINT($lon $lat )', 4326),3857)   );";
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"$q\"";
+        system($cmd);
+
+    }
+
+    public function addRelated() {
+        // RELATED POI
+        $id = $this->properties['id'];
+        $q = "SELECT poi_b.id as id, ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) as distance
+              FROM  poi_tmp as poi_a, poi_tmp as poi_b
+              WHERE poi_a.id = $id AND poi_b.id <> $id AND ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) < 5000
+              ORDER BY distance
+              LIMIT 100;";
+        $this->addRelatedPoi($q);
+    }
+
+
+
 }

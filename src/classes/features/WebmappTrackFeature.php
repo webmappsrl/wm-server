@@ -101,4 +101,24 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     public function getLngMax(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMax;}
     public function getLngMin(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMin;}
 
+    public function writeToPostGis() {
+        // PER TRACK
+        // ogr2ogr -update -f 'PostgreSQL' PG:'dbname=webmapptest user=webmapp host=46.101.124.52' '/root/api.webmapp.it/j/pf.j.webmapp.it/geojson/track/1452.geojson' -nln track_tmp
+        if(file_exists($this->getGeoJsonPath())) {
+            $geojson=$this->getGeoJsonPath();
+            $cmd="ogr2ogr -append -select id -f 'PostgreSQL' PG:'dbname=webmapptest user=webmapp host=46.101.124.52' '$geojson' -nln track_tmp";
+            system($cmd);
+        }
+    }
+
+        public function addRelated() {
+        // RELATED POI
+        $id = $this->properties['id'];
+        $q = "SELECT poi_tmp.id as id, track_tmp.id as tid, ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) as distance
+              FROM  poi_tmp, track_tmp
+              WHERE track_tmp.id=$id AND ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) < 500
+              ORDER BY distance;";
+        $this->addRelatedPoi($q);
+    }
+
 }

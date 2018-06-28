@@ -69,6 +69,16 @@ public function getId() {
     return $this->id; 
 }
 public function process(){
+
+    // CLEAR TABLE IF NEEDED
+    // TODO: passare a tabella definitiva
+    if($this->add_related) {
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM poi_tmp\"";
+        system($cmd);
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM track_tmp\"";
+        system($cmd);
+    }
+
     $poi_layers = $this->wp->getPoiLayers();
     if(is_array($poi_layers) && count($poi_layers)>0) {
 
@@ -79,6 +89,7 @@ public function process(){
              // Aggiungi i singoli POI del layer al DB Postgis
                 foreach($layer->getFeatures() as $poi) {
                     $poi->writeToPostGis();
+                    $poi->write($this->project_structure->getPathGeojson().'/poi');
                 }
 
         } }
@@ -111,9 +122,21 @@ public function process(){
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {
                     $track->write($this->project_structure->getPathGeojson().'/track');
+                    $track->writeToPostGis();
                 }
-
             }
+            }
+        }
+    }
+    // Second LOOP create geojson and add to POSTGIS
+    if($this->add_related && is_array($track_layers) && count($track_layers)>0) {
+        foreach($track_layers as $layer) {
+            if(!$layer->getExclude()) {
+            $tracks = $layer->getFeatures();
+            foreach($tracks as $track) {
+                    $track->addRelated();
+                    $track->write($this->project_structure->getPathGeojson().'/track');
+                }
             }
         }
     }

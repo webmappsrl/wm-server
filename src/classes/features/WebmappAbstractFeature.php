@@ -19,6 +19,9 @@ abstract class WebmappAbstractFeature {
     // WP URL
     private $wp_url = '';
 
+    // GEOJSON FNAME (usato per il write)
+    private $geojson_path;
+
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
 	public function __construct ($array_or_url) {
@@ -57,6 +60,11 @@ abstract class WebmappAbstractFeature {
     // Simple Getters
     public function getWPUrl() {
         return $this->wp_url;
+    }
+
+    // GEOJSON FNAME
+    public function getGeoJsonPath() {
+        return $this->geojson_path;
     }
 
     // Setters
@@ -274,52 +282,45 @@ abstract class WebmappAbstractFeature {
 
     public function write($path) {
         $id = $this->properties['id'];
-        $fname = $path . "/$id.geojson";
+        $this->geojson_path = $path . "/$id.geojson";
         if(!file_exists($path)) {
             $cmd = "mkdir $path";
             system($cmd);
         }
-        file_put_contents($fname,$this->getJson());
+        file_put_contents($this->geojson_path,$this->getJson());
     }
 
-    public function writeToPostGis($suffix="tmp") {
-
-        // pgsql2shp -P T1tup4atmA -f rel_6080932 -h 46.101.124.52 -u webmapp osm_hiking
-        $name = "webmapptest";
-        $poi_table = "poi_".$suffix;
-        $id = $this->properties['id'];
-
-        // Cancella PUNTO
-        $q="DELETE from $poi_table where id=$id";
-        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"$q\"";
-        system($cmd);
-
-        // Crea nuovo punto
-        $lon = $this->geometry['coordinates'][0];
-        $lat = $this->geometry['coordinates'][1];
-        $q="INSERT INTO $poi_table(id, wkb_geometry) VALUES($id, ST_Transform(ST_GeomFromText('POINT($lon $lat )', 4326),3857)   );";
-        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"$q\"";
-        system($cmd);
-
-    }
-
-    public function addRelated() {
-        // TODO: dinamicizzare il nome della tabella
-        $id = $this->properties['id'];
-        $q = "SELECT poi_b.id as id, ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) as distance
-              FROM  poi_tmp as poi_a, poi_tmp as poi_b
-              WHERE poi_a.id = $id AND poi_b.id <> $id AND ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) < 5000
-              ORDER BY distance
-              LIMIT 10;";
+    abstract public function writeToPostGis();
+    abstract public function addRelated();
+    protected function addRelatedPoi($q) {
         $d = pg_connect("host=46.101.124.52 port=5432 dbname=webmapptest user=webmapp password=T1tup4atmA");
         $r = pg_query($d,$q);
         $neighbors = array();
+
+        // PATH per recuperare i geojson dei POI
+        $path = $this->getGeoJsonPath();
+        if (preg_match('|/track/|',$path)) {
+            $new_path = preg_replace('|track/.*$|','',$path);
+        }
+        else {
+            $new_path = preg_replace('|poi/.*$|','',$path);            
+        }
         while($row = pg_fetch_array($r)) {
-            $neighbors[] = $row['id'];
+            $id=$row['id'];
+            $poi_path = $new_path."/poi/$id.geojson";
+            $j = json_decode(file_get_contents($poi_path),TRUE);
+            $name = '';
+            if(isset($j['properties']) && isset($j['properties']['name'])) {
+                $name = $j['properties']['name'];
+            }
+            // Recupero INFO dal file related (suppongo che i file POI già esistano)
+            $neighbors[$id] = array();
+            $neighbors[$id]['distance'] = $row['distance'];
+            $neighbors[$id]['webmapp_categories'] = array();
+            $neighbors[$id]['name'] = $name;
         }
         $this->properties['related']['poi']['neighbors']=$neighbors;
     }
-
 
 }
 
