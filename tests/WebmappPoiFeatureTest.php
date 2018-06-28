@@ -138,4 +138,10 @@ class WebmappPoiFeatureTest extends TestCase {
             $d = $j['properties']['description'];
             $this->assertRegExp('|16 giugno a dom|',$d);            
         }
+
+        public function testTaxonomy() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+            $j = json_decode($poi->getJson(),true);
+            $this->assertEquals(35,$j['properties']['taxonomy']['webmapp_category'][0]);
+        }
 }

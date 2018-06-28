@@ -125,6 +125,14 @@ abstract class WebmappAbstractFeature {
             $this->webmapp_category_ids = $json_array['webmapp_category'];
         }
 
+        // Taxonomies
+        $this->addTaxonomy('webmapp_category');
+        $this->addTaxonomy('activity');
+        $this->addTaxonomy('theme');
+        $this->addTaxonomy('where');
+        $this->addTaxonomy('when');
+        $this->addTaxonomy('who');
+
         // set Accessibility
         $this->setAccessibility($json_array);
 
@@ -137,6 +145,15 @@ abstract class WebmappAbstractFeature {
         }
 
     }
+
+    private function addTaxonomy($name) {
+        if (isset($this->json_array[$name]) &&
+            is_array($this->json_array[$name]) &&
+            count($this->json_array[$name])>0) {
+                $this->properties['taxonomy'][$name]=$this->json_array[$name];
+        }       
+    }
+
 
     private function setRelatedUrl($ja) {
         if(isset($ja['n7webmap_rpt_related_url']) && is_array($ja['n7webmap_rpt_related_url'])) {
@@ -292,6 +309,7 @@ abstract class WebmappAbstractFeature {
 
     abstract public function writeToPostGis();
     abstract public function addRelated();
+    // La query POSTGIS deve essere costruita in modo tale da avere i parametri ID del POI e distance POI / OGGETTO
     protected function addRelatedPoi($q) {
         $d = pg_connect("host=46.101.124.52 port=5432 dbname=webmapptest user=webmapp password=T1tup4atmA");
         $r = pg_query($d,$q);
