@@ -5,7 +5,6 @@ require 'vendor/gisconverter/gisconverter.php';
 require 'vendor/GPXIngest/GPXIngest.php';
 
 // Caricamento classi obbligatorie
-
 require 'classes/utils/WebmappExceptions.php';
 require 'classes/utils/WebmappUtils.php';
 require 'classes/utils/WebmappGeoJson.php';
@@ -18,6 +17,7 @@ require 'classes/task/WebmappProjectStructure.php';
 require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
 require 'classes/task/WebmappRouteTask.php';
+require 'classes/task/WebmappCustomConfigTask.php';
 require 'classes/task/WebmappTaskFactory.php';
 
 require 'classes/features/WebmappAbstractFeature.php';
