@@ -388,8 +388,8 @@ abstract class WebmappAbstractFeature {
             }
             $lat=$lon='';
             if(isset($j['geometry']) && isset($j['geometry']['coordinates'])) {
-                $lat = $j['geometry']['coordinates'][0];
-                $lon = $j['geometry']['coordinates'][1];
+                $lon = $j['geometry']['coordinates'][0];
+                $lat = $j['geometry']['coordinates'][1];
             }
             $wmc=array();
             if(isset($j['properties']) && 
@@ -402,7 +402,7 @@ abstract class WebmappAbstractFeature {
             $r['webmapp_category'] = $wmc;
             $r['name'] = $name;
             $r['lat'] = $lat;
-            $r['lon'] = $lat;
+            $r['lon'] = $lon;
             return $r;
     }
 
