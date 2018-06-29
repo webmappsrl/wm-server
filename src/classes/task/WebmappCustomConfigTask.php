@@ -26,17 +26,17 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
            // TODO: check dei singoli valori
 
            // Verifica esistenza file config.json
-           $this->conf_path = $this->project_structure->getRoot().'/config.json';
-           if(!file_exists($this->conf_path)) {
-              throw new Exception("il file ".$this->conf_path." non esiste. Questo task deve essere lanciato in sequenza ad un task precedente che generi un file di configurazione. Controlla le impostazioni del file di configurazione del server.", 1);            
-           }
-           $this->conf_array = json_decode(file_get_contents($this->conf_path),TRUE);
         }
         return true;
     }
 
     public function process(){
         echo "Starting Process - TYPE:".get_class($this)." - NAME:".$this->name."\n";
+           $this->conf_path = $this->project_structure->getRoot().'/config.json';
+           if(!file_exists($this->conf_path)) {
+              throw new Exception("il file ".$this->conf_path." non esiste. Questo task deve essere lanciato in sequenza ad un task precedente che generi un file di configurazione. Controlla le impostazioni del file di configurazione del server.", 1);            
+           }
+           $this->conf_array = json_decode(file_get_contents($this->conf_path),TRUE);
         if (count($this->append)==0) {
             echo "WARN: no append defined ... skipping task.\n";
             return TRUE;
