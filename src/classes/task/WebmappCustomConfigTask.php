@@ -18,7 +18,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             throw new Exception("File di configurazione malformato: parametro APPEND deve essere di tipo array", 1);
            }
            foreach($this->append as $key => $val) {
-            if(!in_array($key, array('MENU','PAGES','COMMUNICATION'))) {
+            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE'))) {
                 throw new Exception("La chiave $key non è supportata", 1);
             }
            }
@@ -52,6 +52,9 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
                     break;
                 case 'COMMUNICATION':
                     $this->processCommunication($val);
+                    break;
+                case 'INCLUDE':
+                    $this->processInclude($val);
                     break;
                 
                 default:
@@ -94,7 +97,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             $pages = $this->conf_array['PAGES'];
         }
         if(!is_array($val)) {
-            throw new Exception("Il valore della variabile di configurazione MENU deve essere un array.", 1);
+            throw new Exception("Il valore della variabile di configurazione PAGES deve essere un array.", 1);
         }
         foreach ($val as $key => $value) {
             $pages[]=$value;
@@ -107,12 +110,25 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             $c = $this->conf_array['COMMUNICATION'];
         }
         if(!is_array($val)) {
-            throw new Exception("Il valore della variabile di configurazione MENU deve essere un array.", 1);
+            throw new Exception("Il valore della variabile di configurazione COMMUNICATION deve essere un array.", 1);
         }
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
         $this->conf_array['COMMUNICATION']=$c;        
+    }
+    private function processInclude($val) {
+        $c = array();
+        if(isset($this->conf_array['INCLUDE'])) {
+            $c = $this->conf_array['INCLUDE'];
+        }
+        if(!is_array($val)) {
+            throw new Exception("Il valore della variabile di configurazione INCLUDE deve essere un array.", 1);
+        }
+        foreach ($val as $key => $value) {
+            $c[$key]=$value;
+        }
+        $this->conf_array['INCLUDE']=$c;        
     }
 
 }
