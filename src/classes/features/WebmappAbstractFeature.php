@@ -250,6 +250,38 @@ abstract class WebmappAbstractFeature {
 
     // Mapping della geometry 
     abstract protected function mappingGeometry($json_array);
+
+        // Restituisce un array di oggetti WebmappPoiFeature con i relatedPoi
+    public function getRelatedPois() {
+        $pois = array();
+        if (isset($this->json_array['n7webmap_related_poi']) && 
+            is_array($this->json_array['n7webmap_related_poi']) &&
+            count($this->json_array['n7webmap_related_poi'])>0) {
+            foreach ($this->json_array['n7webmap_related_poi'] as $poi) {
+                $guid = $poi['guid'];
+                $id = $poi['ID'];
+                // http://dev.be.webmapp.it/poi/bar-pasticceria-lilli/
+                $code = str_replace('http://', '', $guid);
+                $code = preg_replace('|\..*|', '', $code);
+                $poi_url = "http://$code.be.webmapp.it/wp-json/wp/v2/poi/$id";
+                $pois[] = new WebmappPoiFeature ($poi_url);
+            }
+        }
+        return $pois;
+    }
+
+    public function getRelatedPoisId() {
+        $pois = array();
+        if (isset($this->json_array['n7webmap_related_poi']) && 
+            is_array($this->json_array['n7webmap_related_poi']) &&
+            count($this->json_array['n7webmap_related_poi'])>0) {
+            foreach ($this->json_array['n7webmap_related_poi'] as $poi) {
+                $pois[] = $poi['ID'];
+            }
+        }
+        return $pois;
+    }
+
     
     // Lat e Lng Max  e MIN (usate per il BB)
     abstract public function getLatMax();
@@ -311,9 +343,6 @@ abstract class WebmappAbstractFeature {
     abstract public function addRelated();
     // La query POSTGIS deve essere costruita in modo tale da avere i parametri ID del POI e distance POI / OGGETTO
     protected function addRelatedPoi($q) {
-        $d = pg_connect("host=46.101.124.52 port=5432 dbname=webmapptest user=webmapp password=T1tup4atmA");
-        $r = pg_query($d,$q);
-        $neighbors = array();
 
         // PATH per recuperare i geojson dei POI
         $path = $this->getGeoJsonPath();
@@ -323,21 +352,58 @@ abstract class WebmappAbstractFeature {
         else {
             $new_path = preg_replace('|poi/.*$|','',$path);            
         }
+
+        // Neighbors
+        $d = pg_connect("host=46.101.124.52 port=5432 dbname=webmapptest user=webmapp password=T1tup4atmA");
+        $r = pg_query($d,$q);
+        $neighbors = array();
         while($row = pg_fetch_array($r)) {
             $id=$row['id'];
             $poi_path = $new_path."/poi/$id.geojson";
+            $neighbors[$id]=$this->getPoiInfoArray($poi_path,$row['distance']);
+        }
+        $this->properties['related']['poi']['neighbors']=$neighbors;
+
+        // Related inserted by user (related - poi - related)
+        $related = array();
+
+        $id_pois=$this->getRelatedPoisId();
+
+        if (isset($id_pois) && count($id_pois) >0 ) {
+            foreach($id_pois as $id) {
+            $poi_path = $new_path."/poi/$id.geojson";
+            $related[$id]=$this->getPoiInfoArray($poi_path);
+            }
+        }
+        $this->properties['related']['poi']['related']=$related;
+    }
+
+
+    // Recupero INFO dal file related (suppongo che i file POI già esistano)
+    private function getPoiInfoArray($poi_path,$distance=-1) {
             $j = json_decode(file_get_contents($poi_path),TRUE);
             $name = '';
             if(isset($j['properties']) && isset($j['properties']['name'])) {
                 $name = $j['properties']['name'];
             }
-            // Recupero INFO dal file related (suppongo che i file POI già esistano)
-            $neighbors[$id] = array();
-            $neighbors[$id]['distance'] = $row['distance'];
-            $neighbors[$id]['webmapp_categories'] = array();
-            $neighbors[$id]['name'] = $name;
-        }
-        $this->properties['related']['poi']['neighbors']=$neighbors;
+            $lat=$lon='';
+            if(isset($j['geometry']) && isset($j['geometry']['coordinates'])) {
+                $lat = $j['geometry']['coordinates'][0];
+                $lon = $j['geometry']['coordinates'][1];
+            }
+            $wmc=array();
+            if(isset($j['properties']) && 
+               isset($j['properties']['taxonomy']) && 
+               isset($j['properties']['taxonomy']['webmapp_category'])) {
+                $wmc = $j['properties']['taxonomy']['webmapp_category'];
+            }
+            $r = array();
+            $r['distance'] = $distance;
+            $r['webmapp_category'] = $wmc;
+            $r['name'] = $name;
+            $r['lat'] = $lat;
+            $r['lon'] = $lat;
+            return $r;
     }
 
 }

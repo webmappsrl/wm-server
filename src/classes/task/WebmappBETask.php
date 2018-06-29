@@ -70,20 +70,25 @@ public function getId() {
 }
 public function process(){
 
+    echo "Starting Process - TYPE:".get_class($this)." - NAME:".$this->name."\n";
+
     // CLEAR TABLE IF NEEDED
     // TODO: passare a tabella definitiva
     if($this->add_related) {
+        echo "Cleaning Postgis\n";
         $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM poi_tmp\"";
         system($cmd);
         $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM track_tmp\"";
         system($cmd);
     }
 
+    echo "Getting POI Layers\n";
     $poi_layers = $this->wp->getPoiLayers();
     if(is_array($poi_layers) && count($poi_layers)>0) {
 
         // Primo loop Inserisci nel POSTGIS (da eliminare dopo sync)
         if ($this->add_related) {
+            echo "Adding POI to Postgis\n";
         foreach($poi_layers as $layer) {
             if (!$layer->getExclude()) {
              // Aggiungi i singoli POI del layer al DB Postgis
@@ -96,6 +101,7 @@ public function process(){
 
         }
         // Secondo LOOP Trova i vicni e scrivi singolo
+        echo "POI: BB,write,neighbors\n";
         foreach($poi_layers as $layer) {
             if (!$layer->getExclude()) {
                 if($this->add_related) {
@@ -109,6 +115,7 @@ public function process(){
         }
         }
     }
+    echo "GETTING Track Layers\n";
     $track_layers = $this->wp->getTrackLayers();
     if(is_array($track_layers) && count($track_layers)>0) {
         foreach($track_layers as $layer) {
@@ -130,6 +137,7 @@ public function process(){
     }
     // Second LOOP create geojson and add to POSTGIS
     if($this->add_related && is_array($track_layers) && count($track_layers)>0) {
+        echo "TRACK: add related";
         foreach($track_layers as $layer) {
             if(!$layer->getExclude()) {
             $tracks = $layer->getFeatures();
@@ -143,13 +151,16 @@ public function process(){
 
     // Bounding Box
     // TODO: gestione del delta 0.045 (costante, modificabile?)
+    echo "BBOX \n";
     if(empty($this->map->getBB())) {
         $this->map->setBB($this->latMin-0.045,$this->lngMin-0.045,$this->latMax+0.045,$this->lngMax+0.045);
     }
+    echo "Last operations\n";
     $this->map->buildStandardMenu();
     $this->map->writeConf();
     $this->map->writeIndex();
     $this->map->writeInfo();
+    echo "DONE !!!\n";
     return TRUE;
 }
 
