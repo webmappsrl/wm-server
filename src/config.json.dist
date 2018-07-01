@@ -1,0 +1,13 @@
+{
+	"webrequest": {
+		"cache" : false,
+		"cache_db" : "../data/webrequest_cache.db"
+	},
+	"postgis": {
+		"username" : "xxxx",
+		"host" : "xxxx",
+		"password" : "xxxx",
+		"db_features" : "xxxx",
+		"db_osm" : "xxx"
+	}
+}

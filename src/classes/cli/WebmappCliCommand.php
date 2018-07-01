@@ -45,7 +45,30 @@ class WebmappCliVersionCommand extends WebmappCliAbstractCommand {
 	}
 }
 
-// class WebmappCliXXXCommand implements WebmappCliAbstractCommand {
+class WebmappCliShowconfigCommand extends WebmappCliAbstractCommand {
+	public function getExcerpt() {
+        $string = "shows all configuration settings.";
+        return $string;
+	}
+	public function showHelp() {
+		$string = "\nDisplay all configuration seettings with different sections.\n\n";
+        echo $string;
+	}
+	public function executeNoHelp() {
+		global $wm_config;
+		echo "\n";
+		foreach ($wm_config as $section => $items) {
+			echo "SECTION: $section\n";
+			foreach($items as $k => $v) {
+				echo " -> $k : $v\n";
+			}
+			echo "\n";
+		}
+		return true;
+	}
+}
+
+// class WebmappCliXXXCommand extends WebmappCliAbstractCommand {
 // 	public function getExcerpt() {
 //         $string = "Excerpt";
 //         return $string;

@@ -45,6 +45,7 @@ class WebmappCli {
 				array_push($this->commands, $class);
 			}
 		}
+		sort($this->commands);
 	}
 
 	private function showHelp() {

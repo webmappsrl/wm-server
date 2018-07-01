@@ -4,6 +4,13 @@
 require 'vendor/gisconverter/gisconverter.php';
 require 'vendor/GPXIngest/GPXIngest.php';
 
+// Configuration file
+$conf=__DIR__.'/config.json';
+if(!file_exists($conf)) {
+	throw new Exception("Impossibile eseguire il server: manca il file di configurazione $conf", 1);	
+}
+$wm_config = json_decode(file_get_contents($conf),TRUE);
+
 // Caricamento classi obbligatorie
 require 'classes/utils/WebmappExceptions.php';
 require 'classes/utils/WebmappUtils.php';
