@@ -246,7 +246,8 @@ class WebmappUtils {
 		$ele = self::getBingElevations(array(array($lat,$lng)));
 		return $ele[0];
 	}
-
+    
+    // Gestire la cache tramite SQLLITE
 	public static function getJsonFromApi($url) {
 		// echo "getJsonFromApi($url) \n";
 		$ch = curl_init();

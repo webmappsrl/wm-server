@@ -1,7 +1,7 @@
 <?php
 
 abstract class WebmappCliAbstractCommand {
-	private $options=array();
+	protected $options=array();
 	private $name;
 	public function __construct($argv) {
 		// Set Name
@@ -14,7 +14,9 @@ abstract class WebmappCliAbstractCommand {
 		if (count($argv)>2) {
 			$this->options=array_slice($argv,2);
 		}
+		$this->specificConstruct();
 	}
+	abstract public function specificConstruct();
 	abstract public function getExcerpt();
 	abstract public function showHelp();
 	public function execute() {
@@ -31,6 +33,7 @@ abstract class WebmappCliAbstractCommand {
 }
 
 class WebmappCliVersionCommand extends WebmappCliAbstractCommand {
+	public function specificConstruct() { return true; }
 	public function getExcerpt() {
         $string = "returns webmappServer version";
         return $string;
@@ -46,6 +49,7 @@ class WebmappCliVersionCommand extends WebmappCliAbstractCommand {
 }
 
 class WebmappCliShowconfigCommand extends WebmappCliAbstractCommand {
+	public function specificConstruct() { return true; }
 	public function getExcerpt() {
         $string = "shows all configuration settings.";
         return $string;
@@ -69,6 +73,7 @@ class WebmappCliShowconfigCommand extends WebmappCliAbstractCommand {
 }
 
 // class WebmappCliXXXCommand extends WebmappCliAbstractCommand {
+//  public function specificConstruct() { return true; }
 // 	public function getExcerpt() {
 //         $string = "Excerpt";
 //         return $string;
