@@ -13,6 +13,8 @@ require 'classes/utils/WebmappOSMRelation.php';
 require 'classes/task/WebmappProject.php';
 require 'classes/task/WebmappProjectStructure.php';
 
+require 'classes/cli/WebmappCli.php';
+require 'classes/cli/WebmappCliCommand.php';
 
 require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
