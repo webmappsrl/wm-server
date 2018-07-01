@@ -5,6 +5,7 @@ class WebmappCliWebcacheCommand extends WebmappCliAbstractCommand {
 	private $db_file = '';
 	private $db_created = false ;
 	private $db;
+	private $db_count = 0;
 	public function specificConstruct() {
 		global $wm_config;
 		if (isset($wm_config['webcache']) && 
@@ -18,6 +19,7 @@ class WebmappCliWebcacheCommand extends WebmappCliAbstractCommand {
 			if(file_exists($this->db_file)) {
 				$this->db_created=true;
 				$this->db=new SQLite3($this->db_file);
+				$this->db_count = $this->db->querySingle("SELECT COUNT(*) as count FROM webcache");
 			}
 		}
 	}
@@ -76,12 +78,12 @@ class WebmappCliWebcacheCommand extends WebmappCliAbstractCommand {
 		return true;
 	}
 	public function showInfo() {
-		global $wm_config;
 		if ($this->enabled) {
 			echo "\nWEBCACHE enabled. Info:\n";
 			echo "DB: ".$this->db_file."\n";
 			if ($this->db_created) {
 				echo "DB already created.\n";
+				echo "Number of rows: ".$this->db_count."\n";
 			} else {
 				echo "DB not yet created. Use command createdb to generate it.";
 			}

@@ -162,7 +162,7 @@ class WebmappWP {
 	// Categorie e layers
 
 	public function getCategoriesArray() {
-		$json = json_decode(file_get_contents($this->getApiCategories()),true);
+		$json = WebmappUtils::getJsonFromApi($this->getApiCategories());
 		if (!is_array($json) || count($json) == 0) {
 			return array();
 		}
@@ -217,7 +217,7 @@ class WebmappWP {
 
 			//http://dev.be.webmapp.it/wp-json/wp/v2/poi?per_page=100&orderby=title&order=asc
 			$api = $api . '&per_page='.$this->per_page.'&orderby=title&order=asc' ;
-			$features = json_decode(file_get_contents($api),true);
+			$features = WebmappUtils::getJsonFromApi($api);
 			if(is_array($features) && count($features) > 0 ) {
 				$layer = new WebmappLayer($type.'s_'.$cat_id);
 				$layer->loadMetaFromUrl($this->getApiCategory($cat_id));

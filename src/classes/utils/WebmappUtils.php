@@ -250,12 +250,47 @@ class WebmappUtils {
     // Gestire la cache tramite SQLLITE
 	public static function getJsonFromApi($url) {
 		// echo "getJsonFromApi($url) \n";
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
-		$output = curl_exec($ch);
-		curl_close($ch);
+		global $wm_config;
+		$download = true;
+		$webcache = false;
+		if (isset($wm_config['webcache']) && 
+			isset($wm_config['webcache']['enabled']) && 
+			$wm_config['webcache']['enabled']==true) {
+			if(!isset($wm_config['webcache']['db'])) {
+				throw new Exception("config.json malconfigurato: webcache enabled e db non definito.", 1);
+			}
+			$db_file=$wm_config['webcache']['db'];
+			if(file_exists($db_file)) {
+				$webcache=true;
+				$db=new SQLite3($db_file);
+			}
+			else {
+				echo "WARN: webcache db not created. Use CLI to create it.";
+			}
+		}
+
+		if ($webcache) {
+			// Try to retrieve from cache
+			$q="SELECT content from webcache where url='$url'";
+			$r=$db->query($q);
+			while ($row=$r->fetchArray()) {
+				$output = $row['content'];
+				$download = false;
+			}
+		}
+		if ($download) {
+			$output=file_get_contents($url);
+			if ($webcache) {
+				// Write on DB
+				$q="INSERT into webcache (url,content,timestamp) VALUES (:url,:content,:time)";
+				$s=$db->prepare($q);
+				$s->bindParam(':url',$url);
+				$s->bindParam(':content',$output);
+				$time=time();
+				$s->bindParam(':time',$time);
+				$s->execute();
+			}
+		}
 		return json_decode($output,TRUE);
 	}
 	public static function slugify($text)

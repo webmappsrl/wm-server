@@ -100,7 +100,7 @@ class WebmappLayer {
 
     public function loadMetaFromUrl($url) {
     	// TODO: leggi API alla WP e poi setta label, icon e color
-    	$meta = json_decode(file_get_contents($url),TRUE);
+    	$meta = WebmappUtils::getJsonFromApi($url);
     	if (isset($meta['id'])) {
     		$this->id=$meta['id'];
     	}
@@ -135,7 +135,7 @@ class WebmappLayer {
     		else {
     			$url_lang = $url . '?lang=' . $lang ;
     		}
-    		$meta = json_decode(file_get_contents($url_lang),TRUE);
+    		$meta = WebmappUtils::getJsonFromApi($url_lang);
     		if (is_array($meta) && isset($meta['name'])) {
     			$this->languages[$lang]=$meta['name'];
     		}

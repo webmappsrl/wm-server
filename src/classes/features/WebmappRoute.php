@@ -13,7 +13,7 @@ class WebmappRoute {
 
 	public function __construct ($array_or_url) {
 		$this -> base_url = preg_replace('|route/.*|', '', $array_or_url);
-		$this->json_array = json_decode(file_get_contents($array_or_url),true);
+		$this->json_array = WebmappUtils::getJsonFromApi($array_or_url);
 		
 
 		if (isset($this->json_array['wpml_translations']) && 

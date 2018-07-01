@@ -100,7 +100,7 @@ class WebmappMap {
     // esempio: http://dev.be.webmapp.it/wp-json/wp/v2/map/408
     public function loadMetaFromUrl($url) {
         // ja è un abbreviazione per JSON ARRAY
-        $ja = json_decode(file_get_contents($url),TRUE);
+        $ja = WebmappUtils::getJsonFromApi($url);
 
         // Qui vengono inseriti tutti i valori di default (dove ha senso)
         $this->title = "Generic MAP";
@@ -139,7 +139,7 @@ class WebmappMap {
             foreach($ja['pages'] as $page_obj) {
                 $guid = $page_obj['guid'];
                 $api = preg_replace('|\?page_id=|', 'wp-json/wp/v2/pages/', $guid);
-                $page_info = json_decode(file_get_contents($api),TRUE);
+                $page_info = WebmappUtils::getJsonFromApi($api);
                 $page = array ("label" => $page_obj['post_title'],
                                "type" => $page_obj['post_name'],
                                "isCustom" => true,

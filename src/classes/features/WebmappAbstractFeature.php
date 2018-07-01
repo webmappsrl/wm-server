@@ -27,7 +27,7 @@ abstract class WebmappAbstractFeature {
 	public function __construct ($array_or_url) {
 		if (!is_array($array_or_url)) {
 			// E' Un URL quindi leggo API WP e converto in array
-			$json_array = json_decode(file_get_contents($array_or_url),true);
+			$json_array = WebmappUtils::getJsonFromApi($array_or_url);
             $this->wp_url = $array_or_url;
 
             if (isset($json_array['wpml_translations']) && 
@@ -38,7 +38,7 @@ abstract class WebmappAbstractFeature {
                     $lang = preg_replace('|_.*$|', '', $lang);
                     $id = $t['id'];
                     $lang_url = preg_replace('|\d+$|', $id, $array_or_url);
-                    $json_t = json_decode(file_get_contents($lang_url),true);
+                    $json_t = WebmappUtils::getJsonFromApi($lang_url);
                     // TODO: estendere oltre a name e description (variabile globale?)
                     $this->translate($lang,'name',$json_t['title']['rendered']);
                     $this->translate($lang,'description',$json_t['content']['rendered']);
@@ -381,7 +381,7 @@ abstract class WebmappAbstractFeature {
 
     // Recupero INFO dal file related (suppongo che i file POI già esistano)
     private function getPoiInfoArray($poi_path,$distance=-1) {
-            $j = json_decode(file_get_contents($poi_path),TRUE);
+            $j = WebmappUtils::getJsonFromApi($poi_path);
             $name = '';
             if(isset($j['properties']) && isset($j['properties']['name'])) {
                 $name = $j['properties']['name'];
