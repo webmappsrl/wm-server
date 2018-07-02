@@ -18,7 +18,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             throw new Exception("File di configurazione malformato: parametro APPEND deve essere di tipo array", 1);
            }
            foreach($this->append as $key => $val) {
-            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE'))) {
+            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN'))) {
                 throw new Exception("La chiave $key non è supportata", 1);
             }
            }
@@ -55,6 +55,9 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
                     break;
                 case 'INCLUDE':
                     $this->processInclude($val);
+                    break;
+                case 'LOGIN':
+                    $this->processLogin($val);
                     break;
                 
                 default:
@@ -129,6 +132,19 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             $c[$key]=$value;
         }
         $this->conf_array['INCLUDE']=$c;        
+    }
+    private function processLogin($val) {
+        $c = array();
+        if(isset($this->conf_array['LOGIN'])) {
+            $c = $this->conf_array['LOGIN'];
+        }
+        if(!is_array($val)) {
+            throw new Exception("Il valore della variabile di configurazione LOGIN deve essere un array.", 1);
+        }
+        foreach ($val as $key => $value) {
+            $c[$key]=$value;
+        }
+        $this->conf_array['LOGIN']=$c;        
     }
 
 }
