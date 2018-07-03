@@ -340,10 +340,9 @@ abstract class WebmappAbstractFeature {
     }
 
     abstract public function writeToPostGis();
-    abstract public function addRelated();
+    abstract public function addRelated($distance=5000,$limit=100);
     // La query POSTGIS deve essere costruita in modo tale da avere i parametri ID del POI e distance POI / OGGETTO
     protected function addRelatedPoi($q) {
-
         // PATH per recuperare i geojson dei POI
         $path = $this->getGeoJsonPath();
         if (preg_match('|/track/|',$path)) {

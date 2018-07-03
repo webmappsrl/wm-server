@@ -81,13 +81,18 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         }
     }
 
-        public function addRelated() {
-        // RELATED POI
+        public function addRelated($distance=5000,$limit=100) {
+        if($limit>0) {
+            $limit = " LIMIT $limit";
+        } else {
+            $limit='';
+        }
         $id = $this->properties['id'];
         $q = "SELECT poi_tmp.id as id, track_tmp.id as tid, ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) as distance
               FROM  poi_tmp, track_tmp
-              WHERE track_tmp.id=$id AND ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) < 500
-              ORDER BY distance;";
+              WHERE track_tmp.id=$id AND ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) < $distance
+              ORDER BY distance
+              $limit ;";
         $this->addRelatedPoi($q);
     }
 

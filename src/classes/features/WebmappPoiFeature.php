@@ -131,14 +131,18 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 
     }
 
-    public function addRelated() {
-        // RELATED POI
+    public function addRelated($distance=5000,$limit=100) {
+        if($limit>0) {
+            $limit = " LIMIT $limit";
+        } else {
+            $limit='';
+        }
         $id = $this->properties['id'];
         $q = "SELECT poi_b.id as id, ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) as distance
               FROM  poi_tmp as poi_a, poi_tmp as poi_b
-              WHERE poi_a.id = $id AND poi_b.id <> $id AND ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) < 5000
+              WHERE poi_a.id = $id AND poi_b.id <> $id AND ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) < $distance
               ORDER BY distance
-              LIMIT 100;";
+              $limit ;";
         $this->addRelatedPoi($q);
     }
 

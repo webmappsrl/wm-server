@@ -19,9 +19,9 @@ class WebmappBETask extends WebmappAbstractTask {
  private $latMax;
  private $latMin;
 
- // TODO: leggere il parametro da options
  private $add_related = false;
-
+ private $neighbors_dist = 1000;
+ private $neighbors_limit = 0;
 
 
  public function check() {
@@ -38,7 +38,15 @@ class WebmappBETask extends WebmappAbstractTask {
         $this->add_related = $this->options['add_related'];
     }
 
-            // Controlla esistenza della mappa prima di procedere
+    if(array_key_exists('neighbors_dist', $this->options)) {
+        $this->neighbors_dist = $this->options['neighbors_dist'];
+    }
+
+    if(array_key_exists('neighbors_limit', $this->options)) {
+        $this->neighbors_limit = $this->options['neighbors_limit'];
+    }
+    
+    // Controlla esistenza della mappa prima di procedere
 
     $this->code = $this->options['code'];
     $this->id = $this->options['id'];
@@ -106,7 +114,7 @@ public function process(){
             if (!$layer->getExclude()) {
                 if($this->add_related) {
                 foreach($layer->getFeatures() as $poi) {
-                    $poi->addRelated();
+                    $poi->addRelated($this->neighbors_dist,$this->neighbors_limit);
                     $poi->write($this->project_structure->getPathGeojson().'/poi');
                 }}
             $this->computeBB($layer);
@@ -142,7 +150,7 @@ public function process(){
             if(!$layer->getExclude()) {
             $tracks = $layer->getFeatures();
             foreach($tracks as $track) {
-                    $track->addRelated();
+                    $track->addRelated($this->neighbors_dist,$this->neighbors_limit);
                     $track->write($this->project_structure->getPathGeojson().'/track');
                 }
             }
