@@ -144,4 +144,38 @@ class WebmappPoiFeatureTest extends TestCase {
             $j = json_decode($poi->getJson(),true);
             $this->assertEquals(35,$j['properties']['taxonomy']['webmapp_category'][0]);
         }
+
+        // TEST SU PF per nuovo campo coordinates
+        // Entrambe: http://cosmopoli.travel/wp-json/wp/v2/poi/2185
+        // Solo vecchio: http://cosmopoli.travel/wp-json/wp/v2/poi/2570 (HA OSM di default)
+        // Solo OSM: http://cosmopoli.travel/wp-json/wp/v2/poi/2478
+
+        public function testACFOSM() {
+            // Caso di test per il nuovo campo ACF costruito con OSM
+            // REF: https://github.com/mcguffin/acf-field-openstreetmap
+            // USIAMO IL CASO DI PORTOFERRAIO
+            // Entrambe: http://cosmopoli.travel/wp-json/wp/v2/poi/2185
+            // Deve prendere le vecchie
+            $poi = new WebmappPoiFeature('http://cosmopoli.travel/wp-json/wp/v2/poi/2185');
+            $this->assertEquals(42.8140764,$poi->getLat());
+            $this->assertEquals(10.329311800000028,$poi->getLng());
+
+            
+            // Solo vecchio: http://cosmopoli.travel/wp-json/wp/v2/poi/2570 (HA OSM di default)
+            // Deve prendere le vecchie
+            $poi = new WebmappPoiFeature('http://cosmopoli.travel/wp-json/wp/v2/poi/2570');
+            $this->assertEquals(42.8191423,$poi->getLat());
+            $this->assertEquals(10.30749860000003,$poi->getLng());
+
+            // Solo OSM: http://cosmopoli.travel/wp-json/wp/v2/poi/2478
+            // deve prendere le nuove
+            $poi = new WebmappPoiFeature('http://cosmopoli.travel/wp-json/wp/v2/poi/2478');
+            $this->assertEquals(42.8139895,$poi->getLat());
+            $this->assertEquals(10.3236765,$poi->getLng());
+
+
+
+        }
+
+
 }

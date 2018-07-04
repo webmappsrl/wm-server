@@ -77,27 +77,29 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
     **/
 
 	protected function mappingGeometry($json_array) {
-        // TODO: controllo esistenza coordinate
 
         $id = $json_array['id'];
 
-        if (!array_key_exists('n7webmap_coord', $json_array) ) {
-            print_r($json_array);
-            throw new Exception("INVALID POI id:$id", 1);
+        // CASO n7webmap_coord
+        if (isset($json_array['n7webmap_coord']) &&
+            isset($json_array['n7webmap_coord']['lat']) &&
+            isset($json_array['n7webmap_coord']['lng']) &&
+            !empty($json_array['n7webmap_coord']['lat']) &&
+            !empty($json_array['n7webmap_coord']['lng']) ) {
+            $lng = $json_array['n7webmap_coord']['lng'];
+            $lat = $json_array['n7webmap_coord']['lat'];
+        } else if (isset($json_array['coordinates']) &&
+            isset($json_array['coordinates']['center_lat']) &&
+            isset($json_array['coordinates']['center_lng']) &&
+            !empty($json_array['coordinates']['center_lat']) &&
+            !empty($json_array['coordinates']['center_lng'])
+            ) {
+            $lng = $json_array['coordinates']['center_lng'];
+            $lat = $json_array['coordinates']['center_lat'];
+        } else {
+            throw new Exception("INVALID POI no id:$id", 1);            
         }
 
-        if (!is_array($json_array['n7webmap_coord']) ) {
-            print_r($json_array);
-            throw new Exception("INVALID POI id:$id", 1);
-        }
-
-        if (!array_key_exists('lng', $json_array['n7webmap_coord']) ) {
-            print_r($json_array);
-            throw new Exception("INVALID POI id:$id", 1);
-        }
-
-        $lng = $json_array['n7webmap_coord']['lng'];
-        $lat = $json_array['n7webmap_coord']['lat'];
         $this->geometry['type'] = 'Point' ;
         $this->geometry['coordinates']=array((float) $lng, (float) $lat);
 	}
@@ -107,10 +109,17 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         $this->geometry['coordinates']=array((float) $lng, (float) $lat);        
     }
 
-    public function getLatMax(){ return $this->geometry['coordinates'][1];}
-    public function getLatMin(){ return $this->geometry['coordinates'][1];}
-    public function getLngMax(){ return $this->geometry['coordinates'][0];}
-    public function getLngMin(){ return $this->geometry['coordinates'][0];}
+    public function getLat(){
+       return $this->geometry['coordinates'][1]; 
+    }
+    public function getLng(){
+       return $this->geometry['coordinates'][0]; 
+    }
+    public function getLatMax(){return $this->getLat();}
+    public function getLatMin(){return $this->getLat();}
+    public function getLngMax(){return $this->getLng();}
+    public function getLngMin(){return $this->getLng();}
+
 
     public function writeToPostGis() {
 
