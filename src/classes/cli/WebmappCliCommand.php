@@ -72,6 +72,25 @@ class WebmappCliShowconfigCommand extends WebmappCliAbstractCommand {
 	}
 }
 
+class WebmappCliNewCommand extends WebmappCliAbstractCommand {
+ public function specificConstruct() { return true; }
+	public function getExcerpt() {
+        $string = "Creates new project structure.";
+        return $string;
+	}
+	public function showHelp() {
+		$string = "\nCreates new project structure.\n\n";
+        echo $string;
+	}
+	public function executeNoHelp() {
+		echo "\ncommand\n";
+		$root = $this->options[0];
+		$s = new WebmappProjectStructure($root);
+		$s->create();
+	}
+}
+
+
 // class WebmappCliXXXCommand extends WebmappCliAbstractCommand {
 //  public function specificConstruct() { return true; }
 // 	public function getExcerpt() {
