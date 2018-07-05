@@ -156,29 +156,29 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 
 					try {
 						$poi = new WebmappPoiFeature( $j );
+						if ( !empty( $ja['meta-fields']['vt_provincia'][0] ) ) {
+							$provincia =  $ja['meta-fields']['vt_provincia'][0];
+							$poi->addProperty('provincia', $provincia);
+						}
 						if ( !empty( $ja['meta-fields']['vt_carte'][0] ) ) {
-							$carte = "<p>Carte accettate: " . $ja['meta-fields']['vt_carte'][0] . "</p>";
+							$carte =  $ja['meta-fields']['vt_carte'][0];
 							$poi->addProperty('carte', $carte);
 						}
-
 						if ( !empty( $ja['meta-fields']['vt_facebook'][0] ) ) {
-							$fb = "<br /><a href=" . $ja['meta-fields']['vt_facebook'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
+							$fb = $ja['meta-fields']['vt_facebook'][0];
 							$poi->addProperty('facebook', $fb);
 						}
-
 						if ( !empty( $ja['meta-fields']['vt_twitter'][0] ) ) {
-							$tw = "<a href=" . $ja['meta-fields']['vt_twitter'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-tw.svg\" width=\"35px\"></span></a> ";
+							$tw = $ja['meta-fields']['vt_twitter'][0];
 							$poi->addProperty('twitter', $tw);
 						}
-
 						if ( !empty( $ja['meta-fields']['vt_googleplus'][0] ) ) {
-							$gp = "<a href=" . $ja['meta-fields']['vt_googleplus'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-gplus.svg\" width=\"35px\"></span></a> ";
+							$gp = $ja['meta-fields']['vt_googleplus'][0];
 							$poi->addProperty('gplus', $gp);
 						}
 
-
 						if ( !empty( $ja['meta-fields']['vt_website'][0] ) ) {
-							$web = "<p>Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a></p>";
+							$web = $ja['meta-fields']['vt_website'][0];
 							$poi->addProperty('web', $web);
 						}
 						if ( !empty( $ja['meta-fields']['vt_antipasto'][0] ) ) {
@@ -207,9 +207,6 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 						}
 						if ( !empty( $ja['acf']['vt_menu'][0] ) ) {
 							$menu = $ja['acf']['vt_menu'];
-							/*foreach ( $ja['acf']['vt_menu'][0] as $k=>$v ){
-								$menu .= '<p>' . $k . ': ' . $v . '</p>';
-							}*/
 							$poi->addProperty('menu', $menu);
 						}
 
