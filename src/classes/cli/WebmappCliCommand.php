@@ -83,8 +83,11 @@ class WebmappCliNewCommand extends WebmappCliAbstractCommand {
         echo $string;
 	}
 	public function executeNoHelp() {
-		echo "\ncommand\n";
 		$root = $this->options[0];
+		echo "\nCreating project in path $root\n";
+		if (file_exists($root)) {
+			throw new Exception("Can't create project: $root already exists.", 1);
+		}
 		$s = new WebmappProjectStructure($root);
 		$s->create();
 	}
