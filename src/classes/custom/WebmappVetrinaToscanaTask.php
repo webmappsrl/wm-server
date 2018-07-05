@@ -104,9 +104,13 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					}
 					if ( !empty( $ja['acf']['vt_google_map']['lng'] ) ) {
 						$j['n7webmap_coord']['lng'] = $ja['acf']['vt_google_map']['lng'];
+					} elseif ( !empty($ja['meta-fields']['_tmp_lon']) ) {
+						$j['n7webmap_coord']['lng'] = $ja['meta-fields']['_tmp_lon'];
 					}
 					if ( !empty( $ja['acf']['vt_google_map']['lat'] ) ) {
 						$j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
+					} elseif ( !empty($ja['meta-fields']['_tmp_lat']) ) {
+						$j['n7webmap_coord']['lat'] = $ja['meta-fields']['_tmp_lat'];
 					}
 					if ( !empty( $ja['meta-fields']['vt_telefono'][0] ) ) {
 						$j['contact:phone'] = $ja['meta-fields']['vt_telefono'][0];
@@ -143,35 +147,73 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 						if ( !empty( $ja['meta-fields']['vt_aperturafinea'][0] ) ) {
 							$j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturafinea'][0] . " - ";
 						}
+						if ( !empty( $ja['link'] ) ) {
+							$j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a></p>";
+						}
 
 					}
 
-					if ( !empty( $ja['meta-fields']['vt_carte'][0] ) ) {
-						$j['content']['rendered'] .= "<p>Carte accettate: " . $ja['meta-fields']['vt_carte'][0] . "</p>";
-					}
 
-					if ( !empty( $ja['meta-fields']['vt_facebook'][0] ) ) {
-						$j['content']['rendered'] .= "<br /><a href=" . $ja['meta-fields']['vt_facebook'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
-					}
-
-					if ( !empty( $ja['meta-fields']['vt_twitter'][0] ) ) {
-						$j['content']['rendered'] .= "<a href=" . $ja['meta-fields']['vt_twitter'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-tw.svg\" width=\"35px\"></span></a> ";
-					}
-
-					if ( !empty( $ja['meta-fields']['vt_googleplus'][0] ) ) {
-						$j['content']['rendered'] .= "<a href=" . $ja['meta-fields']['vt_googleplus'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-gplus.svg\" width=\"35px\"></span></a> ";
-					}
-
-
-					if ( !empty( $ja['meta-fields']['vt_website'][0] ) ) {
-						$j['content']['rendered'] .= "<p>Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a></p>";
-					}
-
-					if ( !empty( $ja['link'] ) ) {
-						$j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a></p>";
-					}
 					try {
 						$poi = new WebmappPoiFeature( $j );
+						if ( !empty( $ja['meta-fields']['vt_carte'][0] ) ) {
+							$carte = "<p>Carte accettate: " . $ja['meta-fields']['vt_carte'][0] . "</p>";
+							$poi->addProperty('carte', $carte);
+						}
+
+						if ( !empty( $ja['meta-fields']['vt_facebook'][0] ) ) {
+							$fb = "<br /><a href=" . $ja['meta-fields']['vt_facebook'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-fb.svg\" width=\"35px\"></span></a> ";
+							$poi->addProperty('facebook', $fb);
+						}
+
+						if ( !empty( $ja['meta-fields']['vt_twitter'][0] ) ) {
+							$tw = "<a href=" . $ja['meta-fields']['vt_twitter'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-tw.svg\" width=\"35px\"></span></a> ";
+							$poi->addProperty('twitter', $tw);
+						}
+
+						if ( !empty( $ja['meta-fields']['vt_googleplus'][0] ) ) {
+							$gp = "<a href=" . $ja['meta-fields']['vt_googleplus'][0] . " class=\"social-link-2\"><span class=\"icon\"><img src=\"http://www.vetrina.toscana.it/wp-content/themes/vetrinatoscana/images/social-icon-gplus.svg\" width=\"35px\"></span></a> ";
+							$poi->addProperty('gplus', $gp);
+						}
+
+
+						if ( !empty( $ja['meta-fields']['vt_website'][0] ) ) {
+							$web = "<p>Sito Web: <a href=\"" . $ja['meta-fields']['vt_website'][0] . "\">" . $ja['meta-fields']['vt_website'][0] . "</a></p>";
+							$poi->addProperty('web', $web);
+						}
+						if ( !empty( $ja['meta-fields']['vt_antipasto'][0] ) ) {
+							$antipasto = $ja['meta-fields']['vt_antipasto'][0];
+							$poi->addProperty('antipasto', $antipasto);
+						}
+						if ( !empty( $ja['meta-fields']['vt_primopiatto'][0] ) ) {
+							$primopiatto = $ja['meta-fields']['vt_primopiatto'][0];
+							$poi->addProperty('primopiatto', $primopiatto);
+						}
+						if ( !empty( $ja['meta-fields']['vt_carnipesce'][0] ) ) {
+							$carnipesce = $ja['meta-fields']['vt_carnipesce'][0];
+							$poi->addProperty('carnipesce', $carnipesce);
+						}
+						if ( !empty( $ja['meta-fields']['vt_contorno'][0] ) ) {
+							$contorno = $ja['meta-fields']['vt_contorno'][0];
+							$poi->addProperty('contorno', $contorno);
+						}
+						if ( !empty( $ja['meta-fields']['vt_dessert'][0] ) ) {
+							$dessert = $ja['meta-fields']['vt_dessert'][0];
+							$poi->addProperty('dessert', $dessert);
+						}
+						if ( !empty( $ja['meta-fields']['vt_cantina'][0] ) ) {
+							$cantina = $ja['meta-fields']['vt_cantina'][0];
+							$poi->addProperty('cantina', $cantina);
+						}
+						if ( !empty( $ja['acf']['vt_menu'][0] ) ) {
+							$menu = $ja['acf']['vt_menu'];
+							/*foreach ( $ja['acf']['vt_menu'][0] as $k=>$v ){
+								$menu .= '<p>' . $k . ': ' . $v . '</p>';
+							}*/
+							$poi->addProperty('menu', $menu);
+						}
+
+						//$poi->addProperty($key, $value);
 						$l->addFeature( $poi );
 						
 					} catch (WebmappExceptionPOINoCoodinates $e) {
