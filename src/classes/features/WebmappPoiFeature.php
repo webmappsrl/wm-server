@@ -80,6 +80,8 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 
         $id = $json_array['id'];
 
+        $lat=$lng='';
+
         // CASO n7webmap_coord
         if (isset($json_array['n7webmap_coord']) &&
             isset($json_array['n7webmap_coord']['lat']) &&
@@ -97,7 +99,7 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
             $lng = $json_array['coordinates']['center_lng'];
             $lat = $json_array['coordinates']['center_lat'];
         } else {
-            throw new Exception("INVALID POI no id:$id", 1);            
+            throw new WebmappExceptionPOINoCoodinates("INVALID POI no id:$id", 1);
         }
 
         $this->geometry['type'] = 'Point' ;

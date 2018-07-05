@@ -3,5 +3,6 @@
 class WebmappExceptionNoFile extends Exception {}
 class WebmappExceptionNoDirectory extends Exception {}
 class WebmappExceptionNoOSMRelation extends Exception {}
+class WebmappExceptionPOINoCoodinates extends Exception {}
 
 ?>

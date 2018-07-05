@@ -170,9 +170,13 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					if ( !empty( $ja['link'] ) ) {
 						$j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a></p>";
 					}
-
-					$poi = new WebmappPoiFeature( $j );
-					$l->addFeature( $poi );
+					try {
+						$poi = new WebmappPoiFeature( $j );
+						$l->addFeature( $poi );
+						
+					} catch (WebmappExceptionPOINoCoodinates $e) {
+						echo "\nWARN: no coordinates ID:".$j['id']."\n";	
+					}
 				}
 			} else {
 				echo "No more items found.\n";
