@@ -18,7 +18,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             throw new Exception("File di configurazione malformato: parametro APPEND deve essere di tipo array", 1);
            }
            foreach($this->append as $key => $val) {
-            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS'))) {
+            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS'))) {
                 throw new Exception("La chiave $key non è supportata", 1);
             }
            }
@@ -61,6 +61,9 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
                     break;
                 case 'OPTIONS':
                     $this->processOptions($val);
+                    break;
+                case 'OVERLAY_LAYERS':
+                    $this->processOverlayLayers($val);
                     break;
                 
                 default:
@@ -109,6 +112,19 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             $pages[]=$value;
         }
         $this->conf_array['PAGES']=$pages;        
+    }
+    private function processOverlayLayers($val) {
+        $ov = array();
+        if(isset($this->conf_array['OVERLAY_LAYERS'])) {
+            $ov = $this->conf_array['OVERLAY_LAYERS'];
+        }
+        if(!is_array($val)) {
+            throw new Exception("Il valore della variabile di configurazione OVERLAY LAYERS deve essere un array.", 1);
+        }
+        foreach ($val as $key => $value) {
+            $ov[]=$value;
+        }
+        $this->conf_array['OVERLAY_LAYERS']=$ov;        
     }
     private function processCommunication($val) {
         $c = array();
