@@ -30,25 +30,26 @@ abstract class WebmappAbstractFeature {
 			$json_array = WebmappUtils::getJsonFromApi($array_or_url);
             $this->wp_url = $array_or_url;
 
+		}
+        else {
+            $json_array = $array_or_url;
+        }
+
             if (isset($json_array['wpml_translations']) && 
                 is_array($json_array['wpml_translations']) &&
                 count($json_array['wpml_translations'])>0) {
+                $url = $json_array['_links']['self'][0]['href'];
                 foreach($json_array['wpml_translations'] as $t ) {
                     $lang = $t['locale'];
                     $lang = preg_replace('|_.*$|', '', $lang);
                     $id = $t['id'];
-                    $lang_url = preg_replace('|\d+$|', $id, $array_or_url);
+                    $lang_url = preg_replace('|\d+$|', $id, $url);
                     $json_t = WebmappUtils::getJsonFromApi($lang_url);
                     // TODO: estendere oltre a name e description (variabile globale?)
                     $this->translate($lang,'name',$json_t['title']['rendered']);
                     $this->translate($lang,'description',$json_t['content']['rendered']);
                 }
             }
-		}
-        else {
-            $json_array = $array_or_url;
-        }
-
         $this->json_array = $json_array;
 
         // TODO: non passare $json_array ma usare la proprietà
@@ -306,7 +307,6 @@ abstract class WebmappAbstractFeature {
     public function getArrayJson($lang='') {
 
         $meta = $this->properties;
-        
         // manage translations
         if ($lang!='') {
             if(array_key_exists($lang, $this->languages)) {
