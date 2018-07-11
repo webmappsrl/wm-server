@@ -22,7 +22,7 @@ class WebmappAlaTask extends WebmappAbstractTask {
         $path = $this->project_structure->getPathGeoJson();
         $files = scandir($path);
         foreach ($files as $file) {
-            if(preg_match('/\.geojson/',$file))
+            if(preg_match('/\.geojson/',$file) && $file!='sentieri.geojson')
                 $path_file = $path.'/'.$file;
             echo "Processing $path_file\n";
             $j=WebmappUtils::getJsonFromApi($path_file);
