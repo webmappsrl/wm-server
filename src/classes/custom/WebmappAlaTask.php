@@ -35,10 +35,51 @@ class WebmappAlaTask extends WebmappAbstractTask {
                 ;
                 if (isset($properties['taxonomy']['webmapp_category'][0])) {
                     $cat = $properties['taxonomy']['webmapp_category'][0];
-                    $specie_title = $this->categories[$cat]['title'];
+                    $specie_title = ucfirst($this->categories[$cat]['title']);
                     $specie_description = $this->categories[$cat]['description'];
+
+
+                    // Recupero delle informazioni specifiche
+                    // condizione_vegetativa_pianta_e_principali_caratteristiche: "<p>individuo adulto con sviluppo costretto tra sentiero e muretto a secco</p> ",
+                    // spalcatura: false,
+                    // descrizione_spalcatura: "",
+                    // diradamenti: false,
+                    // descrizione_diradamenti: "",
+                    // altri_interventi: true,
+                    // descrizione_altri_interventi: "<p>rifacimento muretto a secco per il contenimento del terreno</p> ",
+
+                    $jurl = WebmappUtils::getJsonFromApi('http://montepisanotree.org/wp-json/wp/v2/poi/'.$id);
+                    $acf = $jurl['acf'];
+                    $condizione = $acf['condizione_vegetativa_pianta_e_principali_caratteristiche'];
+                    $spalcatura = $acf['spalcatura'];
+                    $descrizione_spalcatura = $acf['descrizione_spalcatura'];
+                    $diradamenti = $acf['diradamenti'];
+                    $descrizione_diradamenti = $acf['descrizione_diradamenti'];
+                    $altri_interventi = $acf['altri_interventi'];
+                    $descrizione_altri_interventi = $acf['descrizione_altri_interventi'];
+
+                    if (!$spalcatura && !$diradamenti && !$altri_interventi) {
+                        $interventi = "<p>Nessun intervento necessario.</p>";
+                    } else {
+                        $interventi = '';
+                        if ($spalcatura) {
+                            $interventi .= '<h4>Spalcatura</h4>'.$descrizione_spalcatura;
+                        }
+                        if($diradamenti) {
+                            $interventi .= '<h4>Diradamenti</h4>'.$descrizione_diradamenti;
+                        }
+                        if ($altri_interventi) {
+                            $interventi .= '<h4>Altri Interventi</h4>'.$descrizione_altri_interventi;
+                        }
+                    }
+
                     $description = "<h3>$specie_title</h3>";
                     $description .= "<p>$specie_description</p>";
+                    $description .= "<h3>Condizione vegetativa e caratteristiche:</h3>";
+                    $description .= $condizione;
+                    $description .= "<h3>Interventi necessari</h3>";
+                    $description .= "$interventi";
+
                     $properties['description']=$description;
                     $feature['properties']=$properties;
                     $new_fatures[]=$feature;
