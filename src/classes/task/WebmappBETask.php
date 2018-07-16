@@ -23,6 +23,10 @@ class WebmappBETask extends WebmappAbstractTask {
  private $neighbors_dist = 1000;
  private $neighbors_limit = 0;
 
+ // Languages
+ private $has_languages=false;
+ private $languages=array();
+
 
  public function check() {
 
@@ -65,6 +69,14 @@ class WebmappBETask extends WebmappAbstractTask {
     $this->wp = $wp;
     $this->map=new WebmappMap($this->project_structure);
     $this->map->loadMetaFromUrl($this->wp->getApiMap($this->id));
+
+    // Languages
+    $langs_str=$this->map->getLanguagesList();
+    if(strlen($langs_str)>0 && preg_match('/,/',$langs_str)) {
+        echo "\nsetting languages!\n";
+        $this->languages=explode(',', $langs_str);
+        $this->has_languages=true;
+    }
 
     return TRUE;
 }
@@ -119,6 +131,11 @@ public function process(){
                 }}
             $this->computeBB($layer);
             $layer->write($this->project_structure->getPathGeojson());
+            if($this->has_languages) {
+                foreach($this->languages as $lang) {
+                    $layer->write($this->project_structure->getPathGeojson(),$lang);
+                }
+            }
             $this->map->addPoisWebmappLayer($layer);
         }
         }
@@ -130,6 +147,11 @@ public function process(){
             if(!$layer->getExclude()) {
             $this->computeBB($layer);
             $layer->write($this->project_structure->getPathGeojson());
+            if($this->has_languages) {
+                foreach($this->languages as $lang) {
+                    $layer->write($this->project_structure->getPathGeojson(),$lang);
+                }
+            }
             $this->map->addTracksWebmappLayer($layer);
             $tracks = $layer->getFeatures();
             // ADD RELATED

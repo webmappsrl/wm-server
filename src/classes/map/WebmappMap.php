@@ -319,6 +319,14 @@ class WebmappMap {
         $this->options[$key]=$val;
     }
 
+    public function getLanguages() {
+        return $this->languages;
+    }
+
+    public function getLanguagesList() {
+        return $this->languages_list;
+    }
+
     /**
     {
     maxZoom: 17,

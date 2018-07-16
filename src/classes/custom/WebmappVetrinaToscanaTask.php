@@ -156,6 +156,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 
 					try {
 						$poi = new WebmappPoiFeature( $j );
+						$provincia='';
 						if ( !empty( $ja['meta-fields']['vt_provincia'][0] ) ) {
 							$provincia =  $ja['meta-fields']['vt_provincia'][0];
 							$poi->addProperty('provincia', $provincia);
@@ -209,6 +210,17 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 							$menu = $ja['acf']['vt_menu'];
 							$poi->addProperty('menu', $menu);
 						}
+
+						// TASSONOMIA:
+						$tax=array();
+						$tax['tipo']=array($type);
+						$tax['localita']=array($provincia);
+						$tags=array();
+						if(isset($ja['tags'])&&is_array($ja['tags'])) {
+							$tags=$ja['tags'];
+						}
+						$tax['specialita']=$tags;
+						$poi->addProperty('taxonomy',$tax);
 
 						//$poi->addProperty($key, $value);
 						$l->addFeature( $poi );

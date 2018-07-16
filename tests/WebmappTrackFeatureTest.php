@@ -103,10 +103,6 @@ class WebmappTrackFeatureTests extends TestCase {
             $poi = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/769');
             $j = json_decode($poi->getJson(),true);
             $this->assertEquals(40,$j['properties']['taxonomy']['activity'][0]);
-            $this->assertEquals(41,$j['properties']['taxonomy']['theme'][0]);
-            $this->assertEquals(42,$j['properties']['taxonomy']['where'][0]);
-            $this->assertEquals(43,$j['properties']['taxonomy']['when'][0]);
-            $this->assertEquals(44,$j['properties']['taxonomy']['who'][0]);
         }
 
 
