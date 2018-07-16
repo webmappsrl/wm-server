@@ -88,30 +88,42 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 
 					    $j['content']['rendered'] .= $ja['content']['rendered'];
 
+					    if ( !empty( $ja['acf']['location']['address'] ) ) {
+						    $j['address'] = $ja['acf']['location']['address'];
+					    }
+					    if ( !empty( $ja['acf']['location']['lng'] ) ) {
+						    $j['n7webmap_coord']['lng'] = $ja['acf']['location']['lng'];
+					    }
+					    if ( !empty( $ja['acf']['vt_google_map']['lat'] ) ) {
+						    $j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
+					    }
+
 				    } else {
 					    if ( !empty( $ja['meta-fields']['vt_chiusura'][0] ) ) {
 						    $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['meta-fields']['vt_chiusura'][0] . "</p>";
 					    }
 					    $j['content']['rendered'] .= $ja['content']['rendered'];
+
+					    if ( !empty( $ja['acf']['vt_google_map']['address'] ) ) {
+						    $j['address'] = $ja['acf']['vt_google_map']['address'];
+					    }
+					    if ( !empty( $ja['acf']['vt_google_map']['lng'] ) ) {
+						    $j['n7webmap_coord']['lng'] = $ja['acf']['vt_google_map']['lng'];
+					    } elseif ( !empty($ja['meta-fields']['_tmp_lon']) ) {
+						    $j['n7webmap_coord']['lng'] = $ja['meta-fields']['_tmp_lon'];
+					    }
+					    if ( !empty( $ja['acf']['vt_google_map']['lat'] ) ) {
+						    $j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
+					    } elseif ( !empty($ja['meta-fields']['_tmp_lat']) ) {
+						    $j['n7webmap_coord']['lat'] = $ja['meta-fields']['_tmp_lat'];
+					    }
 				    }
 
 
 					if ( !empty( $ja['acf']['vt_gallery'] ) ) {
 						$j['n7webmap_media_gallery'] = $ja['acf']['vt_gallery'];
 					}
-					if ( !empty( $ja['acf']['vt_google_map']['address'] ) ) {
-						$j['address'] = $ja['acf']['vt_google_map']['address'];
-					}
-					if ( !empty( $ja['acf']['vt_google_map']['lng'] ) ) {
-						$j['n7webmap_coord']['lng'] = $ja['acf']['vt_google_map']['lng'];
-					} elseif ( !empty($ja['meta-fields']['_tmp_lon']) ) {
-						$j['n7webmap_coord']['lng'] = $ja['meta-fields']['_tmp_lon'];
-					}
-					if ( !empty( $ja['acf']['vt_google_map']['lat'] ) ) {
-						$j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
-					} elseif ( !empty($ja['meta-fields']['_tmp_lat']) ) {
-						$j['n7webmap_coord']['lat'] = $ja['meta-fields']['_tmp_lat'];
-					}
+
 					if ( !empty( $ja['meta-fields']['vt_telefono'][0] ) ) {
 						$j['contact:phone'] = $ja['meta-fields']['vt_telefono'][0];
 					}
