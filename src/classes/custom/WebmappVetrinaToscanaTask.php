@@ -210,6 +210,9 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 							$menu = $ja['acf']['vt_menu'];
 							$poi->addProperty('menu', $menu);
 						}
+						if ( !empty( $ja['vt_featured_image'][0]) ){
+							$poi->setImage($ja['vt_featured_image'][0]);
+						}
 
 						// TASSONOMIA:
 						$tax=array();
