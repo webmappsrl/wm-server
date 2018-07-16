@@ -148,7 +148,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 							$j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturafinea'][0] . " - ";
 						}
 						if ( !empty( $ja['link'] ) ) {
-							$j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">VetrinaToscana.it</a></p>";
+							$j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">vetrina.toscana.it</a></p>";
 						}
 
 					}
