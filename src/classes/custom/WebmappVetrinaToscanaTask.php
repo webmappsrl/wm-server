@@ -77,13 +77,7 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 						if ( !empty( $ja['meta-fields']['subtitle'][0] ) ) {
 							$j['content']['rendered'] = "<h4 class=\"subtitle\">" . $ja['meta-fields']['subtitle'][0] . "</h4>";
 						}
-
-					    if ( !empty( $ja['meta-fields']['vt_data_inizio'][0] ) ) {
-						    $j['content']['rendered'] .= "<h5 class=\"event-date\">Dal " . $ja['meta-fields']['vt_data_inizio'][0] . "</h5> ";
-					    }
-					    if ( !empty( $ja['meta-fields']['vt_data_fine'][0] ) ) {
-						    $j['content']['rendered'] .= "<h5 class=\"event-date\">Al " . $ja['meta-fields']['vt_data_fine'][0] . "</h5> ";
-					    }
+					    
 					    if ( !empty( $ja['meta-fields']['orari'][0] ) ) {
 						    $j['content']['rendered'] .= "<h5 class=\"event-date\">Orari " . $ja['meta-fields']['orari'][0] . "</h5>";
 					    }
@@ -224,9 +218,19 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 							$menu = $ja['acf']['vt_menu'];
 							$poi->addProperty('menu', $menu);
 						}
+
+						if ( !empty( $ja['meta-fields']['vt_data_inizio'][0] ) ) {
+							$poi->addProperty( 'date_start', $ja['meta-fields']['vt_data_inizio'][0] );
+
+						}
+						if ( !empty( $ja['meta-fields']['vt_data_fine'][0] ) ) {
+							$poi->addProperty( 'date_stop', $ja['meta-fields']['vt_data_fine'][0] );
+						}
+
 						if ( !empty( $ja['vt_featured_image']) ){
 							$poi->setImage($ja['vt_featured_image']);
 						}
+
 
 						// TASSONOMIA:
 						$tax=array();
