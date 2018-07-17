@@ -72,6 +72,8 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 
 				    if ($type == 'event'){
 
+
+
 						if ( !empty( $ja['meta-fields']['subtitle'][0] ) ) {
 							$j['content']['rendered'] = "<h4 class=\"subtitle\">" . $ja['meta-fields']['subtitle'][0] . "</h4>";
 						}
@@ -94,8 +96,8 @@ class WebmappVetrinaToscanaTask extends WebmappAbstractTask {
 					    if ( !empty( $ja['acf']['location']['lng'] ) ) {
 						    $j['n7webmap_coord']['lng'] = $ja['acf']['location']['lng'];
 					    }
-					    if ( !empty( $ja['acf']['vt_google_map']['lat'] ) ) {
-						    $j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
+					    if ( !empty( $ja['acf']['location']['lat'] ) ) {
+						    $j['n7webmap_coord']['lat'] = $ja['acf']['location']['lat'];
 					    }
 
 				    } else {
