@@ -33,8 +33,8 @@ class WebmappCliWebcacheCommand extends WebmappCliAbstractCommand {
 		$string .= "info: Give some infos on webcachedb\n";
 		$string .= "create: Creates webcachedb (if does not exist)\n";
 		$string .= "delete: Delete existing db\n";
-		$string .= "clearall: Remove all entries on webcachedb\n";
-		$string .= "clear [domain]: Remove all entries matching domain\n";
+		$string .= "show [search]: Show URL cached matching string 'search'\n";
+		$string .= "clear [search]: Remove all entries matching 'search'\n";
         echo $string;
 	}
 	public function executeNoHelp() {
@@ -63,11 +63,35 @@ class WebmappCliWebcacheCommand extends WebmappCliAbstractCommand {
 					system($cmd);
 					echo "DB removed.\n";
 					break;
-				case 'clearall':
-					echo "clearall (not implemented)\n";
+				case 'show':
+					if ($this->db_created) {
+						$where = '';
+						if (isset($this->options[1])) {
+							$like = $this->options[1];
+							$where = "WHERE url LIKE '%$like%'";
+						}
+						$results = $this->db->query("SELECT url from webcache $where");
+						$count=1;
+						while ($row = $results->fetchArray()) {
+						    echo $count.'. '.$row['url']."\n";
+						    $count++;
+						}
+					} else {
+						echo "DB not created. Use create command first.";
+					}
 					break;
 				case 'clear':
-					echo "clear (not implemented)\n";
+					if ($this->db_created) {
+						$where = '';
+						if (isset($this->options[1])) {
+							$like = $this->options[1];
+							$where = "WHERE url LIKE '%$like%'";
+						}
+						$results = $this->db->query("DELETE from webcache $where");
+						echo "Clear ok.\n";
+					} else {
+						echo "DB not created. Use create command first.";
+					}
 					break;				
 				default:
 					echo "$sub_command not defined.";
