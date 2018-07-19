@@ -177,5 +177,26 @@ class WebmappPoiFeatureTest extends TestCase {
 
         }
 
+        public function testLocale() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+            $j = json_decode($poi->getJson(),true);
+            $this->assertEquals('it',$j['properties']['locale']);            
+
+        }
+
+        public function testTranslations() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+            $j = json_decode($poi->getJson(),true);
+            $this->assertEquals(802,$j['properties']['translations']['en']);            
+            $this->assertEquals(803,$j['properties']['translations']['fr']);            
+            $this->assertEquals(804,$j['properties']['translations']['de']);            
+        }
+
+        public function testSource() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+            $j = json_decode($poi->getJson(),true);
+            $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800',$j['properties']['source']);            
+        }
+
 
 }

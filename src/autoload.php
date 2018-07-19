@@ -28,6 +28,7 @@ require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
 require 'classes/task/WebmappRouteTask.php';
 require 'classes/task/WebmappCustomConfigTask.php';
+require 'classes/task/WebmappTranslateTask.php';
 require 'classes/task/WebmappTaskFactory.php';
 
 require 'classes/features/WebmappAbstractFeature.php';

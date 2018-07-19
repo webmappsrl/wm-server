@@ -145,6 +145,31 @@ abstract class WebmappAbstractFeature {
             $this->setProperty('description',array('description'=>nl2br($json_array['content_from'][0]['post_content'])));
         }
 
+        // LOCALE
+        if (isset($json_array['wpml_current_locale']) && !empty($json_array['wpml_current_locale'])) {
+            $this->addProperty('locale',preg_replace('|_.*$|', '', $json_array['wpml_current_locale']));
+        }
+
+        // TRANSLATIONS
+        if (isset($json_array['wpml_translations'])) {
+            $t = $json_array['wpml_translations'];
+            if (is_array($t) && count($t)>0) {
+                $tp = array();
+                foreach($t as $item) {
+                    $locale = preg_replace('|_.*$|', '', $item['locale']);
+                    $tp[$locale]=$item['id'];
+                }
+                $this->addProperty('translations',$tp);
+            }
+        }
+
+        // SOURCE
+        $source = 'unknown';
+        if(isset($json_array['_links']['self'][0]['href'])) {
+            $source = $json_array['_links']['self'][0]['href'];
+        }
+        $this->addProperty('source',$source);
+
     }
 
     private function addTaxonomy($name) {
