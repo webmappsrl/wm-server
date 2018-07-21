@@ -173,8 +173,6 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals(42.8139895,$poi->getLat());
             $this->assertEquals(10.3236765,$poi->getLng());
 
-
-
         }
 
         public function testLocale() {
@@ -187,9 +185,9 @@ class WebmappPoiFeatureTest extends TestCase {
         public function testTranslations() {
             $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
             $j = json_decode($poi->getJson(),true);
-            $this->assertEquals(802,$j['properties']['translations']['en']);            
-            $this->assertEquals(803,$j['properties']['translations']['fr']);            
-            $this->assertEquals(804,$j['properties']['translations']['de']);            
+            $this->assertEquals(802,$j['properties']['translations']['en']['id']);            
+            $this->assertEquals(803,$j['properties']['translations']['fr']['id']);            
+            $this->assertEquals(804,$j['properties']['translations']['de']['id']);            
         }
 
         public function testSource() {
@@ -198,5 +196,10 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800',$j['properties']['source']);            
         }
 
+        public function testWeb() {
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+            $j = json_decode($poi->getJson(),true);
+            $this->assertEquals('http://dev.be.webmapp.it/poi/test-per-languages-overlay-layers/',$j['properties']['web']);                        
+        }
 
 }

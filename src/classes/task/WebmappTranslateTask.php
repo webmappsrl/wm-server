@@ -46,7 +46,8 @@ class WebmappTranslateTask extends WebmappAbstractTask {
         $items_translated = array();
         foreach ($items as $id => $item) {
             echo "Processing item $id .. ";
-            foreach ($item['properties']['translations'] as $lang => $newid) {
+            foreach ($item['properties']['translations'] as $lang => $info) {
+                $newid=$info['id'];
                 $source = $item['properties']['source'];
                 $base_url = preg_replace('|/([0-9])*$|','',$source);
                 $url = $base_url . '/' . $newid;
@@ -54,7 +55,14 @@ class WebmappTranslateTask extends WebmappAbstractTask {
                 $new_content = WebmappUtils::getJsonFromApi($url);
                 $new_item=$item;
                 $new_item['properties']['id']=$newid;
-                $new_item['properties']['translations']['it']=$id;
+                $new_item['properties']['web']=$item['properties']['translations'][$lang]['web'];
+                
+                $val=array();
+                $val['id']=$id;
+                $val['name']=$item['properties']['name'];
+                $val['web']=$item['properties']['web'];
+                $new_item['properties']['translations'][$item['properties']['locale']]=$val;
+
                 $new_item['properties']['locale']=$lang;
                 $new_item['properties']['source']=$url;
                 unset($new_item['properties']['translations'][$lang]);
@@ -72,7 +80,8 @@ class WebmappTranslateTask extends WebmappAbstractTask {
         echo "\n\n THIRD LOOP: Update related ID\n";
         foreach ($items as $id => $item) {
             echo "Processing item $id .. ";
-            foreach ($item['properties']['translations'] as $lang => $newid) {
+            foreach ($item['properties']['translations'] as $lang => $info) {
+                $newid=$info['id'];
                 echo "$lang ($newid) ";
                 $new_item = $items_translated[$newid];
                 $updated_item = $new_item;
@@ -86,7 +95,7 @@ class WebmappTranslateTask extends WebmappAbstractTask {
                         $file = $this->project_structure->getPathGeoJson().'/poi/'.$id_poi.'.geojson';
                         $j = WebmappUtils::getJsonFromApi($file);
                         if(isset($j['properties']['translations'][$lang])) {
-                            $id_pois_new[]=$j['properties']['translations'][$lang];
+                            $id_pois_new[]=$j['properties']['translations'][$lang]['id'];
                         }
                     }
                     $updated_item['properties']['id_pois']=$id_pois_new;
@@ -103,11 +112,12 @@ class WebmappTranslateTask extends WebmappAbstractTask {
                                 $file = $this->project_structure->getPathGeoJson()."/$feature_type/".$id_feature.'.geojson';
                                 $j = WebmappUtils::getJsonFromApi($file);
                                 if(isset($j['properties']['translations'][$lang])) {
-                                    $id_feature_new=$j['properties']['translations'][$lang];
+                                    $id_feature_new=$j['properties']['translations'][$lang]['id'];
                                     $new_info = $info;
                                     $file = $this->project_structure->getPathGeoJson()."/$feature_type/".$id_feature_new.'.geojson';
                                     $j = WebmappUtils::getJsonFromApi($file);
                                     $new_info['name']=$j['properties']['name'];
+                                    $new_info['web']=$j['properties']['web'];
                                     $new_related[$feature_type][$relation_type][$id_feature_new]=$new_info;
                                 }
                             }

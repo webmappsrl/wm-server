@@ -157,7 +157,11 @@ abstract class WebmappAbstractFeature {
                 $tp = array();
                 foreach($t as $item) {
                     $locale = preg_replace('|_.*$|', '', $item['locale']);
-                    $tp[$locale]=$item['id'];
+                    $val=array();
+                    $val['id']=$item['id'];
+                    $val['name']=$item['post_title'];
+                    $val['web']=$item['href'];
+                    $tp[$locale]=$val;
                 }
                 $this->addProperty('translations',$tp);
             }
@@ -169,6 +173,11 @@ abstract class WebmappAbstractFeature {
             $source = $json_array['_links']['self'][0]['href'];
         }
         $this->addProperty('source',$source);
+
+        // LINK WEB
+        if(isset($json_array['link']) && !empty($json_array['link'])) {
+            $this->addProperty('web',$json_array['link']);
+        }
 
     }
 
@@ -410,6 +419,10 @@ abstract class WebmappAbstractFeature {
             if(isset($j['properties']) && isset($j['properties']['name'])) {
                 $name = $j['properties']['name'];
             }
+            $web='';
+            if(isset($j['properties']) && isset($j['properties']['web'])) {
+                $web = $j['properties']['web'];
+            }
             $lat=$lon='';
             if(isset($j['geometry']) && isset($j['geometry']['coordinates'])) {
                 $lon = $j['geometry']['coordinates'][0];
@@ -425,6 +438,7 @@ abstract class WebmappAbstractFeature {
             $r['distance'] = $distance;
             $r['webmapp_category'] = $wmc;
             $r['name'] = $name;
+            $r['web'] = $web;
             $r['lat'] = $lat;
             $r['lon'] = $lon;
             return $r;
