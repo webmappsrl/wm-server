@@ -17,10 +17,7 @@ class WebmappPfEventsTask extends WebmappAbstractTask {
             // MAPPING
             // coordinate
             if(is_array($event['acf']['luogo_evento'])){
-                $j=array();
-                $j['id']=$event['id'];
-                $j['title']['rendered']=$event['title']['rendered'];
-                $j['content']['rendered']=$event['content']['rendered'];
+                $j=$event;
                 if ($event['featured_media']>0){
                     $j['featured_media']=$event['featured_media'];
                     $j['_links']['wp:featuredmedia'][0]['href']=$event['_links']['wp:featuredmedia'][0]['href'];                    
@@ -31,6 +28,7 @@ class WebmappPfEventsTask extends WebmappAbstractTask {
                 $poi = new WebmappPoiFeature($j);
                 $poi->addProperty('date_start',$event['acf']['data_inizio']);
                 $poi->addProperty('date_stop',$event['acf']['data_fine']);
+                $poi->write($this->project_structure->getPathGeoJson().'/poi');
                 $l->addFeature($poi);                
             } else {
                 echo "WARNING: NO COORDINATES SKIP EVENT\n";

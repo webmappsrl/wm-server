@@ -251,6 +251,7 @@ class WebmappUtils {
 	public static function getJsonFromApi($url) {
 		// echo "getJsonFromApi($url) \n";
 		global $wm_config;
+		echo "Fecthing data from $url ... ";
 		$download = true;
 		$webcache = false;
 		if (isset($wm_config['webcache']) && 
@@ -276,6 +277,7 @@ class WebmappUtils {
 			while ($row=$r->fetchArray()) {
 				$output = $row['content'];
 				$download = false;
+				echo " cache.";
 			}
 		}
 		if ($download) {
@@ -291,6 +293,7 @@ class WebmappUtils {
 				curl_close($ch);				
 			} else {
 			 	$output=file_get_contents($url);				
+				echo " direct download.";
 			}
 
 			if ($webcache) {
@@ -304,6 +307,7 @@ class WebmappUtils {
 				$s->execute();
 			}
 		}
+		echo "\n";
 		return json_decode($output,TRUE);
 	}
 	// Returns an array of multiple JSON API CALLS paged (?per_page=XX)
