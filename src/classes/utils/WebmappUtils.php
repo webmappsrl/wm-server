@@ -306,6 +306,24 @@ class WebmappUtils {
 		}
 		return json_decode($output,TRUE);
 	}
+	// Returns an array of multiple JSON API CALLS paged (?per_page=XX)
+	public static function getMultipleJsonFromApi($url) {
+		$r=array();
+		$page=1;
+		$paged_url=$url."?page=$page";
+		$headers=get_headers($paged_url);
+		$ret=$headers[0];
+		echo "\n";
+		while(preg_match('/200/',$ret)) {
+			echo "Fecthing values from $paged_url\n";
+            $r=array_merge($r,self::getJsonFromApi($paged_url));
+			$page++;
+			$paged_url=$url."?page=$page";
+			$headers=get_headers($paged_url);
+			$ret=$headers[0];
+		}
+		return $r;
+	}
 	public static function slugify($text)
 	{
 		$text = preg_replace('~[^\pL\d]+~u', '-', $text);

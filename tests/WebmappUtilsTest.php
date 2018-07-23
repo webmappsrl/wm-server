@@ -198,14 +198,11 @@ class WebmappUtilsTests extends TestCase {
 		WebmappUtils::GPXGenerateProfile($in,$out);		
 	}
 
-	/**
-	* @group WebmappUtils_GPXGenerateProfile
-	**/
-	public function testGPXGenerateProfile() {
-		$in =__DIR__.'/fixtures/3DandPoints.gpx';
-		$out = '/tmp/out.jpg';
-		$this->assertTrue(WebmappUtils::GPXGenerateProfile($in,$out));		
+
+	public function testgetMultipleJsonFromApi() {
+		$url="http://dev.be.webmapp.it/wp-json/wp/v2/media";
+		$r=WebmappUtils::getMultipleJsonFromApi($url);
+		$this->assertTrue(is_array($r));
+		$this->assertTrue(count($r)>0);
 	}
-
-
 }

@@ -116,5 +116,22 @@ class WebmappWPTest extends TestCase
 
 	}
 
+	public function testgetImageLayer() {
+		$wp = new WebmappWP('dev');
+		$l = $wp->getImageLayer();
+		$path=__DIR__.'/../data';
+		$l->write($path);
+
+		$o=$path.'/image.geojson';
+		$j=WebmappUtils::getJsonFromApi($o);
+		$this->assertTrue(is_array($j));
+		$this->assertTrue(isset($j['type']));
+		$this->assertEquals('FeatureCollection',$j['type']);
+
+		// TODO: decommentare dopo implementazione
+		// $this->assertTrue(isset($j['features']));
+
+	}
+
 
 }

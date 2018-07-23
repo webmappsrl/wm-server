@@ -181,6 +181,59 @@ class WebmappWP {
 		return $this->getWebmappLayers('track');
 	}
 
+	// Crea un layer di POI a partire dalle immagini solo se queste hanno 
+	// l'informazione su LAT/LON
+	public function getImageLayer() {
+		$url = $this->api_url.'/media';
+		$features = WebmappUtils::getMultipleJsonFromApi($url);
+		$l=new WebmappLayer('image');
+		if(is_array($features) && count($features) >0) {
+			foreach($features as $feature) {
+				$original_image = $feature['guid']['rendered'];
+				echo "Cehcking file $original_image: ";
+				$info = get_headers($original_image,1);
+				if (preg_match('/200/',$info[0])) {
+					// Check file type (Content-Type)
+					if (isset($info['Content-Type'])) {
+						if (preg_match('/image/',$info['Content-Type']) && 
+							(preg_match('/jpg/i',$info['Content-Type']) ||
+							 preg_match('/jpeg/i',$info['Content-Type']) ||
+							 preg_match('/tiff/i',$info['Content-Type'])
+							 )
+							) {
+							// Check LAT/LON
+							echo " .. downloading .. ";
+							$tmpfname = tempnam("/tmp", "WM_IMAGE");
+							$img = file_get_contents($original_image);
+							file_put_contents($tmpfname, $img);
+							echo " $tmpfname ";
+							try {
+								$info = exif_read_data($tmpfname);
+							} catch (Exception $e) {
+								$info = false;
+							}
+							if($info !== false) {
+								// LOOK FOR LAT/LON AND ADD TO LAYERS
+								//print_r($info);
+							}
+							else {
+								echo "Can't read EXIF DATA. SKIP.";
+							}
+						} else {
+							echo "Not valid image. SKIP.";
+						}
+					} else {
+						echo " NO Content type. SKIP.";
+					}
+				} else {
+					echo " http Error: $info[0]. SKIP.";
+				}
+				echo "\n";
+			}
+ 		}
+ 		return $l;
+	}
+
 	// Restituisce un array di tutti i layer (piatto)
 	// $add_feature = true aggiunge anche tutte le features (poi / tracks o area) nel 
 	// layer corrispondente
