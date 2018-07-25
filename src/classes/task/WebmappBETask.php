@@ -27,6 +27,9 @@ class WebmappBETask extends WebmappAbstractTask {
  private $has_languages=false;
  private $languages=array();
 
+ // HTTPS
+ private $use_https = false;
+
 
  public function check() {
 
@@ -49,6 +52,13 @@ class WebmappBETask extends WebmappAbstractTask {
     if(array_key_exists('neighbors_limit', $this->options)) {
         $this->neighbors_limit = $this->options['neighbors_limit'];
     }
+
+    if(array_key_exists('https',$this->options)) {
+        if($this->options['https']==true) {
+            echo "\n\n\nUSING HTTPS!\n\n";
+            $this->use_https=true;
+        } 
+    }
     
     // Controlla esistenza della mappa prima di procedere
 
@@ -69,10 +79,13 @@ class WebmappBETask extends WebmappAbstractTask {
     $this->wp = $wp;
     $this->map=new WebmappMap($this->project_structure);
     $this->map->loadMetaFromUrl($this->wp->getApiMap($this->id));
+    if($this->use_https) {
+        $this->map->activateHTTPS();
+    }
 
     // Languages
     $langs_str=$this->map->getLanguagesList();
-    if(strlen($langs_str)>0 && preg_match('/,/',$langs_str)) {
+    if(is_string($langs_str) && strlen($langs_str)>0 && preg_match('/,/',$langs_str)) {
         echo "\nsetting languages!\n";
         $this->languages=explode(',', $langs_str);
         $this->has_languages=true;

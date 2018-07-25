@@ -183,4 +183,19 @@ class WebmappBETasksTests extends TestCase
         $this->assertEquals($ja['MAP']['defZoom'],9);
 
     }
+
+    public function testHTTPS() {
+        $root=__DIR__.'/../data/api.webmapp.it/examplesecure.webmapp.it';
+        $confPath= $root.'/config.json';
+        $s = new WebmappProject($root);
+        $s->check();
+        $s->process();
+        $j = json_decode(file_get_contents($confPath),TRUE);
+        $this->assertRegExp('/https/',$j['MAP']['layers'][0]['tilesUrl']);
+        $this->assertRegExp('/https/',$j['COMMUNICATION']['baseUrl']);
+        $this->assertRegExp('/https/',$j['COMMUNICATION']['resourceBaseUrl']);
+        $this->assertRegExp('/https/',$j['OFFLINE']['pagesUrl']);
+        $this->assertRegExp('/https/',$j['OFFLINE']['urlMbtiles']);
+        $this->assertRegExp('/https/',$j['OFFLINE']['urlImages']);
+    }
 }
