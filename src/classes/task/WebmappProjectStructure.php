@@ -60,6 +60,14 @@ class WebmappProjectStructure {
 
 	}
 
+	public function activateHTTPS() {
+		$this->url_base = preg_replace('/http/','https',$this->url_base);
+		$this->url_geojson = preg_replace('/http/','https',$this->url_geojson);
+		$this->url_client = preg_replace('/http/','https',$this->url_client);
+		$this->url_client_index = preg_replace('/http/','https',$this->url_client_index);
+		$this->url_client_conf = preg_replace('/http/','https',$this->url_client_conf);
+	}
+
 	// Getters
 	public function getRoot() { return $this->root;}
 	public function getUrlBase() { return $this->url_base;}

@@ -30,6 +30,9 @@ class WebmappMap {
     private $has_offline = false;
     private $offline = array();
 
+    // USE HTTPS
+    private $use_https = false;
+
     // Configurazione del menu
     // TODO: generalizzare la lettura dei dati da interfaccia con un pportuno setters
     // da impostare al momento della lettura dei meta della mappa loadMetaFromUrl
@@ -58,8 +61,8 @@ class WebmappMap {
     // APP Info
     private $app_id = 'it.webmapp.default' ;
     private $app_description = 'App description' ;
-    private $app_icon = 'http://api.webmapp.it/resources/icon.png';
-    private $app_splash = 'http://api.webmapp.it/resources/splash.png';
+    private $app_icon = 'https://api.webmapp.it/resources/icon.png';
+    private $app_splash = 'https://api.webmapp.it/resources/splash.png';
     
     // Sezione REPORT
     private $report = array();
@@ -304,8 +307,19 @@ class WebmappMap {
         if ($this->routeID=='') return FALSE;
         return TRUE;
     }
+    public function getUseHTTPS() {
+        return $this->use_https;
+    }
+
 
     // SETTERS
+    public function activateHTTPS() {
+        $this->use_https=true;
+        $this->structure->activateHTTPS();
+    }
+    public function deactivateHTTPS() {
+        $this->use_https=false;
+    }
     public function setTitle($title) {
         $this->title = $title;
     }
@@ -497,7 +511,7 @@ class WebmappMap {
     }
 
     private function buildConfArray() {
-        // VERSION 
+        // VERSION
         $this->conf_array['VERSION'] = '0.4';
 
         if ($this->hasRouteId()) {
@@ -553,6 +567,9 @@ class WebmappMap {
         // OVERLAY_LAYERS
         $this->conf_array['OVERLAY_LAYERS'] = array_merge($this->pois_layers,$this->tracks_layers,$this->additional_overlay_layers);
 
+        if ($this->has_offline) {
+            $this->buildOfflineConfArray();
+        }
         $this->conf_array['OFFLINE'] = $this->offline;
 
         $this->conf_array['LANGUAGES'] = $this->languages;

@@ -319,5 +319,23 @@ class WebmappMapTest extends TestCase
         $this->assertTrue(in_array('Pagina Numero due', $labels));
     }
 
+    public function testHTTPS() {
+
+        $this->init();
+        $m = new WebmappMap($this->project_structure);
+        $url = 'http://dev.be.webmapp.it/wp-json/wp/v2/map/874';
+        $m->loadMetaFromUrl($url);
+        $m->activateHTTPS();
+
+        $j = json_decode($m->getConfJson(),TRUE);
+        $this->assertRegExp('/https/',$j['MAP']['layers'][0]['tilesUrl']);
+        $this->assertRegExp('/https/',$j['COMMUNICATION']['baseUrl']);
+        $this->assertRegExp('/https/',$j['COMMUNICATION']['resourceBaseUrl']);
+        $this->assertRegExp('/https/',$j['OFFLINE']['pagesUrl']);
+        $this->assertRegExp('/https/',$j['OFFLINE']['urlMbtiles']);
+        $this->assertRegExp('/https/',$j['OFFLINE']['urlImages']);
+
+    }
+
 
 }
