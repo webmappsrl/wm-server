@@ -24,9 +24,6 @@ class WebmappPNABAlgorabTask extends WebmappAbstractTask {
 		};
 		$first = strtotime("today 00:00");
 		$last  = $first+604800;
-		// $locations=array();
-		$locations = array();
-		$locattions[1]=array('lat'=>46.23325699999999,'lon'=>10.8244016);
 		// Array degli eventi
 		//$events[$giorno][$key]=array(id=ID,partenze=array(15.00,16.00));
 		$events=array();
@@ -83,15 +80,16 @@ class WebmappPNABAlgorabTask extends WebmappAbstractTask {
 			}	
 		}
 
-		$l     = new WebmappLayer( 'eventi' );
+		$l  = new WebmappLayer( 'eventi' );
 		foreach ($events as $day => $items) {
 			foreach ($items as $ja) {
 					$j['id']                  = 'event_'.$ja['id'];
 					$j['title']['rendered']   = $ja['nome'];
 					$j['content']['rendered'] = '';
 					$id_ambito=$ja['id_ambito'];
-					$lat=$locattions[$id_ambito]['lat'];
-					$lon=$locattions[$id_ambito]['lon'];
+					// TODO: retrieve lat/lon
+					$lat=46.23325699999999;
+					$lon=10.8244016;
 					$j['n7webmap_coord']['lng'] = $lon;
 					$j['n7webmap_coord']['lat'] = $lat;
 					$poi = new WebmappPoiFeature( $j );
