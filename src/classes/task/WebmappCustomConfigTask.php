@@ -18,7 +18,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             throw new Exception("File di configurazione malformato: parametro APPEND deve essere di tipo array", 1);
            }
            foreach($this->append as $key => $val) {
-            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS','SEARCH'))) {
+            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS','SEARCH','DETAIL_MAPPING'))) {
                 throw new Exception("La chiave $key non è supportata", 1);
             }
            }
@@ -67,6 +67,9 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
                     break;
                 case 'OVERLAY_LAYERS':
                     $this->processOverlayLayers($val);
+                    break;
+                case 'DETAIL_MAPPING':
+                    $this->processDetailMapping($val);
                     break;
                 
                 default:
@@ -193,6 +196,20 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             $c[$key]=$value;
         }
         $this->conf_array['OPTIONS']=$c;        
+    }
+
+    private function processDetailMapping($val) {
+        $c = array();
+        if(isset($this->conf_array['DETAIL_MAPPING'])) {
+            $c = $this->conf_array['DETAIL_MAPPING'];
+        }
+        if(!is_array($val)) {
+            throw new Exception("Il valore della variabile di configurazione DETAIL_MAPPING deve essere un array.", 1);
+        }
+        foreach ($val as $key => $value) {
+            $c[$key]=$value;
+        }
+        $this->conf_array['DETAIL_MAPPING']=$c;        
     }
 
 }
