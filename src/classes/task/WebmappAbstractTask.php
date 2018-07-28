@@ -17,6 +17,11 @@ abstract class WebmappAbstractTask {
 			throw new Exception("Wrong type of parameter project_structure", 1);		
 		}
 		$this->project_structure = $project_structure;
+		echo "\n\n==========================================\n";
+		echo "Staring TASK: $this->name\n";
+		$root=$this->project_structure->getRoot();
+		echo "ROOT DIR: $root\n";
+		echo "==========================================\n\n";
 	}
 	
 	// getters

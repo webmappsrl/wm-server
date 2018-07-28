@@ -98,6 +98,10 @@ class WebmappLayer {
         $this->languages[$lang] = $label;
 	}
 
+	public function count() {
+		return count($this->features);
+	}
+
     public function loadMetaFromUrl($url) {
     	// TODO: leggi API alla WP e poi setta label, icon e color
     	$meta = WebmappUtils::getJsonFromApi($url);

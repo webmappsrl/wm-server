@@ -295,5 +295,15 @@ class WebmappWP {
 		}
 		return $layers;
 	}
-
+	
+	public function getAllPoisLayer($path='') {
+		$l=new WebmappLayer('all-poi',$path);
+		$items = WebmappUtils::getMultipleJsonFromApi($this->api_pois);
+		if(is_array($items) && count($items)>0) {
+            foreach ($items as $item) {
+            	$l->addFeature(new WebmappPoiFeature($item));
+            }
+		}
+		return $l;
+	}
 }
