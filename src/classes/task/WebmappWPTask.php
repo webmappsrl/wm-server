@@ -1,8 +1,10 @@
 <?php
 class WebmappWPTask extends WebmappAbstractTask {
 
- // Code
  private $wp;
+
+ private $distance=5000;
+ private $limit=10;
 
  public function check() {
 
@@ -21,13 +23,37 @@ class WebmappWPTask extends WebmappAbstractTask {
 }
 
 public function process(){
+
     $path = $this->project_structure->getRoot().'/geojson';
-    
+    WebmappUtils::cleanPostGis();
+
+    $this->wp->loadTaxonomies();
+
     // POI
     $pois = $this->wp->getAllPoisLayer($path);
     $pois->writeAllFeatures();
-    return FALSE;
-}
 
+    // TRACKS
+    $tracks = $this->wp->getAllTracksLayer($path);
+    $tracks->writeAllFeatures();
+
+    // ADD related
+    if ($pois->count() >0){
+        foreach($pois->getFeatures() as $poi){
+            $poi->addRelated($this->distance,$this->limit);
+        }
+    }
+    if ($tracks->count() >0){
+        foreach($tracks->getFeatures() as $track){
+            $track->addRelated($this->distance,$this->limit);
+        }
+    }
+
+    // WRITE AGAIN AFTER adding related
+    $pois->writeAllFeatures();
+    $tracks->writeAllFeatures();
+
+    return true;
+}
 
 }

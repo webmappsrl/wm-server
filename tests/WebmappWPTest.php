@@ -133,5 +133,36 @@ class WebmappWPTest extends TestCase
 
 	}
 
+	public function testLoadTaxonomies() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$tax=$wp->getTaxonomies();
+
+		$this->assertTrue(is_array($tax));
+
+		$this->assertTrue(is_array($tax['webmapp_category']));
+		$this->assertTrue(is_array($tax['activity']));
+		$this->assertTrue(is_array($tax['theme']));
+		$this->assertTrue(is_array($tax['who']));
+		$this->assertTrue(is_array($tax['when']));
+		$this->assertTrue(is_array($tax['where']));
+
+		$this->assertTrue(count($tax['webmapp_category'])>0);
+		$this->assertTrue(count($tax['activity'])>0);
+		$this->assertTrue(count($tax['theme'])>0);
+		$this->assertTrue(count($tax['who'])>0);
+		$this->assertTrue(count($tax['where'])>0);
+		$this->assertTrue(count($tax['when'])>0);
+
+		// Check a caso
+		$this->assertEquals('#dd3333',$tax['webmapp_category'][14]['color']);
+		$this->assertEquals('#262163',$tax['activity'][40]['color']);
+		$this->assertEquals('#d63767',$tax['theme'][45]['color']);
+		$this->assertEquals('#e03599',$tax['who'][44]['color']);
+		$this->assertEquals('#5b55d1',$tax['where'][46]['color']);
+		$this->assertEquals('#997a00',$tax['when'][43]['color']);
+
+	}
+
 
 }

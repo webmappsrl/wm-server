@@ -12,6 +12,8 @@ class WebmappWP {
 	private $api_categories;
 	private $per_page=100;
 
+	private $taxonomies=array();
+
 	public function __construct($code) {
 		$this->code = $code;
 
@@ -30,6 +32,32 @@ class WebmappWP {
 		$this->api_maps = "{$this->api_url}/map";
 		$this->api_categories = "{$this->api_url}/webmapp_category";
 
+	}
+
+	public function loadTaxonomies() {
+		$this->loadTaxonomy('webmapp_category');
+		$this->loadTaxonomy('activity');
+		$this->loadTaxonomy('theme');
+		$this->loadTaxonomy('who');
+		$this->loadTaxonomy('where');
+		$this->loadTaxonomy('when');
+		$this->loadTaxonomy('theme');
+	}
+
+	private function loadTaxonomy($name) {
+		$url=$this->api_url.'/'.$name;
+		$res = WebmappUtils::getMultipleJsonFromApi($url);
+		$new=array();
+		if(is_array($res) && count($res)>0){
+			foreach($res as $item){
+				$new[$item['id']]=$item;
+			}
+		}
+		$this->taxonomies[$name]=$new;
+	}
+
+	public function getTaxonomies() {
+		return $this->taxonomies;
 	}
 
 	public function getCode() {
@@ -295,13 +323,57 @@ class WebmappWP {
 		}
 		return $layers;
 	}
-	
-	public function getAllPoisLayer($path='') {
-		$l=new WebmappLayer('all-poi',$path);
+
+	public function getAllPoisLayer($path) {
+		$l=new WebmappLayer('all-pois',$path);
 		$items = WebmappUtils::getMultipleJsonFromApi($this->api_pois);
 		if(is_array($items) && count($items)>0) {
             foreach ($items as $item) {
-            	$l->addFeature(new WebmappPoiFeature($item));
+            	$p = new WebmappPoiFeature($item);
+            	$props = $p->getProperties();
+            	if(empty($p->getIcon())){
+            		if(isset($this->taxonomies['webmapp_category']) && 
+            			isset($props['taxonomy']) &&
+            			isset($props['taxonomy']['webmapp_category']) &&
+            			isset($props['taxonomy']['webmapp_category'][0])
+            			)
+            			$p->addProperty('icon',$this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['icon']);
+     
+            	}
+            	if(empty($p->getColor())){
+            		if(isset($this->taxonomies['webmapp_category']) && 
+            			isset($props['taxonomy']) &&
+            			isset($props['taxonomy']['webmapp_category']) &&
+            			isset($props['taxonomy']['webmapp_category'][0])
+            			)
+            			$p->addProperty('color',$this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['color']);
+            	}
+            	$p->writeToPostGis();
+            	$l->addFeature($p);
+            }
+		}
+		return $l;
+	}
+
+	public function getAllTracksLayer($path) {
+		$l=new WebmappLayer('all-tracks',$path);
+		$items = WebmappUtils::getMultipleJsonFromApi($this->api_tracks);
+		if(is_array($items) && count($items)>0) {
+            foreach ($items as $item) {
+            	$t = new WebmappTrackFeature($item);
+            	$props = $t->getProperties();
+
+            	if(empty($t->getColor())){
+            		if(isset($this->taxonomies['activity']) && 
+            			isset($props['taxonomy']) &&
+            			isset($props['taxonomy']['activity']) &&
+            			isset($props['taxonomy']['activity'][0])
+            			)
+            			$t->addProperty('color',$this->taxonomies['activity'][$props['taxonomy']['activity'][0]]['color']);            			
+            	}
+            	$t->write($path);
+            	$t->writeToPostGis();
+            	$l->addFeature($t);
             }
 		}
 		return $l;

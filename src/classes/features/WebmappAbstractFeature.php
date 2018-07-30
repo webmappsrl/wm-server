@@ -68,6 +68,10 @@ abstract class WebmappAbstractFeature {
         return $this->geojson_path;
     }
 
+    public function getProperties() {
+        return $this->properties;
+    }
+
     // Setters
     public function setImage($url) {
         $this->properties['image']=$url;
@@ -81,7 +85,20 @@ abstract class WebmappAbstractFeature {
     public function getWebmappCategoryIds() {
         return $this->webmapp_category_ids;
     }
-	
+
+    public function getIcon() {
+        if(isset($this->properties['icon'])) {
+            return $this->properties['icon'];
+        }
+        return '';
+    }
+    public function getColor() {
+        if(isset($this->properties['color'])) {
+            return $this->properties['color'];
+        }
+        return '';
+    }
+
 	// Costruisce la parte di array $properties comune a tutte le features (name, description, id)
     private function mappingStandard($json_array) {
     	$this->setProperty('id',$json_array);
@@ -393,6 +410,7 @@ abstract class WebmappAbstractFeature {
         while($row = pg_fetch_array($r)) {
             $id=$row['id'];
             $poi_path = $new_path."/poi/$id.geojson";
+            $poi_path=$this->checkPoiPath($poi_path);
             $neighbors[$id]=$this->getPoiInfoArray($poi_path,$row['distance']);
         }
         $this->properties['related']['poi']['neighbors']=$neighbors;
@@ -405,10 +423,26 @@ abstract class WebmappAbstractFeature {
         if (isset($id_pois) && count($id_pois) >0 ) {
             foreach($id_pois as $id) {
             $poi_path = $new_path."/poi/$id.geojson";
+            $poi_path=$this->checkPoiPath($poi_path);
             $related[$id]=$this->getPoiInfoArray($poi_path);
             }
         }
         $this->properties['related']['poi']['related']=$related;
+    }
+
+    // TODO: remove this PATCH
+    private function checkPoiPath($path) {
+        if(file_exists($path)) {
+            return $path;
+        }
+        else {
+            echo "ADDRELATED POI PATCH TODO: remove this PATCH!!!\n";
+            ////[...]/data/tmp/1532853048/geojson/800.geojson/poi/449.geojson 
+            ////[...]/data/tmp/1532853048/geojson/449.geojson 
+            $new_path = preg_replace('|/geojson/.*/poi/|','/geojson/',$path);
+            echo "OLD: $path NEW:$new_path";
+            return $new_path;
+        }
     }
 
 

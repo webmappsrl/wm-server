@@ -313,21 +313,37 @@ class WebmappUtils {
 	// Returns an array of multiple JSON API CALLS paged (?per_page=XX)
 	public static function getMultipleJsonFromApi($url) {
 		$r=array();
+
 		$page=1;
+		$go_next=false;
 		$paged_url=$url."?page=$page";
 		$headers=get_headers($paged_url);
 		$ret=$headers[0];
-		echo "\n";
-		while(preg_match('/200/',$ret)) {
-			echo "Fecthing values from $paged_url\n";
-            $r=array_merge($r,self::getJsonFromApi($paged_url));
-			$page++;
+		if (preg_match('/200/',$ret)){
+			$res=self::getJsonFromApi($paged_url);
+			if(is_array($res) && count($res)>0){
+				$r=array_merge($r,$res);
+				$go_next=true;
+			}
+		}
+
+		while($go_next) {
+			$page=$page+1;
+			$go_next=false;
 			$paged_url=$url."?page=$page";
 			$headers=get_headers($paged_url);
 			$ret=$headers[0];
+			if (preg_match('/200/',$ret)){
+				$res=self::getJsonFromApi($paged_url);
+				if(is_array($res) && count($res)>0){
+					$r=array_merge($r,$res);
+					$go_next=true;
+				}
+			}
 		}
 		return $r;
 	}
+
 	public static function slugify($text)
 	{
 		$text = preg_replace('~[^\pL\d]+~u', '-', $text);
@@ -360,5 +376,13 @@ class WebmappUtils {
         	$ids = $ids .' ' . $row['id'];
         }
 		return $ids;
+	}
+
+	public static function cleanPostGis() {
+		echo "Cleaning Postgis\n";
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM poi_tmp\"";
+        system($cmd);
+        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM track_tmp\"";
+        system($cmd);
 	}
 }
