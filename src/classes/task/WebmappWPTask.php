@@ -22,12 +22,25 @@ class WebmappWPTask extends WebmappAbstractTask {
     return TRUE;
 }
 
+private function processTaxonomies() {
+    $this->wp->loadTaxonomies();
+    $tax_path = $this->project_structure->getRoot().'/taxonomies';
+    if (!file_exists($tax_path)) {
+        if (!is_writable($this->project_structure->getRoot())) {
+            throw new Exception("Error Processing Request", 1);
+        }
+        $cmd = "mkdir $tax_path";
+        system($cmd);
+    }
+    $this->wp->writeTaxonomies($tax_path);
+}
+
 public function process(){
 
     $path = $this->project_structure->getRoot().'/geojson';
     WebmappUtils::cleanPostGis();
 
-    $this->wp->loadTaxonomies();
+    $this->processTaxonomies();
 
     // POI
     $pois = $this->wp->getAllPoisLayer($path);

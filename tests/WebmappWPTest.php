@@ -164,5 +164,21 @@ class WebmappWPTest extends TestCase
 
 	}
 
+	public function testWriteTaxonomies() {
+		$taxs = array('webmapp_category','theme','activity','who','where','when');
+		// CLEAN
+		foreach($taxs as $tax) {
+			$file = '/tmp/'.$tax.'.json';
+			$cmd = "rm -f $file";
+			system($cmd);
+		}
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$wp->writeTaxonomies('/tmp');
 
+		foreach ($taxs as $tax) {
+			$file = '/tmp/'.$tax.'.json';
+			$this->assertTrue(file_exists($file));
+		}		
+	}
 }

@@ -80,6 +80,14 @@ class WebmappWPTasksTests extends TestCase {
         $item=json_decode(file_get_contents($path.'/711.geojson'),TRUE);
         $this->assertTrue(isset($item['properties']['color']));
         $this->assertEquals('#262163',$item['properties']['color']);
+
+        $taxs = array('webmapp_category','theme','activity','who','where','when');
+        $tax_path = $p->getStructure()->getRoot().'/taxonomies';
+        foreach ($taxs as $tax) {
+            $file = $tax_path.'/'.$tax.'.json';
+            $this->assertTrue(file_exists($file));
+        }       
+
     }
 
     private function getStructure($url) {

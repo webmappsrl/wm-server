@@ -60,6 +60,22 @@ class WebmappWP {
 		return $this->taxonomies;
 	}
 
+	// TODO: add translations
+	public function writeTaxonomies($path) {
+		if (count($this->taxonomies)>0) {
+			if (!file_exists($path)) {
+				throw new Exception("Directory $path does not exist.", 1);		
+			}
+			if(!is_writeable($path)) {
+				throw new Exception("Directory $path is not writable", 1);
+			}
+			foreach ($this->taxonomies as $taxonomy => $items) {
+				$file = $path.'/'.$taxonomy.'.json';
+				file_put_contents($file, json_encode($items));
+			}			
+		}
+	}
+
 	public function getCode() {
 		return $this->code;
 	}
