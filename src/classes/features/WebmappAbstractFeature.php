@@ -99,6 +99,13 @@ abstract class WebmappAbstractFeature {
         return '';
     }
 
+    public function getId() {
+        if(isset($this->properties['id'])) {
+            return $this->properties['id'];
+        }
+        return '';        
+    }
+
 	// Costruisce la parte di array $properties comune a tutte le features (name, description, id)
     private function mappingStandard($json_array) {
     	$this->setProperty('id',$json_array);

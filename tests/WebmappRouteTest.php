@@ -23,6 +23,16 @@ class WebmappRouteTest extends TestCase {
 
 	}
 
+	public function testJson() {
+		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
+		$ja=json_decode($r->getJson(),TRUE);
+        $this->assertTrue(isset($ja['type']));
+        $this->assertEquals('FeatureCollection',$ja['type']);
+        $this->assertTrue(isset($ja['features']));
+        $this->assertTrue(count($ja['features'])>0);
+        $this->assertTrue(isset($ja['properties']));
+	}
+
 
 
 }

@@ -64,4 +64,26 @@ private function loadTracks() {
 	}
 }
 
+public function getJson() {
+	 $json = array();
+     $json['type']='FeatureCollection';
+     $json['properties']['id']=$this->id;
+     $json['properties']['name']=$this->title;
+     if(count($this->tracks) >0 ) {
+     	$features=array();
+     	$related=array();
+     	foreach($this->tracks as $track) {
+     		$features[]=$track->getJson();
+     		$related[]=$track->getId();
+     	}
+     	$json['properties']['related']['track']['related']=$related;
+     	$json['features']=$features;
+     }
+     return json_encode($json);
+}
+
+public function writeJson($path) {
+	file_put_contents($path, $this->getJson());
+}
+
 }
