@@ -371,6 +371,18 @@ class WebmappWP {
 		return $l;
 	}
 
+	public function getAllRoutesLayer($path) {
+		$l=new WebmappLayer('all-routes',$path);
+		$items = WebmappUtils::getMultipleJsonFromApi($this->api_routes);
+		if(is_array($items) && count($items)>0) {
+            foreach ($items as $item) {
+            	$p = new WebmappRoute($item,$this->base_url);
+            	$l->addFeature($p);
+            }
+		}
+		return $l;
+	}
+
 	public function getAllTracksLayer($path) {
 		$l=new WebmappLayer('all-tracks',$path);
 		$items = WebmappUtils::getMultipleJsonFromApi($this->api_tracks);

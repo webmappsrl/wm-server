@@ -11,10 +11,15 @@ class WebmappRoute {
     // Array con le lingue presenti
 	private $languages = array();
 
-	public function __construct ($array_or_url) {
-		$this -> base_url = preg_replace('|route/.*|', '', $array_or_url);
-		$this->json_array = WebmappUtils::getJsonFromApi($array_or_url);
-		
+	public function __construct ($array_or_url,$base_url='') {
+		if(is_array($array_or_url)) {
+	    	$this->json_array=$array_or_url;
+	    	$this->base_url=$base_url;		  
+	    }
+	    else {
+	    	$this -> base_url = preg_replace('|route/.*|', '', $array_or_url);
+		    $this->json_array = WebmappUtils::getJsonFromApi($array_or_url);
+	    }
 
 		if (isset($this->json_array['wpml_translations']) && 
 			is_array($this->json_array['wpml_translations']) &&

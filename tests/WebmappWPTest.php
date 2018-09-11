@@ -133,6 +133,15 @@ class WebmappWPTest extends TestCase
 
 	}
 
+	public function testGetAllRoutesLayer() {
+		$wp = new WebmappWp('dev');
+		$l = $wp->getAllRoutesLayer('/tmp');
+		$this->assertTrue(count($l->getFeatures())>0);
+		foreach($l->getFeatures() as $route) {
+			$this->assertEquals('WebmappRoute',get_class($route));
+		}
+	}
+
 	public function testLoadTaxonomies() {
 		$wp = new WebmappWP('dev');
 		$wp->loadTaxonomies();
