@@ -50,6 +50,10 @@ public function process(){
     $tracks = $this->wp->getAllTracksLayer($path);
     $tracks->writeAllFeatures();
 
+    // ROUTES
+    $routes = $this->wp->getAllRoutesLayer($path);
+    $routes->writeAllFeatures();
+
     // ADD related
     if ($pois->count() >0){
         foreach($pois->getFeatures() as $poi){

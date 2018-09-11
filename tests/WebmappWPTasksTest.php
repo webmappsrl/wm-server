@@ -86,7 +86,25 @@ class WebmappWPTasksTests extends TestCase {
         foreach ($taxs as $tax) {
             $file = $tax_path.'/'.$tax.'.json';
             $this->assertTrue(file_exists($file));
-        }       
+        }
+
+        // ROUTES 772 686 346
+        $this->assertTrue(file_exists($path.'/772.geojson'));     
+        $this->assertTrue(file_exists($path.'/686.geojson'));     
+        $this->assertTrue(file_exists($path.'/346.geojson')); 
+
+        $item=json_decode(file_get_contents($path.'/346.geojson'),TRUE);
+        $this->assertEquals('FeatureCollection',$item['type']);
+        $this->assertTrue(is_array($item['properties']['related']['track']['related']));
+        $related_track = $item['properties']['related']['track']['related'];
+        $this->assertTrue(in_array(348, $related_track));
+        $this->assertTrue(in_array(576, $related_track));
+        $this->assertTrue(is_array($item['features']));
+        foreach ($item['features'] as $track) {
+            $this->assertEquals('Feature',$track['type']);
+            $this->assertTrue(isset($track['properties']));
+            $this->assertTrue(isset($track['geometry']));
+        }
 
     }
 

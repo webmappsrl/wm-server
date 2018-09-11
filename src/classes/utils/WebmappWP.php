@@ -376,7 +376,7 @@ class WebmappWP {
 		$items = WebmappUtils::getMultipleJsonFromApi($this->api_routes);
 		if(is_array($items) && count($items)>0) {
             foreach ($items as $item) {
-            	$p = new WebmappRoute($item,$this->base_url);
+            	$p = new WebmappRoute($item,$this->base_url.'/wp-json/wp/v2/');
             	$l->addFeature($p);
             }
 		}

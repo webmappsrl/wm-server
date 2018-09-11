@@ -78,7 +78,7 @@ public function getJson() {
      	$features=array();
      	$related=array();
      	foreach($this->tracks as $track) {
-     		$features[]=$track->getJson();
+     		$features[]=json_decode($track->getJson(),TRUE);
      		$related[]=$track->getId();
      	}
      	$json['properties']['related']['track']['related']=$related;
@@ -87,8 +87,8 @@ public function getJson() {
      return json_encode($json);
 }
 
-public function writeJson($path) {
-	file_put_contents($path, $this->getJson());
+public function write($path) {
+	file_put_contents($path.'/'.$this->id.'.geojson', $this->getJson());
 }
 
 }
