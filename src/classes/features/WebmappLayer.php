@@ -185,6 +185,14 @@ class WebmappLayer {
 		}
 	}
 
+	public function writeAllRelated($path) {
+		if (count($this->features)>0) {
+			foreach ($this->features as $f) {
+				$f->writeRelated($path);
+			}
+		}
+	}
+
     // Restituisce un array con il BB
 	public function getBB() {
 		$bb = array();

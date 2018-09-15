@@ -416,9 +416,10 @@ abstract class WebmappAbstractFeature {
         $neighbors = array();
         while($row = pg_fetch_array($r)) {
             $id=$row['id'];
-            $poi_path = $new_path."/poi/$id.geojson";
-            $poi_path=$this->checkPoiPath($poi_path);
-            $neighbors[$id]=$this->getPoiInfoArray($poi_path,$row['distance']);
+            // $poi_path = $new_path."/poi/$id.geojson";
+            // $poi_path=$this->checkPoiPath($poi_path);
+            // $neighbors[$id]=$this->getPoiInfoArray($poi_path,$row['distance']);
+            $neighbors[]=$id;
         }
         $this->properties['related']['poi']['neighbors']=$neighbors;
 
@@ -483,6 +484,31 @@ abstract class WebmappAbstractFeature {
             $r['lat'] = $lat;
             $r['lon'] = $lon;
             return $r;
+    }
+
+    public function writeRelated($path) {
+        $this->writeRelatedSpecific($path,'poi','related');
+        $this->writeRelatedSpecific($path,'poi','neighbors');
+        $this->writeRelatedSpecific($path,'track','related');
+        $this->writeRelatedSpecific($path,'track','neighbors');
+        $this->writeRelatedSpecific($path,'route','related');
+        $this->writeRelatedSpecific($path,'route','neighbors');
+    }
+    private function writeRelatedSpecific($path,$ftype,$rtype) {
+        if(isset($this->properties['related'][$ftype][$rtype])) {
+            $rel = $this->properties['related'][$ftype][$rtype];
+            if(is_array($rel)&&count($rel)>0) {
+                $fname=$path.'/'.$this->getId().'_'.$ftype.'_'.$rtype.'.geojson';
+                $features=array();
+                $j=array();
+                foreach ($rel as $id) {
+                    $features[]=json_decode(file_get_contents($path.'/'.$id.'.geojson'),TRUE);
+                }
+                $j['type']='FeatureCollection';
+                $j['features']=$features;
+                file_put_contents($fname,json_encode($j));
+            }
+        }
     }
 
 }

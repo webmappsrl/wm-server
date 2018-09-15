@@ -70,6 +70,8 @@ public function process(){
     $pois->writeAllFeatures();
     $tracks->writeAllFeatures();
 
+    $pois->writeAllRelated($path);
+
     return true;
 }
 
