@@ -88,6 +88,11 @@ $index = <<<EOS
 
         <!-- APP -->
 
+        <script type="text/javascript">
+            var templateBasePath = 'core/',
+                templateCustomPath = '';
+        </script>
+
         <script src="core/js/settings/globalVariables.js"></script>
         <script src="core/js/app.js"></script>
 
@@ -104,6 +109,7 @@ $index = <<<EOS
         <script src="core/js/services/communication.factory.js"></script>
         <script src="core/js/services/auth.factory.js"></script>
         <script src="core/js/services/account.factory.js"></script>
+        <script src="core/js/services/tracking.factory.js"></script>
         <script src="core/js/services/geolocation.factory.js"></script>
         <script src="core/js/services/search.factory.js"></script>
         <script src="core/js/services/model.factory.js"></script>
