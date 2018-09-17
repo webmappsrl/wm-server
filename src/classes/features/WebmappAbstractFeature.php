@@ -430,9 +430,10 @@ abstract class WebmappAbstractFeature {
 
         if (isset($id_pois) && count($id_pois) >0 ) {
             foreach($id_pois as $id) {
-            $poi_path = $new_path."/poi/$id.geojson";
-            $poi_path=$this->checkPoiPath($poi_path);
-            $related[$id]=$this->getPoiInfoArray($poi_path);
+            //$poi_path = $new_path."/poi/$id.geojson";
+            //$poi_path=$this->checkPoiPath($poi_path);
+            //$related[$id]=$this->getPoiInfoArray($poi_path);
+                $related[]=$id;
             }
         }
         $this->properties['related']['poi']['related']=$related;
