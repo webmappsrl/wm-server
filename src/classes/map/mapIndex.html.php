@@ -41,6 +41,7 @@ $index = <<<EOS
         <script src="core/lib/LPF.js"></script>
         <script src="core/lib/jquery/dist/jquery.min.js"></script>
         <script src="core/lib/ionic/js/ionic.bundle.min.js"></script>
+        <script src="core/lib/ionic/js/ionic.native.js"></script>
 
         <script src="core/lib/clipboard/dist/clipboard.min.js"></script>
         <script src="core/lib/jsSHA/src/sha1.js"></script>
@@ -48,6 +49,10 @@ $index = <<<EOS
         <script src="core/lib/js-search/dist/js-search.min.js"></script>
         <script src="core/lib/igTruncate/igTruncate.js"></script>
         <script src="core/lib/JsBarcode/dist/JsBarcode.all.min.js"></script>
+        <script src="core/lib/angular-md5/angular-md5.js"></script>
+
+        <script src="core/lib/angular-translate/angular-translate.min.js"></script>
+        <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
 
         <script src="core/lib/leaflet/leaflet.js"></script>
         <script src="core/lib/leaflet_plugin/leaflet-hash-mod/leaflet-hash.js"></script>
@@ -71,6 +76,8 @@ $index = <<<EOS
         <script src="core/lib/ng-country-select/dist/ng-country-select.js"></script>
         <script src="core/lib/pouchdb/pouchdb.min.js"></script>
         <script src="cordova.js"></script>
+        <script src="core/lib/turf/outTurf.js"></script>
+        <script src="core/lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
 
         <!-- DEVELOP -->
         <!-- <script src="core/lib/connector.js" data-channel="mp-vc" id="consolerescript"></script> -->
@@ -86,6 +93,7 @@ $index = <<<EOS
                 templateCustomPath = '';
         </script>
 
+        <script src="core/js/settings/globalVariables.js"></script>
         <script src="core/js/app.js"></script>
 
         <script src="core/js/settings/configProvider.js"></script>
@@ -102,6 +110,7 @@ $index = <<<EOS
         <script src="core/js/services/auth.factory.js"></script>
         <script src="core/js/services/account.factory.js"></script>
         <script src="core/js/services/tracking.factory.js"></script>
+        <script src="core/js/services/geolocation.factory.js"></script>
         <script src="core/js/services/search.factory.js"></script>
         <script src="core/js/services/model.factory.js"></script>
         <script src="core/js/services/utils.factory.js"></script>
@@ -110,30 +119,27 @@ $index = <<<EOS
         <script src="core/js/services/languages.factory.js"></script>
         <script src="core/js/services/package.factory.js"></script>
 
-        <script src="core/js/components/languages/languages.controller.js"></script>
-        <script src="core/js/components/welcome/welcome.controller.js"></script>
-        <script src="core/js/components/coupons/coupons.controller.js"></script>
-        <script src="core/js/components/packages/packages.controller.js"></script>
-        <script src="core/js/components/settings/settings.controller.js"></script>
-        <script src="core/js/components/search/search.controller.js"></script>
-        <script src="core/js/components/mapView/mapView.controller.js"></script>
-        <script src="core/js/components/list/list.controller.js"></script>
-        <script src="core/js/components/card/card.controller.js"></script>
-        <script src="core/js/components/details/details.controller.js"></script>
-        <script src="core/js/components/detailRoute/detailRoute.controller.js"></script>
-        <script src="core/js/components/main/main.controller.js"></script>
-        <script src="core/js/components/menu/menu.controller.js"></script>
-        <script src="core/js/components/custom/custom.controller.js"></script>
-        <script src="core/js/components/webmapp/webmapp.controller.js"></script>
         <script src="core/js/components/attribution/attribution.controller.js"></script>
-        <script src="core/js/components/home/home.controller.js"></script>
-        <script src="core/js/components/help/help.controller.js"></script>
+        <script src="core/js/components/card/card.controller.js"></script>
+        <script src="core/js/components/coupons/coupons.controller.js"></script>
+        <script src="core/js/components/custom/custom.controller.js"></script>
+        <script src="core/js/components/detailRoute/detailRoute.controller.js"></script>
+        <script src="core/js/components/details/details.controller.js"></script>
         <script src="core/js/components/detailTaxonomy/detailTaxonomy.controller.js"></script>
+        <script src="core/js/components/help/help.controller.js"></script>
+        <script src="core/js/components/home/home.controller.js"></script>
+        <script src="core/js/components/languages/languages.controller.js"></script>
+        <script src="core/js/components/list/list.controller.js"></script>
+        <script src="core/js/components/main/main.controller.js"></script>
+        <script src="core/js/components/mapView/mapView.controller.js"></script>
+        <script src="core/js/components/menu/menu.controller.js"></script>
+        <script src="core/js/components/packages/packages.controller.js"></script>
+        <script src="core/js/components/search/search.controller.js"></script>
+        <script src="core/js/components/settings/settings.controller.js"></script>
         <script src="core/js/components/taxonomy/taxonomy.controller.js"></script>
-
+        <script src="core/js/components/webmapp/webmapp.controller.js"></script>
+        <script src="core/js/components/welcome/welcome.controller.js"></script>
         <script src="core/js/components/popupOpener/popupOpener.controller.js"></script>
-
-
     </head>
 
     <body ng-app="webmapp">
