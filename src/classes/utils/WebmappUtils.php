@@ -316,7 +316,7 @@ class WebmappUtils {
 
 		$page=1;
 		$go_next=false;
-		$paged_url=$url."?page=$page";
+        $paged_url=self::getPagedUrl($url,$page);
 		$headers=get_headers($paged_url);
 		$ret=$headers[0];
 		if (preg_match('/200/',$ret)){
@@ -330,7 +330,7 @@ class WebmappUtils {
 		while($go_next) {
 			$page=$page+1;
 			$go_next=false;
-			$paged_url=$url."?page=$page";
+            $paged_url=self::getPagedUrl($url,$page);
 			$headers=get_headers($paged_url);
 			$ret=$headers[0];
 			if (preg_match('/200/',$ret)){
@@ -342,6 +342,16 @@ class WebmappUtils {
 			}
 		}
 		return $r;
+	}
+
+	public static function getPagedUrl($url,$page) {
+		if(preg_match('|\?|',$url)) {
+			$paged_url = $url . "&page=$page";
+		}
+		else {
+			$paged_url = $url . "?page=$page";
+		}
+		return $paged_url;
 	}
 
 	public static function slugify($text)

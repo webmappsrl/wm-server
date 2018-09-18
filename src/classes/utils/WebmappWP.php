@@ -315,6 +315,8 @@ class WebmappWP {
 			//http://dev.be.webmapp.it/wp-json/wp/v2/poi?per_page=100&orderby=title&order=asc
 			$api = $api . '&per_page='.$this->per_page.'&orderby=title&order=asc' ;
 			$features = WebmappUtils::getJsonFromApi($api);
+			//$api = $api . '&orderby=title&order=asc' ;
+			//$features = WebmappUtils::getMultipleJsonFromApi($api)
 			if(is_array($features) && count($features) > 0 ) {
 				$layer = new WebmappLayer($type.'s_'.$cat_id);
 				$layer->loadMetaFromUrl($this->getApiCategory($cat_id));
