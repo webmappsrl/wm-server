@@ -13,7 +13,7 @@ class WebmappEmpTask extends WebmappAbstractTask {
         echo "\nRAW: $rpath";
         echo "\nBAK: $bpath";
 
-        $l=new WebmappLayer('incendio');
+        $l=new WebmappLayer('report');
 
         $d = dir($rpath);
         while (false !== ($j = $d->read())) {
