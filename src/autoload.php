@@ -53,4 +53,5 @@ require 'classes/custom/WebmappVetrinaToscanaTask.php';
 require 'classes/custom/WebmappDrupalTask.php';
 require 'classes/custom/WebmappPNABAlgorabTask.php';
 require 'classes/custom/WebmappAlaTask.php';
+require 'classes/custom/WebmappEmpTask.php';
 require 'classes/custom/WebmappPfEventsTask.php';
