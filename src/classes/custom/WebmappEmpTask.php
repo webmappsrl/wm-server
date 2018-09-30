@@ -35,12 +35,14 @@ class WebmappEmpTask extends WebmappAbstractTask {
             if(!empty($picture)) {
                 echo " picture:yes ";
                 $has_picture = "yes";
+                $path = $this->getRoot()."/media/images/$id.jpg";
+                $this->writeImage($picture,$path);
             } else {
                 echo " picture:no ";
                 $has_picture = "no";
             }
             // POI
-            $data = date('m/d/Y H:i', $id);
+            $data = date('m/d/Y H:i', (int) $id/1000);
             $title = $data;
             $content = <<<EOF
 Segnalazione del $data <br />
@@ -59,6 +61,9 @@ EOF;
             $jp['n7webmap_coord']['lat']=$ja['lat'];
 
             $poi = new WebmappPoiFeature($jp);
+            if ($has_picture=='yes') {
+                $poi->addProperty('image',"http://emp.j.webmapp.it/media/images/$id.jpg");
+            }
             $l->addFeature($poi);
 
            }
@@ -69,5 +74,12 @@ EOF;
         echo "\n\nDONE\n\n";
     	return TRUE;
     }
+
+    private function writeImage($sb64,$path) {
+        $ifp = fopen( $path, 'wb' ); 
+        fwrite( $ifp, base64_decode( $sb64) );
+        fclose( $ifp ); 
+    }
+
 
 }
