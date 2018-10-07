@@ -202,4 +202,11 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals('http://dev.be.webmapp.it/poi/test-per-languages-overlay-layers/',$j['properties']['web']);                        
         }
 
+        public function testMediumImage() {
+            $poi = new WebmappPoiFeature('http://outcropedia.be.webmapp.it/wp-json/wp/v2/poi/1478');
+            $j = json_decode($poi->getJson(),true);
+            $this->assertTrue(isset($j['properties']['image']));
+            $this->assertEquals('http://outcropedia.be.webmapp.it/wp-content/uploads/2018/06/Zimudang-thrust-300x203.jpg',$j['properties']['image']);
+        }
+
 }

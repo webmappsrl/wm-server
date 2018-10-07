@@ -138,6 +138,8 @@ abstract class WebmappAbstractFeature {
             $jm = WebmappUtils::getJsonFromApi($json_array['_links']['wp:featuredmedia'][0]['href']);
             if (isset($jm['media_details']['sizes']['medium_large'])){
                $this->setImage($jm['media_details']['sizes']['medium_large']['source_url']);
+            } else if (isset($jm['media_details']['sizes']['medium'])) {
+               $this->setImage($jm['media_details']['sizes']['medium']['source_url']);                
             }
         }
 
