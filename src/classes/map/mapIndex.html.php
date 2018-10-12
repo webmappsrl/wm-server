@@ -27,9 +27,6 @@ $index = <<<EOS
 
         <link href="core/css/font-awesome.min.css" rel="stylesheet">
         <link href="core/lib/leaflet/leaflet.css" rel="stylesheet">
-        <!-- <link href='core/css/mapbox2.2.2.min.css' rel='stylesheet' /> -->
-        <!-- <link href="core/css/fonts.css" rel="stylesheet" />
-        <link href="core/css/style.min.css" rel="stylesheet" /> -->
 
         <link rel="stylesheet" type="text/css" href="core/css/fonts.css" media="none" onload="document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {document.body.className+=' fontsloaded';}, 1000);}); this.media='all';">
         <link rel="stylesheet" type="text/css" href="core/css/style.min.css" media="none" onload="this.media='all';">
@@ -79,10 +76,6 @@ $index = <<<EOS
         <script src="core/lib/turf/outTurf.js"></script>
         <script src="core/lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
 
-        <!-- DEVELOP -->
-        <!-- <script src="core/lib/connector.js" data-channel="mp-vc" id="consolerescript"></script> -->
-        <!-- <script src="_cordova/cordova.js"></script> -->
-
         <script src="core/lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
         <script src="core/lib/turf/outTurf.js"></script>
 
@@ -104,12 +97,9 @@ $index = <<<EOS
         <script src="core/js/settings/filters.js"></script>
         <script src="core/js/settings/compile.js"></script>
 
-        <script src="config.js"></script>
-
         <script src="core/js/services/communication.factory.js"></script>
         <script src="core/js/services/auth.factory.js"></script>
         <script src="core/js/services/account.factory.js"></script>
-        <script src="core/js/services/tracking.factory.js"></script>
         <script src="core/js/services/geolocation.factory.js"></script>
         <script src="core/js/services/search.factory.js"></script>
         <script src="core/js/services/model.factory.js"></script>
@@ -167,4 +157,3 @@ $index = <<<EOS
 </html>
 
 EOS;
-
