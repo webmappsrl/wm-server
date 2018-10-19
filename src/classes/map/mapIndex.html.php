@@ -79,19 +79,10 @@ $index = <<<EOS
         <script src="core/lib/turf/outTurf.js"></script>
         <script src="core/lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
 
-        <!-- DEVELOP -->
-        <!-- <script src="core/lib/connector.js" data-channel="mp-vc" id="consolerescript"></script> -->
-        <!-- <script src="_cordova/cordova.js"></script> -->
-
         <script src="core/lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
         <script src="core/lib/turf/outTurf.js"></script>
 
         <!-- APP -->
-
-        <script type="text/javascript">
-            var templateBasePath = 'core/',
-                templateCustomPath = '';
-        </script>
 
         <script src="core/js/settings/globalVariables.js"></script>
         <script src="core/js/app.js"></script>
@@ -104,12 +95,9 @@ $index = <<<EOS
         <script src="core/js/settings/filters.js"></script>
         <script src="core/js/settings/compile.js"></script>
 
-        <script src="config.js"></script>
-
         <script src="core/js/services/communication.factory.js"></script>
         <script src="core/js/services/auth.factory.js"></script>
         <script src="core/js/services/account.factory.js"></script>
-        <script src="core/js/services/tracking.factory.js"></script>
         <script src="core/js/services/geolocation.factory.js"></script>
         <script src="core/js/services/search.factory.js"></script>
         <script src="core/js/services/model.factory.js"></script>
@@ -167,4 +155,3 @@ $index = <<<EOS
 </html>
 
 EOS;
-
