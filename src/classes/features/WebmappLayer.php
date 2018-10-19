@@ -18,7 +18,6 @@ class WebmappLayer {
 	// Array associativo che contiene le traduzioni dei label del layer
 	private $languages = array();
 
-
 	public function __construct($name,$path='') {
 		// TODO: check parameter
 		$this->name = $name;
@@ -60,6 +59,10 @@ class WebmappLayer {
 
 	public function getID() {
 		return $this->id;
+	}
+
+	public function setID($val) {
+		$this->id = $val;
 	}
 
 	public function getIcon() {
