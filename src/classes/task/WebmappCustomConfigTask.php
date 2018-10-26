@@ -18,7 +18,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             throw new Exception("File di configurazione malformato: parametro APPEND deve essere di tipo array", 1);
            }
            foreach($this->append as $key => $val) {
-            if(!in_array($key, array('MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS','SEARCH','DETAIL_MAPPING','MAP'))) {
+            if(!in_array($key, array('NAVIGATION', 'MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS','SEARCH','DETAIL_MAPPING','MAP'))) {
                 throw new Exception("La chiave $key non è supportata", 1);
             }
            }
@@ -34,7 +34,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         echo "Starting Process - TYPE:".get_class($this)." - NAME:".$this->name."\n";
            $this->conf_path = $this->project_structure->getRoot().'/config.json';
            if(!file_exists($this->conf_path)) {
-              throw new Exception("il file ".$this->conf_path." non esiste. Questo task deve essere lanciato in sequenza ad un task precedente che generi un file di configurazione. Controlla le impostazioni del file di configurazione del server.", 1);            
+              throw new Exception("il file ".$this->conf_path." non esiste. Questo task deve essere lanciato in sequenza ad un task precedente che generi un file di configurazione. Controlla le impostazioni del file di configurazione del server.", 1);
            }
            $this->conf_array = json_decode(file_get_contents($this->conf_path),TRUE);
         if (count($this->append)==0) {
@@ -44,6 +44,9 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         // Process
         foreach($this->append as $key => $val) {
             switch ($key) {
+                case 'NAVIGATION':
+                    $this->processNavigation($val);
+                    break;
                 case 'MENU':
                     $this->processMenu($val);
                     break;
@@ -74,7 +77,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
                 case 'MAP':
                     $this->processMap($val);
                     break;
-                
+
                 default:
                     throw new Exception("$key non valida.", 1);
                     break;
@@ -96,6 +99,19 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         return TRUE;
     }
 
+    private function processNavigation($val) {
+        $navigation = array();
+        if(isset($this->conf_array['NAVIGATION'])) {
+            $navigation = $this->conf_array['NAVIGATION'];
+        }
+        if(!is_array($val)) {
+            throw new Exception("Il valore della varabile di configurazione NAVIGATION deve essere un array.", 1);
+        }
+        foreach ($val as $key => $value) {
+            $navigation[]=$value;
+        }
+        $this->conf_array['NAVIGATION']=$navigation;
+    }
     private function processMenu($val) {
         $menu = array();
         if(isset($this->conf_array['MENU'])) {
@@ -120,7 +136,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $pages[]=$value;
         }
-        $this->conf_array['PAGES']=$pages;        
+        $this->conf_array['PAGES']=$pages;
     }
     private function processOverlayLayers($val) {
         $ov = array();
@@ -133,7 +149,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $ov[]=$value;
         }
-        $this->conf_array['OVERLAY_LAYERS']=$ov;        
+        $this->conf_array['OVERLAY_LAYERS']=$ov;
     }
     private function processCommunication($val) {
         $c = array();
@@ -146,7 +162,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['COMMUNICATION']=$c;        
+        $this->conf_array['COMMUNICATION']=$c;
     }
     private function processSearch($val) {
         $c = array();
@@ -159,7 +175,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['SEARCH']=$c;        
+        $this->conf_array['SEARCH']=$c;
     }
     private function processInclude($val) {
         $c = array();
@@ -172,7 +188,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['INCLUDE']=$c;        
+        $this->conf_array['INCLUDE']=$c;
     }
     private function processLogin($val) {
         $c = array();
@@ -185,7 +201,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['LOGIN']=$c;        
+        $this->conf_array['LOGIN']=$c;
     }
     private function processOptions($val) {
         $c = array();
@@ -198,7 +214,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['OPTIONS']=$c;        
+        $this->conf_array['OPTIONS']=$c;
     }
 
     private function processDetailMapping($val) {
@@ -212,7 +228,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['DETAIL_MAPPING']=$c;        
+        $this->conf_array['DETAIL_MAPPING']=$c;
     }
 
     private function processMap($val) {
@@ -226,7 +242,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
         foreach ($val as $key => $value) {
             $c[$key]=$value;
         }
-        $this->conf_array['MAP']=$c;        
+        $this->conf_array['MAP']=$c;
     }
 
 }
