@@ -395,4 +395,38 @@ class WebmappUtils {
         $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM track_tmp\"";
         system($cmd);
 	}
+	// Crea un layer di POI generato a partire dalle ROUTE
+	public static function createRouteIndexLayer($api_url){
+		$track_api_url = preg_replace('|/wp-json/wp/v2/route|', '/wp-json/wp/v2/track', $api_url);
+		$l = new WebmappLayer('route_index');
+		$routes = self::getMultipleJsonFromApi($api_url);
+		if (count($routes)>0) {
+			foreach ($routes as $route) {
+				$poi = new WebmappPoiFeature($route,true);
+				if (is_array($route['n7webmap_route_related_track'])&&count($route['n7webmap_route_related_track'])>0){
+					$first_track = $route['n7webmap_route_related_track'][0];
+					$track = self::getJsonFromApi($track_api_url.'/'.$first_track['ID']);
+					if (isset($track['n7webmap_geojson'])&&!empty($track['n7webmap_geojson'])) {
+						$geom = unserialize($track['n7webmap_geojson']);
+						if (isset($geom['coordinates'])
+							&&is_array($geom['coordinates'])
+							&&count($geom['coordinates'])>0) {
+							$lon = $geom['coordinates'][0][0];
+							$lat = $geom['coordinates'][0][1];
+							$poi->setGeometry($lon,$lat);
+							$l->addFeature($poi);
+						} else {
+							echo "WARN: X bad geometry track (".$track['id']."): SKIPPING\n";
+						}
+					} else {
+						echo "WARN: bad geometry track (".$track['id']."): SKIPPING\n";
+					}
+				}
+				else {
+					echo "WARN: no tracks in route (".$route['id']."): SKIPPING\n";
+				}				
+			}
+		}
+		return $l;
+	}
 }

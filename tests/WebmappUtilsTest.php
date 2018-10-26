@@ -205,4 +205,26 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertTrue(is_array($r));
 		$this->assertTrue(count($r)>0);
 	}
+
+
+	public function testRouteIndex() {
+		$api_url = "http://dev.be.webmapp.it/wp-json/wp/v2/route";
+		$l = WebmappUtils::createRouteIndexLayer($api_url);
+		$this->assertTrue($l->count()>0);
+		$j=json_decode($l->getGeoJson(),TRUE);
+		$features=$j['features'];
+		$values=array(
+			'772'=>array(10.396649837494,43.716170598881),
+			'686'=>array(6.86924,45.92367),
+			'346'=>array(10.396649837494,43.716170598881)
+			);
+		foreach($features as $f) {
+			$id = $f['properties']['id'];
+			$lon = $f['geometry']['coordinates'][0];
+			$lat = $f['geometry']['coordinates'][1];
+			$this->assertEquals($lon,$values[$id][0]);
+			$this->assertEquals($lat,$values[$id][1]);
+		}
+
+	}
 }

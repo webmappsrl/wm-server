@@ -24,7 +24,7 @@ abstract class WebmappAbstractFeature {
 
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
-	public function __construct ($array_or_url) {
+	public function __construct ($array_or_url,$skip_geometry=false) {
 		if (!is_array($array_or_url)) {
 			// E' Un URL quindi leggo API WP e converto in array
 			$json_array = WebmappUtils::getJsonFromApi($array_or_url);
@@ -46,8 +46,10 @@ abstract class WebmappAbstractFeature {
                     $lang_url = preg_replace('|\d+$|', $id, $url);
                     $json_t = WebmappUtils::getJsonFromApi($lang_url);
                     // TODO: estendere oltre a name e description (variabile globale?)
-                    $this->translate($lang,'name',$json_t['title']['rendered']);
-                    $this->translate($lang,'description',$json_t['content']['rendered']);
+                    if (isset($json_t['title']['rendered']))
+                       $this->translate($lang,'name',$json_t['title']['rendered']);
+                    if (isset($json_t['content']['rendered']))
+                        $this->translate($lang,'description',$json_t['content']['rendered']);
                 }
             }
         $this->json_array = $json_array;
@@ -55,7 +57,8 @@ abstract class WebmappAbstractFeature {
         // TODO: non passare $json_array ma usare la proprietà
 		$this->mappingStandard($json_array);
 		$this->mappingSpecific($json_array);
-		$this->mappingGeometry($json_array);
+        if(!$skip_geometry)
+		  $this->mappingGeometry($json_array);
 	}
 
     // Simple Getters

@@ -106,6 +106,24 @@ class WebmappWPTasksTests extends TestCase {
             $this->assertTrue(isset($track['geometry']));
         }
 
+        // Route index
+        $this->assertTrue(file_exists($path.'/route_index.geojson'));
+        $j=WebmappUtils::getJsonFromApi($path.'/route_index.geojson');
+        $features=$j['features'];
+        $values=array(
+            '772'=>array(10.396649837494,43.716170598881),
+            '686'=>array(6.86924,45.92367),
+            '346'=>array(10.396649837494,43.716170598881)
+            );
+        foreach($features as $f) {
+            $id = $f['properties']['id'];
+            $lon = $f['geometry']['coordinates'][0];
+            $lat = $f['geometry']['coordinates'][1];
+            $this->assertEquals($lon,$values[$id][0]);
+            $this->assertEquals($lat,$values[$id][1]);
+        }
+
+
     }
 
     private function getStructure($url) {
