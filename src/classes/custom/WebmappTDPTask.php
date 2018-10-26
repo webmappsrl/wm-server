@@ -17,6 +17,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
         $num_pois = count($pois);
         $num_cats = count($this->categories);
         echo "\n\n Processing $num_cats CATS $num_pois POIS \n\n";
+        $path = $this->getRoot().'/geojson';
 
         foreach ($pois as $ja) {
             // Esempio di MAPPING per la creazione di un POI
@@ -41,13 +42,12 @@ class WebmappTDPTask extends WebmappAbstractTask {
             $j['n7webmap_coord']['lng']=$ja['acf']['territorio_geolocalizzazione']['lng'];
             $j['n7webmap_coord']['lat']=$ja['acf']['territorio_geolocalizzazione']['lat'];
             $poi = new WebmappPoiFeature($j);
+            $poi->write($path);
             $cat_id = $ja['categories'][0];
             $l=$this->categories[$cat_id];
             $l->addFeature($poi);
-
         }
 
-        $path = $this->getRoot().'/geojson';
         foreach ($this->categories as $id => $l) {
             if($l->count() > 0) {
                 $l->write($path);
