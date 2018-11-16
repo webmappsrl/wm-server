@@ -1,25 +1,10 @@
 <?php // WebmappOSMRelation
 
-class WebmappOSMRelation {
-	private $url = '';
-	private $xml;
-	private $properties = array();
-	private $is_super_relation = false;
-
+class WebmappOSMRelationOld {
 
 	public function __construct($osmid) {
 		// Controlla esistenza della relation
 		$this->url = "https://www.openstreetmap.org/api/0.6/relation/$osmid/full";
-	}
-
-	public function getProperties() {
-		return $this->properties;
-	}
-	public function getUrl() {
-		return $this->url;
-	}
-	public function isSuperRelation() {
-		return $this->is_super_relation;
 	}
 
 	public function load() {

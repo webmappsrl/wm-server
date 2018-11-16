@@ -9,5 +9,8 @@
 		"password" : "xxxx",
 		"db_features" : "xxxx",
 		"db_osm" : "xxx"
+	},
+	"google" : {
+		"api_key" : "XXXXX"
 	}
 }

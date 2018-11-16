@@ -343,6 +343,58 @@ class WebmappUtils {
 		}
 		return $r;
 	}
+    // Gestire la cache tramite SQLLITE
+	public static function getXMLFromUrl($url) {
+		// echo "getJsonFromApi($url) \n";
+		global $wm_config;
+		echo "Fecthing XML from $url ... ";
+		$download = true;
+		$webcache = false;
+		if (isset($wm_config['webcache']) && 
+			isset($wm_config['webcache']['enabled']) && 
+			$wm_config['webcache']['enabled']==true) {
+			if(!isset($wm_config['webcache']['db'])) {
+				throw new Exception("config.json malconfigurato: webcache enabled e db non definito.", 1);
+			}
+			$db_file=$wm_config['webcache']['db'];
+			if(file_exists($db_file)) {
+				$webcache=true;
+				$db=new SQLite3($db_file);
+			}
+			else {
+				echo "WARN: webcache db not created. Use CLI to create it.";
+			}
+		}
+
+		if ($webcache) {
+			// Try to retrieve from cache
+			$q="SELECT content from webcache where url='$url'";
+			$r=$db->query($q);
+			while ($row=$r->fetchArray()) {
+				$output = simplexml_load_string($row['content']);
+				$download = false;
+				echo " cache.";
+			}
+		}
+		if ($download) {
+			$content = file_get_contents($url);
+			$output = simplexml_load_string($content);
+			if ($webcache) {
+				// Write on DB
+				$q="INSERT into webcache (url,content,timestamp) VALUES (:url,:content,:time)";
+				$s=$db->prepare($q);
+				$s->bindParam(':url',$url);
+				$s->bindParam(':content',$content);
+				$time=time();
+				$s->bindParam(':time',$time);
+				$s->execute();
+			}
+		}
+		echo "\n";
+		return $output;
+	}
+
+
 
 	public static function getPagedUrl($url,$page) {
 		if(preg_match('|\?|',$url)) {
@@ -428,5 +480,12 @@ class WebmappUtils {
 			}
 		}
 		return $l;
+	}
+
+	public static function googleGeocode($address) {
+		global $wm_config;
+		$key=$wm_config['google']['api_key'];
+		$url='';
+
 	}
 }

@@ -15,7 +15,10 @@ $wm_config = json_decode(file_get_contents($conf),TRUE);
 require 'classes/utils/WebmappExceptions.php';
 require 'classes/utils/WebmappUtils.php';
 require 'classes/utils/WebmappGeoJson.php';
-require 'classes/utils/WebmappOSMRelation.php';
+
+// OSM
+require 'classes/osm/WebmappOSMFeature.php';
+require 'classes/osm/WebmappOSMRelation.php';
 
 require 'classes/task/WebmappProject.php';
 require 'classes/task/WebmappProjectStructure.php';

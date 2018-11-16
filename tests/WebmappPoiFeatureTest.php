@@ -133,10 +133,10 @@ class WebmappPoiFeatureTest extends TestCase {
         }
 
         public function testContentFrom() {
-            $poi = new WebmappPoiFeature('http://pnab.it/wp-json/wp/v2/poi/1034');
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/890');
             $j = json_decode($poi->getJson(),true);
             $d = $j['properties']['description'];
-            $this->assertRegExp('|16 giugno a dom|',$d);            
+            $this->assertRegExp('|TESTO DI TEST PER CONTENT FROM|',$d);            
         }
 
         public function testTaxonomy() {
