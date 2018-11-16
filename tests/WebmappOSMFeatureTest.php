@@ -5,11 +5,16 @@ use PHPUnit\Framework\TestCase;
 class WebmappOSMFeatureTest extends TestCase {
 
 
-	private function process($url,$feature,$properties=array()) {
+	private function process($url,$feature,$properties=array(),$tags=array()) {
 		$this->assertEquals($url,$feature->getUrl());
 		if (count($properties)>0) {
 			foreach($properties as $k => $v) {
 				$this->assertEquals($v,$feature->getProperty($k));
+			}
+		}
+		if (count($tags)>0) {
+			foreach($tags as $k => $v) {
+				$this->assertEquals($v,$feature->getTag($k));
 			}
 		}
 	} 
@@ -28,7 +33,26 @@ class WebmappOSMFeatureTest extends TestCase {
 			"user"=>"Gianfranco2014",
 			"uid"=>"1928626"
 			);
-		$this->process($url,$feature,$properties);
+		$tags=array(
+			"ascent"=>"999",
+			"descent"=>"909",
+			"duration:backward"=>"08:01",
+			"duration:forward"=>"08:10",
+			"ele:from"=>"949",
+			"ele:max"=>"1392",
+			"ele:min"=>"836",
+			"ele:to"=>"1039",
+			"from"=>"Conca di Monte Alago",
+			"name"=>"Sentiero Italia - Tappa N07",
+			"network"=>"lwn",
+			"osmc:symbol"=>"red:red:white_stripe:SI:black",
+			"ref"=>"SI",
+			"route"=>"hiking",
+			"symbol"=>"red:red:white_stripe:SI:black",
+			"to"=>"Valsorda - Rifugio Monte Maggio",
+			"type"=>"route"
+			);
+		$this->process($url,$feature,$properties,$tags);
 	}
 
 	// SUPERRELATION (SR): https://www.openstreetmap.org/api/0.6/relation/1021025
