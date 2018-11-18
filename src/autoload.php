@@ -23,6 +23,7 @@ require 'classes/utils/WebmappGeoJson.php';
 // OSM
 require 'classes/osm/WebmappOSMFeature.php';
 require 'classes/osm/WebmappOSMRelation.php';
+require 'classes/osm/WebmappOSMSuperRelation.php';
 
 require 'classes/task/WebmappProject.php';
 require 'classes/task/WebmappProjectStructure.php';

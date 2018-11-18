@@ -25,6 +25,7 @@ abstract class WebmappOSMFeature {
 	protected $base_url;
 	protected $properties = array();
 	protected $tags = array();
+	protected $members = array();
 
 	public function __construct($id) {
 		$this->base_url = 'https://www.openstreetmap.org/api/0.6/';
@@ -38,16 +39,33 @@ abstract class WebmappOSMFeature {
 		$this->setFeature();
 		$this->extractProperties();
 		$this->extractTags();
+		$this->setMembers();
 	}
 
 	abstract protected function init();
 	abstract protected function setFeature();
+
+	// valid only for Relation and SuperRelation
+	private function setMembers() {
+		if(isset($this->feature->member)) {
+			foreach($this->feature->member as $member) {
+				$ref=$member['ref']->__toString();
+				$this->members[$ref]=
+				  array(
+				  	 "ref"=>$ref,
+				  	 "type"=>$member['type'],
+				  	 "role"=>$member['role']
+				  	);
+			}
+		}
+	}
 
 	public function getUrl() { return $this->url; }
 	public function getProperty($k) { return $this->properties[$k]; }
 	public function getProperties() { return $this->properties; }
 	public function getTag($k) { return $this->tags[$k]; }
 	public function getTags() { return $this->tags; }
+	public function getMembers() { return $this->members; }
 
 	private function extractProperties() {
 		$this->properties['id']=$this->feature['id']->__toString();
@@ -70,15 +88,6 @@ abstract class WebmappOSMFeature {
 }
 
 // TODO: spostare in singoli file quando si implementano
-
-class WebmappOSMSuperRelation extends WebmappOSMFeature {
-	protected function init(){ 
-		$this->url=$this->base_url.'relation/'.$this->id;
-	}
-	protected function setFeature() {
-		$this->feature = $this->xml->relation;
-	}
-}
 
 class WebmappOSMWay extends WebmappOSMFeature {
 	protected function init(){ 

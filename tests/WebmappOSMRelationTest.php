@@ -65,7 +65,21 @@ class WebmappOSMRelationTest extends TestCase {
 		$this->assertTrue(isset($ja['geometry']));
 		$this->assertRegExp('/LineString/',$ja['geometry']['type']);
 		$this->assertTrue(isset($ja['geometry']['coordinates']));
-
 	}
+
+	public function testMembers() {
+		$r = new WebmappOSMRelation(7454121);
+		$members = array(
+			167059866,167059851,331862052,135319690,138545603
+			);
+		$r_members = $r->getMembers();
+		foreach($members as $id) {
+			$this->assertTrue(array_key_exists($id,$r_members));
+		}
+		foreach($r_members as $ref => $info) {
+			$this->assertEquals('way',$info['type']);
+		}
+	}
+
 
 }
