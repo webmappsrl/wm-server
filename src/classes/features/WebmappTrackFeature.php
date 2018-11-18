@@ -41,7 +41,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
            $this->geometry=unserialize($json_array['n7webmap_geojson']);            
         }
 	}
-
+    public function setGeometry($geometry){$this->geometry=$geometry;}
 
     private function computeBB() {
         $coords = $this->geometry['coordinates'];
@@ -95,5 +95,4 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
               $limit ;";
         $this->addRelatedPoi($q);
     }
-
 }

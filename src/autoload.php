@@ -1,8 +1,12 @@
 <?php
 
 // VENDOR
-require 'vendor/gisconverter/gisconverter.php';
+//require 'vendor/gisconverter/gisconverter.php';
 require 'vendor/GPXIngest/GPXIngest.php';
+require_once 'vendor/gisconverter/vendor/autoload.php';
+use Symm\Gisconverter\Gisconverter;
+
+
 
 // Configuration file
 $conf=__DIR__.'/config.json';

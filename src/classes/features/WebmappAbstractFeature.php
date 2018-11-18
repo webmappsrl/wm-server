@@ -75,6 +75,10 @@ abstract class WebmappAbstractFeature {
         return $this->properties;
     }
 
+    public function getProperty($k) {
+        return $this->properties[$k];
+    }
+
     // Setters
     public function setImage($url) {
         $this->properties['image']=$url;
@@ -282,6 +286,7 @@ abstract class WebmappAbstractFeature {
         $this->removeProperty('id_pois');
     } 
 
+    // Map properties
     public function map($a) {
         foreach ($a as $key => $val) {
             $this->addProperty($key,$val);
@@ -312,8 +317,13 @@ abstract class WebmappAbstractFeature {
     // Mapping delle proprietà specifiche di una feature esclusa la geometria
     abstract protected function mappingSpecific($json_array);
 
-    // Mapping della geometry 
+    // Mapping della  
     abstract protected function mappingGeometry($json_array);
+
+    // Force $geometry with geoJson geometry (string)
+    public function setGeometryGeoJSON($geom){
+        $this->geometry = json_decode($geom,true);
+    }
 
         // Restituisce un array di oggetti WebmappPoiFeature con i relatedPoi
     public function getRelatedPois() {

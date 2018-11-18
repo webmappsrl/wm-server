@@ -34,7 +34,6 @@ abstract class WebmappOSMFeature {
 		if (!preg_match('/200/',$h[0])) {
             throw new WebmappExceptionNoOSMFeature("Error: can't load ".$this->url,1);         
 		}
-//		$this->xml = simplexml_load_file($this->url);
 		$this->xml = WebmappUtils::getXMLFromUrl($this->url);
 		$this->setFeature();
 		$this->extractProperties();
@@ -46,7 +45,10 @@ abstract class WebmappOSMFeature {
 
 	public function getUrl() { return $this->url; }
 	public function getProperty($k) { return $this->properties[$k]; }
+	public function getProperties() { return $this->properties; }
 	public function getTag($k) { return $this->tags[$k]; }
+	public function getTags() { return $this->tags; }
+
 	private function extractProperties() {
 		$this->properties['id']=$this->feature['id']->__toString();
 		$this->properties['visible']=$this->feature['visible']->__toString();
@@ -71,7 +73,7 @@ abstract class WebmappOSMFeature {
 
 class WebmappOSMSuperRelation extends WebmappOSMFeature {
 	protected function init(){ 
-		$this->url=$this->base_url.'relation/'.$this->id.'/full';
+		$this->url=$this->base_url.'relation/'.$this->id;
 	}
 	protected function setFeature() {
 		$this->feature = $this->xml->relation;
