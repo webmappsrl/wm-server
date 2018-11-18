@@ -64,3 +64,4 @@ require 'classes/custom/WebmappAlaTask.php';
 require 'classes/custom/WebmappEmpTask.php';
 require 'classes/custom/WebmappPfEventsTask.php';
 require 'classes/custom/WebmappTDPTask.php';
+require 'classes/custom/WebmappSIMapTask.php';
