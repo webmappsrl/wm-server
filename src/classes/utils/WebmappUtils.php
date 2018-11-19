@@ -251,7 +251,7 @@ class WebmappUtils {
 	public static function getJsonFromApi($url) {
 		// echo "getJsonFromApi($url) \n";
 		global $wm_config;
-		echo "Fecthing data from $url ... ";
+		//echo "Fecthing data from $url ... ";
 		$download = true;
 		$webcache = false;
 		if (isset($wm_config['webcache']) && 
@@ -277,7 +277,7 @@ class WebmappUtils {
 			while ($row=$r->fetchArray()) {
 				$output = $row['content'];
 				$download = false;
-				echo " cache.";
+				//echo " cache.";
 			}
 		}
 		if ($download) {
@@ -347,7 +347,7 @@ class WebmappUtils {
 	public static function getXMLFromUrl($url) {
 		// echo "getJsonFromApi($url) \n";
 		global $wm_config;
-		echo "Fecthing XML from $url ... ";
+		//echo "Fecthing XML from $url ... ";
 		$download = true;
 		$webcache = false;
 		if (isset($wm_config['webcache']) && 
@@ -373,7 +373,7 @@ class WebmappUtils {
 			while ($row=$r->fetchArray()) {
 				$output = simplexml_load_string($row['content']);
 				$download = false;
-				echo " cache.";
+				//echo " cache.";
 			}
 		}
 		if ($download) {
@@ -399,7 +399,7 @@ class WebmappUtils {
 	public static function getContentFromUrl($url) {
 		// echo "getJsonFromApi($url) \n";
 		global $wm_config;
-		echo "Fecthing CONTENTE from $url ... ";
+		//echo "Fecthing CONTENTE from $url ... ";
 		$download = true;
 		$webcache = false;
 		if (isset($wm_config['webcache']) && 
@@ -425,7 +425,7 @@ class WebmappUtils {
 			while ($row=$r->fetchArray()) {
 				$output = $row['content'];
 				$download = false;
-				echo " cache.";
+				//echo " cache.";
 			}
 		}
 		if ($download) {

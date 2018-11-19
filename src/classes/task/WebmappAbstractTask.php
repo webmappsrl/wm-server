@@ -33,3 +33,27 @@ abstract class WebmappAbstractTask {
 	abstract public function process();
 
 }
+
+/**
+class Webmapp[TaskName]Task {
+	private $param;
+	public function check() {
+		// Check mandatory parameters;
+		if(!array_key_exists('param', $this->options)) {
+			throw new Exception("Parameter PARAM is mandatory", 1);		    	
+		} else {
+			$this->param=$this->options['param'];
+		}
+		// Other checks
+
+		// END CHECK
+		return TRUE;
+
+	}
+
+	public function process() {
+		// DO SOMETHING;
+		return TRUE;
+	}
+}
+**/
