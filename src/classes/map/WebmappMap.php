@@ -895,7 +895,7 @@ EOS;
    return json_decode($detail_mapping,TRUE);
 }
 
-private function buildOfflineConfArray() {
+public function buildOfflineConfArray() {
     $baseUrl = $this->structure->getUrlBase();
     $this->offline["resourceBaseUrl"] = $baseUrl . '/geojson/';
     $this->offline["pagesUrl"] = $baseUrl . '/pages/';

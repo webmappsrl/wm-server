@@ -35,6 +35,7 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
         // Crea la mappa
         $m = new WebmappMap($this->project_structure);
+        $m->buildOfflineConfArray();
         foreach ($this->layers as $layer) {
             $m->addTracksWebmappLayer($layer);
         }
@@ -50,6 +51,8 @@ class WebmappSIMapTask extends WebmappAbstractTask {
     private function processRegion($id) {
         $regione = new WebmappOSMSuperRelation($id);
         $layer = new WebmappLayer($regione->getTag('name'));
+        $layer->setLabel($regione->getTag('name'));
+        $layer->setId($id);
         echo "Processing Regione ($id) ";
         echo $regione->getTag('name') . "\n";
         $count = 0 ;
