@@ -26,10 +26,6 @@ class WebmappSIMapTask extends WebmappAbstractTask {
         $italia = new WebmappOSMSuperRelation(1021025);
         foreach ($italia->getMembers() as $ref => $member ) {
             $this->processRegion($ref);
-            if($this->sleep >0 ) {
-                echo "\n\nSLEEPING for $this->sleep SECS \n\n";
-                sleep($this->sleep);
-            }
         }
         // WRITING LAYERS
         $path = $this->getRoot().'/geojson';
@@ -71,6 +67,10 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                 $layer->addFeature($tappa->getTrack());
                 $count++;
                 echo "  -> Processing TAPPA ($ref) $tappa_name\n";
+                if($this->sleep >0 ) {
+                    echo "\n\nSLEEPING for $this->sleep SECS \n\n";
+                    sleep($this->sleep);
+                }
             } else {
                 echo "  ===> WARNING MEMBER IS NOT RELATION ($ref) ... SKIP \n";
             }
