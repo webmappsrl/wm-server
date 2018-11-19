@@ -17,6 +17,8 @@ class WebmappProject {
     // Getters
     public function getRoot() {return $this->root;}
     public function getStructure() {return $this->structure;}
+    public function getTasks() { return $this->structure->getTasks(); }
+    public function getTaskByName($name) { return $this->structure->getTaskByName($name); }
     // Fine dei getters
 
     // Metodi pubblici

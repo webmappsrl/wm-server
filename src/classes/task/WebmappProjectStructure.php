@@ -88,6 +88,13 @@ class WebmappProjectStructure {
 	public function getURLClientConf() { return $this->url_client_conf;}
 	public function getConf() { return $this->conf;}
 	public function getTasks() { return $this->tasks; }
+	public function getTaskByName($name) {
+		foreach ($this->tasks as $task) {
+			if($task->getName()==$name) {
+				return $task;
+			}
+		}
+	}
 	// fine getters
 
 	// Verifica la struttura di un progetto esistente

@@ -93,6 +93,72 @@ class WebmappCliNewCommand extends WebmappCliAbstractCommand {
 	}
 }
 
+class WebmappCliTaskCommand extends WebmappCliAbstractCommand {
+ public function specificConstruct() { return true; }
+	public function getExcerpt() {
+        $string = "Performs some operations on a project TASK";
+        return $string;
+	}
+	public function showHelp() {
+		$string ="\n 
+Usage: wmcli task /root/to/project/ [subcommands]
+Available subcommands:
+list (default) : List all task in the project (name and type)
+run            : Run all task in a project
+runtask [task_name] : Run a specific task\n";
+        echo $string;
+	}
+	public function executeNoHelp() {
+		if(!isset($this->options[0])) {
+			throw new Exception("ERROR: root to project is mandatory.", 1);
+		}
+		$root = $this->options[0];
+		$p = new WebmappProject($root);
+		$p->check();
+		$action = 'list';
+
+		$task_names = array();
+		foreach ($p->getTasks() as $t) {
+			$task_names[] = $t->getName();
+		}
+
+		// Check other subactions
+		if(count($this->options)>1) {
+			$action = $this->options[1];
+			if(!in_array($action, array('list','run','runtask'))) {
+				throw new Exception("SUBACTION $action not valid: only list, run, runtask avalilable", 1);	
+			}
+			// TODO check runtask: 
+		}
+
+		// PROCESS:
+		switch ($action) {
+			case 'list':
+				$count = 1;
+				foreach ($p->getTasks() as $t) {
+					echo "TASK#$count : ".$t->getName() ." (type:".get_class($t).")\n";
+					$count++;
+				}
+				break;
+			case 'run':
+				$p->process();
+				break;
+			case 'runtask':
+				if(!isset($this->options[2])) {
+					throw new Exception("Subaction runtask needs taskname parameter", 1);
+				}
+				$task_name=$this->options[2];
+				if(!in_array($task_name,$task_names)) {
+					throw new Exception("Taskname NOT valid, use subcommand list", 1);					
+				}
+				$t = $p->getTaskByName($task_name);
+				$t->process();
+				break;			
+		}
+
+	}
+}
+
 
 // class WebmappCliXXXCommand extends WebmappCliAbstractCommand {
 //  public function specificConstruct() { return true; }
