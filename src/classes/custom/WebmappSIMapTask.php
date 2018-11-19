@@ -5,11 +5,15 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
     private $layers;
     private $limit=0;
+    private $sleep=0;
 
 	public function check() {
         // Check mandatory parameters;
         if(array_key_exists('limit', $this->options)) {
             $this->limit=$this->options['limit'];
+        }
+        if(array_key_exists('sleep', $this->options)) {
+            $this->sleep=$this->options['sleep'];
         }
         // Other checks
 
@@ -22,7 +26,10 @@ class WebmappSIMapTask extends WebmappAbstractTask {
         $italia = new WebmappOSMSuperRelation(1021025);
         foreach ($italia->getMembers() as $ref => $member ) {
             $this->processRegion($ref);
-
+            if($this->sleep >0 ) {
+                echo "\n\nSLEEPING for $this->sleep SECS \n\n";
+                sleep($this->sleep);
+            }
         }
         // WRITING LAYERS
         $path = $this->getRoot().'/geojson';
