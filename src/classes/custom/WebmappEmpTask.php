@@ -43,7 +43,7 @@ class WebmappEmpTask extends WebmappAbstractTask {
         while (false !== ($j = $d->read())) {
            if ($j!='.' && $j != '..' && $j != 'report.geojson') {
             echo "\nProcessing file $j";
-            $path = "$rpath/$j";
+            $path = $this->source_path. "/$j";
             // READ JSON
             $ja = json_decode(file_get_contents($path),TRUE);
             $id = $ja['timestamp'];
