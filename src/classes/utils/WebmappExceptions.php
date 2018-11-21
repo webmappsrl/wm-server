@@ -6,4 +6,9 @@ class WebmappExceptionNoOSMRelation extends Exception {}
 class WebmappExceptionNoOSMFeature extends Exception {}
 class WebmappExceptionPOINoCoodinates extends Exception {}
 
+// Parameters
+class WebmappExceptionParameter extends Exception {}
+class WebmappExceptionParameterMandatory extends Exception {}
+class WebmappExceptionParameterError extends Exception {}
+
 ?>

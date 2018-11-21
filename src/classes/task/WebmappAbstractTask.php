@@ -40,7 +40,7 @@ class Webmapp[TaskName]Task {
 	public function check() {
 		// Check mandatory parameters;
 		if(!array_key_exists('param', $this->options)) {
-			throw new Exception("Parameter PARAM is mandatory", 1);		    	
+			throw new WebmappExceptionParameterMandatory("Parameter PARAM is mandatory", 1);		    	
 		} else {
 			$this->param=$this->options['param'];
 		}
