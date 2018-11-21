@@ -95,7 +95,7 @@ EOF;
            }
           }
         }
-        $l->write($this->getRoot().'/geojson');
+        $l->write($this->source_path);
         $d->close();
         echo "\n\nDONE\n\n";
         echo "Process DONE: check geojson at $this->report_url \n\n";
