@@ -48,8 +48,8 @@ class WebmappEmpTask extends WebmappAbstractTask {
             $ja = json_decode(file_get_contents($path),TRUE);
             $id = $ja['timestamp'];
             $notes = $ja['form_data']['description'];
-            $lat = $ja['postion'][1];
-            $lon = $ja['postion'][0];
+            $lon = $ja['position'][0];
+            $lat = $ja['position'][1];
             if (empty($lat) || empty($lon) || empty($id) ) {
                 echo " no data SKIP";
             }
