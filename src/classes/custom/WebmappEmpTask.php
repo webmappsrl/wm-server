@@ -81,8 +81,8 @@ EOF;
             $jp['content']['rendered']=$content;
             $jp['color']='#ff0000';
             $jp['icon']='wm-icon-alert-circled';
-            $jp['n7webmap_coord']['lng']=$ja['lng'];
-            $jp['n7webmap_coord']['lat']=$ja['lat'];
+            $jp['n7webmap_coord']['lng']=$ja['position'][0];
+            $jp['n7webmap_coord']['lat']=$ja['position'][1];
 
             $poi = new WebmappPoiFeature($jp);
             if ($has_picture=='yes') {
