@@ -39,7 +39,7 @@ class WebmappEmpTask extends WebmappAbstractTask {
 
         $l=new WebmappLayer('report');
 
-        $d = dir($this->source);
+        $d = dir($this->source_path);
         while (false !== ($j = $d->read())) {
            if ($j!='.' && $j != '..' && $j != 'report.geojson') {
             echo "\nProcessing file $j";
