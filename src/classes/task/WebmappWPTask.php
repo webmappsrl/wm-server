@@ -72,6 +72,8 @@ public function process(){
 
     $pois->writeAllRelated($path);
 
+    $pois->write($path);
+
     // route_index.geojson
     $route_index = WebmappUtils::createRouteIndexLayer($this->wp->getApiUrl().'/route');
     $route_index->write($path);
