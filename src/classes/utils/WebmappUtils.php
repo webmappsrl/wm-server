@@ -293,7 +293,7 @@ class WebmappUtils {
 				curl_close($ch);				
 			} else {
 			 	$output=file_get_contents($url);				
-				echo " direct download.";
+				// echo " direct download.";
 			}
 
 			if ($webcache) {
@@ -307,7 +307,7 @@ class WebmappUtils {
 				$s->execute();
 			}
 		}
-		echo "\n";
+		// echo "\n";
 		return json_decode($output,TRUE);
 	}
 	// Returns an array of multiple JSON API CALLS paged (?per_page=XX)
@@ -390,7 +390,7 @@ class WebmappUtils {
 				$s->execute();
 			}
 		}
-		echo "\n";
+		// echo "\n";
 		return $output;
 	}
 
@@ -441,7 +441,7 @@ class WebmappUtils {
 				$s->execute();
 			}
 		}
-		echo "\n";
+		// echo "\n";
 		return $output;
 	}
 
