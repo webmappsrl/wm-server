@@ -18,7 +18,7 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             throw new Exception("File di configurazione malformato: parametro APPEND deve essere di tipo array", 1);
            }
            foreach($this->append as $key => $val) {
-            if(!in_array($key, array('NAVIGATION', 'MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS','SEARCH','DETAIL_MAPPING','MAP'))) {
+            if(!in_array($key, array('NAVIGATION', 'MENU','PAGES','COMMUNICATION','INCLUDE', 'LOGIN','OPTIONS','OVERLAY_LAYERS','SEARCH','DETAIL_MAPPING','MAP','STYLE'))) {
                 throw new Exception("La chiave $key non è supportata", 1);
             }
            }
@@ -76,6 +76,9 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
                     break;
                 case 'MAP':
                     $this->processMap($val);
+                    break;
+                case 'STYLE':
+                    $this->processStyle($val);
                     break;
 
                 default:
@@ -243,6 +246,20 @@ class WebmappCustomConfigTask extends WebmappAbstractTask {
             $c[$key]=$value;
         }
         $this->conf_array['MAP']=$c;
+    }
+
+    private function processStyle($val) {
+        $c = array();
+        if(isset($this->conf_array['STYLE'])) {
+            $c = $this->conf_array['STYLE'];
+        }
+        if(!is_array($val)) {
+            throw new Exception("Il valore della variabile di configurazione STYLE deve essere un array.", 1);
+        }
+        foreach ($val as $key => $value) {
+            $c[$key]=$value;
+        }
+        $this->conf_array['STYLE']=$c;
     }
 
 }
