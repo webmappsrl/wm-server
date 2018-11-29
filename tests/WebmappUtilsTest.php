@@ -227,4 +227,38 @@ class WebmappUtilsTests extends TestCase {
 		}
 
 	}
+
+	public function testGetRandomPoint() {
+		$data = array (
+			array(0,0,1),
+			array(0,0,0.1),
+			array(0,0,0.01),
+			array(0,0,0.001),
+			array(40,10,1),
+			array(40,10,0.1),
+			array(40,10,0.01),
+			array(40,10,0.001),
+			array(-40,10,1),
+			array(-40,10,0.1),
+			array(-40,10,0.01),
+			array(-40,10,0.001),
+			array(40,-10,1),
+			array(40,-10,0.1),
+			array(40,-10,0.01),
+			array(40,-10,0.001),
+			array(-40,-10,1),
+			array(-40,-10,0.1),
+			array(-40,-10,0.01),
+			array(-40,-10,0.001)
+			); 
+		foreach ($data as $item) {
+			$lon0=$item[0];
+			$lat0=$item[1];
+			$rho=$item[2];
+			$res = WebmappUtils::getRandomPoint($lon0,$lat0,$rho);
+			$lon = $res[0];
+			$lat = $res[1];
+			$this->assertTrue(sqrt(($lon0-$lon)*($lon0-$lon)+($lat0-$lat)*($lat0-$lat))<=$rho);
+		}
+	}
 }
