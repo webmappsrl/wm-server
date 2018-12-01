@@ -4,16 +4,19 @@ class WebmappTDPTask extends WebmappAbstractTask {
 
     private $categories = array();
     private $pois;
+    private $all_territori;
 
 	public function check() {
 		return TRUE;
 	}
 
     public function process(){
+        $this->all_territori = new WebmappLayer('Territori');
         echo "\n\n Processing\n\n";
         self::setCategories();
         self::processTerritori();
         self::processCamper();
+        self::processAttrazioni();
 
         echo "\n\nDONE!\n\n";
 
@@ -58,6 +61,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
             }
 
             $poi->write($path);
+            $this->all_territori->addFeature($poi);
             // $cat_id = $ja['categories'][0];
             $cat_id=88;
             $l=$this->categories[$cat_id];
@@ -100,6 +104,34 @@ class WebmappTDPTask extends WebmappAbstractTask {
                 echo "No territorio_areasosta_location \n";
             }
 
+        }
+    }
+
+    private function processAttrazioni() {
+        echo "\n\n\n Processing attrazioni \n\n";
+        $path = $this->getRoot().'/geojson/';
+        $attrazioni_url = 'http://www.terredipisa.it/wp-json/wp/v2/attrazione/';
+        $attrazioni = WebmappUtils::getMultipleJsonFromApi($attrazioni_url);
+        $attrazioni_layers = array();
+        foreach($attrazioni as $ja) {
+            $id = $ja['id'];
+            echo "Creating layer id: $id\n";
+            $attrazioni_layers[$id] = new WebmappLayer($id);
+        }
+        foreach ($this->pois as $ja) {
+            if (isset($ja['acf']['territorio_attrazioni_rel']) && 
+                is_array($ja['acf']['territorio_attrazioni_rel'])) {
+                $poi_id = $ja['id'];
+                foreach ($ja['acf']['territorio_attrazioni_rel'] as $item) {
+                    echo "Adding POI($poi_id) to attrazione(".$item['ID'].")\n";
+                    $attrazioni_layers[$item['ID']]->addFeature($this->all_territori->getFeature($poi_id));
+                }            
+            }
+        }
+        // Writing Layers
+        foreach ($attrazioni_layers as $id => $attrazione_layer) {
+            echo "Writing layer $id\n";
+            $attrazione_layer->write($path);
         }
     }
 
