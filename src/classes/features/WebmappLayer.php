@@ -46,7 +46,12 @@ class WebmappLayer {
 
 	public function addFeature($feature) {
 		// TODO: check feature typeof Webmapp*Feature
-        array_push($this->features, $feature);
+        // array_push($this->features, $feature);
+        $this->features[$feature->getId()]=$feature;
+	}
+
+	public function getFeature($id) {
+		return $this->features[$id];
 	}
 
 	public function setAvailableLanguages($ar) {

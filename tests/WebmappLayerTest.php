@@ -230,4 +230,12 @@ class WebmappLayerTest extends TestCase {
 
 	}
 
+	public function testGetFeature() {
+		$poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
+		$l = new WebmappLayer('test');
+		$l->addFeature($poi);
+		$new_poi = $l->getFeature(522);
+		$this->assertEquals(522,$new_poi->getId());
+	}
+
 }
