@@ -851,7 +851,6 @@ private function buildMapConfArray() {
         );
     $map["showCoordinatesInMap"]=true;
     $map["showScaleInMap"]=true;
-    $map["hideZoomControl"]=false;
     $map["hideLocationControl"]=false;
     // TODO: gestione del layer dei satelliti
     $map["layers"] = array(
