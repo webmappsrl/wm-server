@@ -543,7 +543,7 @@ class WebmappUtils {
 	// It returns a random point array($lon,$lat) centered in $lon0,$lat0 with
 	// radius (in degree) $rho
 	public static function getRandomPoint($lon0,$lat0,$rho) {
-		$theta = pi() * mt_rand(0,1000) / 1000;
+		$theta = 2 * pi() * mt_rand(0,1000) / 1000;
 		$r = $rho * mt_rand(0,1000) / 1000;
 		$lon = $lon0 + $r * sin($theta);
 		$lat = $lat0 + $r * cos($theta);
