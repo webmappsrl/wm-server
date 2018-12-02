@@ -1,4 +1,8 @@
 <?php 
+// COnfigurazione
+class WebmappExceptionConf extends Exception {}
+class WebmappExceptionConfPostgis extends Exception {}
+
   // WebmappException Eccezioni usate da tutte le classi
 class WebmappExceptionNoFile extends Exception {}
 class WebmappExceptionNoDirectory extends Exception {}
