@@ -18,6 +18,7 @@ $wm_config = json_decode(file_get_contents($conf),TRUE);
 // Caricamento classi obbligatorie
 require 'classes/utils/WebmappExceptions.php';
 require 'classes/utils/WebmappUtils.php';
+require 'classes/utils/WebmappPostGis.php';
 require 'classes/utils/WebmappGeoJson.php';
 
 // OSM
