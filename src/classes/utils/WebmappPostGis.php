@@ -2,6 +2,7 @@
 
 final class WebmappPostGis {
 
+
 	private $resource;
 	private $all_tables = array('poi','track','feature_taxonomy','related_track');
 
@@ -72,6 +73,21 @@ final class WebmappPostGis {
 		else {
 			throw new WebmappExceptionPostgisEmptySelect();
 		}
+	}
+
+	// TODO: gestione del caso fuori dal DEM
+	public function getEle($lon,$lat) {
+		$q = <<< EOFQUERY
+SELECT 
+   ST_Value(eu_dem_100mx100m.rast, ST_Transform(ST_GeomFromText('POINT($lon $lat)', 4326),3035)) AS zeta
+FROM 
+   eu_dem_100mx100m 
+WHERE 
+   ST_Intersects(eu_dem_100mx100m.rast, ST_Transform(ST_GeomFromText('POINT($lon $lat)', 4326),3035))
+   ;
+EOFQUERY;
+	$a = $this->select($q);
+	return $a[0]['zeta'];
 	}
 
 	public function clearTables($instance_id) {
