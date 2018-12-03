@@ -63,6 +63,17 @@ final class WebmappPostGis {
 		$this->execute($q);
 	}
 
+	public function getPoiGeoJsonGeometry($instance_id,$poi_id) {
+		$q = 'SELECT ST_AsGeoJSON(geom) as geojson from poi;';
+		$a = $this->select($q);
+		if (count($a)>0) {
+			return $a[0]['geojson'];
+		}
+		else {
+			throw new WebmappExceptionPostgisEmptySelect();
+		}
+	}
+
 	public function clearTables($instance_id) {
 		foreach($this->all_tables as $table) {
 			$q = "DELETE FROM $table;";

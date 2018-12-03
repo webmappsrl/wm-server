@@ -15,4 +15,8 @@ class WebmappExceptionParameter extends Exception {}
 class WebmappExceptionParameterMandatory extends Exception {}
 class WebmappExceptionParameterError extends Exception {}
 
+// POSTGIG
+class WebmappExceptionPostgis extends Exception {}
+class WebmappExceptionPostgisEmptySelect extends Exception {}
+
 ?>

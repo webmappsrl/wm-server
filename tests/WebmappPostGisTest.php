@@ -21,5 +21,9 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertEquals(1,$res[0]['poi_id']);
 
 		// TODO: Test Geometry
+		$ja = json_decode($pg->getPoiGeoJsonGeometry('test',1),TRUE);
+		$this->assertEquals('Point',$ja['type']);
+		$this->assertEquals($lon_pisa,$ja['coordinates'][0]);
+		$this->assertEquals($lat_pisa,$ja['coordinates'][1]);
 	}
 }
