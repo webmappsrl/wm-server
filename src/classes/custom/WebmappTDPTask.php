@@ -143,7 +143,10 @@ private function processMembers() {
     $members_url = 'http://www.terredipisa.it/wp-json/wp/v2/users/';
     $members = WebmappUtils::getMultipleJsonFromApi($members_url);
     $all_member_layer = new WebmappLayer('Members');
+    $tot = 0;
+    $tot_added = 0;
     foreach($members as $m) {
+        $tot++;
         $id=$m['id'];
         $name=$m['acf']['user_azienda_nome'];
         if (isset($m['acf']['user_azienda_localita_geolocalizzazione']) && 
@@ -151,6 +154,8 @@ private function processMembers() {
             isset($m['acf']['user_azienda_localita_geolocalizzazione']['lng'])
             ) {
             echo "Adding member $name (ID:$id)\n";
+        $tot_added++;
+
         $j['id']=$id.'_user';
         $j['title']['rendered']=$name;
         $j['content']['rendered']=$name;
@@ -158,7 +163,7 @@ private function processMembers() {
         $j['n7webmap_coord']['lat']=$m['acf']['user_azienda_localita_geolocalizzazione']['lat'];
         $poi = new WebmappPoiFeature($j);
         $poi->addProperty('color','#E43322');
-        $poi->addProperty('web',$m['link']);
+        $poi->addProperty('web',preg_replace('|/author/|', '/user/', $m['link']));
         $poi->write($path);
         $all_member_layer->addFeature($poi);
     } else {
@@ -166,6 +171,7 @@ private function processMembers() {
     }
 }
 $all_member_layer->write($path);
+echo "\n\nTOTAL MEBMER $tot - ADDED $tot_added\n";
 }
 
 private function processEvents() {
