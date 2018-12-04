@@ -13,11 +13,13 @@ class WebmappTDPTask extends WebmappAbstractTask {
   public function process(){
     $this->all_territori = new WebmappLayer('Territori');
     echo "\n\n Processing\n\n";
+
     self::setCategories();
     self::processTerritori();
     self::processCamper();
     self::processAttrazioni();
     self::processMembers();
+    self::processEvents();
 
     echo "\n\nDONE!\n\n";
 
@@ -147,23 +149,61 @@ private function processMembers() {
         if (isset($m['acf']['user_azienda_localita_geolocalizzazione']) && 
             isset($m['acf']['user_azienda_localita_geolocalizzazione']['lng']) &&
             isset($m['acf']['user_azienda_localita_geolocalizzazione']['lng'])
-         ) {
+            ) {
             echo "Adding member $name (ID:$id)\n";
-            $j['id']=$id.'_user';
-            $j['title']['rendered']=$name;
-            $j['content']['rendered']=$name;
-            $j['n7webmap_coord']['lng']=$m['acf']['user_azienda_localita_geolocalizzazione']['lng'];
-            $j['n7webmap_coord']['lat']=$m['acf']['user_azienda_localita_geolocalizzazione']['lat'];
-            $poi = new WebmappPoiFeature($j);
-            $poi->addProperty('color','#E43322');
-            $poi->addProperty('web',$m['link']);
-            $poi->write($path);
-            $all_member_layer->addFeature($poi);
-        } else {
-            echo "SKIPPING member $name (ID:$id)\n";
-        }
+        $j['id']=$id.'_user';
+        $j['title']['rendered']=$name;
+        $j['content']['rendered']=$name;
+        $j['n7webmap_coord']['lng']=$m['acf']['user_azienda_localita_geolocalizzazione']['lng'];
+        $j['n7webmap_coord']['lat']=$m['acf']['user_azienda_localita_geolocalizzazione']['lat'];
+        $poi = new WebmappPoiFeature($j);
+        $poi->addProperty('color','#E43322');
+        $poi->addProperty('web',$m['link']);
+        $poi->write($path);
+        $all_member_layer->addFeature($poi);
+    } else {
+        echo "SKIPPING member $name (ID:$id)\n";
     }
-    $all_member_layer->write($path);
+}
+$all_member_layer->write($path);
+}
+
+private function processEvents() {
+    echo "\n\n\n Processing Events \n\n";
+    $path = $this->getRoot().'/geojson/';
+    $events_url = 'http://www.terredipisa.it/wp-json/wp/v2/event/';
+    $events = WebmappUtils::getMultipleJsonFromApi($events_url);
+    $all_events_layer = new WebmappLayer('Events');
+    foreach($events as $ja) {
+        $id = $ja['id'];
+        $name = $ja['title']['rendered'];
+        echo "Processing event $name (ID:$id)";
+        // Coordinates from gmap:
+        //<span class="lat">43.7434249</span> <span class="lng">10.532463000000007</span>
+        $content = $ja['content']['rendered'];
+        preg_match('|<span class="lat">(.*)</span>|',$content,$match_lat);
+        preg_match('|<span class="lng">(.*)</span>|',$content,$match_lon);
+        if (isset($match_lat[1]) && isset($match_lon[1])) {
+            $lat = $match_lat[1];
+            $lon = $match_lon[1];
+            echo "lat=$lat lon=$lon";
+            $j['id']=$id;
+            $j['title']['rendered']=$name;
+            $j['content']['rendered']=$ja['content']['rendered'];
+            $j['n7webmap_coord']['lng']=$lon;
+            $j['n7webmap_coord']['lat']=$lat;
+            $poi = new WebmappPoiFeature($j);
+            $poi->addProperty('color','#F6A502');
+            $poi->addProperty('web',$ja['link']);
+            $poi->write($path);
+            $all_events_layer->addFeature($poi);
+        } else {
+            " NO COORD: SKIP ";
+        }
+        $all_events_layer->write($path);
+        echo "\n";
+    }
+    $all_events_layer->write($path);
 }
 
 private function setCategories() {
