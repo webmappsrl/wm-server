@@ -187,7 +187,10 @@ class WebmappPoiFeatureTest extends TestCase {
             $j = json_decode($poi->getJson(),true);
             $this->assertEquals(802,$j['properties']['translations']['en']['id']);            
             $this->assertEquals(803,$j['properties']['translations']['fr']['id']);            
-            $this->assertEquals(804,$j['properties']['translations']['de']['id']);            
+            $this->assertEquals(804,$j['properties']['translations']['de']['id']);
+            $this->assertEquals('http://dev.be.webmapp.it//test-per-languages-overlay-layers/?lang=en',$j['properties']['translations']['en']['web']); 
+            $this->assertEquals('http://dev.be.webmapp.it//test-per-languages-overlay-layers/?lang=fr',$j['properties']['translations']['fr']['web']); 
+            $this->assertEquals('http://dev.be.webmapp.it//test-per-languages-overlay-layers/?lang=de',$j['properties']['translations']['de']['web']); 
         }
 
         public function testSource() {
