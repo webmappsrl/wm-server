@@ -71,8 +71,10 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     public function getLngMax(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMax;}
     public function getLngMin(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMin;}
 
-    public function writeToPostGis() {
+    public function writeToPostGis($instance_id='') {
         // PER TRACK
+
+        // SELECT ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)'); 
         // ogr2ogr -update -f 'PostgreSQL' PG:'dbname=webmapptest user=webmapp host=46.101.124.52' '/root/api.webmapp.it/j/pf.j.webmapp.it/geojson/track/1452.geojson' -nln track_tmp
         if(file_exists($this->getGeoJsonPath())) {
             $geojson=$this->getGeoJsonPath();

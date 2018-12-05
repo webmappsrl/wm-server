@@ -212,6 +212,7 @@ class WebmappUtils {
 	  array(latN,lngN)
 	)
 	**/
+	// ATTENZIONE INPUT $points ha lat lon invertiti!
 	public static function getElevations($points) {
 		if(!is_array($points)) {
 			throw new Exception("Points must be array", 1);
@@ -219,26 +220,10 @@ class WebmappUtils {
 		if (count($points)==0) {
 			throw new Exception("No elements in array", 1);
 		}
-		// Prepare Points
-		$p1 = array();
-		foreach($points as $point) {
-          $p1[]=implode(',', $point);
+		$pg = WebmappPostGis::Instance();
+		foreach($points as $p) {
+			$elevations[]=$pg->getEle($p[1],$p[0]);
 		}
-		$p2=implode(',', $p1);
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL,'https://api.webmapp.it/services/3d/get3dgeojsonbylatlon.php');
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS,"l=$p2");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$server_output = curl_exec ($ch);
-		curl_close ($ch);
-		$r = json_decode($server_output,TRUE);
-		$elevations = array();
-		foreach($r['features'][0]['geometry']['coordinates'] as $coord) {
-			$elevations[]=floor($coord[2]);
-		}
-
 		return $elevations;
 
 	}
@@ -549,4 +534,12 @@ class WebmappUtils {
 		$lat = $lat0 + $r * cos($theta);
 		return array($lon,$lat);
 	}
+
+	// Estensione degli assert di phpunit x verificare che un 
+	// numero è in un range
+	public function testDelta($expected,$actual,$delta) {
+			$test->assertGreaterThan($actual,$expected-$delta);
+			$test->assertLesserThan($actual,$expected+$delta);
+	}
+
 }

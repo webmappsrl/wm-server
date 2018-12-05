@@ -123,22 +123,36 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
     public function getLngMin(){return $this->getLng();}
 
 
-    public function writeToPostGis() {
+    public function writeToPostGis($instance_id='') {
 
-        // PER TRACK
-        // ogr2ogr -update -f "PostgreSQL" PG:"dbname=webmapptest user=webmapp host=46.101.124.52" "/root/api.webmapp.it/j/pf.j.webmapp.it/geojson/track/1452.geojson"  -s_srs 4326 -t_srs 3857 -nln track_tmp
+        // Gestione della ISTANCE ID
+        if(empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
 
-        // pgsql2shp -P T1tup4atmA -f rel_6080932 -h 46.101.124.52 -u webmapp osm_hiking
-        $name = "webmapptest";
-        $poi_table = "poi_tmp";
+        // TODO: singleton Postgis
+        global $wm_config;
+        if(!isset($wm_config['postgis'])) {
+            throw new WebmappExceptionConfPostgis("No Postgist section in conf.json", 1);  
+        }
+
+        // TODO: check other parametrs
+        $username = $wm_config['postgis']['username'];
+        $database = $wm_config['postgis']['database'];
+        $host = $wm_config['postgis']['host'];
+        $password= $wm_config['postgis']['password'];
+
+
+        $dbconn = pg_connect("host=$host dbname=$database user=$username password=$password")
+        or die('Could not connect: ' . pg_last_error());
         $id = $this->properties['id'];
-
+        
+        // TODO: passare alla chiamata postgis con PHP
         // Crea nuovo punto
         $lon = $this->geometry['coordinates'][0];
         $lat = $this->geometry['coordinates'][1];
-        $q="INSERT INTO $poi_table(id, wkb_geometry) VALUES($id, ST_Transform(ST_GeomFromText('POINT($lon $lat )', 4326),3857)   );";
-        $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"$q\"";
-        system($cmd);
+        $q="INSERT INTO poi(instance_id,poi_id, geom) VALUES('$instance_id',$id, ST_GeomFromText('POINT($lon $lat )', 4326));";
+        $result = pg_query($q) or die('Query failed: ' . pg_last_error());
 
     }
 

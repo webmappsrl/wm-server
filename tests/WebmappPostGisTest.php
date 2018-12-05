@@ -38,8 +38,11 @@ class WebmappPostGisTest extends TestCase {
 		    array(10.3241,44.0344,1770) // Pania della Croce
 			);
 		foreach ($data as $p) {
-			$this->assertGreaterThan($p[2]-$this->delta_ele,$pg->getEle($p[0],$p[1]));
-			$this->assertLessThan($p[2]+$this->delta_ele,$pg->getEle($p[0],$p[1]));
+			$a = $pg->getEle($p[0],$p[1]);
+			$e = $p[2];
+			$d = $this->delta_ele;
+			$this->assertTrue($e-$d<=$a); 
+			$this->assertTrue($e+$d>=$a); 
 		}
 	}
 }

@@ -32,6 +32,8 @@ class WebmappProjectStructure {
 	// Array dei tasks del progetto
 	private $tasks = array();
 
+	private static $instance_id = 'UNKNOWN';
+
 	// Costruttore
 	public function __construct($root,$url_base='') {
 
@@ -46,6 +48,7 @@ class WebmappProjectStructure {
 		if($this->url_base=='') {
 			$this->url_base = 'http://'.basename($this->root);
 		}
+		self::$instance_id = $this->url_base;
 		// La directory client deve avere un link simbolico del tipo geojson -> ../geojson
 		
 		$this->url_geojson = $this->url_base.'/geojson';
@@ -58,6 +61,10 @@ class WebmappProjectStructure {
 		// TODO: controllare esistenza delle directory obbligatorie per il funzionamento del servr
 		// Stesso controllo e azione del precedente
 
+	}
+
+	public static function getInstanceId() {
+		return self::$instance_id;
 	}
 
 	public function activateHTTPS() {
