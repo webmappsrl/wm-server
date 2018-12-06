@@ -19,7 +19,8 @@ class WebmappPostGisTest extends TestCase {
 		$pg = WebmappPostGis::Instance();
 		$pg->clearTables('test');
 		$pg->insertPoi('test',1,$lon_pisa,$lat_pisa);
-		$res = $pg->select('SELECT * from poi');
+		$q="SELECT * from poi where instance_id='test';";
+		$res = $pg->select($q);
 
 		$this->assertEquals('test',$res[0]['instance_id']);
 		$this->assertEquals(1,$res[0]['poi_id']);
@@ -28,6 +29,18 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertEquals('Point',$ja['type']);
 		$this->assertEquals($lon_pisa,$ja['coordinates'][0]);
 		$this->assertEquals($lat_pisa,$ja['coordinates'][1]);
+	}
+
+	public function testSamePoi() {
+		$lon_pisa = 10.40189;
+        $lat_pisa = 43.71586;
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertPoi('test',1,$lon_pisa,$lat_pisa);
+		$pg->insertPoi('test',1,$lon_pisa,$lat_pisa);
+		$q="SELECT * from poi where instance_id='test';";
+		$a = $pg->select($q);
+		$this->assertTrue(count($a)>0);
 	}
 
 	public function testGetEle() {

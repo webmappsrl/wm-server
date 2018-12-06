@@ -48,7 +48,7 @@ final class WebmappPostGis {
 		return TRUE;
 	}
 
-    // returns array of associative array
+    // returns array of associative array of results
     // TODO: gestione eccezione
 	public function select($q) {
 		$r = pg_query($this->resource,$q) or die('Query failed: ' . pg_last_error());
