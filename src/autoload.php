@@ -54,6 +54,7 @@ require 'classes/utils/WebmappWP.php';
 // CAIOSM
 require 'classes/caiosm/WebmappOCListTask.php';
 require 'classes/caiosm/WebmappOSMCAI.php';
+require 'classes/caiosm/WebmappOSMCAI2.php';
 require 'classes/caiosm/WebmappOSMListTask.php';
 require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 

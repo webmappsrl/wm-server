@@ -89,10 +89,13 @@ class WebmappOSMCAITask extends WebmappAbstractTask {
        foreach ($this->sezioni as $sezione) {
         $this->sezioni_counter[$sezione]['tot']=0;
         $this->sezioni_counter[$sezione]['osm']=0;
+        $this->sezioni_counter[$sezione]['km']=0;
        }
        foreach ($this->items as $item) {
         $this->sezioni_counter[trim($item['Sezione'])]['tot']++;
-        if(!empty($item['OSMID'])) $this->sezioni_counter[trim($item['Sezione'])]['osm']++; 
+        if(!empty($item['OSMID'])) {
+            $this->sezioni_counter[trim($item['Sezione'])]['osm']++;
+        } 
        }
 
     }
