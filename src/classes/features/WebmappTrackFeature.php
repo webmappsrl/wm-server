@@ -83,6 +83,38 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         //}
     }
 
+    public function writeGPX($path) {
+        // TODO: check path
+        $path = $path.'/'.$this->getId().'.gpx';
+        $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
+        $geometry = $decoder->geomFromText(json_encode($this->geometry));
+        file_put_contents($path,$this->getGPX($geometry->toGPX()));
+    }
+
+    public function writeKML($path) {
+        // TODO: check path
+        $path = $path.'/'.$this->getId().'.kml';
+        $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
+        $geometry = $decoder->geomFromText(json_encode($this->geometry));
+        file_put_contents($path,$this->getKML($geometry->toKML()));
+    }
+private function getKML($geometry) {
+    $body = <<<EOM
+<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><ExtendedData></ExtendedData>$geometry</Placemark></Document></kml>
+EOM;
+return $body;
+}
+
+private function getGPX($geometry) {
+    $body = <<<EOM
+<?xml version="1.0"?>
+<gpx version="1.1" creator="GDAL 2.2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ogr="http://osgeo.org/gdal" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<trk>$geometry</trk>
+</gpx>
+EOM;
+return $body;
+}
+
         public function addRelated($distance=5000,$limit=100) {
         if($limit>0) {
             $limit = " LIMIT $limit";

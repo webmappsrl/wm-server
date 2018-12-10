@@ -124,7 +124,7 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
                     $link_gpx = '<a href="'.$url_gpx.'">Scarica il tracciato in formato gpx</a>';
                     $link_kml = '<a href="'.$url_kml.'">Scarica il tracciato in formato kml</a>';
-                    $link_geojson = '<a href="'.$url_geojson.'">Scarica il tracciato della tappa in formato geojson </a>';
+                    $link_geojson = '<a href="'.$url_geojson.'" download>Scarica il tracciato della tappa in formato geojson </a>';
                     $link_osm = '<a href="'.$url_osm.'">Vedi il tracciato su OpenStreetMap </a>';
                     $link_wmt = '<a href="'.$url_wmt.'">Vedi il tracciato su WayMarkedTrails </a>';
                     $link_analyzer = '<a href="'.$url_analyzer.'">Vedi il tracciato su OSM Relation Analyzer </a>';
@@ -141,6 +141,9 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                     $link_ideditor."</p>";
 
                     $track->addProperty('description',$new_desc);
+                    $path_res = $this->getRoot().'/resources/';
+                    $track->writeGPX($path_res);
+                    $track->writeKML($path_res);
 
                     $layer->addFeature($track);
                     $count++;

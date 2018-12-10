@@ -105,5 +105,21 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals(40,$j['properties']['taxonomy']['activity'][0]);
         }
 
+        public function testWriteGPX() {
+            $track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
+            $path='/tmp/'.$track->getId().'.gpx';
+            $cmd="rm -f $path"; system($cmd);
+            $track->writeGPX('/tmp');
+            $this->assertTrue(file_exists($path));
+        }
+
+        public function testWriteKML() {
+            $track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
+            $path='/tmp/'.$track->getId().'.kml';
+            $cmd="rm -f $path"; system($cmd);
+            $track->writeKML('/tmp');
+            $this->assertTrue(file_exists($path));
+        }
+
 
 }
