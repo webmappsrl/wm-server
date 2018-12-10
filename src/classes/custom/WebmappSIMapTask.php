@@ -94,12 +94,22 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                         echo "enrich ";
                         $wpt = $this->all_tracks->getFeature($this->all_tracks_osmid_mapping[$ref]);
                         $track->addProperty('description',$wpt->getProperty('description'));
-                        if ($track->hasProperty('image'))
+                        if ($wpt->hasProperty('image'))
                             $track->addProperty('image',$wpt->getProperty('image'));
-                        if($track->hasProperty('imageGallery'))
+                        if($wpt->hasProperty('imageGallery'))
                             $track->addProperty('imageGallery',$wpt->getProperty('imageGallery'));
                     } else {
                         echo "can't enrich (not in WP) ";
+                    }
+                    // Gestione del colore
+                    $color = '#636363';
+                    if($track->hasProperty('source') && 
+                       $track->getProperty('source') == 'survey:CAI') {
+                        $color = '#A63FD1';
+                        if($track->hasProperty('osmc_symbol') && 
+                           $track->getProperty('osmc_symbol') == 'red:red:white_stripe:SI:black') {
+                            $color = '#E35234';
+                        }
                     }
                     $layer->addFeature($track);
                     $count++;
