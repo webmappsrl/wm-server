@@ -2,7 +2,7 @@
 
 class WebmappOSMRelation extends WebmappOSMFeature {
 	protected function init(){ 
-		$this->url=$this->base_url.'relation/'.$this->id.'/full';
+		$this->url=$this->base_url.'relation/'.$this->id;
 	}
 	protected function setFeature() {
 		$this->feature = $this->xml->relation;

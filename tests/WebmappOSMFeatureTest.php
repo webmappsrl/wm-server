@@ -23,7 +23,7 @@ class WebmappOSMFeatureTest extends TestCase {
 	// <relation id="7454121" visible="true" version="5" changeset="61232947" timestamp="2018-07-31T15:10:03Z" user="Gianfranco2014" uid="1928626">
 	public function testRelation() {
 		$feature = new WebmappOSMRelation(7454121);
-		$url = 'https://www.openstreetmap.org/api/0.6/relation/7454121/full';
+		$url = 'https://www.openstreetmap.org/api/0.6/relation/7454121';
 		$properties = array (
 			"id"=>"7454121",
 			"visible"=>"true",
