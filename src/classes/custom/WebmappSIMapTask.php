@@ -112,6 +112,36 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                         }
                     }
                     $track->addProperty('color',$color);
+                    // GEstione dei LINK
+                    $url = $this->getUrlBase();
+                    $url_gpx = $url.'/resources/'.$ref.'.gpx';
+                    $url_kml = $url.'/resources/'.$ref.'.kml';
+                    $url_geojson = $url.'/geojson/'.$ref.'.geojson';
+                    $url_osm = 'https://www.openstreetmap.org/relation/'.$ref;
+                    $url_wmt = 'https://hiking.waymarkedtrails.org/#route?id='.$ref;
+                    $url_analyzer = 'http://ra.osmsurround.org/analyzeRelation?relationId='.$ref;
+                    $url_ideditor = 'https://www.openstreetmap.org/edit?relation='.$ref;
+
+                    $link_gpx = '<a href="'.$url_gpx.'">Scarica il tracciato in formato gpx</a>';
+                    $link_kml = '<a href="'.$url_kml.'">Scarica il tracciato in formato kml</a>';
+                    $link_geojson = '<a href="'.$url_geojson.'">Scarica il tracciato della tappa in formato geojson </a>';
+                    $link_osm = '<a href="'.$url_osm.'">Vedi il tracciato su OpenStreetMap </a>';
+                    $link_wmt = '<a href="'.$url_wmt.'">Vedi il tracciato su WayMarkedTrails </a>';
+                    $link_analyzer = '<a href="'.$url_analyzer.'">Vedi il tracciato su OSM Relation Analyzer </a>';
+                    $link_ideditor = '<a href="'.$url_ideditor.'">Modifica il tracciato con ID Editor di OpenStreetMap </a>';
+
+                    $new_desc = $track->getProperty('description') .
+                    "<p>".
+                    $link_gpx."<br/>".
+                    $link_kml."<br/>".
+                    $link_geojson."<br/>".
+                    $link_osm."<br/>".
+                    $link_wmt."<br/>".
+                    $link_analyzer."<br/>".
+                    $link_ideditor."</p>";
+
+                    $track->addProperty('description',$new_desc);
+
                     $layer->addFeature($track);
                     $count++;
                     if($this->sleep >0 ) {

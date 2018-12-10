@@ -31,6 +31,7 @@ abstract class WebmappAbstractTask {
 	public function getName() { return $this->name; }
 	// end of getters
 	public function getRoot() { return $this->project_structure->getRoot();}
+	public function getUrlBase() { return $this->project_structure->getUrlBase();}
 
 	abstract public function check();
 	abstract public function process();
