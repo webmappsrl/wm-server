@@ -29,10 +29,12 @@ class WebmappOSMRelation extends WebmappOSMFeature {
 		}
 
 		// Geometry (from KML to geojson)
-		$decoder = new Symm\Gisconverter\Decoders\KML();
-		$geometry = $decoder->geomFromText($this->getKMLFromWMT());
-		$track->setGeometryGeoJSON($geometry->toGeoJSON());
-
+		//$decoder = new Symm\Gisconverter\Decoders\KML();
+		//$geometry = $decoder->geomFromText($this->getKMLFromWMT());
+		//$track->setGeometryGeoJSON($geometry->toGeoJSON());
+		$pg = WebmappPostGisOsm::Instance();
+		$track->setGeometryGeoJSON($pg->getRelationJsonGeometry($this->id));
+		
 		return $track;
 	}
 

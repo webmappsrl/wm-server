@@ -10,7 +10,10 @@ abstract class WebmappAbstractTask {
 	// Root dir del progetto
 	protected $project_structure;
 
+	private $start_time;
+
 	public function __construct ($name,$options,$project_structure) {
+		$this->start_time=time();
 		$this->name = $name;
 		$this->options = $options;
 		if (gettype($project_structure) != 'object' || get_class($project_structure) != 'WebmappProjectStructure') {
@@ -31,6 +34,13 @@ abstract class WebmappAbstractTask {
 
 	abstract public function check();
 	abstract public function process();
+
+	protected function end() {
+		$delta=time()-$this->start_time;
+		echo "\n\n==========================================\n";
+		echo "\n\n\n TASK TERMINATED in $delta seconds\n";
+		echo "==========================================\n\n\n";
+	}
 
 }
 

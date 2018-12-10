@@ -23,18 +23,24 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
     public function process() {
         echo "Processing Sentiero Italia \n\n";
+        $path = $this->getRoot().'/geojson';
+
+        // Getting POI from WP
+        $wp = new WebmappWP('simap');
+        $all_pois = $wp->getAllPoisLayer($path);
+
         $italia = new WebmappOSMSuperRelation(1021025);
         foreach ($italia->getMembers() as $ref => $member ) {
             $this->processRegion($ref);
         }
         // WRITING LAYERS
-        $path = $this->getRoot().'/geojson';
         echo "\n\n\n WRITING LAYERS AND RELATIONS:\n\n";
         foreach ($this->layers as $layer) {
             echo "Writing Layer ".$layer->getName()."\n";
             $layer->write($path);
             $layer->writeAllFeatures($path);
         }
+        $all_pois->write($path);
 
         // Crea la mappa
         $m = new WebmappMap($this->project_structure);
@@ -42,12 +48,13 @@ class WebmappSIMapTask extends WebmappAbstractTask {
         foreach ($this->layers as $layer) {
             $m->addTracksWebmappLayer($layer);
         }
+        $m->addPoisWebmappLayer($all_pois);
         $m->buildStandardMenu();
         $m->writeConf();
         $m->writeIndex();
         $m->writeInfo();
 
-        echo "\n\n====== DONE\n\n";
+        $this->end();
         return TRUE;
     }
 
@@ -62,14 +69,17 @@ class WebmappSIMapTask extends WebmappAbstractTask {
         foreach ($regione->getMembers() as $ref => $member) {
             if ($this->limit >0 && $count >= $this->limit ) break;
             if ($member['type']=='relation') {
-                $tappa = new WebmappOSMRelation($ref);
-                $tappa_name = $tappa->getTag('name');
-                $layer->addFeature($tappa->getTrack());
-                $count++;
-                echo "  -> Processing TAPPA ($ref) $tappa_name\n";
-                if($this->sleep >0 ) {
-                    echo "\n\nSLEEPING for $this->sleep SECS \n\n";
-                    sleep($this->sleep);
+                try {
+                    $tappa = new WebmappOSMRelation($ref);
+                    $tappa_name = $tappa->getTag('name');
+                    $layer->addFeature($tappa->getTrack());
+                    $count++;
+                    echo "  -> Processing TAPPA ($ref) $tappa_name\n";
+                    if($this->sleep >0 ) {
+                        sleep($this->sleep);
+                    }                    
+                } catch (Exception $e) {
+                    echo "  ===> WARNING CAN'T LOAD MEMBER ($ref ".get_class($e).") ... SKIP \n";                
                 }
             } else {
                 echo "  ===> WARNING MEMBER IS NOT RELATION ($ref) ... SKIP \n";
