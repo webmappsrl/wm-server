@@ -7,8 +7,13 @@
 		"username" : "xxxx",
 		"host" : "xxxx",
 		"password" : "xxxx",
-		"db_features" : "xxxx",
-		"db_osm" : "xxx"
+		"database" : "xxx"
+	},
+	"postgisosm": {
+		"username" : "xxxx",
+		"host" : "xxxx",
+		"password" : "xxxx",
+		"database" : "xxx"
 	},
 	"google" : {
 		"api_key" : "XXXXX"
