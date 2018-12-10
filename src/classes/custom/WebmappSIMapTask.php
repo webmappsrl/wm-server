@@ -106,8 +106,8 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                     if($track->hasProperty('source') && 
                        $track->getProperty('source') == 'survey:CAI') {
                         $color = '#A63FD1';
-                        if($track->hasProperty('osmc_symbol') && 
-                           $track->getProperty('osmc_symbol') == 'red:red:white_stripe:SI:black') {
+                        if($track->hasProperty('osmc:symbol') && 
+                           $track->getProperty('osmc:symbol') == 'red:red:white_stripe:SI:black') {
                             $color = '#E35234';
                         }
                     }
