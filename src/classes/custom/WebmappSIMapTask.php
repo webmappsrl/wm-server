@@ -28,6 +28,10 @@ class WebmappSIMapTask extends WebmappAbstractTask {
         // Getting POI from WP
         $wp = new WebmappWP('simap');
         $all_pois = $wp->getAllPoisLayer($path);
+        $all_pois->setId('all-pois');
+        $all_pois->setLabel('Punti tappa');
+        $all_pois->setColor('#dd3333');
+        $all_pois->setIcon('wm-icon-flag');
 
         $italia = new WebmappOSMSuperRelation(1021025);
         foreach ($italia->getMembers() as $ref => $member ) {
