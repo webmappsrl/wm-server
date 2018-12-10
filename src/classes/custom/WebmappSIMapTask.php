@@ -111,6 +111,7 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                             $color = '#E35234';
                         }
                     }
+                    $track->setColor($color);
                     $layer->addFeature($track);
                     $count++;
                     if($this->sleep >0 ) {
