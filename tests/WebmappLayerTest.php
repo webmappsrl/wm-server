@@ -237,5 +237,15 @@ class WebmappLayerTest extends TestCase {
 		$new_poi = $l->getFeature(522);
 		$this->assertEquals(522,$new_poi->getId());
 	}
+	public function testIdExists() {
+		$p1 = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522');
+		$p2 = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/890');
+		$l = new WebmappLayer('test');
+		$l->addFeature($p1);
+		$l->addFeature($p2);
+		$this->assertTrue($l->idExists(522));
+		$this->assertTrue($l->idExists(890));
+		$this->assertFalse($l->idExists(0));
+	}
 
 }

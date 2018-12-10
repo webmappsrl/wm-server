@@ -98,6 +98,10 @@ class WebmappLayer {
 		return $this->features;
 	}
 
+	public function idExists($id) {
+		return array_key_exists($id,$this->features);
+	}
+
 	public function getLanguages() {
 		return $this->languages;
 	}
