@@ -7,6 +7,9 @@ class WebmappSIMapTask extends WebmappAbstractTask {
     private $limit=0;
     private $sleep=0;
 
+    private $all_tracks;
+    private $all_tracks_osmid_mapping;
+
 	public function check() {
         // Check mandatory parameters;
         if(array_key_exists('limit', $this->options)) {
@@ -27,11 +30,19 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
         // Getting POI from WP
         $wp = new WebmappWP('simap');
+        echo "\n\nGetting POIS from WP\n\n";
         $all_pois = $wp->getAllPoisLayer($path);
         $all_pois->setId('all-pois');
         $all_pois->setLabel('Punti tappa');
         $all_pois->setColor('#dd3333');
         $all_pois->setIcon('wm-icon-flag');
+
+        echo "\n\nGetting TRACKS from WP\n\n";
+        $this->all_tracks = $wp->getAllTracksLayer($path);
+        foreach ($this->all_tracks->getFeatures() as $id => $track) {
+            $this->all_tracks_osmid_mapping[$track->getProperty('osmid')]=$id;
+        }
+
 
         $italia = new WebmappOSMSuperRelation(1021025);
         foreach ($italia->getMembers() as $ref => $member ) {
@@ -76,12 +87,26 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                 try {
                     $tappa = new WebmappOSMRelation($ref);
                     $tappa_name = $tappa->getTag('name');
-                    $layer->addFeature($tappa->getTrack());
+                    echo "  -> Processing TAPPA ($ref) $tappa_name ... ";
+                    $track = $tappa->getTrack();
+                    // ENRICH from WP:
+                    if(array_key_exists($ref,$this->all_tracks_osmid_mapping)) {
+                        echo "enrich ";
+                        $wpt = $this->all_tracks->getFeature($this->all_tracks_osmid_mapping[$ref]);
+                        $track->addProperty('description',$wpt->getProperty('description'));
+                        if ($track->hasProperty('image'))
+                            $track->addProperty('image',$wpt->getProperty('image'));
+                        if($track->hasProperty('imageGallery'))
+                            $track->addProperty('imageGallery',$wpt->getProperty('imageGallery'));
+                    } else {
+                        echo "can't enrich (not in WP) ";
+                    }
+                    $layer->addFeature($track);
                     $count++;
-                    echo "  -> Processing TAPPA ($ref) $tappa_name\n";
                     if($this->sleep >0 ) {
                         sleep($this->sleep);
-                    }                    
+                    } 
+                    echo "... DONE\n";                   
                 } catch (Exception $e) {
                     echo "  ===> WARNING CAN'T LOAD MEMBER ($ref ".get_class($e).") ... SKIP \n";                
                 }

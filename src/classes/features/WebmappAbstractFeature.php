@@ -75,6 +75,10 @@ abstract class WebmappAbstractFeature {
         return $this->properties;
     }
 
+    public function hasProperty($k) {
+        return array_key_exists($k, $this->properties);
+    }
+
     public function getProperty($k) {
         return $this->properties[$k];
     }
@@ -125,6 +129,7 @@ abstract class WebmappAbstractFeature {
         $this->setPropertyBool('noDetails',$json_array);
         $this->setPropertyBool('noInteraction',$json_array);
         $this->setProperty('related_pois',$json_array);
+        $this->setProperty('osmid',$json_array);
 
     	// Gestione delle immagini
     	// TODO: migliorare la gestione unificando il nome per POI e track

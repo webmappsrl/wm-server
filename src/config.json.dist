@@ -1,4 +1,5 @@
 {
+	"debug": false,
 	"webcache": {
 		"enabled" : true,
 		"db" : "../data/webcache.db"
