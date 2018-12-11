@@ -95,6 +95,21 @@ EOFQUERY;
 	return $a[0]['zeta'];
 	}
 
+	// $geom = stringa della geometria geojson SENZA altezza
+	// RETURN = stringa arricchita con altezza
+	public function addEle($geom) {
+		// TODO check $geom
+		$j=json_decode($geom,TRUE);
+		$type=$j['type'];
+		$coord=$j['coordinates'];
+		$new_coord=array();
+		foreach ($coord as $l) {
+			$new_coord[]=array($l[0],$l[1],self::getEle($l[0],$l[1]));
+		}
+		$j_new=array('type'=>$type,'coordinates'=>$new_coord);
+		return json_encode($j_new);
+	}
+
 	public function clearTables($instance_id) {
 		foreach($this->all_tables as $table) {
 			$q = "DELETE FROM $table;";

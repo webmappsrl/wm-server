@@ -121,5 +121,4 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertTrue(file_exists($path));
         }
 
-
 }

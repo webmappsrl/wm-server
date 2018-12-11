@@ -10,7 +10,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
 	// Mapping dei meta specifici delle tracks
     // 
-	protected function mappingSpecific($json_array) {
+    protected function mappingSpecific($json_array) {
 
         $this->setProperty('n7webmapp_track_color',$json_array,'color');
         $this->setProperty('n7webmap_start',$json_array,'from');
@@ -25,7 +25,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         // ADD id_pois
         $json_array['id_pois']=$this->getRelatedPoisId();
         $this->setProperty('id_pois',$json_array);
-}
+    }
 
     // Impostazione della geometry a partire da formato API WP
     /**
@@ -35,43 +35,43 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                        [ 11.238753551237847, 43.55744054805567],
               }
     **/
-	protected function mappingGeometry($json_array) {
+        protected function mappingGeometry($json_array) {
         // TODO: controllo esistenza coordinate
-        if (isset($json_array['n7webmap_geojson'])) {
-           $this->geometry=unserialize($json_array['n7webmap_geojson']);            
-        }
-	}
-    public function setGeometry($geometry){$this->geometry=$geometry;}
+                if (isset($json_array['n7webmap_geojson'])) {
+                 $this->geometry=unserialize($json_array['n7webmap_geojson']);            
+             }
+         }
+         public function setGeometry($geometry){$this->geometry=$geometry;}
 
-    private function computeBB() {
-        $coords = $this->geometry['coordinates'];
-        $first = true;
-        foreach ($coords as $coord) {
-            $lng = $coord[0];
-            $lat = $coord[1];
-            if($first) {
-                $this->lngMin = $lng;
-                $this->lngMax = $lng;
-                $this->latMin = $lat;
-                $this->latMax = $lat;
-                $first = false;
+         private function computeBB() {
+            $coords = $this->geometry['coordinates'];
+            $first = true;
+            foreach ($coords as $coord) {
+                $lng = $coord[0];
+                $lat = $coord[1];
+                if($first) {
+                    $this->lngMin = $lng;
+                    $this->lngMax = $lng;
+                    $this->latMin = $lat;
+                    $this->latMax = $lat;
+                    $first = false;
+                }
+                else {
+                    if ($lng<$this->lngMin) $this->lngMin = $lng;
+                    if ($lng>$this->lngMax) $this->lngMax = $lng;
+                    if ($lat<$this->latMin) $this->latMin = $lat;
+                    if ($lat>$this->latMax) $this->latMax = $lat;       
+                }
             }
-            else {
-                if ($lng<$this->lngMin) $this->lngMin = $lng;
-                if ($lng>$this->lngMax) $this->lngMax = $lng;
-                if ($lat<$this->latMin) $this->latMin = $lat;
-                if ($lat>$this->latMax) $this->latMax = $lat;       
-            }
+            $this->bb_computed = true;
         }
-        $this->bb_computed = true;
-    }
 
-    public function getLatMax(){if(!$this->bb_computed) $this->computeBB(); return $this->latMax;}
-    public function getLatMin(){if(!$this->bb_computed) $this->computeBB(); return $this->latMin;}
-    public function getLngMax(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMax;}
-    public function getLngMin(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMin;}
+        public function getLatMax(){if(!$this->bb_computed) $this->computeBB(); return $this->latMax;}
+        public function getLatMin(){if(!$this->bb_computed) $this->computeBB(); return $this->latMin;}
+        public function getLngMax(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMax;}
+        public function getLngMin(){if(!$this->bb_computed) $this->computeBB(); return $this->lngMin;}
 
-    public function writeToPostGis($instance_id='') {
+        public function writeToPostGis($instance_id='') {
         // PER TRACK
 
         // SELECT ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)'); 
@@ -81,52 +81,47 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         //    $cmd="ogr2ogr -append -select id -f 'PostgreSQL' PG:'dbname=webmapptest user=webmapp host=46.101.124.52' '$geojson' -nln track_tmp";
         //    system($cmd);
         //}
-    }
+        }
 
-    public function writeGPX($path) {
+        public function writeGPX($path) {
         // TODO: check path
-        $path = $path.'/'.$this->getId().'.gpx';
-        $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
-        $geometry = $decoder->geomFromText(json_encode($this->geometry));
-        file_put_contents($path,$this->getGPX($geometry->toGPX()));
-    }
+            $path = $path.'/'.$this->getId().'.gpx';
+            $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
+            $geometry = $decoder->geomFromText(json_encode($this->geometry));
+            $gpx='<?xml version="1.0"?>
+            <gpx version="1.1" creator="GDAL 2.2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ogr="http://osgeo.org/gdal" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+            <trk>'.$geometry->toGPX().'</trk>
+            </gpx>';
+            file_put_contents($path,$gpx);
+        }
 
-    public function writeKML($path) {
+        public function writeKML($path) {
         // TODO: check path
-        $path = $path.'/'.$this->getId().'.kml';
-        $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
-        $geometry = $decoder->geomFromText(json_encode($this->geometry));
-        file_put_contents($path,$this->getKML($geometry->toKML()));
-    }
-private function getKML($geometry) {
-    $body = <<<EOM
-<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><ExtendedData></ExtendedData>$geometry</Placemark></Document></kml>
-EOM;
-return $body;
-}
+            $path = $path.'/'.$this->getId().'.kml';
+            $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
+            $geometry = $decoder->geomFromText(json_encode($this->geometry));
+            $kml ='<?xml version="1.0" encoding="UTF-8"?>
+            <kml xmlns="http://www.opengis.net/kml/2.2">
+            <Document>
+            <Placemark><ExtendedData></ExtendedData>'.$geometry->toKML().'</Placemark>
+            </Document>
+            </kml>';
+            file_put_contents($path,$kml);
+        }
 
-private function getGPX($geometry) {
-    $body = <<<EOM
-<?xml version="1.0"?>
-<gpx version="1.1" creator="GDAL 2.2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ogr="http://osgeo.org/gdal" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
-<trk>$geometry</trk>
-</gpx>
-EOM;
-return $body;
-}
 
         public function addRelated($distance=5000,$limit=100) {
-        if($limit>0) {
-            $limit = " LIMIT $limit";
-        } else {
-            $limit='';
+            if($limit>0) {
+                $limit = " LIMIT $limit";
+            } else {
+                $limit='';
+            }
+            $id = $this->properties['id'];
+            $q = "SELECT poi_tmp.id as id, track_tmp.id as tid, ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) as distance
+            FROM  poi_tmp, track_tmp
+            WHERE track_tmp.id=$id AND ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) < $distance
+            ORDER BY distance
+            $limit ;";
+            $this->addRelatedPoi($q);
         }
-        $id = $this->properties['id'];
-        $q = "SELECT poi_tmp.id as id, track_tmp.id as tid, ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) as distance
-              FROM  poi_tmp, track_tmp
-              WHERE track_tmp.id=$id AND ST_Distance(poi_tmp.wkb_geometry, ST_Transform(track_tmp.wkb_geometry,3857)) < $distance
-              ORDER BY distance
-              $limit ;";
-        $this->addRelatedPoi($q);
     }
-}
