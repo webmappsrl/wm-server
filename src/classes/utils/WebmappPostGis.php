@@ -103,10 +103,24 @@ EOFQUERY;
 		$type=$j['type'];
 		$coord=$j['coordinates'];
 		$new_coord=array();
-		foreach ($coord as $l) {
-			$new_coord[]=array($l[0],$l[1],self::getEle($l[0],$l[1]));
+
+		switch ($type) {
+			case 'LineString':
+				foreach ($coord as $l) {
+					$new_coord[]=array($l[0],$l[1],self::getEle($l[0],$l[1]));
+				}
+				break;
+			
+			case 'Point':
+			    $new_coord=array($coord[0],$coord[1],self::getEle($coord[0],$coord[1]));
+				break;
+			
+			default:
+				throw new WebmappExceptionGeoJsonBadGeomType("$type not valid geojson type or not yet implemented in WebmappPostGis::addEle method.", 1);
+				break;
 		}
 		$j_new=array('type'=>$type,'coordinates'=>$new_coord);
+
 		return json_encode($j_new);
 	}
 

@@ -1,22 +1,30 @@
 <?php 
+
+// MAIN
+class WebmappException extends Exception {}
+
 // COnfigurazione
-class WebmappExceptionConf extends Exception {}
-class WebmappExceptionConfPostgis extends Exception {}
+class WebmappExceptionConf extends WebmappException {}
+class WebmappExceptionConfPostgis extends WebmappException {}
 
   // WebmappException Eccezioni usate da tutte le classi
-class WebmappExceptionNoFile extends Exception {}
-class WebmappExceptionNoDirectory extends Exception {}
-class WebmappExceptionNoOSMRelation extends Exception {}
-class WebmappExceptionNoOSMFeature extends Exception {}
-class WebmappExceptionPOINoCoodinates extends Exception {}
+class WebmappExceptionNoFile extends WebmappException {}
+class WebmappExceptionNoDirectory extends WebmappException {}
+class WebmappExceptionNoOSMRelation extends WebmappException {}
+class WebmappExceptionNoOSMFeature extends WebmappException {}
+class WebmappExceptionPOINoCoodinates extends WebmappException {}
 
 // Parameters
-class WebmappExceptionParameter extends Exception {}
-class WebmappExceptionParameterMandatory extends Exception {}
-class WebmappExceptionParameterError extends Exception {}
+class WebmappExceptionParameter extends WebmappException {}
+class WebmappExceptionParameterMandatory extends WebmappException {}
+class WebmappExceptionParameterError extends WebmappException {}
 
 // POSTGIG
-class WebmappExceptionPostgis extends Exception {}
-class WebmappExceptionPostgisEmptySelect extends Exception {}
+class WebmappExceptionPostgis extends WebmappException {}
+class WebmappExceptionPostgisEmptySelect extends WebmappException {}
+
+// GEOJSON
+class WebmappExceptionGeoJson extends WebmappException {}
+class WebmappExceptionGeoJsonBadGeomType extends WebmappException {}
 
 ?>

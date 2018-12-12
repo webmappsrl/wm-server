@@ -118,7 +118,8 @@ class WebmappPostGisTest extends TestCase {
 	$geom_ele = $pg->addEle($geom);
 	$j=json_decode($geom_ele,TRUE);
 	$this->assertTrue($j['type']=='Point');
-	$this->assertTrue(count($j['coordinates'])==1);
-	$this->assertTrue(count($j['coordinates'][0])==3);
-    }
+	$this->assertTrue(count($j['coordinates'])==3);
+	$this->assertEquals(10.520095825195312,$j['coordinates'][0]);
+	$this->assertEquals(43.77667168029756,$j['coordinates'][1]);
+	}
 }
