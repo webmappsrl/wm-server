@@ -83,6 +83,18 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         //}
         }
 
+        // COnvert geom to 3d geom (only if needed)
+        public function addEle() {
+            if(isset($this->geometry['coordinates']) &&
+                count($this->geometry['coordinates'])>0 &&
+                count($this->geometry['coordinates'][0])==2) {
+                $geom = json_encode($this->geometry);
+                $pg = WebmappPostGis::Instance();
+                $geom_3d = $pg->addEle($geom);
+                $this->geometry=json_decode($geom_3d,TRUE);
+            }
+        }
+
         public function writeGPX($path) {
         // TODO: check path
             $path = $path.'/'.$this->getId().'.gpx';

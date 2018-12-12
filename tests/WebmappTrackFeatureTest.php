@@ -121,4 +121,13 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertTrue(file_exists($path));
         }
 
+        public function testaddEle() {
+            $track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
+            $track->addEle();
+            $j=json_decode($track->getJson(),TRUE);
+            $this->assertTrue(isset($j['geometry']));
+            $this->assertTrue(isset($j['geometry']['coordinates']));
+            $this->assertTrue(count($j['geometry']['coordinates'][0])==3);
+        }
+
 }
