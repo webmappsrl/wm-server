@@ -142,6 +142,7 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
                     $track->addProperty('description',$new_desc);
                     $path_res = $this->getRoot().'/resources/';
+                    $track->addEle();
                     $track->writeGPX($path_res);
                     $track->writeKML($path_res);
 
