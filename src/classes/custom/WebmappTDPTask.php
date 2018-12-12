@@ -15,6 +15,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
     echo "\n\n Processing\n\n";
 
     self::setCategories();
+    self::processItinerari();
     self::processTerritori();
     self::processCamper();
     self::processAttrazioni();
@@ -24,6 +25,30 @@ class WebmappTDPTask extends WebmappAbstractTask {
     echo "\n\nDONE!\n\n";
 
     return TRUE;
+}
+
+private function processItinerari(){
+    $url = 'http://www.terredipisa.it/wp-json/wp/v2/percorso/';
+    $items = WebmappUtils::getMultipleJsonFromApi($url);
+    $itinerari = new WebmappLayer('Itinerari');
+    foreach ($items as $ja) {
+        // Mapping
+        $id = $ja['id'];
+        $name = $ja['title']['rendered'];
+        echo "Processing percorso $name ($id) ... ";
+        if(isset($ja['acf']['percorso_geometry']) && 
+          !empty($ja['acf']['percorso_geometry'])) {
+            echo " creating track ";
+            $track = new WebmappTrackFeature($ja,true);
+            $track->setGeometryGeoJSON($ja['acf']['percorso_geometry']);
+            $track->write($this->getRoot().'/geojson/');
+            $itinerari->addFeature($track);
+        } else {
+            echo " NO GEOMETRY ... skip!";
+        }
+        echo "\n";
+    }
+    $itinerari->write($this->getRoot().'/geojson/');
 }
 
 private function processTerritori() {
