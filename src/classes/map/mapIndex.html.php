@@ -27,9 +27,7 @@ $index = <<<EOS
 
         <link href="core/css/font-awesome.min.css" rel="stylesheet">
         <link href="core/lib/leaflet/leaflet.css" rel="stylesheet">
-        <!-- <link href='core/css/mapbox2.2.2.min.css' rel='stylesheet' /> -->
-        <!-- <link href="core/css/fonts.css" rel="stylesheet" />
-        <link href="core/css/style.min.css" rel="stylesheet" /> -->
+        <link href="core/lib/leaflet_plugin/leaflet.elevation-custom/dist/Leaflet.Elevation-0.0.2.css" rel="stylesheet">
 
         <link rel="stylesheet" type="text/css" href="core/css/fonts.css" media="none" onload="document.addEventListener('DOMContentLoaded', function() {setTimeout(function() {document.body.className+=' fontsloaded';}, 1000);}); this.media='all';">
         <link rel="stylesheet" type="text/css" href="core/css/style.min.css" media="none" onload="this.media='all';">
@@ -50,6 +48,7 @@ $index = <<<EOS
         <script src="core/lib/igTruncate/igTruncate.js"></script>
         <script src="core/lib/JsBarcode/dist/JsBarcode.all.min.js"></script>
         <script src="core/lib/angular-md5/angular-md5.js"></script>
+        <script src="core/lib/d3/d3.min.js"></script>
 
         <script src="core/lib/angular-translate/angular-translate.min.js"></script>
         <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
@@ -67,6 +66,7 @@ $index = <<<EOS
         <script src="core/lib/leaflet_plugin/L.UTFGrid-min.js"></script>
         <script src="core/lib/leaflet_plugin/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
         <script src="core/lib/leaflet_plugin/leaflet-knn/leaflet-knn.js"></script>
+        <script src="core/lib/leaflet_plugin/leaflet.elevation-custom/dist/Leaflet.Elevation-0.0.2.src.js"></script>
 
         <script src="core/lib/angular-translate/angular-translate.min.js"></script>
         <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
