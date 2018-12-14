@@ -92,7 +92,49 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $pg = WebmappPostGis::Instance();
                 $geom_3d = $pg->addEle($geom);
                 $this->geometry=json_decode($geom_3d,TRUE);
+                // Now set info property
+                $first=true;
+                $distance=0;
+                $ascent=0;
+                $descent=0;
+                $ele_min=10000;
+                $ele_max=0;
+                foreach ($this->geometry['coordinates'] as $item) {
+                    if($first) {
+                        $first=false;
+                        $ele_from=$item[2];
+                    }
+                    else {
+                        $lon=$item[0];
+                        $lat=$item[1];
+                        $ele=$item[2];
+                        $distance += WebmappUtils::distance($lon0,$lat0,$lon,$lat);
+                        $delta = $ele - $ele0;
+                        if($delta>0) {
+                            $ascent += $delta;
+                        } else {
+                            $descent += $delta;
+                        }
+                    }
+                    $lon0=$item[0];
+                    $lat0=$item[1];
+                    $ele0=$item[2];
+                    $ele_to=$item[2];
+                    if($ele0>$ele_max) $ele_max=$ele0;
+                    if($ele0<$ele_min) $ele_min=$ele0;
+                }
+                $this->addProperty('ditance',$distance);
+                $this->addProperty('ascent',$ascent);
+                $this->addProperty('descent',$descent);
+                $this->addProperty('ele:from',$ele_from);
+                $this->addProperty('ele:to',$ele_to);
+                $this->addProperty('ele:min',$ele_min);
+                $this->addProperty('ele:max',$ele_max);
+
+                // TODO: Aggiungere duration
             }
+
+
         }
 
         public function writeGPX($path) {

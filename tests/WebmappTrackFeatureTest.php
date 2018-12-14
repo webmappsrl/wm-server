@@ -128,6 +128,17 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertTrue(isset($j['geometry']));
             $this->assertTrue(isset($j['geometry']['coordinates']));
             $this->assertTrue(count($j['geometry']['coordinates'][0])==3);
+
+            $this->assertTrue(isset($j['properties']['distance']));
+            $this->assertTrue(isset($j['properties']['ele:from']));
+            $this->assertTrue(isset($j['properties']['ele:to']));
+            $this->assertTrue(isset($j['properties']['ele:max']));
+            $this->assertTrue(isset($j['properties']['ele:min']));
+            $this->assertTrue(isset($j['properties']['ascent']));
+            $this->assertTrue(isset($j['properties']['descent']));
+            $this->assertTrue(isset($j['properties']['duration:forward']));
+            $this->assertTrue(isset($j['properties']['duration:backward']));
+
         }
 
 }

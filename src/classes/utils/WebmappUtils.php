@@ -544,4 +544,23 @@ class WebmappUtils {
 			$test->assertLesserThan($actual,$expected+$delta);
 	}
 
+	// Returns distance in KM (haversineGreatCircleDistance)
+	// REF: https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php
+	public static function distance(
+		$longitudeFrom, $latitudeFrom, $longitudeTo, $latitudeTo, $earthRadius = 6371)
+	{
+  // convert from degrees to radians
+		$latFrom = deg2rad($latitudeFrom);
+		$lonFrom = deg2rad($longitudeFrom);
+		$latTo = deg2rad($latitudeTo);
+		$lonTo = deg2rad($longitudeTo);
+
+		$latDelta = $latTo - $latFrom;
+		$lonDelta = $lonTo - $lonFrom;
+
+		$angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+			cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+		return $angle * $earthRadius;
+	}
+
 }
