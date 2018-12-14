@@ -20,6 +20,7 @@ class WebmappBETask extends WebmappAbstractTask {
  private $latMin;
 
  private $add_related = false;
+ private $add_ele = false;
  private $neighbors_dist = 1000;
  private $neighbors_limit = 0;
 
@@ -43,6 +44,10 @@ class WebmappBETask extends WebmappAbstractTask {
 
     if(array_key_exists('add_related', $this->options)) {
         $this->add_related = $this->options['add_related'];
+    }
+
+    if(array_key_exists('add_ele', $this->options)) {
+        $this->add_ele = $this->options['add_ele'];
     }
 
     if(array_key_exists('neighbors_dist', $this->options)) {
@@ -168,6 +173,13 @@ public function process(){
             $this->map->addTracksWebmappLayer($layer);
             $tracks = $layer->getFeatures();
             // ADD RELATED
+            if($this->add_ele) {
+                // First LOOP create geojson and add to POSTGIS
+                foreach($tracks as $track) {
+                    echo "Adding elevation to track.\n\n";
+                    $track->addEle();
+                }
+            }
             if($this->add_related) {
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {

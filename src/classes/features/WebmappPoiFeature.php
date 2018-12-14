@@ -153,6 +153,18 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         $this->addRelatedPoi($q);
     }
 
+    public function addEle() {
+            if(isset($this->geometry['coordinates']) &&
+                count($this->geometry['coordinates'])==2) {
+                $geom = json_encode($this->geometry);
+                $pg = WebmappPostGis::Instance();
+                $geom_3d = $pg->addEle($geom);
+                $this->geometry=json_decode($geom_3d,TRUE);
+        }
+    }
+
+
+
 
 
 }

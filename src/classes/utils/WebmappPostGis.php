@@ -92,7 +92,10 @@ WHERE
    ;
 EOFQUERY;
 	$a = $this->select($q);
-	return (float) $a[0]['zeta'];
+	if (count($a)>0) {
+		return (float) $a[0]['zeta'];
+	}
+	return -1;
 	}
 
 	// $geom = stringa della geometria geojson SENZA altezza

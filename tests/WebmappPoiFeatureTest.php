@@ -232,5 +232,13 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals('http://dev.be.webmapp.it/wp-admin/post.php?post=509&action=edit',$poi->getProperty('wp_edit'));
         }
 
+        public function testEle() {
+            $wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/poi/509';
+            $poi = new WebmappPoiFeature($wp_url);
+            $poi->addEle();
+            $j=json_decode($poi->getJson(),TRUE);
+            $this->assertTrue(count($j['geometry']['coordinates'])==3);
+        }
+
 
 }

@@ -57,8 +57,9 @@ abstract class WebmappAbstractFeature {
         // TODO: non passare $json_array ma usare la proprietà
 		$this->mappingStandard($json_array);
 		$this->mappingSpecific($json_array);
-        if(!$skip_geometry)
-		  $this->mappingGeometry($json_array);
+        if(!$skip_geometry) {
+          $this->mappingGeometry($json_array);
+        }
 	}
 
     // Simple Getters
@@ -426,6 +427,7 @@ abstract class WebmappAbstractFeature {
 
     abstract public function writeToPostGis($instance_id='');
     abstract public function addRelated($distance=5000,$limit=100);
+    abstract public function addEle();
     // La query POSTGIS deve essere costruita in modo tale da avere i parametri ID del POI e distance POI / OGGETTO
     protected function addRelatedPoi($q) {
         // PATH per recuperare i geojson dei POI
@@ -538,6 +540,7 @@ abstract class WebmappAbstractFeature {
             }
         }
     }
+
 
 }
 
