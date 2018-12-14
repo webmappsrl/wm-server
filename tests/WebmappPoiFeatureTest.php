@@ -225,5 +225,12 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertFalse($poi->hasProperty('xxx'));
         }
 
+        public function testWPEdit() {
+            $wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/poi/509';
+            $poi = new WebmappPoiFeature($wp_url);
+            $this->assertTrue($poi->hasProperty('wp_edit'));
+            $this->assertEquals('http://dev.be.webmapp.it/wp-admin/post.php?post=509&action=edit',$poi->getProperty('wp_edit'));
+        }
+
 
 }

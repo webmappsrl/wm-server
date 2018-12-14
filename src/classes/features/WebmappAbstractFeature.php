@@ -205,12 +205,19 @@ abstract class WebmappAbstractFeature {
             }
         }
 
-        // SOURCE
+        // SOURCE and WP_EDIT
         $source = 'unknown';
+        $wp_edit = 'unknown';
         if(isset($json_array['_links']['self'][0]['href'])) {
             $source = $json_array['_links']['self'][0]['href'];
+            // ADD wp_edit
+            $parse = parse_url($source);
+            $host = $parse['host'];
+            // http://dev.be.webmapp.it/wp-admin/post.php?post=509&action=edit 
+            $wp_edit = 'http://'.$host.'/wp-admin/post.php?post='.$this->getId().'&action=edit';
         }
         $this->addProperty('source',$source);
+        $this->addProperty('wp_edit',$wp_edit);
 
         // LINK WEB
         if(isset($json_array['link']) && !empty($json_array['link'])) {
