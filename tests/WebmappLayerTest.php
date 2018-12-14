@@ -248,4 +248,15 @@ class WebmappLayerTest extends TestCase {
 		$this->assertFalse($l->idExists(0));
 	}
 
+	public function testAddEle() {
+		$l = new WebmappLayer('test');
+		$l->addFeature(new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/522'));
+		$l->addFeature(new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800'));
+		$l->addEle();
+		$j=json_decode($l->getGeoJson(),true);
+		foreach($j['features'] as $f){
+			$this->assertTrue(count($f['geometry']['coordinates'])==3);
+		}
+	}
+
 }

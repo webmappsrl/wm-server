@@ -234,4 +234,13 @@ class WebmappLayer {
 	}
 
 
+	public function addEle() {
+		if(count($this->features)>0) {
+			foreach ($this->features as $item) {
+				$item->addEle();
+			}
+		}
+	}
+
+
 }
