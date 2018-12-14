@@ -164,6 +164,10 @@ public function process(){
         foreach($track_layers as $layer) {
             if(!$layer->getExclude()) {
             $this->computeBB($layer);
+            if($this->add_ele) {
+                echo "Adding elevation to track.\n\n";
+                $layer->addEle();
+            }
             $layer->write($this->project_structure->getPathGeojson());
             if($this->has_languages) {
                 foreach($this->languages as $lang) {
@@ -173,13 +177,6 @@ public function process(){
             $this->map->addTracksWebmappLayer($layer);
             $tracks = $layer->getFeatures();
             // ADD RELATED
-            if($this->add_ele) {
-                // First LOOP create geojson and add to POSTGIS
-                foreach($tracks as $track) {
-                    echo "Adding elevation to track.\n\n";
-                    $track->addEle();
-                }
-            }
             if($this->add_related) {
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {
