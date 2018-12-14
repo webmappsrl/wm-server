@@ -76,6 +76,9 @@ class WebmappWPTasksTests extends TestCase {
         $this->assertTrue(isset($item['properties']['color']));
         $this->assertEquals('#81d742',$item['properties']['color']);
 
+        // TRACK 580's relted POI: geojson/580_poi_related.geojson
+        $this->assertTrue(file_exists($path.'/580_poi_related.geojson'));
+
         // TRACK 711 color=#262163
         $item=json_decode(file_get_contents($path.'/711.geojson'),TRUE);
         $this->assertTrue(isset($item['properties']['color']));
