@@ -174,6 +174,7 @@ public function process(){
                 $layer->addEle();
             }
 
+            $tracks = $layer->getFeatures();
             if($this->add_gpx) {
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {
@@ -182,7 +183,7 @@ public function process(){
                     $gpx_a = '<a href='.$gpx_url.'>Download GPX</a>';
                     $kml_a = '<a href='.$kml_url.'>Download KML</a>';
                     $desc = $track->getProperty('description');
-                    $track->setProperty('description',$desc."<br/>$gpx_a<br/>$kml_a<br/>");
+                    $track->addProperty('description',$desc."<br/>$gpx_a<br/>$kml_a<br/>");
                 }
             }
 
@@ -193,7 +194,6 @@ public function process(){
                 }
             }
             $this->map->addTracksWebmappLayer($layer);
-            $tracks = $layer->getFeatures();
             // ADD RELATED
             if($this->add_gpx) {
                 // First LOOP create geojson and add to POSTGIS
