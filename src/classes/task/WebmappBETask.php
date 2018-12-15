@@ -21,6 +21,7 @@ class WebmappBETask extends WebmappAbstractTask {
 
  private $add_related = false;
  private $add_ele = false;
+ private $add_gpx = false;
  private $neighbors_dist = 1000;
  private $neighbors_limit = 0;
 
@@ -48,6 +49,10 @@ class WebmappBETask extends WebmappAbstractTask {
 
     if(array_key_exists('add_ele', $this->options)) {
         $this->add_ele = $this->options['add_ele'];
+    }
+
+    if(array_key_exists('add_gpx', $this->options)) {
+        $this->add_gpx = $this->options['add_gpx'];
     }
 
     if(array_key_exists('neighbors_dist', $this->options)) {
@@ -168,6 +173,19 @@ public function process(){
                 echo "Adding elevation to track.\n\n";
                 $layer->addEle();
             }
+
+            if($this->add_gpx) {
+                // First LOOP create geojson and add to POSTGIS
+                foreach($tracks as $track) {
+                    $gpx_url = $this->getUrlBase().'/resource/'.$track->getId().'.gpx';
+                    $kml_url = $this->getUrlBase().'/resource/'.$track->getId().'.kml';
+                    $gpx_a = '<a href='.$gpx_url.'>Download GPX</a>';
+                    $kml_a = '<a href='.$kml_url.'>Download KML</a>';
+                    $desc = $track->getProperty('description');
+                    $track->setProperty('description',$desc."<br/>$gpx_a<br/>$kml_a<br/>");
+                }
+            }
+
             $layer->write($this->project_structure->getPathGeojson());
             if($this->has_languages) {
                 foreach($this->languages as $lang) {
@@ -177,11 +195,20 @@ public function process(){
             $this->map->addTracksWebmappLayer($layer);
             $tracks = $layer->getFeatures();
             // ADD RELATED
-            if($this->add_related) {
+            if($this->add_gpx) {
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {
                     $track->write($this->project_structure->getPathGeojson().'/track');
                     $track->writeToPostGis();
+                }
+            }
+            $path=$this->getRoot().'/resources/';
+            if($this->add_gpx) {
+                // First LOOP create geojson and add to POSTGIS
+                foreach($tracks as $track) {
+                    echo "Writing GPX and KML tracks\n";
+                    $track->writeGPX($path);
+                    $track->writeKML($path);
                 }
             }
             }
