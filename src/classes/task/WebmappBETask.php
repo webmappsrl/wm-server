@@ -178,8 +178,8 @@ public function process(){
             if($this->add_gpx) {
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {
-                    $gpx_url = $this->getUrlBase().'/resource/'.$track->getId().'.gpx';
-                    $kml_url = $this->getUrlBase().'/resource/'.$track->getId().'.kml';
+                    $gpx_url = $this->getUrlBase().'/resources/'.$track->getId().'.gpx';
+                    $kml_url = $this->getUrlBase().'/resources/'.$track->getId().'.kml';
                     $gpx_a = '<a href='.$gpx_url.'>Download GPX</a>';
                     $kml_a = '<a href='.$kml_url.'>Download KML</a>';
                     $desc = $track->getProperty('description');
