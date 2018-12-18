@@ -206,7 +206,7 @@ public function process(){
             if($this->add_gpx) {
                 // First LOOP create geojson and add to POSTGIS
                 foreach($tracks as $track) {
-                    echo "Writing GPX and KML tracks\n";
+                    echo "Writing GPX and KML tracks ID: ".$track->getId()."\n";
                     $track->writeGPX($path);
                     $track->writeKML($path);
                 }
