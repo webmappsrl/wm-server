@@ -123,7 +123,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     if($ele0>$ele_max) $ele_max=$ele0;
                     if($ele0<$ele_min) $ele_min=$ele0;
                 }
-                $this->addProperty('ditance',$distance);
+                $this->addProperty('distance',$distance);
                 $this->addProperty('ascent',$ascent);
                 $this->addProperty('descent',$descent);
                 $this->addProperty('ele:from',$ele_from);
