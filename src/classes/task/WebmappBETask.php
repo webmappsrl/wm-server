@@ -180,8 +180,8 @@ public function process(){
                 foreach($tracks as $track) {
                     $gpx_url = $this->getUrlBase().'/resources/'.$track->getId().'.gpx';
                     $kml_url = $this->getUrlBase().'/resources/'.$track->getId().'.kml';
-                    $gpx_a = '<a href='.$gpx_url.'>Download GPX</a>';
-                    $kml_a = '<a href='.$kml_url.'>Download KML</a>';
+                    $gpx_a = '<a href="'.$gpx_url.'">Download GPX</a>';
+                    $kml_a = '<a href="'.$kml_url.'">Download KML</a>';
                     $desc = $track->getProperty('description');
                     $track->addProperty('description',$desc."<br/>$gpx_a<br/>$kml_a<br/>");
                 }
