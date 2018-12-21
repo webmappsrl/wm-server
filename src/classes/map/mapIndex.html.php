@@ -49,6 +49,10 @@ $index = <<<EOS
         <script src="core/lib/JsBarcode/dist/JsBarcode.all.min.js"></script>
         <script src="core/lib/angular-md5/angular-md5.js"></script>
         <script src="core/lib/d3/d3.min.js"></script>
+        <script src="core/lib/moment/moment.js"></script>
+        <script src="core/lib/moment/min/locales.js"></script>
+        <script src="core/lib/i18next-client/i18next.js"></script>
+        <script src="core/lib/opening_hours/opening_hours.js"></script>
 
         <script src="core/lib/angular-translate/angular-translate.min.js"></script>
         <script src="core/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
