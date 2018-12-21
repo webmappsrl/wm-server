@@ -42,6 +42,8 @@ private function processItinerari(){
             $track = new WebmappTrackFeature($ja,true);
             $track->setGeometryGeoJSON($ja['acf']['percorso_geometry']);
             $track->write($this->getRoot().'/geojson/');
+            // Traduzioni:
+            self::translateItem($ja,$id);
             $itinerari->addFeature($track);
         } else {
             echo " NO GEOMETRY ... skip!";
