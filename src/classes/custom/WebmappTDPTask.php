@@ -89,6 +89,21 @@ private function processTerritori() {
         }
 
         $poi->write($path);
+
+        // Gestione traduzioni
+        if(isset($ja['wpml_translations']) && 
+            is_array($ja['wpml_translations']) &&
+            count($ja['wpml_translations'])>0) {
+            foreach($ja['wpml_translations'] as $item) {
+                $id_t = $item['id'];
+                $src = $this->getRoot() .'/geojson/'.$id.'.geojson';
+                $trg = $this->getRoot() .'/geojson/'.$id_t.'.geojson';
+                $cmd = "ln -s $src $trg";
+                echo "Translating (cmd: $cmd)\n";
+                system($cmd);
+            }
+        }
+
         $this->all_territori->addFeature($poi);
             // $cat_id = $ja['categories'][0];
         $cat_id=88;
