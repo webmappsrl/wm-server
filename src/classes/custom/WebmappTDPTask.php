@@ -91,18 +91,7 @@ private function processTerritori() {
         $poi->write($path);
 
         // Gestione traduzioni
-        if(isset($ja['wpml_translations']) && 
-            is_array($ja['wpml_translations']) &&
-            count($ja['wpml_translations'])>0) {
-            foreach($ja['wpml_translations'] as $item) {
-                $id_t = $item['id'];
-                $src = $this->getRoot() .'/geojson/'.$id.'.geojson';
-                $trg = $this->getRoot() .'/geojson/'.$id_t.'.geojson';
-                $cmd = "ln -s $src $trg";
-                echo "Translating (cmd: $cmd)\n";
-                system($cmd);
-            }
-        }
+        self::translateItem($ja,$id);
 
         $this->all_territori->addFeature($poi);
             // $cat_id = $ja['categories'][0];
@@ -242,6 +231,10 @@ private function processEvents() {
             $poi->addProperty('color','#F6A502');
             $poi->addProperty('web',$ja['link']);
             $poi->write($path);
+
+            // GEstione delle traduzioni
+            self::translateItem($ja,$id);
+
             $all_events_layer->addFeature($poi);
         } else {
             " NO COORD: SKIP ";
@@ -260,6 +253,22 @@ private function setCategories() {
         $l->setId($cat['id']);
         $this->categories[$cat['id']]=$l;
     }
+}
+
+private function translateItem($ja,$id) {
+            if(isset($ja['wpml_translations']) && 
+            is_array($ja['wpml_translations']) &&
+            count($ja['wpml_translations'])>0) {
+            foreach($ja['wpml_translations'] as $item) {
+                $id_t = $item['id'];
+                $src = $this->getRoot() .'/geojson/'.$id.'.geojson';
+                $trg = $this->getRoot() .'/geojson/'.$id_t.'.geojson';
+                $cmd = "ln -s $src $trg";
+                echo "Translating (cmd: $cmd)\n";
+                system($cmd);
+            }
+        }
+
 }
 
 
