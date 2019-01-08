@@ -211,6 +211,22 @@ private function processEvents() {
     $events_url = 'http://www.terredipisa.it/wp-json/wp/v2/event/';
     $events = WebmappUtils::getMultipleJsonFromApi($events_url);
     $all_events_layer = new WebmappLayer('Events');
+
+    // Filter events
+    $filtered = array();
+    foreach ($events as $ja){
+        $id = $ja['id'];
+        $name = $ja['title']['rendered'];
+        $end_date = $ja['end_date'];
+        echo "Filtering event $name (ID:$id end_date=$end_date) ... ";
+        if (strtotime($end_date) >= strtotime('today')) {
+            echo "Event valid\n";
+            $filtered[]=$ja;
+        }
+        else echo "Event not valid\n";
+    }
+    $events=$filtered;
+
     foreach($events as $ja) {
         $id = $ja['id'];
         $name = $ja['title']['rendered'];
