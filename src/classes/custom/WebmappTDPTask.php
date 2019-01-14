@@ -281,7 +281,11 @@ private function translateItem($ja,$id) {
                 $id_t = $item['id'];
                 $src = $this->getRoot() .'/geojson/'.$id.'.geojson';
                 $trg = $this->getRoot() .'/geojson/'.$id_t.'.geojson';
-                $cmd = "ln -s $src $trg";
+                if(file_exists($trg)) {
+                   $cmd = "rm -f $trg";
+                   system($cmd); 
+                }
+                $cmd = "cp $src $trg";
                 echo "Translating (cmd: $cmd)\n";
                 system($cmd);
             }
