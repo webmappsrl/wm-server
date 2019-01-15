@@ -1,42 +1,60 @@
-WEBMAPP SERVER
-==============
+# wm-server
 
-Script e classi per il server di WEBMAPP
+The wm-server software performs all the operations for creating the application instances (APP, WEBAPP, API) WEBMAPP starting from the data contained in the instances of WORDPRESS in the content type of MAPPA
 
-Tutto il server si riduce alla chiamata di un unico script:
+This software is developed and mantained by WEBMAPP TEAM (see authors). Please fill free to contact us (info@webmap.it) for any question.
 
-php src/webmapp-server.php CONFFILE.conf
+## Getting Started
 
-CHe legge le informazioni dal file di configurazione ed esegue di conseguenza le operazioni necessarie. Il File di configurazione è un file json. Un esempio 
-utilizzato per i test si trova della directory data.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-Per gli sviluppatori:
+### Prerequisites
 
-I test possono essere lanciati come segue:
-Tutti:
-phpunit --color=always --bootstrap src/autoload.php tests/
-Singola classe:
-phpunit --color=always --bootstrap src/autoload.php tests/WebmappProjectStructureTest.php
-Con code coverage:
+What things you need to install the software and how to install them
+
+```
+PHP > 5.6.25
+```
+
+## Running the tests
+
+Tests are developed using (PhpUnit)[https://phpunit.de/] framework. Use the following command to run the test (from root directory):
+
+```
 phpunit --color=always --bootstrap src/autoload.php --coverage-text --whitelist src tests/
-Con Code covrage e HTML output
-phpunit --color=always --bootstrap src/autoload.php --coverage-text --coverage-html test-log --whitelist src tests/
+```
 
-URL UTILI DEL MANUALE DI PHPUNIT
- * https://phpunit.de/manual/current/en/appendixes.assertions.html#appendixes.assertions.assertRegExp
- * https://phpunit.de/manual/current/en/textui.html
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/webmappsrl/wm-server/tags).
+
+Please refers to the following MAJOR Version schema:
+
+| # | Name        | Year |
+|---|-------------|------|
+| 1 | Elbrus      | 2019 |
+| 2 | Aconcagua   | 2020 |
+| 3 | Denali      | 2021 |
+| 4 | Everest     | 2022 |
+| 5 | Kilimanjaro | 2023 |
+| 6 | Carstensz   | 2024 |
+| 7 | Vinson      | 2025 |
 
 
-REMOVE THIS:
-Paragraphs are separated by a blank line.
+## Authors
 
-2nd paragraph. *Italic*, **bold**, and `monospace`. Itemized lists
-look like:
+* **Alessio Piccioli** - *CTO* - [Webmapp](https://github.com/webmappsrl)
+* **Davide Pizzato** - *Developer* - [Webmapp](https://github.com/webmappsrl)
+* **Marco Barbieri** - *Map Maker and UX* - [Webmapp](https://github.com/webmappsrl)
 
-  * this one
-  * that one
-  * the other one
+See also the list of [contributors](https://github.com/webmappsrl/wm-server/contributors) who participated in this project.
 
-> Block quotes example
-> use this 
+## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Acknowledgments
+
+* Hat tip to anyone whose code was used
+* Inspiration
+* etc
