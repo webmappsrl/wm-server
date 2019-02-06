@@ -27,4 +27,9 @@ class WebmappExceptionPostgisEmptySelect extends WebmappException {}
 class WebmappExceptionGeoJson extends WebmappException {}
 class WebmappExceptionGeoJsonBadGeomType extends WebmappException {}
 
+// LOG FILE
+class WebmappExceptionLog extends WebmappException {}
+class WebmappExceptionLogPathNotExist extends WebmappExceptionLog {}
+class WebmappExceptionLogPathIsNotWritable extends WebmappExceptionLog {}
+
 ?>

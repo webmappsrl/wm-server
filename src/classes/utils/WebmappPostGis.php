@@ -33,7 +33,6 @@ final class WebmappPostGis {
         // TODO: gestire l'errore con una eccezione
 		$this->resource = pg_connect("host=$host dbname=$database user=$username password=$password")
 		or die('Could not connect: ' . pg_last_error());
-
 	}
 
 	public function getResource() {

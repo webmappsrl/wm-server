@@ -1,5 +1,8 @@
 {
 	"debug": false,
+	"log" : {
+		"path" : "XXX"
+	},
 	"webcache": {
 		"enabled" : true,
 		"db" : "../data/webcache.db"
