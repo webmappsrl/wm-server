@@ -91,7 +91,8 @@ final class WebmappLog {
 	}
 
 	public function close() {
-		$stop_msg = "\n\n".'* LOG STOP AT '.date('r').' *';
+		$stop_msg = '* LOG STOP AT '.date('r').' *';
+		file_put_contents($this->log_file,"\n\n",FILE_APPEND);
 		file_put_contents($this->log_file,str_repeat('*',strlen($stop_msg))."\n",FILE_APPEND);
 		file_put_contents($this->log_file,$stop_msg."\n",FILE_APPEND);
 		file_put_contents($this->log_file,str_repeat('*',strlen($stop_msg))."\n\n",FILE_APPEND);

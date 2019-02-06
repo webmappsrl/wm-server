@@ -141,7 +141,10 @@ runtask [task_name] : Run a specific task\n";
 				}
 				break;
 			case 'run':
+			    $l=WebmappLog::Instance();
+			    $l->open($root);
 				$p->process();
+				$l->close();
 				break;
 			case 'runtask':
 				if(!isset($this->options[2])) {

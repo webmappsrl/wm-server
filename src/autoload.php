@@ -34,6 +34,7 @@ require 'classes/task/WebmappProjectStructure.php';
 require 'classes/cli/WebmappCli.php';
 require 'classes/cli/WebmappCliCommand.php';
 require 'classes/cli/WebmappCliWebcacheCommand.php';
+require 'classes/cli/WebmappCliLogCommand.php';
 
 require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
