@@ -72,6 +72,14 @@ class WebmappCliShowconfigCommand extends WebmappCliAbstractCommand {
 	}
 }
 
+
+/*
+	TODO: aggiungere tipo di progetto e i passi per completarlo, in base ad eventuali altri dati forniti
+
+	1) TIPO REPOSITORY: contiene tutti i dati geometrici (geojson, tassonomie e altro). Parametri ulteriori code/or url
+	2) TIPO INSTANCE: a partire da un progetto sorgente (code / url + id MAPPS) e il task (BE) crea l'istanza. Passi ulteriori sono
+	                  creazione del Vhost, attivazione della versione WEB (a2ensite + link al core), attivazione https
+*/
 class WebmappCliNewCommand extends WebmappCliAbstractCommand {
  public function specificConstruct() { return true; }
 	public function getExcerpt() {
