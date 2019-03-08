@@ -197,7 +197,9 @@ class WebmappWPTest extends TestCase
 		$l=$wp->getAllPoisLayer('all_poi');
 		$t=$wp->getTaxonomies();
 		$this->assertTrue(isset($t['webmapp_category'][35]));
-		$this->assertTrue(count($t['webmapp_category'][35])>0);
-		$this->assertTrue(in_array(800, $t['webmapp_category'][35]));
+		$t_35 = $t['webmapp_category'][35];
+		$this->assertTrue(isset($t_35['items']['poi']));
+		$this->assertTrue(count($t_35['items']['poi'])>0);
+		$this->assertTrue(in_array(800, $t_35['items']['poi']));
 	}
 }

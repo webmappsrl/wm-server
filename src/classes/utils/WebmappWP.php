@@ -366,7 +366,7 @@ class WebmappWP {
 			$this->addItemToTaxonomy($type,$id,$tax,'theme');	
 		}
 	}
-	private function addItemToTaxonomy($id,$tax,$tax_name) {
+	private function addItemToTaxonomy($type,$id,$tax,$tax_name) {
 		if(isset($tax[$tax_name]) && (count($tax[$tax_name])>0) ) {
 			foreach($tax[$tax_name] as $term_id) {
 				$this->taxonomies[$tax_name][$term_id]['items'][$type][]=$id;
