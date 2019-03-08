@@ -116,22 +116,22 @@ class WebmappWPTest extends TestCase
 
 	}
 
-	public function testgetImageLayer() {
-		$wp = new WebmappWP('dev');
-		$l = $wp->getImageLayer();
-		$path=__DIR__.'/../data';
-		$l->write($path);
+	// public function testgetImageLayer() {
+	// 	$wp = new WebmappWP('dev');
+	// 	$l = $wp->getImageLayer();
+	// 	$path=__DIR__.'/../data';
+	// 	$l->write($path);
 
-		$o=$path.'/image.geojson';
-		$j=WebmappUtils::getJsonFromApi($o);
-		$this->assertTrue(is_array($j));
-		$this->assertTrue(isset($j['type']));
-		$this->assertEquals('FeatureCollection',$j['type']);
+	// 	$o=$path.'/image.geojson';
+	// 	$j=WebmappUtils::getJsonFromApi($o);
+	// 	$this->assertTrue(is_array($j));
+	// 	$this->assertTrue(isset($j['type']));
+	// 	$this->assertEquals('FeatureCollection',$j['type']);
 
-		// TODO: decommentare dopo implementazione
-		// $this->assertTrue(isset($j['features']));
+	// 	// TODO: decommentare dopo implementazione
+	// 	// $this->assertTrue(isset($j['features']));
 
-	}
+	// }
 
 	public function testGetAllRoutesLayer() {
 		$wp = new WebmappWp('dev');
@@ -189,5 +189,15 @@ class WebmappWPTest extends TestCase
 			$file = '/tmp/'.$tax.'.json';
 			$this->assertTrue(file_exists($file));
 		}		
+	}
+
+	public function testItemsInTaxonomy() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$l=$wp->getAllPoisLayer('all_poi');
+		$t=$wp->getTaxonomies();
+		$this->assertTrue(isset($t['webmapp_category'][35]));
+		$this->assertTrue(count($t['webmapp_category'][35])>0);
+		$this->assertTrue(in_array(800, $t['webmapp_category'][35]));
 	}
 }

@@ -32,7 +32,6 @@ private function processTaxonomies() {
         $cmd = "mkdir $tax_path";
         system($cmd);
     }
-    $this->wp->writeTaxonomies($tax_path);
 }
 
 public function process(){
@@ -53,6 +52,9 @@ public function process(){
     // ROUTES
     $routes = $this->wp->getAllRoutesLayer($path);
     $routes->writeAllFeatures();
+
+    $tax_path = $this->project_structure->getRoot().'/taxonomies';
+    $this->wp->writeTaxonomies($tax_path);
 
     // ADD related
     if ($pois->count() >0){
