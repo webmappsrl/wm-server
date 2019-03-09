@@ -60,11 +60,13 @@ public function process(){
     if ($pois->count() >0){
         foreach($pois->getFeatures() as $poi){
             $poi->addRelated($this->distance,$this->limit);
+            $poi->writeToPostGis();
         }
     }
     if ($tracks->count() >0){
         foreach($tracks->getFeatures() as $track){
             $track->addRelated($this->distance,$this->limit);
+            $track->writeToPostGis();
         }
     }
 
