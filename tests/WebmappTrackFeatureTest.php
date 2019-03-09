@@ -141,4 +141,16 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
+        public function testGetGeometry() {
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+            $g = $t->getGeometry();
+            $this->assertTrue(isset($g['type']));
+            $this->assertEquals('LineString',$g['type']);
+            $this->assertTrue(isset($g['coordinates']));
+            $c=$g['coordinates'];
+            $this->assertTrue(count($c)>0);
+            $this->assertEquals(10.4016816,$c[0][0]);
+            $this->assertEquals(43.715503699999999,$c[0][1]);
+        }
+
 }
