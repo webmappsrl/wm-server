@@ -43,6 +43,17 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertTrue(count($a)>0);
 	}
 
+	public function testTrack() {
+		$t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+        $g = $t->getGeometry();
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,$g);
+		$q="SELECT * from track where instance_id='test';";
+		$a = $pg->select($q);
+		$this->assertTrue(count($a)>0);
+	}
+
 	public function testGetEle() {
 		$pg = WebmappPostGis::Instance();
 		$data = array (

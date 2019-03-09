@@ -69,6 +69,38 @@ final class WebmappPostGis {
 		$this->execute($q);
 	}
 
+    // TODO: inserire anche ele
+    // $instance_id = http
+	public function insertTrack($instance_id,$track_id,$geom) {
+		// SELECT ST_GeomFromText
+		// ('LINESTRING(-71.160281 42.258729,
+		//              -71.160837 42.259113,
+		//              -71.161144 42.25932)'); 
+
+		// Convert $geom (php array geojson geometry)
+		if (isset($geom['coordinates']) && 
+			is_array($geom['coordinates']) &&
+			count($geom['coordinates'])>0
+			) {
+			$linestring = array();
+			foreach ($geom['coordinates'] as $point) {
+				$lon = $point[0];
+				$lat = $point[1];
+				$linestring[]="$lon $lat";
+			}
+			$geom_string = "ST_GeomFromText('LINESTRING(".implode(',',$linestring).")',4326)";
+			// Build Postgis query and execute it
+			$q = " 
+			INSERT INTO track(instance_id,track_id, geom) 
+			VALUES('$instance_id',$track_id, $geom_string)
+			ON CONFLICT (instance_id,track_id) DO 
+		   		UPDATE SET geom=$geom_string
+			;";
+			$this->execute($q);
+		}
+
+	}
+
 	public function getPoiGeoJsonGeometry($instance_id,$poi_id) {
 		$q = 'SELECT ST_AsGeoJSON(geom) as geojson from poi;';
 		$a = $this->select($q);
