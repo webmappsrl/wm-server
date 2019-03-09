@@ -191,15 +191,55 @@ class WebmappWPTest extends TestCase
 		}		
 	}
 
-	public function testItemsInTaxonomy() {
+	public function testPoisInTaxonomy() {
 		$wp = new WebmappWP('dev');
 		$wp->loadTaxonomies();
 		$l=$wp->getAllPoisLayer('all_poi');
 		$t=$wp->getTaxonomies();
+
+		// WEBMAPP CATEGORY
 		$this->assertTrue(isset($t['webmapp_category'][35]));
 		$t_35 = $t['webmapp_category'][35];
 		$this->assertTrue(isset($t_35['items']['poi']));
 		$this->assertTrue(count($t_35['items']['poi'])>0);
 		$this->assertTrue(in_array(800, $t_35['items']['poi']));
+
+	}
+
+	public function testTracksInTaxonomy() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$l=$wp->getAllTracksLayer('all_track');
+		$t=$wp->getTaxonomies();
+
+		// ACTIVITY
+		$this->assertTrue(isset($t['activity'][40]));
+		$t_40 = $t['activity'][40];
+		$this->assertTrue(isset($t_40['items']['track']));
+		$this->assertTrue(count($t_40['items']['track'])>0);
+		$this->assertTrue(in_array(882, $t_40['items']['track']));
+	}
+
+	public function testRoutesInTaxonomy() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$l=$wp->getAllRoutesLayer('all_route');
+		$t=$wp->getTaxonomies();
+
+		// ACTIVITY
+		$this->assertTrue(isset($t['activity'][40]));
+		$t_40 = $t['activity'][40];
+		$this->assertTrue(isset($t_40['items']['route']));
+		$this->assertTrue(count($t_40['items']['route'])>0);
+		$this->assertTrue(in_array(346, $t_40['items']['route']));
+
+		// THEME
+		$this->assertTrue(isset($t['theme'][41]));
+		$t_41 = $t['theme'][41];
+		$this->assertTrue(isset($t_41['items']['route']));
+		$this->assertTrue(count($t_41['items']['route'])>0);
+		$this->assertTrue(in_array(917, $t_41['items']['route']));
+
+
 	}
 }

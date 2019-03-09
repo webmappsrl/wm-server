@@ -8,6 +8,9 @@ class WebmappRoute {
 	private $tracks = array();
 	private $base_url;
 
+	private $properties = array();
+	private $features = array();
+
     // Array con le lingue presenti
 	private $languages = array();
 
@@ -44,6 +47,16 @@ class WebmappRoute {
 			count($this->json_array['n7webmap_route_related_track']) > 0 ) {
 			$this->loadTracks();
 	}
+	        // Taxonomies
+        $this->addTaxonomy('webmapp_category');
+        $this->addTaxonomy('activity');
+        $this->addTaxonomy('theme');
+        $this->addTaxonomy('where');
+        $this->addTaxonomy('when');
+        $this->addTaxonomy('who');
+
+        $this->buildPropertiesAndFeatures();
+
 }
 
 public function getId() {
@@ -62,28 +75,65 @@ public function getLanguages() {
 	return $this->languages;
 }
 
+public function getProperties() {
+	return $this->properties;
+}
+
+public function getTaxonomies() {
+	if(isset($this->properties['taxonomy'])) {
+		return $this->properties['taxonomy'];
+	}
+	return array();
+}
+
 private function loadTracks() {
+	if( isset($this->json_array['n7webmap_route_related_track']) &&
+		is_array($this->json_array['n7webmap_route_related_track']) &&
+		count($this->json_array['n7webmap_route_related_track'])>0){
 	foreach ($this->json_array['n7webmap_route_related_track'] as $track ) {
 		$url = $this->base_url .'track/' . $track['ID'];
 		array_push($this->tracks, new WebmappTrackFeature($url));
+	}		
 	}
+}
+    // TODO Patch per APIWP non coerente su ROUTE da sistemare dopo
+    // aver sistemato APIWP per route con multimappa
+
+    private function addTaxonomy($name) {
+        if (isset($this->json_array[$name]) &&
+            is_array($this->json_array[$name]) &&
+            count($this->json_array[$name])>0) {
+        	    if($name=='activity'){
+        	    foreach ($this->json_array[$name] as $term ) {
+        	    	$this->properties['taxonomy'][$name][]=$term['term_id'];
+        	    }
+           	    }
+           	    else {
+	        	    //  Ripristinare questo codice (vedi TODO sopra) anche per activity
+	        	    $this->properties['taxonomy'][$name]=$this->json_array[$name];
+           	    }
+        }       
+    }
+
+private function buildPropertiesAndFeatures() {
+     $this->properties['id']=$this->id;
+     $this->properties['name']=$this->title;
+     if(count($this->tracks) >0 ) {
+     	$related=array();
+     	foreach($this->tracks as $track) {
+     		$this->features[]=json_decode($track->getJson(),TRUE);
+     		$related[]=$track->getId();
+     	}
+     	$this->properties['related']['track']['related']=$related;
+     }
+
 }
 
 public function getJson() {
 	 $json = array();
      $json['type']='FeatureCollection';
-     $json['properties']['id']=$this->id;
-     $json['properties']['name']=$this->title;
-     if(count($this->tracks) >0 ) {
-     	$features=array();
-     	$related=array();
-     	foreach($this->tracks as $track) {
-     		$features[]=json_decode($track->getJson(),TRUE);
-     		$related[]=$track->getId();
-     	}
-     	$json['properties']['related']['track']['related']=$related;
-     	$json['features']=$features;
-     }
+     $json['properties']=$this->properties;
+     $json['features']=$this->features;
      return json_encode($json);
 }
 

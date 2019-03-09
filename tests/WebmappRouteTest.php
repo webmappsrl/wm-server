@@ -33,6 +33,27 @@ class WebmappRouteTest extends TestCase {
         $this->assertTrue(isset($ja['properties']));
 	}
 
+	public function testTaxonomy() {
+		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/772');
+		$ja=json_decode($r->getJson(),TRUE);
+		$this->assertTrue(isset($ja['properties']['taxonomy']));
+		$this->assertTrue(isset($ja['properties']['taxonomy']['activity']));
+
+		// ACTIVITY
+		$this->assertTrue(is_array($ja['properties']['taxonomy']['activity']));
+		$this->assertTrue(count($ja['properties']['taxonomy']['activity'])>0);
+		$this->assertTrue(in_array(47,$ja['properties']['taxonomy']['activity']));
+		$this->assertTrue(in_array(40,$ja['properties']['taxonomy']['activity']));
+
+		// THEME
+		$this->assertTrue(is_array($ja['properties']['taxonomy']['theme']));
+		$this->assertTrue(count($ja['properties']['taxonomy']['theme'])>0);
+		$this->assertTrue(in_array(45,$ja['properties']['taxonomy']['theme']));
+		$this->assertTrue(in_array(41,$ja['properties']['taxonomy']['theme']));
+
+
+	}
+
 
 
 }

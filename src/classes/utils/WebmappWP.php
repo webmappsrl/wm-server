@@ -355,25 +355,19 @@ class WebmappWP {
 		$this->addItemToTaxonomies('route',$id,$props);
 	}
 
-	private function addItemToTaxonomies($type,$id,$props) {
-		if(isset($props['taxonomy'])) {
-			$tax = $props['taxonomy'];
-			$this->addItemToTaxonomy($type,$id,$tax,'webmapp_category');	
-			$this->addItemToTaxonomy($type,$id,$tax,'activity');	
-			$this->addItemToTaxonomy($type,$id,$tax,'when');	
-			$this->addItemToTaxonomy($type,$id,$tax,'who');	
-			$this->addItemToTaxonomy($type,$id,$tax,'where');	
-			$this->addItemToTaxonomy($type,$id,$tax,'theme');	
-		}
-	}
-	private function addItemToTaxonomy($type,$id,$tax,$tax_name) {
-		if(isset($tax[$tax_name]) && (count($tax[$tax_name])>0) ) {
-			foreach($tax[$tax_name] as $term_id) {
-				$this->taxonomies[$tax_name][$term_id]['items'][$type][]=$id;
+	private function addItemToTaxonomies($feature_type,$id,$props) {
+		if(isset($props['taxonomy'])
+			&& is_array($props['taxonomy']) &&
+			count($props['taxonomy'])>0) {
+			foreach($props['taxonomy'] as $tax_name => $items) {
+				if(is_array($items) && count($items) >0) {
+					foreach($items as $term_id) {
+						$this->taxonomies[$tax_name][$term_id]['items'][$feature_type][]=$id;
+					}
+				}
 			}
 		}
 	}
-
 	public function getAllPoisLayer($path) {
 		$l=new WebmappLayer('all-pois',$path);
 		$items = WebmappUtils::getMultipleJsonFromApi($this->api_pois);
@@ -413,7 +407,7 @@ class WebmappWP {
             foreach ($items as $item) {
             	$p = new WebmappRoute($item,$this->base_url.'/wp-json/wp/v2/');
             	$l->addFeature($p);
-            	$this->addRouteToTaxonomies($p->getId(),$item);
+            	$this->addRouteToTaxonomies($p->getId(),$p->getProperties());
             }
 		}
 		return $l;
@@ -435,7 +429,7 @@ class WebmappWP {
             			)
             			$t->addProperty('color',$this->taxonomies['activity'][$props['taxonomy']['activity'][0]]['color']);            			
             	}
-            	$this->addTrackToTaxonomies($t->getId(),$item);
+            	$this->addTrackToTaxonomies($t->getId(),$props);
             	$t->write($path);
             	$t->writeToPostGis();
             	$l->addFeature($t);

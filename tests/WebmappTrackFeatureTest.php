@@ -70,13 +70,13 @@ class WebmappTrackFeatureTests extends TestCase {
                 $this->assertEquals('WebmappPoiFeature',get_class($pois[0]));
         }
 
-        public function testGetWebmappCategoryIds() {
-                $poi = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
-                $ids = $poi->getWebmappCategoryIds();
-                $this->assertTrue(is_array($ids));
-                $this->assertEquals(2,count($ids));
-                $this->assertEquals(14,$ids[0]);
-        }
+        // public function testGetWebmappCategoryIds() {
+        //         $poi = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
+        //         $ids = $poi->getWebmappCategoryIds();
+        //         $this->assertTrue(is_array($ids));
+        //         $this->assertEquals(2,count($ids));
+        //         $this->assertEquals(14,$ids[0]);
+        // }
 
         public function testRemoveProperty() {
             $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');

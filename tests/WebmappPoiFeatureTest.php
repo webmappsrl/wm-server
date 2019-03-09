@@ -209,7 +209,7 @@ class WebmappPoiFeatureTest extends TestCase {
             $poi = new WebmappPoiFeature('http://outcropedia.be.webmapp.it/wp-json/wp/v2/poi/1478');
             $j = json_decode($poi->getJson(),true);
             $this->assertTrue(isset($j['properties']['image']));
-            $this->assertEquals('http://outcropedia.be.webmapp.it/wp-content/uploads/2018/06/Zimudang-thrust-300x203.jpg',$j['properties']['image']);
+            $this->assertEquals('http://outcropedia.tectask.org/wp-content/uploads/2018/06/Zimudang-thrust-300x203.jpg',$j['properties']['image']);
         }
 
         public function testWriteToPostGis() {
