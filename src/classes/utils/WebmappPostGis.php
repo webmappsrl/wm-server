@@ -168,8 +168,51 @@ final class WebmappPostGis {
 		}         
 	}
 
+	public function getRouteBBox($instance_id,$route_id) {
+		if($this->routeExists($instance_id,$route_id)) {
+			$q="
+		 SELECT
+			CONCAT (
+			ST_Xmin(ST_Envelope(ST_Collect(geom))),',',
+			ST_Ymin(ST_Envelope(ST_Collect(geom))),',',
+			ST_Xmax(ST_Envelope(ST_Collect(geom))),',',
+			ST_Ymax(ST_Envelope(ST_Collect(geom)))) as bbox
+ 		 FROM track 
+ 		 WHERE track_id 
+ 		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id');";
+ 		 $a=$this->select($q);
+ 		 return $a[0]['bbox'];
+		}         
+	}
+
+	public function getRouteBBoxMetric($instance_id,$route_id) {
+		if($this->routeExists($instance_id,$route_id)) {
+			$q="
+		 SELECT
+			CONCAT (
+			ROUND(ST_Xmin(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857))),',',
+			ROUND(ST_Ymin(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857))),',',
+			ROUND(ST_Xmax(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857))),',',
+			ROUND(ST_Ymax(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857)))) as bbox
+ 		 FROM track 
+ 		 WHERE track_id 
+ 		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id');";
+ 		 $a=$this->select($q);
+ 		 return $a[0]['bbox'];
+		}         
+	}
+
 	public function trackExists($instance_id,$track_id) {
 		$q = "SELECT track_id FROM track WHERE track_id=$track_id AND instance_id='$instance_id'";
+		$a = $this->select($q);
+		if (count($a)>0) {
+			return true;
+		}
+		return false;
+	}
+
+	public function routeExists($instance_id,$route_id) {
+		$q = "SELECT * FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id'";
 		$a = $this->select($q);
 		if (count($a)>0) {
 			return true;
@@ -228,6 +271,8 @@ EOFQUERY;
 	   	$q = "DELETE FROM poi WHERE instance_id='$instance_id';";
 	   	$this->execute($q);
 	   	$q = "DELETE FROM track WHERE instance_id='$instance_id';";
+	   	$this->execute($q);
+	   	$q = "DELETE FROM related_track WHERE instance_id='$instance_id';";
 	   	$this->execute($q);
 	}
 }

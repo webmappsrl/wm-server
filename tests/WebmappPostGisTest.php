@@ -147,6 +147,42 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertEquals('1164193,5426513,1171684,5429494',$bb);
 	}
 
+	public function testRouteExists() {
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$this->assertFalse($pg->routeExists('test',1));
+		$tracks = array(1,2,3);
+		$pg->insertRoute('test',1,$tracks);
+		$this->assertTrue($pg->routeExists('test',1));
+
+	}
+
+	public function testGetRouteBBox() {
+		$c1 = array(array(0,0),array(2,2));
+		$g1 = array('type'=>'LineString','coordinates'=>$c1);
+		$c2 = array(array(1,1),array(3,3));
+		$g2 = array('type'=>'LineString','coordinates'=>$c2);
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,$g1);
+		$pg->insertTrack('test',2,$g2);
+		$pg->insertRoute('test',1,array(1,2));
+		$this->assertEquals('0,0,3,3',$pg->getRouteBBox('test',1));
+	}
+
+	public function testGetRouteBBoxMetric() {
+		$c1 = array(array(0,0),array(2,2));
+		$g1 = array('type'=>'LineString','coordinates'=>$c1);
+		$c2 = array(array(1,1),array(3,3));
+		$g2 = array('type'=>'LineString','coordinates'=>$c2);
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,$g1);
+		$pg->insertTrack('test',2,$g2);
+		$pg->insertRoute('test',1,array(1,2));
+		$this->assertEquals('0,-0,333958,334111',$pg->getRouteBBoxMetric('test',1));
+	}
+
 	private static function getTrackExampleGeom() {
 		$geom = '{
         "type": "LineString",
