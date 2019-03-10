@@ -139,6 +139,14 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertEquals('10.458126068115,43.747909127091,10.525417327881,43.76725098758',$bb);
 	}
 
+	public function testGetTrackBBoxMetric() {
+		$pg= WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,json_decode($this->getTrackExampleGeom(),TRUE));
+		$bb=$pg->getTrackBBoxMetric('test',1);
+		$this->assertEquals('1164193,5426513,1171684,5429494',$bb);
+	}
+
 	private static function getTrackExampleGeom() {
 		$geom = '{
         "type": "LineString",

@@ -144,13 +144,28 @@ final class WebmappPostGis {
 			ST_Xmin(ST_Envelope(ST_Collect(geom))),',',
 			ST_Ymin(ST_Envelope(ST_Collect(geom))),',',
 			ST_Xmax(ST_Envelope(ST_Collect(geom))),',',
-			ST_Ymax(ST_Envelope(ST_Collect(geom)))) as bbox_geo
+			ST_Ymax(ST_Envelope(ST_Collect(geom)))) as bbox
  		 FROM track WHERE 
  		 track_id = $track_id AND instance_id='$instance_id';";
  		 $a=$this->select($q);
- 		 return $a[0]['bbox_geo'];
-		}
-         
+ 		 return $a[0]['bbox'];
+		}         
+	}
+
+	public function getTrackBBoxMetric($instance_id,$track_id) {
+		if($this->trackExists($instance_id,$track_id)) {
+			$q="
+		 SELECT
+			CONCAT (
+			ROUND(ST_Xmin(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857))),',',
+			ROUND(ST_Ymin(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857))),',',
+			ROUND(ST_Xmax(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857))),',',
+			ROUND(ST_Ymax(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857)))) as bbox
+ 		 FROM track WHERE 
+ 		 track_id = $track_id AND instance_id='$instance_id';";
+ 		 $a=$this->select($q);
+ 		 return $a[0]['bbox'];
+		}         
 	}
 
 	public function trackExists($instance_id,$track_id) {
