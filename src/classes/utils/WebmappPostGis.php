@@ -44,7 +44,13 @@ final class WebmappPostGis {
     // return true if execution is ok
     // TODO: gestione eccezione
 	public function execute($q) {
-		$result = pg_query($this->resource,$q) or die('Query failed: ' . pg_last_error());
+		$result = pg_query($this->resource,$q);
+		if($result === FALSE ) {
+			// TODO: go to log system
+			echo "\n Query failed: $q\n";
+			echo "Error: ".pg_last_error()."\n";
+			return FALSE;
+		}
 		return TRUE;
 	}
 
