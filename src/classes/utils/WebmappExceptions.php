@@ -22,6 +22,7 @@ class WebmappExceptionParameterError extends WebmappException {}
 // POSTGIG
 class WebmappExceptionPostgis extends WebmappException {}
 class WebmappExceptionPostgisEmptySelect extends WebmappException {}
+class WebmappExceptionPostgisNoFeature extends WebmappException {}
 
 // GEOJSON
 class WebmappExceptionGeoJson extends WebmappException {}

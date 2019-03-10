@@ -123,7 +123,10 @@ final class WebmappPostGis {
 	}
 
 	public function getPoiGeoJsonGeometry($instance_id,$poi_id) {
-		$q = 'SELECT ST_AsGeoJSON(geom) as geojson from poi;';
+		$q = "SELECT ST_AsGeoJSON(geom) AS geojson 
+		      FROM poi 
+		      WHERE instance_id='$instance_id' AND poi_id=$poi_id
+		      ;";
 		$a = $this->select($q);
 		if (count($a)>0) {
 			return $a[0]['geojson'];
@@ -131,6 +134,32 @@ final class WebmappPostGis {
 		else {
 			throw new WebmappExceptionPostgisEmptySelect();
 		}
+	}
+
+	public function getTrackBBox($instance_id,$track_id) {
+		if($this->trackExists($instance_id,$track_id)) {
+			$q="
+		 SELECT
+			CONCAT (
+			ST_Xmin(ST_Envelope(ST_Collect(geom))),',',
+			ST_Ymin(ST_Envelope(ST_Collect(geom))),',',
+			ST_Xmax(ST_Envelope(ST_Collect(geom))),',',
+			ST_Ymax(ST_Envelope(ST_Collect(geom)))) as bbox_geo
+ 		 FROM track WHERE 
+ 		 track_id = $track_id AND instance_id='$instance_id';";
+ 		 $a=$this->select($q);
+ 		 return $a[0]['bbox_geo'];
+		}
+         
+	}
+
+	public function trackExists($instance_id,$track_id) {
+		$q = "SELECT track_id FROM track WHERE track_id=$track_id AND instance_id='$instance_id'";
+		$a = $this->select($q);
+		if (count($a)>0) {
+			return true;
+		}
+		return false;
 	}
 
 	// TODO: gestione del caso fuori dal DEM
@@ -181,9 +210,9 @@ EOFQUERY;
 	}
 
 	public function clearTables($instance_id) {
-		foreach($this->all_tables as $table) {
-			$q = "DELETE FROM $table;";
-			$this->execute($q);
-		}
+	   	$q = "DELETE FROM poi WHERE instance_id='$instance_id';";
+	   	$this->execute($q);
+	   	$q = "DELETE FROM track WHERE instance_id='$instance_id';";
+	   	$this->execute($q);
 	}
 }
