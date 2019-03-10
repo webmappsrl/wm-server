@@ -82,6 +82,21 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
     }
 
+    public function addBBox($instance_id='') {
+        // Gestione della ISTANCE ID
+        if(empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $bb = $pg->getTrackBBox($instance_id,$this->getId());
+        if(!empty($bb)) {
+            $this->addProperty('bbox',$bb);
+            $bb = $pg->getTrackBBoxMetric($instance_id,$this->getId());
+            $this->addProperty('bbox_metric',$bb);
+        }        
+    }
+
+
         // COnvert geom to 3d geom (only if needed)
         public function addEle() {
             if(isset($this->geometry['coordinates']) &&
@@ -177,4 +192,5 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $limit ;";
             $this->addRelatedPoi($q);
         }
+
     }

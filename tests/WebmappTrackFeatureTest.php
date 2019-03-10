@@ -153,4 +153,18 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals(43.715503699999999,$c[0][1]);
         }
 
+        public function testBBox() {
+            $pg = WebmappPostGis::Instance();
+            $pg->clearTables('test');            
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+            $t->writeToPostGis('test');
+            $t->addBBox('test');
+            $ja=json_decode($t->getJson(),TRUE);
+            $this->assertTrue(isset($ja['properties']['bbox']));
+            $this->assertTrue(isset($ja['properties']['bbox_metric']));
+            $this->assertEquals('10.40167,43.71309,10.40853,43.71627',$ja['properties']['bbox']);
+            $this->assertEquals('1157909,5421149,1158672,5421639',$ja['properties']['bbox_metric']);
+
+        }
+
 }
