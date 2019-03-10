@@ -50,8 +50,28 @@ class WebmappRouteTest extends TestCase {
 		$this->assertTrue(count($ja['properties']['taxonomy']['theme'])>0);
 		$this->assertTrue(in_array(45,$ja['properties']['taxonomy']['theme']));
 		$this->assertTrue(in_array(41,$ja['properties']['taxonomy']['theme']));
+	}
 
+	public function testWriteToPostGis() {
+		// ROUTE ID = 346
+		// RELATED_TRACKS = 348 576
+		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
+		$id = $r->getId();
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$r->writeToPostGis('test');
 
+		$q = "SELECT * from related_track WHERE instance_id='test' AND route_id=$id";
+		$a = $pg->select($q);
+		$this->assertEquals(2,count($a));
+
+		$q = "SELECT * from related_track WHERE instance_id='test' AND track_id='348'";
+		$a = $pg->select($q);
+		$this->assertEquals(1,count($a));
+
+		$q = "SELECT * from related_track WHERE instance_id='test' AND track_id='576'";
+		$a = $pg->select($q);
+		$this->assertEquals(1,count($a));
 	}
 
 

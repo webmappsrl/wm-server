@@ -54,6 +54,27 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertTrue(count($a)>0);
 	}
 
+	public function testRoute() {
+		$pg = WebmappPostGis::Instance();
+		$instance_id = 'test';
+		$route_id = 1;
+		$tracks = array(1,2,3);
+		$pg->clearTables('test');
+		$pg->insertRoute($instance_id,$route_id,$tracks);
+
+		$q = "SELECT * FROM related_track where instance_id='test' ORDER BY track_id ASC";
+		$a = $pg->select($q);
+		$this->assertEquals(3,count($a));
+
+		for ($i=0; $i <=2 ; $i++) { 
+			$vals=$a[$i];
+			$this->assertEquals('test',$vals['instance_id']);
+			$this->assertEquals($route_id,$vals['route_id']);
+			$this->assertEquals($i+1,$vals['track_id']);
+		}
+
+	}
+
 	public function testGetEle() {
 		$pg = WebmappPostGis::Instance();
 		$data = array (

@@ -137,6 +137,18 @@ public function getJson() {
      return json_encode($json);
 }
 
+public function writeToPostGis($instance_id='') {
+	// Gestione della ISTANCE ID
+	if(empty($instance_id)) {
+		$instance_id = WebmappProjectStructure::getInstanceId();
+	}
+	$route_id=$this->getId();
+	if(count($this->tracks)>0) {
+		$pg = WebmappPostGis::Instance();
+		$pg->insertRoute($instance_id,$this->getId(),$this->properties['related']['track']['related']);
+	}
+}
+
 public function write($path) {
 	file_put_contents($path.'/'.$this->id.'.geojson', $this->getJson());
 }

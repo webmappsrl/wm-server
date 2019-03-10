@@ -56,7 +56,7 @@ public function process(){
     $tax_path = $this->project_structure->getRoot().'/taxonomies';
     $this->wp->writeTaxonomies($tax_path);
 
-    // ADD related
+    // ADD related and WRITE to PostGIS
     if ($pois->count() >0){
         foreach($pois->getFeatures() as $poi){
             $poi->addRelated($this->distance,$this->limit);
@@ -67,6 +67,11 @@ public function process(){
         foreach($tracks->getFeatures() as $track){
             $track->addRelated($this->distance,$this->limit);
             $track->writeToPostGis();
+        }
+    }
+    if($routes->count()>0) {
+        foreach ($routes as $route) {
+            $route->writeToPostGis();
         }
     }
 

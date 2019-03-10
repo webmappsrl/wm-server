@@ -101,6 +101,21 @@ final class WebmappPostGis {
 
 	}
 
+	// $tracks array with related track_id
+	// $tracks = array (track_id_1,track_id2,...,track_id_n)
+	public function insertRoute($instance_id,$route_id,$tracks) {
+		if(count($tracks)>0) {
+			foreach ($tracks as $track_id) {
+				$q = " 
+				INSERT INTO related_track(instance_id,route_id, track_id) 
+				VALUES('$instance_id',$route_id, $track_id)
+				ON CONFLICT (instance_id,route_id,track_id) DO NOTHING
+				;";
+				$this->execute($q);
+			}
+		}		
+	}
+
 	public function getPoiGeoJsonGeometry($instance_id,$poi_id) {
 		$q = 'SELECT ST_AsGeoJSON(geom) as geojson from poi;';
 		$a = $this->select($q);
