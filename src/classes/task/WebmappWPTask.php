@@ -69,8 +69,10 @@ public function process(){
             $track->writeToPostGis();
         }
     }
+
     if($routes->count()>0) {
-        foreach ($routes as $route) {
+        foreach ($routes->getFeatures() as $route) {
+            $id = $route->getId();
             $route->writeToPostGis();
         }
     }
