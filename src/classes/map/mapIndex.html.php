@@ -99,17 +99,18 @@ $index = <<<EOS
         <script src="core/js/settings/filters.js"></script>
         <script src="core/js/settings/compile.js"></script>
 
-        <script src="core/js/services/communication.factory.js"></script>
-        <script src="core/js/services/auth.factory.js"></script>
         <script src="core/js/services/account.factory.js"></script>
+        <script src="core/js/services/auth.factory.js"></script>
+        <script src="core/js/services/communication.factory.js"></script>
         <script src="core/js/services/geolocation.factory.js"></script>
-        <script src="core/js/services/search.factory.js"></script>
-        <script src="core/js/services/model.factory.js"></script>
-        <script src="core/js/services/utils.factory.js"></script>
-        <script src="core/js/services/offline.factory.js"></script>
-        <script src="core/js/services/map.factory.js"></script>
         <script src="core/js/services/languages.factory.js"></script>
+        <script src="core/js/services/map.factory.js"></script>
+        <script src="core/js/services/mbtiles.factory.js"></script>
+        <script src="core/js/services/model.factory.js"></script>
+        <script src="core/js/services/offline.factory.js"></script>
         <script src="core/js/services/package.factory.js"></script>
+        <script src="core/js/services/search.factory.js"></script>
+        <script src="core/js/services/utils.factory.js"></script>
 
         <script src="core/js/components/attribution/attribution.controller.js"></script>
         <script src="core/js/components/card/card.controller.js"></script>
