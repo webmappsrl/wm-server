@@ -149,6 +149,20 @@ public function writeToPostGis($instance_id='') {
 	}
 }
 
+public function addBBox($instance_id='') {
+	// Gestione della ISTANCE ID
+	if(empty($instance_id)) {
+		$instance_id = WebmappProjectStructure::getInstanceId();
+	}
+	$pg = WebmappPostGis::Instance();
+	$bb = $pg->getRouteBBox($instance_id,$this->getId());
+	if(!empty($bb)) {
+		$this->properties['bbox']=$bb;
+		$bb = $pg->getRouteBBoxMetric($instance_id,$this->getId());
+		$this->properties['bbox_metric']=$bb;
+	}
+}
+
 public function write($path) {
 	file_put_contents($path.'/'.$this->id.'.geojson', $this->getJson());
 }

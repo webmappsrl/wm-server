@@ -67,6 +67,7 @@ public function process(){
         foreach($tracks->getFeatures() as $track){
             $track->addRelated($this->distance,$this->limit);
             $track->writeToPostGis();
+            $track->addBBox();
         }
     }
 
@@ -74,12 +75,14 @@ public function process(){
         foreach ($routes->getFeatures() as $route) {
             $id = $route->getId();
             $route->writeToPostGis();
+            $route->addBBox();
         }
     }
 
     // WRITE AGAIN AFTER adding related
     $pois->writeAllFeatures();
     $tracks->writeAllFeatures();
+    $routes->writeAllFeatures();
 
     $pois->writeAllRelated($path);
     $tracks->writeAllRelated($path);

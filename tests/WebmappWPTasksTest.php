@@ -83,6 +83,8 @@ class WebmappWPTasksTests extends TestCase {
         $item=json_decode(file_get_contents($path.'/711.geojson'),TRUE);
         $this->assertTrue(isset($item['properties']['color']));
         $this->assertEquals('#262163',$item['properties']['color']);
+        $this->assertTrue(isset($item['properties']['bbox']));
+        $this->assertTrue(isset($item['properties']['bbox_metric']));
 
         $taxs = array('webmapp_category','theme','activity','who','where','when');
         $tax_path = $p->getStructure()->getRoot().'/taxonomies';
@@ -108,6 +110,9 @@ class WebmappWPTasksTests extends TestCase {
             $this->assertTrue(isset($track['properties']));
             $this->assertTrue(isset($track['geometry']));
         }
+        $this->assertTrue(isset($item['properties']['bbox']));
+        $this->assertTrue(isset($item['properties']['bbox_metric']));
+
 
         // Route index
         $this->assertTrue(file_exists($path.'/route_index.geojson'));

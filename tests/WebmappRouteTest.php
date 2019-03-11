@@ -74,6 +74,29 @@ class WebmappRouteTest extends TestCase {
 		$this->assertEquals(1,count($a));
 	}
 
+	public function testBBox() {
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+
+		$t1 = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/348');
+		$t1->writeToPostGis('test');
+		$t2 = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/576');
+		$t2->writeToPostGis('test');
+		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
+		$r->writeToPostGis('test');
+
+		$bb = $r->addBBox('test');
+
+		$ja=json_decode($r->getJson(),TRUE);
+
+		$this->assertTrue(isset($ja['properties']['bbox']));
+		$this->assertTrue(isset($ja['properties']['bbox_metric']));
+
+		$this->assertEquals('10.39471,43.70904,10.3989,43.72326',$ja['properties']['bbox']);
+		$this->assertEquals('1157134,5420525,1157600,5422715',$ja['properties']['bbox_metric']);
+
+	}
+
 
 
 }
