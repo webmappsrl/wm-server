@@ -275,4 +275,16 @@ class WebmappUtilsTests extends TestCase {
 		}
 	}
 
+	public function testGetOptimalBBox() {
+        // INPUT W=491 H=624 BB=1157909,5421149,1158672,5421639 PERC=0.05
+        // OUTPUT BB=1157870.85,5420860.6769857,1158710.15,5421927.3230143
+        $bbin = '1157909,5421149,1158672,5421639';
+        $bbout = explode(',', WebmappUtils::getOptimalBBox($bbin,491,624,0.05));
+        $this->assertEquals(1157870.85,$bbout[0]);
+        $this->assertEquals(5420860.6769857,$bbout[1]);
+        $this->assertEquals(1158710.15,$bbout[2]);
+        $this->assertEquals(5421927.3230143,$bbout[3]);
+
+	}
+
 }

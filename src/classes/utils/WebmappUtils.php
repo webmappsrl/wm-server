@@ -563,4 +563,35 @@ class WebmappUtils {
 		return $angle * $earthRadius;
 	}
 
+	public static function getOptimalBBox($bbox,$width,$height,$perc=0.05) {
+		    $bbox_array = explode(',',$bbox);
+            $xmin = $bbox_array[0];
+            $ymin = $bbox_array[1];
+            $xmax = $bbox_array[2];
+            $ymax = $bbox_array[3];
+            $dx = abs($xmax-$xmin);
+            $dy = abs($ymax-$ymin);
+
+            if($dx/$dy > $width/$height) {
+                $d=($height/$width*$dx-$dy)*0.5;
+                $ymax = $ymax + $d;
+                $ymin = $ymin - $d;
+            }
+            else if ($dx/$dy < $width/$height) {
+                $d=($width/$height*$dy-$dy)*0.5;
+                $xmax = $xmax + $d;
+                $xmin = $xmin - $d;
+            }
+
+            // Allargare del $perc %
+            $dx = abs($xmax-$xmin);
+            $dy = abs($ymax-$ymin);
+            $xmin = $xmin - $dx*$perc;
+            $xmax = $xmax + $dx*$perc;
+            $ymin = $ymin - $dy*$perc;
+            $ymax = $ymax + $dy*$perc;
+
+            return implode(',', array($xmin,$ymin,$xmax,$ymax));
+	}
+
 }

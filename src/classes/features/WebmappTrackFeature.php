@@ -226,43 +226,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $this->addBBox($instance_id);
             }
 
-            // TODO CALCOLO DEL BBOX in funzione di WIDTH E HEIGHT
-            $bbox=$this->properties['bbox_metric'];
-            // DEBUG
-            $id=$this->getId();
-            echo "\n\n======================================\n";
-            echo "GENERATING IMAGE for track ID $id\n";
-            echo "INPUT W=$width H=$height I=$instance_id P=$path BB1=$bbox\n";
-
-            $bbox_array = explode(',',$bbox);
-            $xmin = $bbox_array[0];
-            $ymin = $bbox_array[1];
-            $xmax = $bbox_array[2];
-            $ymax = $bbox_array[3];
-            $dx = abs($xmax-$xmin);
-            $dy = abs($ymax-$ymin);
-
-            if($dx/$dy > $width/$height) {
-                $d=($height/$width*$dx-$dy)*0.5;
-                $ymax = $ymax + $d;
-                $ymin = $ymin - $d;
-            }
-            else if ($dx/$dy < $width/$height) {
-                $d=($width/$height*$dy-$dy)*0.5;
-                $xmax = $xmax + $d;
-                $xmin = $xmin - $d;
-            }
-
-            // Allargare del 5%
-            $delta = 0.05;
-            $dx = abs($xmax-$xmin);
-            $dy = abs($ymax-$ymin);
-            $xmin = $xmin - $dx*$delta;
-            $xmax = $xmax + $dx*$delta;
-            $ymin = $ymin - $dy*$delta;
-            $ymax = $ymax + $dy*$delta;
-
-            $bbox=implode(',', array($xmin,$ymin,$xmax,$ymax));
+            $bbox=WebmappUtils::getOptimalBBox($this->properties['bbox_metric'],$width,$height);
 
             // BUILD CURL CALL TO qgs.webmapp.it/track_map.php
             // Crea il file dinamico QGS e restituisce l'URL da chiamare
@@ -274,8 +238,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 'height' => $height
             );
 
-            echo "GEOJSON=$geojson_url BBOX=$bbox\n";
-
             $ch = curl_init('http://qgs.webmapp.it/track.php');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
@@ -283,9 +245,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             curl_close($ch);
 
             $img = $path.'/'.$this->getId().'_map_'.$width.'x'.$height.'.png';
-            echo "\n$image_url\n\n";
-            echo "\n$img\n";
-            echo "================================\n\n";
             file_put_contents($img, file_get_contents($image_url));
         }
 
