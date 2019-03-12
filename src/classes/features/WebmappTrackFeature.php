@@ -250,7 +250,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             else if ($dx/$dy < $width/$height) {
                 $d=($width/$height*$dy-$dy)*0.5;
                 $xmax = $xmax + $d;
-                $xmin = $xmin + $d;
+                $xmin = $xmin - $d;
             }
 
             // Allargare del 5%
