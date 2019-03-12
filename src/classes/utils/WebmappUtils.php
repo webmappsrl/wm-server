@@ -578,7 +578,7 @@ class WebmappUtils {
                 $ymin = $ymin - $d;
             }
             else if ($dx/$dy < $width/$height) {
-                $d=($width/$height*$dy-$dy)*0.5;
+                $d=($width/$height*$dy-$dx)*0.5;
                 $xmax = $xmax + $d;
                 $xmin = $xmin - $d;
             }
