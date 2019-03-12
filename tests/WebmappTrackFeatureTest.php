@@ -167,4 +167,67 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
+        public function testGenerateImage(){
+            // Prepare TEST
+            $img_path = '/tmp/927_map_491x624.png';
+            $cmd = "rm -f $img_path";
+            system($cmd);
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+
+            // PERFORMS OPERATION(S)
+            $t->generateImage(491,624,'http://dev.be.webmapp.it','/tmp');
+
+            // TEST(S)
+            $this->assertTrue(file_exists($img_path));
+            $info = getimagesize($img_path);
+            $this->assertEquals('image/png',$info['mime']);
+            $this->assertEquals(491,$info[0]);
+            $this->assertEquals(624,$info[1]);
+
+        }
+
+        public function testGenerateAllImages() {
+            // Prepare TEST
+            $i1 = '/tmp/927_map_491x624.png';
+            $i2 = '/tmp/927_map_400x300.png';
+            $i3 = '/tmp/927_map_200x200.png';
+            $i4 = '/tmp/927_map_1000x1000.png';
+            $cmd = "rm -f $i1 $i2 $i3 $i4";
+            system($cmd);
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+
+            // PERFORMS OPERATION(S)
+            $t->generateAllImages('http://dev.be.webmapp.it','/tmp');
+
+            // TEST(S)
+            $this->assertTrue(file_exists($i1));
+            $info = getimagesize($i1);
+            $this->assertEquals('image/png',$info['mime']);
+            $this->assertEquals(491,$info[0]);
+            $this->assertEquals(624,$info[1]);
+
+            $this->assertTrue(file_exists($i2));
+            $info = getimagesize($i2);
+            $this->assertEquals('image/png',$info['mime']);
+            $this->assertEquals(400,$info[0]);
+            $this->assertEquals(300,$info[1]);
+
+            $this->assertTrue(file_exists($i3));
+            $info = getimagesize($i3);
+            $this->assertEquals('image/png',$info['mime']);
+            $this->assertEquals(200,$info[0]);
+            $this->assertEquals(200,$info[1]);
+
+            $this->assertTrue(file_exists($i4));
+            $info = getimagesize($i4);
+            $this->assertEquals('image/png',$info['mime']);
+            $this->assertEquals(1000,$info[0]);
+            $this->assertEquals(1000,$info[1]);
+
+        }
+
 }

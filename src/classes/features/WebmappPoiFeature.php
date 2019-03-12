@@ -163,6 +163,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         }
     }
 
+    public function generateImage($width,$height,$instance_id='',$path='') {
+        echo "\n\nNOT YET IMPLEMENTED!\n\n";
+    }
 
 
 

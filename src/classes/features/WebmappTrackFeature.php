@@ -89,11 +89,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         }
         $pg = WebmappPostGis::Instance();
         $bb = $pg->getTrackBBox($instance_id,$this->getId());
-        if(!empty($bb)) {
-            $this->addProperty('bbox',$bb);
-            $bb = $pg->getTrackBBoxMetric($instance_id,$this->getId());
-            $this->addProperty('bbox_metric',$bb);
-        }        
+        if(empty($bb)) {
+            $this->writeToPostGis($instance_id);
+            $bb = $pg->getTrackBBox($instance_id,$this->getId());
+        }
+        $this->addProperty('bbox',$bb);
+        $bb = $pg->getTrackBBoxMetric($instance_id,$this->getId());
+        $this->addProperty('bbox_metric',$bb);
     }
 
 
@@ -191,6 +193,82 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             ORDER BY distance
             $limit ;";
             $this->addRelatedPoi($q);
+        }
+
+        public function generateAllImages($instance_id='',$path='') {
+            if(!isset($this->properties['bbox'])) {
+                $this->addBBox($instance_id);
+            }
+
+            $sizes = array(
+                    array(491,624),
+                    array(400,300),
+                    array(200,200),
+                    array(1000,1000)
+                );
+            foreach ($sizes as $v) {
+                $this->generateImage($v[0],$v[1],$instance_id,$path);
+            }
+
+        }
+
+        public function generateImage($width,$height,$instance_id='',$path='') {
+            // TODO: check parameter
+            
+            if(!isset($this->properties['bbox'])) {
+                $this->addBBox($instance_id);
+            }
+
+            // TODO CALCOLO DEL BBOX in funzione di WIDTH E HEIGHT
+            $bbox=$this->properties['bbox_metric'];
+            $bbox_array = explode(',',$bbox);
+            $xmin = $bbox_array[0];
+            $ymin = $bbox_array[1];
+            $xmax = $bbox_array[2];
+            $ymax = $bbox_array[3];
+            $dx = abs($xmax-$xmin);
+            $dy = abs($ymax-$ymin);
+
+            if($dx/$dy > $width/$height) {
+                $d=($height/$width*$dx-$dy)*0.5;
+                $ymax = $ymax + $d;
+                $ymin = $ymin - $d;
+            }
+            else if ($dx/$dy < $width/$height) {
+                $d=($width/$height*$dy-$dy)*0.5;
+                $xmax = $xmax + $d;
+                $xmin = $xmin + $d;
+            }
+
+            // Allargare del 5%
+            $delta = 0.05;
+            $dx = abs($xmax-$xmin);
+            $dy = abs($ymax-$ymin);
+            $xmin = $xmin - $dx*$delta;
+            $xmax = $xmax + $dx*$delta;
+            $ymin = $ymin - $dy*$delta;
+            $ymax = $ymax + $dy*$delta;
+
+            $bbox=implode(',', array($xmin,$ymin,$xmax,$ymax));
+
+            // BUILD CURL CALL TO qgs.webmapp.it/track_map.php
+            // Crea il file dinamico QGS e restituisce l'URL da chiamare
+            $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
+            $post_data = array(
+                'geojson_url' => $geojson_url,
+                'bbox' => $bbox,
+                'width' => $width,
+                'height' => $height
+            );
+
+            $ch = curl_init('http://qgs.webmapp.it/track.php');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+            $image_url = curl_exec($ch);
+            curl_close($ch);
+
+            $img = $path.'/'.$this->getId().'_map_'.$width.'x'.$height.'.png';
+            file_put_contents($img, file_get_contents($image_url));
         }
 
     }

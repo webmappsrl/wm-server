@@ -545,6 +545,7 @@ abstract class WebmappAbstractFeature {
         }
     }
 
+    abstract public function generateImage($width,$height,$instance_id='',$path='');
 
 }
 

@@ -68,6 +68,12 @@ public function process(){
             $track->addRelated($this->distance,$this->limit);
             $track->writeToPostGis();
             $track->addBBox();
+            $track_path = $this->project_structure->getRoot().'/track';
+            if(!file_exists($track_path)) {
+                $cmd = "mkdir $track_path";
+                system($cmd);
+            }
+            $track->generateAllImages('',$track_path);
         }
     }
 
