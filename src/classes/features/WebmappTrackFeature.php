@@ -196,8 +196,10 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         }
 
         public function generateAllImages($instance_id='',$path='') {
-            if(!isset($this->properties['bbox'])) {
-                $this->addBBox($instance_id);
+
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
             }
 
             $sizes = array(
@@ -214,6 +216,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
         public function generateImage($width,$height,$instance_id='',$path='') {
             // TODO: check parameter
+
+                    // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
             
             if(!isset($this->properties['bbox'])) {
                 $this->addBBox($instance_id);
