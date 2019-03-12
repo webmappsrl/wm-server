@@ -87,7 +87,7 @@ public function process(){
             $id = $route->getId();
             $route->writeToPostGis();
             $route->addBBox();
-            $routes->generateAllImages('',$route_path);
+            $route->generateAllImages('',$route_path);
         }
     }
 
