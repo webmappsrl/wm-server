@@ -220,32 +220,15 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             // Gestione della ISTANCE ID
             if(empty($instance_id)) {
                 $instance_id = WebmappProjectStructure::getInstanceId();
-            }
-            
+            }           
             if(!isset($this->properties['bbox'])) {
                 $this->addBBox($instance_id);
             }
 
-            $bbox=WebmappUtils::getOptimalBBox($this->properties['bbox_metric'],$width,$height);
-
-            // BUILD CURL CALL TO qgs.webmapp.it/track_map.php
-            // Crea il file dinamico QGS e restituisce l'URL da chiamare
             $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
-            $post_data = array(
-                'geojson_url' => $geojson_url,
-                'bbox' => $bbox,
-                'width' => $width,
-                'height' => $height
-            );
-
-            $ch = curl_init('http://qgs.webmapp.it/track.php');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-            $image_url = curl_exec($ch);
-            curl_close($ch);
-
-            $img = $path.'/'.$this->getId().'_map_'.$width.'x'.$height.'.png';
-            file_put_contents($img, file_get_contents($image_url));
+            $img_path = $path.'/'.$this->getId().'_map_'.$width.'x'.$height.'.png';
+ 
+            WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
         }
 
     }

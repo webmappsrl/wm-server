@@ -64,24 +64,30 @@ public function process(){
         }
     }
     if ($tracks->count() >0){
+        $track_path = $this->project_structure->getRoot().'/track';
+        if(!file_exists($track_path)) {
+            $cmd = "mkdir $track_path";
+            system($cmd);
+        }
         foreach($tracks->getFeatures() as $track){
             $track->addRelated($this->distance,$this->limit);
             $track->writeToPostGis();
             $track->addBBox();
-            $track_path = $this->project_structure->getRoot().'/track';
-            if(!file_exists($track_path)) {
-                $cmd = "mkdir $track_path";
-                system($cmd);
-            }
             $track->generateAllImages('',$track_path);
         }
     }
 
     if($routes->count()>0) {
+        $route_path = $this->project_structure->getRoot().'/route';
+        if(!file_exists($route_path)) {
+            $cmd = "mkdir $route_path";
+            system($cmd);
+        }
         foreach ($routes->getFeatures() as $route) {
             $id = $route->getId();
             $route->writeToPostGis();
             $route->addBBox();
+            $routes->generateAllImages('',$route_path);
         }
     }
 

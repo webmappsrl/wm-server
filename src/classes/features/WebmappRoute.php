@@ -167,4 +167,46 @@ public function write($path) {
 	file_put_contents($path.'/'.$this->id.'.geojson', $this->getJson());
 }
 
+        public function generateAllImages($instance_id='',$path='') {
+
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+
+            $sizes = array(
+                    array(491,624),
+                    array(400,300),
+                    array(200,200),
+                    array(1000,1000)
+                );
+            foreach ($sizes as $v) {
+                $this->generateImage($v[0],$v[1],$instance_id,$path);
+            }
+
+        }
+
+        public function generateImage($width,$height,$instance_id='',$path='') {
+        	// Ignore route without tracks
+        	if(count($this->tracks)==0) {
+        		return;
+        	}
+            // TODO: check parameter
+
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }           
+            if(!isset($this->properties['bbox'])) {
+                $this->addBBox($instance_id);
+            }
+
+            $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
+            $img_path = $path.'/'.$this->getId().'_map_'.$width.'x'.$height.'.png';
+ 
+            WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
+        }
+
+
+
 }
