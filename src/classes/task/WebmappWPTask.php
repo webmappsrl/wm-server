@@ -88,6 +88,7 @@ public function process(){
             $route->writeToPostGis();
             $route->addBBox();
             $route->generateAllImages('',$route_path);
+            $route->generateRBHTML($route_path);
         }
     }
 

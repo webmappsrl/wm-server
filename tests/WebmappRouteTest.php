@@ -97,6 +97,15 @@ class WebmappRouteTest extends TestCase {
 
 	}
 
+	public function testGenerateRBHTML($instance_id='') {
+		$file = '/tmp/346_rb.html';
+		system("rm -Rf $file");
+		$r = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
+		$r->generateRBHTML('/tmp','http://dev.be.webmapp.it');
+		$this->assertTrue(file_exists($file));
+		echo "\n\n\n FILE $file created!\n\n\n";
+	}
+
 
 
 }

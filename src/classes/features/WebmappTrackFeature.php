@@ -98,6 +98,58 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         $this->addProperty('bbox_metric',$bb);
     }
 
+    public function setComputedProperties() {
+            if(isset($this->geometry['coordinates']) &&
+                count($this->geometry['coordinates'])>0 &&
+                count($this->geometry['coordinates'][0])==2) {
+                $geom = json_encode($this->geometry);
+                $pg = WebmappPostGis::Instance();
+                $geom_3d = $pg->addEle($geom);
+                $this->geometry=json_decode($geom_3d,TRUE);
+                // Now set info property
+                $first=true;
+                $distance=0;
+                $ascent=0;
+                $descent=0;
+                $ele_min=10000;
+                $ele_max=0;
+                foreach ($this->geometry['coordinates'] as $item) {
+                    if($first) {
+                        $first=false;
+                        $ele_from=$item[2];
+                    }
+                    else {
+                        $lon=$item[0];
+                        $lat=$item[1];
+                        $ele=$item[2];
+                        $distance += WebmappUtils::distance($lon0,$lat0,$lon,$lat);
+                        $delta = $ele - $ele0;
+                        if($delta>0) {
+                            $ascent += $delta;
+                        } else {
+                            $descent += $delta;
+                        }
+                    }
+                    $lon0=$item[0];
+                    $lat0=$item[1];
+                    $ele0=$item[2];
+                    $ele_to=$item[2];
+                    if($ele0>$ele_max) $ele_max=$ele0;
+                    if($ele0<$ele_min) $ele_min=$ele0;
+                }
+                $computed = array(
+                    'distance' => $distance,
+                    'ascent' => $ascent,
+                    'descent' => $descent,
+                    'ele:from' => $ele_from,
+                    'ele:to' => $ele_to,
+                    'ele:min' => $ele_min,
+                    'ele:max' => $ele_max
+                    );
+                $this->addProperty('computed',$computed);
+    }
+}
+
 
         // COnvert geom to 3d geom (only if needed)
         public function addEle() {
@@ -231,4 +283,43 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
         }
 
+        public function generatePortraitRBImages($instance_id='',$path='') {
+            $this->generateRBImages(491,624,1300,$instance_id,$path);
+        }
+
+        public function generateRBImages($width,$height,$bbox_dx,$instance_id='',$path=''){
+
+            // TODO: check PARAMETER
+
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+
+            // DEBUG INPUT PARAMETER
+            echo "\n\n\n=====================\n";
+            echo "generateRBImages(W=$width,H=$height,DX=$bbox_dx,INST=$instance_id,PATH=$path)\n";
+
+            // GRANDEZZE DERIVATE
+            // 2. DY del BBOX=1300/491*624m
+            $bbox_dy = $bbox_dx / $width * $height;
+            // 3. d = Lunghezza da percorrere lungo la track per trovare i punti successivi=0.95*MIN(DX,DY)
+            $running_d = 0.95*min(array($bbox_dx,$bbox_dy));
+            // 4. N numero delle immagini da produrre (in base alla linghezza della TRACK)
+
+            echo "DY=$bbox_dy,d=$running_d\n";
+
+
+
+
+        }
+
     }
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-<?php // WebmappTrackFeatureTests.php
+    <?php // WebmappTrackFeatureTests.php
 
 use PHPUnit\Framework\TestCase;
 
@@ -229,5 +229,52 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals(1000,$info[1]);
 
         }
+
+        public function testGeneratePortraitRBImages() {
+
+            // Prepare TEST
+            if(!file_exists('/tmp/test')) {
+                $cmd = 'mkdir /tmp/test';
+                system($cmd);
+            }
+            $cmd = 'rm -Rf /tmp/test/*';
+            system($cmd);
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/711');
+
+            // PERFORM OPERATIONS
+            $t->writeToPostGis('http://dev.be.webmapp.it');
+            $t->generatePortraitRBImages('test','/tmp/rbtest');
+
+            // TEST(S)
+
+            // Esistenza di tutti i file che devono essere creati
+            // Dimensioni in pixel delle immagini
+
+        }
+        public function testSetComputedProperties() {
+            // Prepare TEST
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/711');
+
+            // PERFORM OPERATIONS
+            $t->setComputedProperties();
+            $ja = json_decode($t->getJson(),TRUE);
+
+            // TEST(S)
+            $this->assertTrue(isset($ja['properties']['computed']));
+            $this->assertTrue(isset($ja['properties']['computed']['distance']));
+            $this->assertEquals(0,$ja['properties']['computed']['distance']);
+
+
+        }
+        // public function testXXXX() {
+        //     // Prepare TEST
+        //     // LOAD DATA
+        //     // PERFORM OPERATIONS
+        //     // TEST(S)
+        // }
 
 }
