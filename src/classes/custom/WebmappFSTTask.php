@@ -129,8 +129,9 @@ class WebmappFSTTask extends WebmappAbstractTask {
                     // Creazione del POI
                     $poi = new WebmappPoiFeature($j);
 
-
-                    $poi->addProperty('web','http://magazine-turismo.it/demo/inversilia.com/test/?i='.$ja['idhotel_i'].'|');
+                    $urls = array('http://magazine-turismo.it/demo/inversilia.com/test/?i='.$ja['idhotel_i'].'|');
+                    $poi->addProperty('web',$urls[0]);
+                    $poi->addProperty('related_url',$urls);
 
                     // Gestione immagini
                     // IMAGE https://alloggi.visittuscany.com/html/xml/vtcard_resize.php?width=1080&height=608&src=26426agriturismo_esterno.jpg
