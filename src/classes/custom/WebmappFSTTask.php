@@ -97,7 +97,9 @@ class WebmappFSTTask extends WebmappAbstractTask {
                         if(is_array($coord) && count($coord)==2) {
                             $lat=$coord[0];
                             $lon=$coord[1];
-                            $geom_valid=true;
+                            if ($lat!=0) {
+                                $geom_valid=true;                                
+                            }
                         }
                     }
 
