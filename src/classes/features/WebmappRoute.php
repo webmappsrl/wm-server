@@ -219,12 +219,15 @@ public function generateRBHTML($path,$instance_id='') {
 	$code = preg_replace('|http://|','',$instance_id);          
 
 	$file = $path.'/'.$this->getId().'_rb.html';
-	$html = '<!DOCTYPE html><html><body>';
+	$html = '<!DOCTYPE html>'."\n\n".'<html><body>';
+	$html .= "\n";
 	// ROUTE (APERTURA)
 	// Classificazione della ROUTE
 	// TITOLO DELLA ROUTE
 	$html .= '<h1>'.$this->json_array['title']['rendered'].'</h1>';
-	// IMMAGINE PRINCIPALE DELLA ROUTE
+	// TODO: IMMAGINE PRINCIPALE DELLA ROUTE https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212
+	$html.= '<img src="https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212" />'."\n";
+
 	// DIfficoltà ++ codice
 	// CONTENUTO DELLA ROUTE
 	$html .= $this->json_array['content']['rendered'];
@@ -259,16 +262,40 @@ private function getRBTrackHTML($track,$code) {
 	$html ='';
 	// TODO: Classificazione della TRACK
 	$html .= "<h2>".$track->getProperty('name')."</h2>\n";
+	// MAPPA https://dummyimage.com/491x624/2cbf2f/fff.png&text=mappa+491x624
 	$html .= '<img src="http://a.webmapp.it/'.$code.'/track/'.$track->getId().'_map_491x624.png"/>';
+	// Immagine della track https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212
 	$html .= "\n";
-	// TODO: PROFILO ALTIMETRICO
+	// TODO: PROFILO ALTIMETRICO https://dummyimage.com/366x91/ed1552/fff.png&text=profilo+366x91
+	$html.= '<img src="https://dummyimage.com/366x91/ed1552/fff.png&text=profilo+366x91" />'."\n";
+
 	$html .= $track->getProperty('description');
 	if($track->hasProperty('rb_track_section')){
 		$html .= "<h3>Ulteriori Informazioni</h3>\n";
 		$html .= $track->getProperty('rb_track_section')."\n";		
 	}
 	// TODO: POI
-	// TODO: ROADBOOK
+	// THUMB del POI https://dummyimage.com/75x75/1539eb/fff.png&text=thumbnail+75x75
+	for ($i=1; $i <=20; $i++) { 
+		$html .= "<h3>POI titolo $i</h3>\n";
+		$html .= "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+		Integer congue feugiat nisl, quis tristique lectus gravida pharetra. 
+		Duis faucibus libero nec nulla lacinia pellentesque. Nulla mollis quam ante, 
+		et suscipit arcu hendrerit in. Etiam imperdiet nec tortor vel finibus. 
+		Nulla facilisi. Duis aliquam volutpat massa, eget gravida nibh vehicula a. 
+		Nunc elit dolor, scelerisque a velit eget, venenatis imperdiet nulla. Duis ut cursus tortor. 
+		Interdum et malesuada fames ac ante ipsum primis in faucibus. 
+		Sed nibh arcu, pellentesque eget ante sed, venenatis efficitur elit. 
+		Fusce eu tempus leo, suscipit dapibus mauris.</p>" ;
+		$html .= "\n";
+	    $html.= '<img src="https://dummyimage.com/75x75/1539eb/fff.png&text=thumbnail+75x75" />'."\n";
+
+	}
+
+	// TODO: ROADBOOK https://dummyimage.com/624x491/2beb15/fff.png&text=mappa-horz+624x491
+	for ($i=1; $i<=5; $i++) {
+	    $html.= '<img src="https://dummyimage.com/624x491/2beb15/fff.png&text=mappa-horz+624x491" />'."\n";
+	}
 
 	$html .= "\n";
 	return $html;
