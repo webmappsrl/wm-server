@@ -242,4 +242,18 @@ class WebmappWPTest extends TestCase
 
 
 	}
+
+	public function testTaxonomyImage() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomy('activity');
+		$tax = $wp->getTaxonomies();
+
+		$this->assertTrue(isset($tax['activity'][40]));
+		$bdc = $tax['activity'][40];
+		$this->assertTrue(is_array($bdc));
+		$this->assertTrue(isset($bdc['image']));
+		$image_url = 'http://dev.be.webmapp.it/wp-content/uploads/2019/03/sommer-mountainbike-768x389.jpg';
+		$this->assertEquals($image_url,$bdc['image']);
+
+	}
 }

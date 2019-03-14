@@ -230,14 +230,14 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
-        public function testGeneratePortraitRBImages() {
+        public function testGenerateLandscapeRBImages() {
 
             // Prepare TEST
-            if(!file_exists('/tmp/test')) {
-                $cmd = 'mkdir /tmp/test';
+            if(!file_exists('/tmp/rbtest')) {
+                $cmd = 'mkdir /tmp/rbtest';
                 system($cmd);
             }
-            $cmd = 'rm -Rf /tmp/test/*';
+            $cmd = 'rm -Rf /tmp/rbtest/*';
             system($cmd);
 
             // LOAD DATA
@@ -245,7 +245,7 @@ class WebmappTrackFeatureTests extends TestCase {
 
             // PERFORM OPERATIONS
             $t->writeToPostGis('http://dev.be.webmapp.it');
-            $t->generatePortraitRBImages('test','/tmp/rbtest');
+            $t->generateLandscapeRBImages('http://dev.be.webmapp.it','/tmp/rbtest');
 
             // TEST(S)
 
@@ -266,10 +266,43 @@ class WebmappTrackFeatureTests extends TestCase {
             // TEST(S)
             $this->assertTrue(isset($ja['properties']['computed']));
             $this->assertTrue(isset($ja['properties']['computed']['distance']));
-            $this->assertEquals(0,$ja['properties']['computed']['distance']);
+            $this->assertEquals(54.636123506129003,$ja['properties']['computed']['distance']);
 
 
         }
+
+        public function testGetRunningPoints() {
+            // Prepare TEST
+            $instance_id='http://dev.be.webmapp.it';
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+
+            // PERFORM OPERATIONS
+            $t->writeToPostGis($instance_id);
+            $res = $t->getRunningPoints(10,$instance_id);
+
+            // TEST(S)
+            $this->assertTrue(is_array($res));
+            $this->assertEquals(11,count($res));
+
+            print_r($res);
+        }
+
+        public function testComputeDistance3857() {
+            // Prepare TEST
+            $instance_id='http://dev.be.webmapp.it';
+            $expected_length = 46678;
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+
+            // TEST
+            $this->assertEquals($expected_length,ROUND($t->computeDistance3857($instance_id)));
+
+
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA

@@ -25,6 +25,12 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         // ADD id_pois
         $json_array['id_pois']=$this->getRelatedPoisId();
         $this->setProperty('id_pois',$json_array);
+
+        // ROADBOOK
+        if(isset($json_array['rb_track_section']) && !empty($json_array['rb_track_section'])) {
+            $this->addProperty('rb_track_section',$json_array['rb_track_section']);
+        }
+
     }
 
     // Impostazione della geometry a partire da formato API WP
@@ -287,6 +293,52 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $this->generateRBImages(491,624,1300,$instance_id,$path);
         }
 
+        public function generateLandscapeRBImages($instance_id='',$path='') {
+            $this->generateRBImages(624,491,3300,$instance_id,$path);
+        }
+
+        // TODO: gestire output coordinate
+        public function getRunningPoints($n,$instance_id='') {
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+            $pg = WebmappPostGis::Instance();
+            $results = array();
+            for ($i=0; $i <= $n; $i++) { 
+                $p = $i/$n;
+                $id=$this->getId();
+                $q= "SELECT ST_X(ST_Transform(ST_Lineinterpolatepoint(geom,$p),3857)) as x,
+                            ST_Y(ST_Transform(ST_Lineinterpolatepoint(geom,$p),3857)) as y 
+                     FROM track 
+                     WHERE track_id=$id AND 
+                     instance_id='$instance_id';";
+                $r = $pg->select($q);
+                echo "\n\n$q\n";
+                print_r($r);
+                $results[]=array($r[0]['x'],$r[0]['y']);
+            }
+            return $results;
+        }
+
+        public function computeDistance3857($instance_id='') {
+            //ST_Length(ST_Transform(geom,3857))
+            $l = 0;
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+            $pg = WebmappPostGis::Instance();
+            $q= "SELECT ST_Length(ST_Transform(geom,3857)) as l
+                     FROM track 
+                     WHERE track_id={$this->getId()} AND 
+                     instance_id='$instance_id';";
+            $r=$pg->select($q);
+            if(count($r)>0){
+                $l=$r[0]['l'];
+            }
+            return $l;
+        }
+
         public function generateRBImages($width,$height,$bbox_dx,$instance_id='',$path=''){
 
             // TODO: check PARAMETER
@@ -304,13 +356,28 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             // 2. DY del BBOX=1300/491*624m
             $bbox_dy = $bbox_dx / $width * $height;
             // 3. d = Lunghezza da percorrere lungo la track per trovare i punti successivi=0.95*MIN(DX,DY)
-            $running_d = 0.95*min(array($bbox_dx,$bbox_dy));
-            // 4. N numero delle immagini da produrre (in base alla linghezza della TRACK)
+            $running_d = 0.90*min(array($bbox_dx,$bbox_dy));
+            $l = $this->computeDistance3857($instance_id);
+            $n = ceil($l/$running_d)+1;
 
-            echo "DY=$bbox_dy,d=$running_d\n";
+            echo "DY=$bbox_dy,d=$running_d l=$l n=$n\n";
+            $points = $this->getRunningPoints($n,$instance_id);
+            $i=0;
+            if(count($points)>0) {
+                foreach ($points as $point) {
+                    $x = $point[0]; $y = $point[1];
+                    $xmin = $x-$bbox_dx/2;
+                    $xmax = $x+$bbox_dx/2;
+                    $ymin = $y-$bbox_dy/2;
+                    $ymax = $y+$bbox_dy/2;
+                    $bbox="$xmin,$ymin,$xmax,$ymax";
 
-
-
+                    $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
+                    $image_path=$path.'/'.$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
+                    WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
+                    $i++;
+                }
+            }
 
         }
 

@@ -229,6 +229,7 @@ abstract class WebmappAbstractFeature {
             $this->addProperty('web',$json_array['link']);
         }
 
+
     }
 
     private function addTaxonomy($name) {

@@ -594,9 +594,11 @@ class WebmappUtils {
             return implode(',', array($xmin,$ymin,$xmax,$ymax));
 	}
 
-	public static function generateImage($geojson_url,$bbox,$width,$height,$img_path) {
+	public static function generateImage($geojson_url,$bbox,$width,$height,$img_path,$fit=TRUE) {
 
-        $bbox=WebmappUtils::getOptimalBBox($bbox,$width,$height);
+        if($fit) {
+	        $bbox=WebmappUtils::getOptimalBBox($bbox,$width,$height);        	
+        }
 
 		$post_data = array(
 			'geojson_url' => $geojson_url,

@@ -3,6 +3,10 @@ class WebmappWPTask extends WebmappAbstractTask {
 
  private $wp;
 
+ private $process_poi = TRUE;
+ private $process_track = TRUE;
+ private $process_route = TRUE;
+
  private $distance=5000;
  private $limit=10;
 
@@ -11,6 +15,21 @@ class WebmappWPTask extends WebmappAbstractTask {
     // Controllo parametro code http://[code].be.webmapp.it
     if(!array_key_exists('url_or_code', $this->options))
         throw new Exception("'url_or_code' option is mandatory", 1);
+
+    // Controllo parametro code http://[code].be.webmapp.it
+    if(array_key_exists('process_poi', $this->options)) {
+        $this->process_poi = $this->options['process_poi'];
+    }
+    // Controllo parametro code http://[code].be.webmapp.it
+    if(array_key_exists('process_track', $this->options)) {
+        $this->process_track = $this->options['process_track'];
+    }
+    // Controllo parametro code http://[code].be.webmapp.it
+    if(array_key_exists('process_route', $this->options)) {
+        $this->process_route = $this->options['process_route'];
+    }
+
+
     // Controlla esistenza della mappa prima di procedere
     $wp = new WebmappWP($this->options['url_or_code']);
     // Controlla esistenza della piattaforma
@@ -42,28 +61,34 @@ public function process(){
     $this->processTaxonomies();
 
     // POI
-    $pois = $this->wp->getAllPoisLayer($path);
-    $pois->writeAllFeatures();
+    if ($this->process_poi) {
+        $pois = $this->wp->getAllPoisLayer($path);
+        $pois->writeAllFeatures();        
+    }
 
     // TRACKS
-    $tracks = $this->wp->getAllTracksLayer($path);
-    $tracks->writeAllFeatures();
+    if ($this->process_track) {
+       $tracks = $this->wp->getAllTracksLayer($path);
+        $tracks->writeAllFeatures();
+    }
 
     // ROUTES
-    $routes = $this->wp->getAllRoutesLayer($path);
-    $routes->writeAllFeatures();
+    if ($this->process_route) {
+        $routes = $this->wp->getAllRoutesLayer($path);
+        $routes->writeAllFeatures();
+     }
 
     $tax_path = $this->project_structure->getRoot().'/taxonomies';
     $this->wp->writeTaxonomies($tax_path);
 
     // ADD related and WRITE to PostGIS
-    if ($pois->count() >0){
+    if ($this->process_poi && $pois->count() >0){
         foreach($pois->getFeatures() as $poi){
             $poi->addRelated($this->distance,$this->limit);
             $poi->writeToPostGis();
         }
     }
-    if ($tracks->count() >0){
+    if ($this->process_track && $tracks->count() >0){
         $track_path = $this->project_structure->getRoot().'/track';
         if(!file_exists($track_path)) {
             $cmd = "mkdir $track_path";
@@ -77,7 +102,7 @@ public function process(){
         }
     }
 
-    if($routes->count()>0) {
+    if($this->process_route && $routes->count()>0) {
         $route_path = $this->project_structure->getRoot().'/route';
         if(!file_exists($route_path)) {
             $cmd = "mkdir $route_path";
@@ -93,19 +118,18 @@ public function process(){
     }
 
     // WRITE AGAIN AFTER adding related
-    $pois->writeAllFeatures();
-    $tracks->writeAllFeatures();
-    $routes->writeAllFeatures();
+    if($this->process_poi) $pois->writeAllFeatures();
+    if($this->process_track) $tracks->writeAllFeatures();
+    if($this->process_route) $routes->writeAllFeatures();
 
-    $pois->writeAllRelated($path);
-    $tracks->writeAllRelated($path);
+    if($this->process_poi) $pois->writeAllRelated($path);
+    if($this->process_track) $tracks->writeAllRelated($path);
 
-    $pois->write($path);
+    if($this->process_poi) $pois->write($path);
 
     // route_index.geojson
-    $route_index = WebmappUtils::createRouteIndexLayer($this->wp->getApiUrl().'/route');
-    $route_index->write($path);
-
+    if($this->process_route) $route_index = WebmappUtils::createRouteIndexLayer($this->wp->getApiUrl().'/route');
+    if($this->process_route) $route_index->write($path);
 
     return true;
 }

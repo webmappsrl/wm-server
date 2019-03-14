@@ -209,19 +209,69 @@ public function generateImage($width,$height,$instance_id='',$path='') {
 
 public function generateRBHTML($path,$instance_id='') {
 
+	if(count($this->tracks)==0) {
+		$this->loadTracks();
+	}
+
 	if(empty($instance_id)) {
 		$instance_id = WebmappProjectStructure::getInstanceId();
-	}           
+	} 
+	$code = preg_replace('|http://|','',$instance_id);          
 
 	$file = $path.'/'.$this->getId().'_rb.html';
 	$html = '<!DOCTYPE html><html><body>';
+	// ROUTE (APERTURA)
+	// Classificazione della ROUTE
+	// TITOLO DELLA ROUTE
 	$html .= '<h1>'.$this->json_array['title']['rendered'].'</h1>';
+	// IMMAGINE PRINCIPALE DELLA ROUTE
+	// DIfficoltà ++ codice
+	// CONTENUTO DELLA ROUTE
 	$html .= $this->json_array['content']['rendered'];
+	// INDICE DELLA ROUTE (primo LOOP sulle TRACK)
+	if(count($this->tracks)>0){
+		$html .= "<h2>Tappe:</h2>\n<ul>";
+		foreach($this->tracks as $track) {
+			$html .= "<li>".$track->getProperty('name')."</li>\n";
+		}
+	}
+
+	// SINGOLE TRACK
+	if(count($this->tracks)>0){
+		foreach($this->tracks as $track) {
+			$html .= $this->getRBTrackHTML($track,$code);
+		}
+	}
+
+	// ROUTE CHIUSURA
+	// MAPPA della ROUTE
+	$html .= '<h2>Map</h2>'."\n";
+	$html .= '<img src="http://a.webmapp.it/'.$code.'/route/'.$this->getId().'_map_491x624.png"/>';
+	$html .= "\n";
+
+
 	$html .= '</body></html>';
 
 	file_put_contents($file,$html);
 }
 
+private function getRBTrackHTML($track,$code) {
+	$html ='';
+	// TODO: Classificazione della TRACK
+	$html .= "<h2>".$track->getProperty('name')."</h2>\n";
+	$html .= '<img src="http://a.webmapp.it/'.$code.'/track/'.$track->getId().'_map_491x624.png"/>';
+	$html .= "\n";
+	// TODO: PROFILO ALTIMETRICO
+	$html .= $track->getProperty('description');
+	if($track->hasProperty('rb_track_section')){
+		$html .= "<h3>Ulteriori Informazioni</h3>\n";
+		$html .= $track->getProperty('rb_track_section')."\n";		
+	}
+	// TODO: POI
+	// TODO: ROADBOOK
 
+	$html .= "\n";
+	return $html;
+}
 
 }

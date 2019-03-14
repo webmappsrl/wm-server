@@ -44,12 +44,21 @@ class WebmappWP {
 		$this->loadTaxonomy('theme');
 	}
 
-	private function loadTaxonomy($name) {
+	public function loadTaxonomy($name) {
 		$url=$this->api_url.'/'.$name;
 		$res = WebmappUtils::getMultipleJsonFromApi($url);
 		$new=array();
 		if(is_array($res) && count($res)>0){
 			foreach($res as $item){
+			if(isset($item['featured_image']) && is_array($item['featured_image'])) {
+				if (isset($item['featured_image']['sizes']['medium_large'])){
+					$item['image']=($item['featured_image']['sizes']['medium_large']);
+				} else if (isset($jm['media_details']['sizes']['medium'])) {
+					$item['image']=($item['featured_image']['sizes']['medium']);
+				}
+				unset($item['featured_image']);				
+			}
+
 				$new[$item['id']]=$item;
 			}
 		}
