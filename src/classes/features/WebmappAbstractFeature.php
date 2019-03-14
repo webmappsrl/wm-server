@@ -232,6 +232,10 @@ abstract class WebmappAbstractFeature {
 
     }
 
+    public function addImageToGallery($src,$caption='',$id='') {
+        $this->properties['imageGallery'][] = array('src'=>$src,'caption'=>$caption,'id'=>$id);
+    }
+
     private function addTaxonomy($name) {
         if (isset($this->json_array[$name]) &&
             is_array($this->json_array[$name]) &&
