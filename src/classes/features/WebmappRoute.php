@@ -219,12 +219,21 @@ public function generateRBHTML($path,$instance_id='') {
 	$code = preg_replace('|http://|','',$instance_id);          
 
 	$file = $path.'/'.$this->getId().'_rb.html';
-	$html = '<!DOCTYPE html>'."\n\n".'<html><body>';
+	$html = '<!DOCTYPE html>'."\n";
+	$html .= '<html>' ."\n";
+	$html .= '<head>' ."\n";
+	$html .= '<link rel="stylesheet" type="text/css" href="https://api.webmapp.it/resources/rbcss/style.css">' ."\n";
+	$html .= '<meta charset="UTF-8">'."\n";
+	$html .= '</head>' ."\n";
+	$html .= '<body>';
 	$html .= "\n";
+	
 	// ROUTE (APERTURA)
 	// Classificazione della ROUTE
 	// TITOLO DELLA ROUTE
+	$html .= '<div class="intro">'."\n";
 	$html .= '<h1>'.$this->json_array['title']['rendered'].'</h1>';
+	$html .= "\n";
 	// TODO: IMMAGINE PRINCIPALE DELLA ROUTE https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212
 	$html.= '<img src="https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212" />'."\n";
 
@@ -232,12 +241,15 @@ public function generateRBHTML($path,$instance_id='') {
 	// CONTENUTO DELLA ROUTE
 	$html .= $this->json_array['content']['rendered'];
 	// INDICE DELLA ROUTE (primo LOOP sulle TRACK)
+	$html .= '<pagebreak/>'."\n";
 	if(count($this->tracks)>0){
 		$html .= "<h2>Tappe:</h2>\n<ul>";
 		foreach($this->tracks as $track) {
 			$html .= "<li>".$track->getProperty('name')."</li>\n";
 		}
 	}
+	$html .= '</ul>'."\n";
+	$html .= '</div><!-- end class intro -->'."\n";
 
 	// SINGOLE TRACK
 	if(count($this->tracks)>0){
@@ -248,9 +260,11 @@ public function generateRBHTML($path,$instance_id='') {
 
 	// ROUTE CHIUSURA
 	// MAPPA della ROUTE
-	$html .= '<h2>Map</h2>'."\n";
+
+	$html .= '<div class="footer">'."\n";
 	$html .= '<img src="http://a.webmapp.it/'.$code.'/route/'.$this->getId().'_map_491x624.png"/>';
 	$html .= "\n";
+	$html .= '</div><!-- end class footer -->'."\n";
 
 
 	$html .= '</body></html>';
@@ -260,11 +274,16 @@ public function generateRBHTML($path,$instance_id='') {
 
 private function getRBTrackHTML($track,$code) {
 	$html ='';
-	// TODO: Classificazione della TRACK
-	$html .= "<h2>".$track->getProperty('name')."</h2>\n";
+	$html .= '<div class="track">'."\n";
+
 	// MAPPA https://dummyimage.com/491x624/2cbf2f/fff.png&text=mappa+491x624
 	$html .= '<img src="http://a.webmapp.it/'.$code.'/track/'.$track->getId().'_map_491x624.png"/>';
-	// Immagine della track https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212
+	$html .= '<pagebreak/>'."\n";
+
+	// TODO: Classificazione della TRACK
+	$html .= "<h2>".$track->getProperty('name')."</h2>\n";
+	// TODO: Immagine della track https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212
+	$html.= '<img src="https://dummyimage.com/366x212/000/fff.jpg&text=featured+366x212" />'."\n";
 	$html .= "\n";
 	// TODO: PROFILO ALTIMETRICO https://dummyimage.com/366x91/ed1552/fff.png&text=profilo+366x91
 	$html.= '<img src="https://dummyimage.com/366x91/ed1552/fff.png&text=profilo+366x91" />'."\n";
@@ -274,9 +293,21 @@ private function getRBTrackHTML($track,$code) {
 		$html .= "<h3>Ulteriori Informazioni</h3>\n";
 		$html .= $track->getProperty('rb_track_section')."\n";		
 	}
+	$html .= '<pagebreak/>'."\n";	
+
+
 	// TODO: POI
 	// THUMB del POI https://dummyimage.com/75x75/1539eb/fff.png&text=thumbnail+75x75
+	$html .= '<div class="poi">'."\n";
 	for ($i=1; $i <=20; $i++) { 
+		$html .= '<div class="poi_item">'."\n";
+		
+		$html .= '<div class="poi_item_image">'."\n";
+		$html .= '<span>'.$i.'</span>'."\n";
+	    $html.= '<img src="https://dummyimage.com/75x75/1539eb/fff.png&text=thumbnail+75x75" />'."\n";
+		$html .= '</div><!-- end class poi_item_image -->'."\n";
+
+		$html .= '<div class="poi_item_info">'."\n";
 		$html .= "<h3>POI titolo $i</h3>\n";
 		$html .= "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
 		Integer congue feugiat nisl, quis tristique lectus gravida pharetra. 
@@ -288,15 +319,23 @@ private function getRBTrackHTML($track,$code) {
 		Sed nibh arcu, pellentesque eget ante sed, venenatis efficitur elit. 
 		Fusce eu tempus leo, suscipit dapibus mauris.</p>" ;
 		$html .= "\n";
-	    $html.= '<img src="https://dummyimage.com/75x75/1539eb/fff.png&text=thumbnail+75x75" />'."\n";
+		$html .= '</div><!-- end class poi_item_info -->'."\n";
+
+		$html .= '</div><!-- end class poi_item -->'."\n";
 
 	}
-
+	$html .= '</div><!-- end class poi -->'."\n";
+	$html .= '<pagebreak/>'."\n";	
+	
 	// TODO: ROADBOOK https://dummyimage.com/624x491/2beb15/fff.png&text=mappa-horz+624x491
+	$html .= '<div class="roadbook">'."\n";
 	for ($i=1; $i<=5; $i++) {
 	    $html.= '<img src="https://dummyimage.com/624x491/2beb15/fff.png&text=mappa-horz+624x491" />'."\n";
+		$html .= '<pagebreak/>'."\n";	
 	}
+	$html .= '</div><!-- end class roadbook -->'."\n";
 
+	$html .= '</div><!-- end class track -->'."\n";
 	$html .= "\n";
 	return $html;
 }
