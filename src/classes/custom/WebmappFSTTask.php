@@ -14,7 +14,7 @@ class WebmappFSTTask extends WebmappAbstractTask {
             // ”asta” → Aree di sosta
 
     private $all_activity_types = array(
-            'aata' => array('name'=>'Agriturismi','color'=>'#285D7A','icon'=>'wm-icon-lodging-15'),
+            'aata' => array('name'=>'Agriturismi','color'=>'#285D7A','icon'=>'wm-icon-farm'),
             'alba' => array('name'=>'Alberghi','color'=>'#285D7A','icon'=>'wm-icon-lodging-15')
         );
     private $activities = array();
@@ -64,7 +64,7 @@ class WebmappFSTTask extends WebmappAbstractTask {
             $name = $this->all_activity_types[$code]['name'];
             $color = $this->all_activity_types[$code]['color'];
             $icon = $this->all_activity_types[$code]['icon'];
-            $layer = new WebmappLayer($name,$this->getRoot().'/geojson');
+            $layer = new WebmappLayer($code,$this->getRoot().'/geojson');
             echo "\n\nProcessing activity $code ($name - $color - $icon)\n";
             foreach($this->towns as $town) {
                 $fst_url = "https://alloggi.visittuscany.com/html/xml/vtcard.php?op=ricerca&comune=$town&rows=10000&tipologia=$code";
