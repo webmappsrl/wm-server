@@ -314,8 +314,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                      WHERE track_id=$id AND 
                      instance_id='$instance_id';";
                 $r = $pg->select($q);
-                echo "\n\n$q\n";
-                print_r($r);
                 $results[]=array($r[0]['x'],$r[0]['y']);
             }
             return $results;
@@ -364,6 +362,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $points = $this->getRunningPoints($n,$instance_id);
             $i=0;
             if(count($points)>0) {
+                $images=array();
                 foreach ($points as $point) {
                     $x = $point[0]; $y = $point[1];
                     $xmin = $x-$bbox_dx/2;
@@ -376,7 +375,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     $image_path=$path.'/'.$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
                     WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
                     $i++;
+                    $images[]=$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
                 }
+                $this->addProperty('rb_images',$images);
             }
 
         }

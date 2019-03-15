@@ -66,6 +66,7 @@ public function process(){
                     $t->writeToPostGis();
                     $t->addBBox();
                     $t->generateAllImages('',$track_path);
+                    $t->generateLandscapeRBImages('',$track_path);
                     $t->write($path);
                 }
             }
