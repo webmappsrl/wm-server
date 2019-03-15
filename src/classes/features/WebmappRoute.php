@@ -4,6 +4,7 @@ class WebmappRoute {
 
 	private $id;
 	private $title;
+	private $description;
 	private $json_array = array();
 	private $tracks = array();
 	private $base_url;
@@ -43,6 +44,7 @@ class WebmappRoute {
 
 		$this->id = $this->json_array['id'];
 		$this->title = $this->json_array['title']['rendered'];
+		$this->description = $this->json_array['content']['rendered'];
 		if (isset($this->json_array['n7webmap_route_related_track']) && 
 			count($this->json_array['n7webmap_route_related_track']) > 0 ) {
 			$this->loadTracks();
@@ -118,6 +120,7 @@ private function addTaxonomy($name) {
 private function buildPropertiesAndFeatures() {
 	$this->properties['id']=$this->id;
 	$this->properties['name']=$this->title;
+	$this->properties['description']=$this->description;
 	if(count($this->tracks) >0 ) {
 		$related=array();
 		foreach($this->tracks as $track) {
