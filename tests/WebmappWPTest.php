@@ -171,6 +171,9 @@ class WebmappWPTest extends TestCase
 		$this->assertEquals('#5b55d1',$tax['where'][46]['color']);
 		$this->assertEquals('#997a00',$tax['when'][43]['color']);
 
+		// Description
+		$this->assertTrue(!empty($tax['activity'][40]['description']));
+
 	}
 
 	public function testWriteTaxonomies() {
