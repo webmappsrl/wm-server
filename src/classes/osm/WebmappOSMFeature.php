@@ -63,6 +63,7 @@ abstract class WebmappOSMFeature {
 	public function getUrl() { return $this->url; }
 	public function getProperty($k) { return $this->properties[$k]; }
 	public function getProperties() { return $this->properties; }
+	public function hasTag($k) { return array_key_exists($k, $this->tags);}
 	public function getTag($k) { return $this->tags[$k]; }
 	public function getTags() { return $this->tags; }
 	public function getMembers() { return $this->members; }

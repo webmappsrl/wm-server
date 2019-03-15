@@ -88,6 +88,12 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                     $tappa = new WebmappOSMRelation($ref);
                     $tappa_name = $tappa->getTag('name');
                     echo "  -> Processing TAPPA ($ref) $tappa_name ... ";
+
+                    // Gestione Liguria
+                    if($id==7561168 && $tappa->hasTag('alt_name')) {
+                        $track->addProperty('name',$tappa->getTag('alt_name'));
+                    }
+
                     $track = $tappa->getTrack();
                     // ENRICH from WP:
                     if(array_key_exists($ref,$this->all_tracks_osmid_mapping)) {
@@ -102,12 +108,17 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                         echo "can't enrich (not in WP) ";
                     }
                     // Gestione del colore
+                    // Fare una lista di sybmols validi
+                    $red_symbols = array(
+                         'red:red:white_stripe:SI:black',
+                         'red:red:white_stripe:AV:black'
+                        );
                     $color = '#636363';
                     if($track->hasProperty('source') && 
                        $track->getProperty('source') == 'survey:CAI') {
                         $color = '#A63FD1';
                         if($track->hasProperty('osmc:symbol') && 
-                           $track->getProperty('osmc:symbol') == 'red:red:white_stripe:SI:black') {
+                           in_array($track->getProperty('osmc:symbol'),$red_symbols)) {
                             $color = '#E35234';
                         }
                     }
@@ -130,17 +141,19 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                     $link_analyzer = '<a href="'.$url_analyzer.'">Vedi il tracciato su OSM Relation Analyzer </a>';
                     $link_ideditor = '<a href="'.$url_ideditor.'">Modifica il tracciato con ID Editor di OpenStreetMap </a>';
 
-                    $new_desc = $track->getProperty('description') .
-                    "<p>".
-                    $link_gpx."<br/>".
-                    $link_kml."<br/>".
-                    $link_geojson."<br/>".
-                    $link_osm."<br/>".
-                    $link_wmt."<br/>".
-                    $link_analyzer."<br/>".
-                    $link_ideditor."</p>";
+                    if($track->hasProperty('description')) {
+                        $new_desc = $track->getProperty('description') .
+                        "<p>".
+                        $link_gpx."<br/>".
+                        $link_kml."<br/>".
+                        $link_geojson."<br/>".
+                        $link_osm."<br/>".
+                        $link_wmt."<br/>".
+                        $link_analyzer."<br/>".
+                        $link_ideditor."</p>";
+                        $track->addProperty('description',$new_desc);                        
+                    }
 
-                    $track->addProperty('description',$new_desc);
                     $path_res = $this->getRoot().'/resources/';
                     $track->addEle();
                     $track->writeGPX($path_res);
