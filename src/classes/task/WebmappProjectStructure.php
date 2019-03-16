@@ -67,6 +67,10 @@ class WebmappProjectStructure {
 		return self::$instance_id;
 	}
 
+	public static function setInstanceId($val) {
+		self::$instance_id=$val;
+	}
+
 	public function activateHTTPS() {
 		$this->url_base = preg_replace('/http/','https',$this->url_base);
 		$this->url_geojson = preg_replace('/http/','https',$this->url_geojson);

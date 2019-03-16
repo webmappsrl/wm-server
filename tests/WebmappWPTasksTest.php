@@ -15,6 +15,7 @@ class WebmappWPTasksTests extends TestCase {
 
     public function testProcess() {
         $p = $this->getStructure('dev');
+        $p->getStructure()->setInstanceId('http://dev.be.webmapp.it');
         $this->assertTrue($p->check());
         $this->assertTrue($p->process());
 
@@ -36,7 +37,7 @@ class WebmappWPTasksTests extends TestCase {
         $this->assertEquals('Point',$poi['geometry']['type']);
 
         // CHECK TRACK Single file
-        $ids = array(835,769,711,688,683,580,576,348);
+        $ids = array(835,769,711,688,683,580);
         foreach ($ids as $id) {
             $poi_file = $path.'/'.$id.'.geojson';
             $this->assertTrue(file_exists($poi_file));

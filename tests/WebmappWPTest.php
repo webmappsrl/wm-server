@@ -174,6 +174,12 @@ class WebmappWPTest extends TestCase
 		// Description
 		$this->assertTrue(!empty($tax['activity'][40]['description']));
 
+		//BDC
+		$bdc=$tax['activity'][40];
+		$this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/activity/40',$bdc['source']);
+		$this->assertEquals('http://dev.be.webmapp.it/activity/bici-da-corsa',$bdc['web']);
+		$this->assertEquals('http://dev.be.webmapp.it/wp-admin/term.php?taxonomy=activity&tag_ID=40',$bdc['wp_edit']);
+
 	}
 
 	public function testWriteTaxonomies() {
@@ -257,6 +263,16 @@ class WebmappWPTest extends TestCase
 		$this->assertTrue(isset($bdc['image']));
 		$image_url = 'http://dev.be.webmapp.it/wp-content/uploads/2019/03/sommer-mountainbike-768x389.jpg';
 		$this->assertEquals($image_url,$bdc['image']);
+	}
 
+	public function testLanguages() {
+		$wp = new WebmappWP('dev');
+		$wp->loadLanguages();
+		$this->assertEquals('it',$wp->getLanguageActive());
+		$others = $wp->getLanguageOthers();
+		$this->assertEquals(3,count($others));
+		$this->assertTrue(in_array('en',$others));
+		$this->assertTrue(in_array('fr',$others));
+		$this->assertTrue(in_array('de',$others));
 	}
 }

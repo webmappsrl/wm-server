@@ -13,6 +13,10 @@ class WebmappWP {
 	private $per_page=100;
 
 	private $taxonomies=array();
+	// active Language code
+	private $languages_active='';
+	// Others lanugages code
+	private $languages_others=array();
 
 	public function __construct($code) {
 		$this->code = $code;
@@ -24,6 +28,7 @@ class WebmappWP {
 			$this->base_url = "http://$code.be.webmapp.it";
 		}
 
+		$this->api_wpml_list = "{$this->base_url}/wp-json/webmapp/v1/wpml/list";
 		$this->api_url = "{$this->base_url}/wp-json/wp/v2";
 		$this->api_pois = "{$this->api_url}/poi";
 		$this->api_tracks = "{$this->api_url}/track";
@@ -32,6 +37,12 @@ class WebmappWP {
 		$this->api_maps = "{$this->api_url}/map";
 		$this->api_categories = "{$this->api_url}/webmapp_category";
 
+	}
+
+	public function loadLanguages() {
+		$r = WebmappUtils::getJsonFromApi($this->api_wpml_list);
+		$this->languages_active=$r['active'];
+		$this->languages_others=$r['others'];
 	}
 
 	public function loadTaxonomies() {
@@ -56,10 +67,22 @@ class WebmappWP {
 				} else if (isset($jm['media_details']['sizes']['medium'])) {
 					$item['image']=($item['featured_image']['sizes']['medium']);
 				}
-				unset($item['featured_image']);				
 			}
+			//Other values
+			$item['source']=$item['_links']['self'][0]['href'];
+			$item['web']=$this->base_url."/$name/{$item['slug']}";
+			$item['wp_edit']=$this->base_url."/wp-admin/term.php?taxonomy=$name&tag_ID={$item['id']}";
 
-				$new[$item['id']]=$item;
+			// Prune empty values
+			unset($item['featured_image']);
+			unset($item['meta']);
+			unset($item['_links']);
+			if(empty($item['color'])) unset($item['color']);
+			if(empty($item['icon'])) unset($item['icon']);	
+			if(empty($item['title'])) unset($item['title']);	
+			if(empty($item['featured_icon'])) unset($item['featured_icon']);	
+
+			$new[$item['id']]=$item;
 			}
 		}
 		$this->taxonomies[$name]=$new;
@@ -172,6 +195,14 @@ class WebmappWP {
 
 	public function getApiCategory($id) {
 		return $this->api_categories.'/'.$id;
+	}
+
+	public function getLanguageActive() {
+		return $this->languages_active;
+	}
+
+	public function getLanguageOthers() {
+		return $this->languages_others;
 	}
 
 	// CONTROLLI DI RISPOSTA DALLA PIATTAFORMA
@@ -390,7 +421,8 @@ class WebmappWP {
             			isset($props['taxonomy']['webmapp_category']) &&
             			isset($props['taxonomy']['webmapp_category'][0])
             			)
-            			$p->addProperty('icon',$this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['icon']);
+            			if (isset($this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['icon']))
+            				$p->addProperty('icon',$this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['icon']);
      
             	}
             	if(empty($p->getColor())){
@@ -399,7 +431,8 @@ class WebmappWP {
             			isset($props['taxonomy']['webmapp_category']) &&
             			isset($props['taxonomy']['webmapp_category'][0])
             			)
-            			$p->addProperty('color',$this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['color']);
+            			if (isset($this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['color']))
+	            			$p->addProperty('color',$this->taxonomies['webmapp_category'][$props['taxonomy']['webmapp_category'][0]]['color']);
             	}
             	$this->addPoiToTaxonomies($p->getId(),$props);
             	$p->writeToPostGis();
@@ -436,7 +469,8 @@ class WebmappWP {
             			isset($props['taxonomy']['activity']) &&
             			isset($props['taxonomy']['activity'][0])
             			)
-            			$t->addProperty('color',$this->taxonomies['activity'][$props['taxonomy']['activity'][0]]['color']);            			
+            			if (isset($this->taxonomies['activity'][$props['taxonomy']['activity'][0]]['color']))
+            				$t->addProperty('color',$this->taxonomies['activity'][$props['taxonomy']['activity'][0]]['color']);            			
             	}
             	$this->addTrackToTaxonomies($t->getId(),$props);
             	$t->write($path);
