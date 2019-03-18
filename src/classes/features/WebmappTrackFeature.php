@@ -287,10 +287,18 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $this->addBBox($instance_id);
             }
 
-            $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
             $img_path = $path.'/'.$this->getId().'_map_'.$width.'x'.$height.'.png';
- 
-            WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
+            $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
+            $pois_geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/track/'.$this->getId().'_rb_related_poi.geojson';
+
+
+            $headers = @get_headers($pois_geojson_url);
+            if(strpos($headers[0],'200')===false){
+                WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
+            } else {
+                WebmappUtils::generateImageWithPois($geojson_url,$pois_geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);                
+            }
+
         }
 
         public function generatePortraitRBImages($instance_id='',$path='') {
@@ -376,8 +384,14 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     $bbox="$xmin,$ymin,$xmax,$ymax";
 
                     $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
+                    $pois_geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/track/'.$this->getId().'_rb_related_poi.geojson';
                     $image_path=$path.'/'.$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
-                    WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
+                    $headers = @get_headers($pois_geojson_url);
+                    if(strpos($headers[0],'200')===false){
+                        WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
+                    } else {
+                        WebmappUtils::generateImageWithPois($geojson_url,$pois_geojson_url,$bbox,$width,$height,$image_path,false);                        
+                    }
                     $i++;
                     $images[]=$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
                 }

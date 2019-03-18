@@ -615,4 +615,26 @@ class WebmappUtils {
 		file_put_contents($img_path, file_get_contents($image_url));
 	}
 
+	public static function generateImageWithPois($geojson_url,$pois_geojson_url,$bbox,$width,$height,$img_path,$fit=TRUE) {
+
+        if($fit) {
+	        $bbox=WebmappUtils::getOptimalBBox($bbox,$width,$height);        	
+        }
+
+		$post_data = array(
+			'geojson_url' => $geojson_url,
+			'pois_geojson_url' => $pois_geojson_url,
+			'bbox' => $bbox,
+			'width' => $width,
+			'height' => $height
+			);
+
+		$ch = curl_init('http://qgs.webmapp.it/track.php');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+		$image_url = curl_exec($ch);
+		curl_close($ch);
+		file_put_contents($img_path, file_get_contents($image_url));
+	}
+
 }

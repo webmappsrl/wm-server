@@ -6,6 +6,10 @@ class WebmappSingleTask extends WebmappAbstractTask {
  private $distance=5000;
  private $limit=10;
 
+ private $path;
+ private $track_path;
+ private $route_track;
+
 
  public function check() {
 
@@ -16,6 +20,11 @@ class WebmappSingleTask extends WebmappAbstractTask {
     // Controllo parametro code http://[code].be.webmapp.it
     if(array_key_exists('routes', $this->options)) {
         $this->routes = $this->options['routes'];
+    }
+
+    // Controllo parametro code http://[code].be.webmapp.it
+    if(array_key_exists('tracks', $this->options)) {
+        $this->tracks = $this->options['tracks'];
     }
     // Controlla esistenza della mappa prima di procedere
     $wp = new WebmappWP($this->options['url_or_code']);
@@ -32,18 +41,53 @@ class WebmappSingleTask extends WebmappAbstractTask {
 
 public function process(){
 
-    $path = $this->project_structure->getRoot().'/geojson';
-    $track_path = $this->project_structure->getRoot().'/track';
-    $route_path = $this->project_structure->getRoot().'/route';
-    if(!file_exists($track_path)) {
-        $cmd = "mkdir $track_path";
+    $this->path = $this->project_structure->getRoot().'/geojson';
+    $this->track_path = $this->project_structure->getRoot().'/track';
+    $this->route_path = $this->project_structure->getRoot().'/route';
+    if(!file_exists($this->track_path)) {
+        $cmd = "mkdir {$this->track_path}";
             system($cmd);
     }
-    if(!file_exists($route_path)) {
-        $cmd = "mkdir $route_path";
+    if(!file_exists($this->route_path)) {
+        $cmd = "mkdir {$this->route_path}";
             system($cmd);
     }
 
+    $this->processRoutes();
+    $this->processTracks();
+
+    return true;
+
+}
+
+private function processTracks() {
+    echo "\n";
+    if(count($this->tracks)>0){
+        foreach ($this->tracks as $id) {
+            $t = new WebmappTrackFeature($this->wp->getApiTrack($id));
+            echo "TRACK: {$t->getId()}\n";
+            $ps = $t->getRelatedPois();
+            if(count($ps)>0){
+                foreach($ps as $p) {
+                    echo "POI: {$p->getId()}\n";
+                    $p->writeToPostGis();
+                    $p->addRelated($this->distance,$this->limit);
+                    $p->write($this->path);
+                }
+            }
+            $t->addRelated($this->distance,$this->limit);
+            $t->writeToPostGis();
+            $t->addBBox();
+            $t->writeRBRelatedPoi($this->track_path);
+            $t->generateAllImages('',$this->track_path);
+            $t->generateLandscapeRBImages('',$this->track_path);
+            $t->write($this->path);
+        }
+    }
+
+}
+
+private function processRoutes() {
     echo "\n";
     if(count($this->routes)>0){
         foreach ($this->routes as $id) {
@@ -79,7 +123,6 @@ public function process(){
             echo "\n\n";
         }
     }
-    return true;
 
 }
 

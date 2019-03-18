@@ -169,7 +169,7 @@ class WebmappTrackFeatureTests extends TestCase {
 
         public function testGenerateImage(){
             // Prepare TEST
-            $img_path = '/tmp/927_map_491x624.png';
+            $img_path = './data/tmp/927_map_491x624.png';
             $cmd = "rm -f $img_path";
             system($cmd);
 
@@ -177,7 +177,7 @@ class WebmappTrackFeatureTests extends TestCase {
             $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
 
             // PERFORMS OPERATION(S)
-            $t->generateImage(491,624,'http://dev.be.webmapp.it','/tmp');
+            $t->generateImage(491,624,'http://dev.be.webmapp.it','./data/tmp');
 
             // TEST(S)
             $this->assertTrue(file_exists($img_path));
