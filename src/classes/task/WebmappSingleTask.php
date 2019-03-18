@@ -8,7 +8,7 @@ class WebmappSingleTask extends WebmappAbstractTask {
 
  private $path;
  private $track_path;
- private $route_track;
+ private $route_path;
 
 
  public function check() {
@@ -103,23 +103,22 @@ private function processRoutes() {
                             echo "POI: {$p->getId()}\n";
                             $p->writeToPostGis();
                             $p->addRelated($this->distance,$this->limit);
-                            $p->write($path);
+                            $p->write($this->path);
                         }
                     }
                     $t->addRelated($this->distance,$this->limit);
                     $t->writeToPostGis();
                     $t->addBBox();
-                    $t->writeRBRelatedPoi($track_path);
-                    $t->generateAllImages('',$track_path);
-                    $t->generateLandscapeRBImages('',$track_path);
-                    $t->write($path);
+                    $t->writeRBRelatedPoi($this->track_path);
+                    $t->generateAllImages('',$this->track_path);
+                    $t->generateLandscapeRBImages('',$this->track_path);
+                    $t->write($this->path);
                 }
             }
             $r->writeToPostGis();
             $r->addBBox();
-            $r->generateAllImages('',$route_path);
-            $r->write($path);
-            //$r->generateRBHTML($route_path);
+            $r->generateAllImages('',$this->route_path);
+            $r->write($this->path);
             echo "\n\n";
         }
     }
