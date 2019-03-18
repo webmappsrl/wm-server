@@ -388,8 +388,14 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     $image_path=$path.'/'.$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
                     $headers = @get_headers($pois_geojson_url);
                     if(strpos($headers[0],'200')===false){
+                        echo "\n\n\nNO POIS";
+                        echo $pois_geojson_url;
+                        print_r($headers);
                         WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
                     } else {
+                        echo "\n\n\nWITH POIS";
+                        echo $pois_geojson_url;
+                        print_r($headers);
                         WebmappUtils::generateImageWithPois($geojson_url,$pois_geojson_url,$bbox,$width,$height,$image_path,false);                        
                     }
                     $i++;
