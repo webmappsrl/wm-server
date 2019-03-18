@@ -392,8 +392,15 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     } else {
                         WebmappUtils::generateImageWithPois($geojson_url,$pois_geojson_url,$bbox,$width,$height,$image_path,false);                        
                     }
-                    $i++;
                     $images[]=$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
+
+                    // Add rotated images 
+                    $r_image_path=$path.'/'.$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'_r.png';
+                    $source=imagecreatefrompng($image_path);
+                    $rotated = imagerotate($source,90,0);
+                    imagepng($rotated,$r_image_path);
+
+                    $i++;
                 }
                 $this->addProperty('rb_images',$images);
             }
