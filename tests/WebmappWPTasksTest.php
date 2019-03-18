@@ -132,6 +132,15 @@ class WebmappWPTasksTests extends TestCase {
             $this->assertEquals($lat,$values[$id][1]);
         }
 
+        // Check prune taxonomies
+        $path_tax = $p->getStructure()->getRoot().'/taxonomies';
+        $terms = json_decode(file_get_contents("$path_tax/webmapp_category.json"),TRUE);
+        // POI(id=4) è parent vuota => deve esistere
+        $this->assertTrue(isset($terms[4]));
+        // Ristoranti(id=7) ha item => deve esistere
+        $this->assertTrue(isset($terms[7]));
+        // EMPTY (id=48) non ha item => non deve esistere
+        $this->assertFalse(isset($terms[48]));
 
     }
 

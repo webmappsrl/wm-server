@@ -230,29 +230,29 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
-        public function testGenerateLandscapeRBImages() {
+        // public function testGenerateLandscapeRBImages() {
 
-            // Prepare TEST
-            if(!file_exists('/tmp/rbtest')) {
-                $cmd = 'mkdir /tmp/rbtest';
-                system($cmd);
-            }
-            $cmd = 'rm -Rf /tmp/rbtest/*';
-            system($cmd);
+        //     // Prepare TEST
+        //     if(!file_exists('/tmp/rbtest')) {
+        //         $cmd = 'mkdir /tmp/rbtest';
+        //         system($cmd);
+        //     }
+        //     $cmd = 'rm -Rf /tmp/rbtest/*';
+        //     system($cmd);
 
-            // LOAD DATA
-            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/711');
+        //     // LOAD DATA
+        //     $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/711');
 
-            // PERFORM OPERATIONS
-            $t->writeToPostGis('http://dev.be.webmapp.it');
-            $t->generateLandscapeRBImages('http://dev.be.webmapp.it','/tmp/rbtest');
+        //     // PERFORM OPERATIONS
+        //     $t->writeToPostGis('http://dev.be.webmapp.it');
+        //     $t->generateLandscapeRBImages('http://dev.be.webmapp.it','/tmp/rbtest');
 
-            // TEST(S)
+        //     // TEST(S)
 
-            // Esistenza di tutti i file che devono essere creati
-            // Dimensioni in pixel delle immagini
+        //     // Esistenza di tutti i file che devono essere creati
+        //     // Dimensioni in pixel delle immagini
 
-        }
+        // }
         public function testSetComputedProperties() {
             // Prepare TEST
 
@@ -285,8 +285,6 @@ class WebmappTrackFeatureTests extends TestCase {
             // TEST(S)
             $this->assertTrue(is_array($res));
             $this->assertEquals(11,count($res));
-
-            print_r($res);
         }
 
         public function testComputeDistance3857() {
@@ -301,6 +299,41 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals($expected_length,ROUND($t->computeDistance3857($instance_id)));
 
 
+        }
+
+        public function testWriteRBRelatedPoi() {
+            // Prepare TEST
+            $file = '/tmp/1300_rb_related_poi.geojson';
+            system('rm -f '.$file);
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://vn.be.webmapp.it/wp-json/wp/v2/track/1300');
+
+            // PERFORM OPERATIONS
+            // $t->writeRBRelatedPoi('/tmp');
+
+            // TEST(S)
+            $ja = json_decode($t->getJson(),TRUE);
+            $this->assertTrue(isset($ja['properties']['related']['poi']['related']));
+            //print_r($ja['properties']['related']['poi']['related']);
+
+            // Abbazia di Monte Oliveto Maggiore 1301 seq=1
+            // Pieve San Lorenzo 1309 seq=2
+            // $ja = json_decode(file_get_contents($file),TRUE);
+            // $this->assertTrue(isset($ja['features']));
+            // $features = $ja['features'];
+            // foreach($features as $poi) {
+            //     if ($poi['properties']['id']==1301) {
+            //         $poi_1301=$poi;
+            //     }
+            //     else if ($poi['properties']['id']==1309) {
+            //         $poi_1309=$poi;
+            //     }
+            // }
+            // $this->assertTrue($poi_1301['properties']['sequence']);
+            // $this->assertTrue($poi_1309['properties']['sequence']);
+            // $this->assertEquals(1,$poi_1301['properties']['sequence']);
+            // $this->assertEquals(2,$poi_1309['properties']['sequence']);
         }
 
         // public function testXXXX() {

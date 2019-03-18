@@ -23,8 +23,12 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         $this->setProperty('duration:backward',$json_array);
         $this->setProperty('cai_scale',$json_array);
         // ADD id_pois
-        $json_array['id_pois']=$this->getRelatedPoisId();
+        $related_pois_id=$this->getRelatedPoisId();
+        $json_array['id_pois']=$related_pois_id;
         $this->setProperty('id_pois',$json_array);
+        if(count($related_pois_id)>0){
+            $this->properties['related']['poi']['related']=$related_pois_id;
+        }
 
         // ROADBOOK
         if(isset($json_array['rb_track_section']) && !empty($json_array['rb_track_section'])) {
@@ -381,6 +385,22 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
 
         }
+
+        // public function writeRBRelatedPoi($path) {
+        //     if(isset($this->properties['related']['poi']['related'])
+        //         && count($this->properties['related']['poi']['related'])>0 ) {
+        //         $l=new WebmappLayer("{$this->getId()}_rb_related_poi");
+        //         $sequence=0;
+        //         foreach ($this->properties['related']['poi']['related'] as $pid) {
+        //             $poi_url = preg_replace('|track/[0-9]*|','',$this->properties['source']).'poi/'.$pid;
+        //             $poi = new WebmappPoiFeature($poi_url);
+        //             $poi->addProperty('sequence',$sequence);
+        //             $l->addFeature($poi);
+        //             $sequence++;
+        //         }
+        //         $l->write($path);
+        //     }
+        // }
 
     }
 

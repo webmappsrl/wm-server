@@ -408,6 +408,39 @@ class WebmappWP {
 			}
 		}
 	}
+
+	public function pruneTaxonomies() {
+		$this->pruneTaxonomy('webmapp_category');
+		$this->pruneTaxonomy('activity');
+		$this->pruneTaxonomy('theme');
+		$this->pruneTaxonomy('who');
+		$this->pruneTaxonomy('where');
+		$this->pruneTaxonomy('when');
+	}
+	public function pruneTaxonomy($name) {
+		$t=$this->taxonomies[$name];
+		if(count($t)>0) {
+			// First loop: find parents
+			$parents=array();
+			foreach ($t as $id => $item) {
+					$parents[]=$item['parent'];
+			}
+			// Second loop: remove term with no items that are not Parent
+			$to_remove=array();
+			foreach($t as $id=>$item) {
+				if(!isset($item['items']) && !in_array($id,$parents)) {
+					$to_remove[]=$id;
+				}
+			}
+			if(count($to_remove)>0) {
+				foreach ($to_remove as $id) {
+					unset($this->taxonomies[$name][$id]);
+				}
+			}
+		}
+
+	}
+
 	public function getAllPoisLayer($path) {
 		$l=new WebmappLayer('all-pois',$path);
 		$items = WebmappUtils::getMultipleJsonFromApi($this->api_pois);

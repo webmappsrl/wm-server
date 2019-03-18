@@ -79,6 +79,7 @@ public function process(){
      }
 
     $tax_path = $this->project_structure->getRoot().'/taxonomies';
+    $this->wp->pruneTaxonomies();
     $this->wp->writeTaxonomies($tax_path);
 
     // ADD related and WRITE to PostGIS
