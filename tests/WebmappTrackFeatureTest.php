@@ -188,6 +188,27 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
+        public function testGenerateImageVN(){
+            // Prepare TEST
+            $img_path = './data/tmp/1300_map_491x624.png';
+            $cmd = "rm -f $img_path";
+            system($cmd);
+
+            // LOAD DATA
+            $t = new WebmappTrackFeature('http://vn.be.webmapp.it/wp-json/wp/v2/track/1300');
+
+            // PERFORMS OPERATION(S)
+            $t->generateImage(491,624,'http://vn.be.webmapp.it','./data/tmp');
+
+            // TEST(S)
+            $this->assertTrue(file_exists($img_path));
+            $info = getimagesize($img_path);
+            $this->assertEquals('image/png',$info['mime']);
+            $this->assertEquals(491,$info[0]);
+            $this->assertEquals(624,$info[1]);
+
+        }
+
         public function testGenerateAllImages() {
             // Prepare TEST
             $i1 = '/tmp/927_map_491x624.png';
