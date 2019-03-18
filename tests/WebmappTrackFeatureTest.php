@@ -310,7 +310,7 @@ class WebmappTrackFeatureTests extends TestCase {
             $t = new WebmappTrackFeature('http://vn.be.webmapp.it/wp-json/wp/v2/track/1300');
 
             // PERFORM OPERATIONS
-            // $t->writeRBRelatedPoi('/tmp');
+            $t->writeRBRelatedPoi('/tmp');
 
             // TEST(S)
             $ja = json_decode($t->getJson(),TRUE);
@@ -319,21 +319,21 @@ class WebmappTrackFeatureTests extends TestCase {
 
             // Abbazia di Monte Oliveto Maggiore 1301 seq=1
             // Pieve San Lorenzo 1309 seq=2
-            // $ja = json_decode(file_get_contents($file),TRUE);
-            // $this->assertTrue(isset($ja['features']));
-            // $features = $ja['features'];
-            // foreach($features as $poi) {
-            //     if ($poi['properties']['id']==1301) {
-            //         $poi_1301=$poi;
-            //     }
-            //     else if ($poi['properties']['id']==1309) {
-            //         $poi_1309=$poi;
-            //     }
-            // }
-            // $this->assertTrue($poi_1301['properties']['sequence']);
-            // $this->assertTrue($poi_1309['properties']['sequence']);
-            // $this->assertEquals(1,$poi_1301['properties']['sequence']);
-            // $this->assertEquals(2,$poi_1309['properties']['sequence']);
+            $ja = json_decode(file_get_contents($file),TRUE);
+            $this->assertTrue(isset($ja['features']));
+            $features = $ja['features'];
+            foreach($features as $poi) {
+                if ($poi['properties']['id']==1301) {
+                    $poi_1301=$poi;
+                }
+                else if ($poi['properties']['id']==1309) {
+                    $poi_1309=$poi;
+                }
+            }
+            $this->assertTrue(isset($poi_1301['properties']['sequence']));
+            $this->assertTrue(isset($poi_1309['properties']['sequence']));
+            $this->assertEquals(1,$poi_1301['properties']['sequence']);
+            $this->assertEquals(2,$poi_1309['properties']['sequence']);
         }
 
         // public function testXXXX() {

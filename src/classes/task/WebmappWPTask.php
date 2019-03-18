@@ -99,6 +99,7 @@ public function process(){
             $track->addRelated($this->distance,$this->limit);
             $track->writeToPostGis();
             $track->addBBox();
+            $track->writeRBRelatedPoi($track_path);
             $track->generateAllImages('',$track_path);
         }
     }
@@ -114,7 +115,7 @@ public function process(){
             $route->writeToPostGis();
             $route->addBBox();
             $route->generateAllImages('',$route_path);
-            $route->generateRBHTML($route_path);
+            // $route->generateRBHTML($route_path);
         }
     }
 

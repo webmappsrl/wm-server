@@ -65,6 +65,7 @@ public function process(){
                     $t->addRelated($this->distance,$this->limit);
                     $t->writeToPostGis();
                     $t->addBBox();
+                    $t->writeRBRelatedPoi($track_path);
                     $t->generateAllImages('',$track_path);
                     $t->generateLandscapeRBImages('',$track_path);
                     $t->write($path);

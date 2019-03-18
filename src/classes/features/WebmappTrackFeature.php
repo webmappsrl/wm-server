@@ -386,21 +386,25 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
         }
 
-        // public function writeRBRelatedPoi($path) {
-        //     if(isset($this->properties['related']['poi']['related'])
-        //         && count($this->properties['related']['poi']['related'])>0 ) {
-        //         $l=new WebmappLayer("{$this->getId()}_rb_related_poi");
-        //         $sequence=0;
-        //         foreach ($this->properties['related']['poi']['related'] as $pid) {
-        //             $poi_url = preg_replace('|track/[0-9]*|','',$this->properties['source']).'poi/'.$pid;
-        //             $poi = new WebmappPoiFeature($poi_url);
-        //             $poi->addProperty('sequence',$sequence);
-        //             $l->addFeature($poi);
-        //             $sequence++;
-        //         }
-        //         $l->write($path);
-        //     }
-        // }
+        public function writeRBRelatedPoi($path) {
+            if(isset($this->properties['related']['poi']['related'])
+                && count($this->properties['related']['poi']['related'])>0 ) {
+                $l=new WebmappLayer("{$this->getId()}_rb_related_poi");
+                $sequence=1;
+                foreach ($this->properties['related']['poi']['related'] as $pid) {
+                    $poi_url = preg_replace('|track/[0-9]*|','',$this->properties['source']).'poi/'.$pid;
+                    $poi = new WebmappPoiFeature($poi_url);
+                    $noDetails = $poi->getProperty('noDetails');
+                    $noInteraction = $poi->getProperty('noInteraction');
+                    if(!$noDetails && !$noInteraction) {
+                        $poi->addProperty('sequence',$sequence);
+                        $l->addFeature($poi);
+                        $sequence++;
+                    }
+                }
+                $l->write($path);
+            }
+        }
 
     }
 
