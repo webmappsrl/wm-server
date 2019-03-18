@@ -199,6 +199,7 @@ class WebmappTrackFeatureTests extends TestCase {
 
             // PERFORMS OPERATION(S)
             $t->generateImage(491,624,'http://vn.be.webmapp.it','./data/tmp');
+            $t->generateLandscapeRBImages('http://vn.be.webmapp.it','./data/tmp');
 
             // TEST(S)
             $this->assertTrue(file_exists($img_path));
