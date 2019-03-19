@@ -10,6 +10,10 @@ class WebmappSingleTask extends WebmappAbstractTask {
  private $track_path;
  private $route_path;
 
+ private $routes = array();
+ private $tracks = array();
+ private $pois = array();
+
 
  public function check() {
 
