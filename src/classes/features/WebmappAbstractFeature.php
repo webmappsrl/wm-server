@@ -193,23 +193,6 @@ abstract class WebmappAbstractFeature {
             $this->addProperty('locale',preg_replace('|_.*$|', '', $json_array['wpml_current_locale']));
         }
 
-        // TRANSLATIONS
-        if (isset($json_array['wpml_translations'])) {
-            $t = $json_array['wpml_translations'];
-            if (is_array($t) && count($t)>0) {
-                $tp = array();
-                foreach($t as $item) {
-                    $locale = preg_replace('|_.*$|', '', $item['locale']);
-                    $val=array();
-                    $val['id']=$item['id'];
-                    $val['name']=$item['post_title'];
-                    $val['web']=$item['href'];
-                    $tp[$locale]=$val;
-                }
-                $this->addProperty('translations',$tp);
-            }
-        }
-
         // SOURCE and WP_EDIT
         $source = 'unknown';
         $wp_edit = 'unknown';
@@ -223,6 +206,31 @@ abstract class WebmappAbstractFeature {
         }
         $this->addProperty('source',$source);
         $this->addProperty('wp_edit',$wp_edit);
+
+        // TRANSLATIONS
+        if (isset($json_array['wpml_translations'])) {
+            $t = $json_array['wpml_translations'];
+            if (is_array($t) && count($t)>0) {
+                $tp = array();
+                foreach($t as $item) {
+                    $locale = preg_replace('|_.*$|', '', $item['locale']);
+                    $val=array();
+                    $val['id']=$item['id'];
+                    $val['name']=$item['post_title'];
+                    $val['web']=$item['href'];
+                    $val['source']= preg_replace('|/[0-9]*$|','/'.$val['id'],$this->properties['source']);
+                    $ja=WebmappUtils::getJsonFromApi($val['source']);
+                    if(isset($ja['content'])) {
+                        $val['description']=$ja['content']['rendered'];
+                    }
+                    if(isset($ja['rb_track_section'])) {
+                        $val['rb_track_section']=$ja['rb_track_section'];
+                    }
+                    $tp[$locale]=$val;
+                }
+                $this->addProperty('translations',$tp);
+            }
+        }
 
         // LINK WEB
         if(isset($json_array['link']) && !empty($json_array['link'])) {

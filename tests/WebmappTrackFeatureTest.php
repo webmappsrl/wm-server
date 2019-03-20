@@ -358,6 +358,31 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals(2,$poi_1309['properties']['sequence']);
         }
 
+        public function testTranslations() {
+            $track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+            $j = json_decode($track->getJson(),true);
+
+            $this->assertTrue(isset($j['properties']['translations']));
+            $t=$j['properties']['translations'];
+            $this->assertTrue(isset($t['en']));
+            $this->assertTrue(isset($t['fr']));
+            $this->assertTrue(isset($t['de']));
+            $en=$t['en'];
+            $fr=$t['fr'];
+            $de=$t['de'];
+
+            $this->assertEquals(961,$en['id']);
+            $this->assertEquals(962,$fr['id']);
+            $this->assertEquals(963,$de['id']);
+
+            $this->assertEquals('http://dev.be.webmapp.it//corto-pisano-on-gpsies-com/?lang=en',$en['web']);
+            $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/track/961',$en['source']);
+            $this->assertEquals('EN Corto Pisano on GPSies.com',$en['name']);
+            $this->assertEquals(1,preg_match('|EN Un tranquillo|',$en['description']));
+            $this->assertEquals(1,preg_match('|EN Roadbook|',$en['rb_track_section']));
+
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA

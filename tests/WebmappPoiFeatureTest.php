@@ -183,14 +183,27 @@ class WebmappPoiFeatureTest extends TestCase {
         }
 
         public function testTranslations() {
-            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/800');
+            $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/951');
             $j = json_decode($poi->getJson(),true);
-            $this->assertEquals(802,$j['properties']['translations']['en']['id']);            
-            $this->assertEquals(803,$j['properties']['translations']['fr']['id']);            
-            $this->assertEquals(804,$j['properties']['translations']['de']['id']);
-            $this->assertEquals('http://dev.be.webmapp.it//test-per-languages-overlay-layers/?lang=en',$j['properties']['translations']['en']['web']); 
-            $this->assertEquals('http://dev.be.webmapp.it//test-per-languages-overlay-layers/?lang=fr',$j['properties']['translations']['fr']['web']); 
-            $this->assertEquals('http://dev.be.webmapp.it//test-per-languages-overlay-layers/?lang=de',$j['properties']['translations']['de']['web']); 
+
+            $this->assertTrue(isset($j['properties']['translations']));
+            $t=$j['properties']['translations'];
+            $this->assertTrue(isset($t['en']));
+            $this->assertTrue(isset($t['fr']));
+            $this->assertTrue(isset($t['de']));
+            $en=$t['en'];
+            $fr=$t['fr'];
+            $de=$t['de'];
+
+            $this->assertEquals(955,$en['id']);
+            $this->assertEquals(957,$fr['id']);
+            $this->assertEquals(958,$de['id']);
+
+            $this->assertEquals('http://dev.be.webmapp.it//en-ponte-di-mezzo-punto-tre/?lang=en',$en['web']);
+            $this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/poi/955',$en['source']);
+            $this->assertEquals('EN Ponte di Mezzo Punto tre',$en['name']);
+            $this->assertEquals(1,preg_match('|EN Tuttavia|',$en['description']));
+
         }
 
         public function testSource() {

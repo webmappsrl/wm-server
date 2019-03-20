@@ -106,6 +106,29 @@ class WebmappRouteTest extends TestCase {
 		echo "\n\n\n FILE $file created!\n\n\n";
 	}
 
+	public function testTranslations() {
+		$route = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
+		$j = json_decode($route->getJson(),true);
+
+		$this->assertTrue(isset($j['properties']['translations']));
+		$t=$j['properties']['translations'];
+		$this->assertTrue(isset($t['en']));
+		$this->assertTrue(isset($t['fr']));
+		$this->assertTrue(isset($t['de']));
+		$en=$t['en'];
+		$fr=$t['fr'];
+		$de=$t['de'];
+
+		$this->assertEquals(358,$en['id']);
+		$this->assertEquals(737,$fr['id']);
+		$this->assertEquals(806,$de['id']);
+
+		$this->assertEquals('http://dev.be.webmapp.it//next-to-net7/?lang=en',$en['web']);
+		$this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/route/358',$en['source']);
+		$this->assertEquals('Next to Net7',$en['name']);
+		$this->assertEquals(1,preg_match('|Description in english|',$en['description']));
+
+	}
 
 
 }

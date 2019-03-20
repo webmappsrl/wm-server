@@ -1,7 +1,6 @@
 <?php
 class WebmappSingleTask extends WebmappAbstractTask {
 
- private $routes;
  private $wp;
  private $distance=5000;
  private $limit=10;

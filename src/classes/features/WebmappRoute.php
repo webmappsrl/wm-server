@@ -59,6 +59,45 @@ class WebmappRoute {
 
 	$this->buildPropertiesAndFeatures();
 
+	// Translations
+	        // SOURCE and WP_EDIT
+	$source = 'unknown';
+	$wp_edit = 'unknown';
+	if(isset($this->json_array['_links']['self'][0]['href'])) {
+		$source = $this->json_array['_links']['self'][0]['href'];
+            // ADD wp_edit
+		$parse = parse_url($source);
+		$host = $parse['host'];
+            // http://dev.be.webmapp.it/wp-admin/post.php?post=509&action=edit 
+		$wp_edit = 'http://'.$host.'/wp-admin/post.php?post='.$this->getId().'&action=edit';
+	}
+	$this->properties['source']=$source;
+	$this->properties['wp_edit']=$wp_edit;
+
+	        // TRANSLATIONS
+	if (isset($this->json_array['wpml_translations'])) {
+		$t = $this->json_array['wpml_translations'];
+		if (is_array($t) && count($t)>0) {
+			$tp = array();
+			foreach($t as $item) {
+				$locale = preg_replace('|_.*$|', '', $item['locale']);
+				$val=array();
+				$val['id']=$item['id'];
+				$val['name']=$item['post_title'];
+				$val['web']=$item['href'];
+				$val['source']= preg_replace('|/[0-9]*$|','/'.$val['id'],$this->properties['source']);
+				$ja=WebmappUtils::getJsonFromApi($val['source']);
+				if(isset($ja['content'])) {
+					$val['description']=$ja['content']['rendered'];
+				}
+				$tp[$locale]=$val;
+			}
+			$this->properties['translations']=$tp;
+		}
+	}
+
+
+
 }
 
 public function getId() {
