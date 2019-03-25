@@ -6,9 +6,11 @@ class WebmappSIMapTask extends WebmappAbstractTask {
     private $layers;
     private $limit=0;
     private $sleep=0;
+    private $limit_region = array();
 
     private $all_tracks;
     private $all_tracks_osmid_mapping;
+
 
 	public function check() {
         // Check mandatory parameters;
@@ -17,6 +19,9 @@ class WebmappSIMapTask extends WebmappAbstractTask {
         }
         if(array_key_exists('sleep', $this->options)) {
             $this->sleep=$this->options['sleep'];
+        }
+        if(array_key_exists('limit_region', $this->options)) {
+            $this->limit_region=$this->options['limit_region'];
         }
         // Other checks
 
@@ -46,7 +51,16 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
         $italia = new WebmappOSMSuperRelation(1021025);
         foreach ($italia->getMembers() as $ref => $member ) {
-            $this->processRegion($ref);
+            // Processa solo le regioni presenti in limit_region (se non vuoto)
+            if(count($this->limit_region)==0) {
+                $this->processRegion($ref);
+            }
+            else if (in_array($ref,$this->limit_region)) {
+                $this->processRegion($ref);                
+            }
+            else {
+                echo "SKIPPING REF $ref (not in limit_region)\n";
+            }
         }
         // WRITING LAYERS
         echo "\n\n\n WRITING LAYERS AND RELATIONS:\n\n";
@@ -104,6 +118,9 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                             $track->addProperty('image',$wpt->getProperty('image'));
                         if($wpt->hasProperty('imageGallery'))
                             $track->addProperty('imageGallery',$wpt->getProperty('imageGallery'));
+                        if($wpt->hasProperty('wp_edit')) {
+                            $track->addProperty('wp_edit',$wpt->getProperty('wp_edit'));                            
+                        }
                     } else {
                         echo "can't enrich (not in WP) ";
                     }
