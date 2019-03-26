@@ -332,11 +332,17 @@ class WebmappTrackFeatureTests extends TestCase {
             $t = new WebmappTrackFeature('http://vn.be.webmapp.it/wp-json/wp/v2/track/1300');
 
             // PERFORM OPERATIONS
-            $t->writeRBRelatedPoi('/tmp');
+            $t->writeRBRelatedPoi('/tmp','http://vn.be.webmapp.it');
 
             // TEST(S)
             $ja = json_decode($t->getJson(),TRUE);
             $this->assertTrue(isset($ja['properties']['related']['poi']['related']));
+            $this->assertTrue(isset($ja['properties']['related']['poi']['roadbook']));
+            $rb_pois = $ja['properties']['related']['poi']['roadbook'];
+            $this->assertEquals(1280,$rb_pois[0]);
+            $this->assertEquals(1309,$rb_pois[1]);
+            $this->assertEquals(1301,$rb_pois[2]);
+
             //print_r($ja['properties']['related']['poi']['related']);
 
             // Abbazia di Monte Oliveto Maggiore 1301 seq=1
@@ -351,11 +357,19 @@ class WebmappTrackFeatureTests extends TestCase {
                 else if ($poi['properties']['id']==1309) {
                     $poi_1309=$poi;
                 }
+                else if ($poi['properties']['id']==1280) {
+                    $poi_1280=$poi;
+                }
             }
-            $this->assertTrue(isset($poi_1301['properties']['sequence']));
+            // Ordine corretto; 1280, 1309, 1301
+
+            $this->assertTrue(isset($poi_1280['properties']['sequence']));
             $this->assertTrue(isset($poi_1309['properties']['sequence']));
-            $this->assertEquals(1,$poi_1301['properties']['sequence']);
+            $this->assertTrue(isset($poi_1301['properties']['sequence']));
+
+            $this->assertEquals(1,$poi_1280['properties']['sequence']);
             $this->assertEquals(2,$poi_1309['properties']['sequence']);
+            $this->assertEquals(3,$poi_1301['properties']['sequence']);
         }
 
         public function testTranslations() {

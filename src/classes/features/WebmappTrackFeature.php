@@ -407,23 +407,56 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
         }
 
-        public function writeRBRelatedPoi($path) {
+        public function writeRBRelatedPoi($path,$instance_id='') {
+
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+
+
+            $ids=array();
             if(isset($this->properties['related']['poi']['related'])
                 && count($this->properties['related']['poi']['related'])>0 ) {
                 $l=new WebmappLayer("{$this->getId()}_rb_related_poi");
-                $sequence=1;
                 foreach ($this->properties['related']['poi']['related'] as $pid) {
                     $poi_url = preg_replace('|track/[0-9]*|','',$this->properties['source']).'poi/'.$pid;
                     $poi = new WebmappPoiFeature($poi_url);
                     $noDetails = $poi->getProperty('noDetails');
                     $noInteraction = $poi->getProperty('noInteraction');
                     if(!$noDetails && !$noInteraction) {
-                        $poi->addProperty('sequence',$sequence);
                         $l->addFeature($poi);
-                        $sequence++;
+                        $ids[]=$poi->getId();
                     }
                 }
-                $l->write($path);
+                if (count($ids)>0) {
+                    $l_ordered=new WebmappLayer("{$this->getId()}_rb_related_poi");
+                    $q_in = implode(',',$ids);
+                    $track_id = $this->getId();
+                    $pg = WebmappPostGis::Instance();
+                    $q = "WITH
+                            punti AS ( SELECT * FROM poi WHERE poi_id IN ($q_in) AND instance_id =  '$instance_id' ),
+                            traccia as ( SELECT * FROM track WHERE track_id = $track_id AND instance_id = '$instance_id' )
+                          SELECT
+                            punti.poi_id AS ID,
+                            ST_Length(ST_LineSubstring(ST_Transform(traccia.geom,3857),
+                                ST_LineLocatePoint(ST_Transform(traccia.geom,3857),ST_StartPoint(ST_Transform(traccia.geom,3857))),
+                                ST_LineLocatePoint(ST_Transform(traccia.geom,3857),ST_ClosestPoint(ST_Transform(traccia.geom,3857),ST_Transform(punti.geom,3857))))) AS length
+                          FROM traccia, punti
+                          ORDER BY length;";
+                    $res = $pg->select($q);
+                    $sequence = 1;
+                    $ordered_ids = array();
+                    foreach($res as $item) {
+                        $poi = $l->getFeature($item['id']);
+                        $ordered_ids[]=$item['id'];
+                        $poi->addProperty('sequence',$sequence);
+                        $l_ordered->addFeature($poi);
+                        $sequence++;
+                    }
+                    $this->properties['related']['poi']['roadbook']=$ordered_ids;
+                    $l_ordered->write($path);
+                }
             }
         }
 
