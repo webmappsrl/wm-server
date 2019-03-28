@@ -209,7 +209,7 @@ class WebmappWP {
 
 	private function checkUrl($url) {
 		$a = get_headers($url);
-		$match = (preg_match('/200/', $a[0]));
+		$match = (preg_match('/200|301/', $a[0]));
 		if($match==0) {
 			echo "\n\nWARN: header[0] ! 200:" .$a[0]. "\n\n";
 			return false;
