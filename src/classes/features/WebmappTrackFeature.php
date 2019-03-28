@@ -291,7 +291,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
             $pois_geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/track/'.$this->getId().'_rb_related_poi.geojson';
 
-
             $headers = @get_headers($pois_geojson_url);
             if(strpos($headers[0],'200')===false){
                 WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);

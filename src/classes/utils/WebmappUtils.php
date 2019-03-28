@@ -633,6 +633,9 @@ class WebmappUtils {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 		$image_url = curl_exec($ch);
+
+		echo "\n\n\n$image_url\n\n\n";
+
 		curl_close($ch);
 		file_put_contents($img_path, file_get_contents($image_url));
 	}
