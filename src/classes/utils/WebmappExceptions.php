@@ -6,6 +6,13 @@ class WebmappException extends Exception {}
 // COnfigurazione
 class WebmappExceptionConf extends WebmappException {}
 class WebmappExceptionConfPostgis extends WebmappException {}
+class WebmappExceptionConfEndpoint extends WebmappException {}
+class WebmappExceptionConfTask extends WebmappException {}
+
+// TASK
+class WebmappExceptionTask extends WebmappException {}
+class WebmappExceptionAllRoutesTask extends WebmappExceptionTask {}
+class WebmappExceptionAllRoutesTaskNoEndpoint extends WebmappExceptionAllRoutesTask {}
 
   // WebmappException Eccezioni usate da tutte le classi
 class WebmappExceptionNoFile extends WebmappException {}

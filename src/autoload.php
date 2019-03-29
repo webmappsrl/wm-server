@@ -34,11 +34,13 @@ require 'classes/cli/WebmappCli.php';
 require 'classes/cli/WebmappCliCommand.php';
 require 'classes/cli/WebmappCliWebcacheCommand.php';
 
+// TASK
 require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
 require 'classes/task/WebmappWPTask.php';
 require 'classes/task/WebmappSingleTask.php';
 require 'classes/task/WebmappRouteTask.php';
+require 'classes/task/WebmappAllRoutesTask.php';
 require 'classes/task/WebmappCustomConfigTask.php';
 require 'classes/task/WebmappTranslateTask.php';
 require 'classes/task/WebmappTaskFactory.php';

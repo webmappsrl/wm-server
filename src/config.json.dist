@@ -18,5 +18,9 @@
 	},
 	"google" : {
 		"api_key" : "XXXXX"
+	},
+	"endpoint" : {
+		"a" : "/my/absolute/root/to/a.webmapp.it",
+		"k" : "/my/absolute/root/to/k.webmapp.it"
 	}
 }
