@@ -7,26 +7,27 @@ class WebmappWPTask extends WebmappAbstractTask {
  private $process_track = TRUE;
  private $process_route = TRUE;
 
+ private $add_ele = FALSE;
+
  private $distance=5000;
  private $limit=10;
 
  public function check() {
 
-    // Controllo parametro code http://[code].be.webmapp.it
     if(!array_key_exists('url_or_code', $this->options))
         throw new Exception("'url_or_code' option is mandatory", 1);
 
-    // Controllo parametro code http://[code].be.webmapp.it
     if(array_key_exists('process_poi', $this->options)) {
         $this->process_poi = $this->options['process_poi'];
     }
-    // Controllo parametro code http://[code].be.webmapp.it
     if(array_key_exists('process_track', $this->options)) {
         $this->process_track = $this->options['process_track'];
     }
-    // Controllo parametro code http://[code].be.webmapp.it
     if(array_key_exists('process_route', $this->options)) {
         $this->process_route = $this->options['process_route'];
+    }
+    if(array_key_exists('add_ele', $this->options)) {
+        $this->add_ele = $this->options['add_ele'];
     }
 
 
@@ -85,6 +86,7 @@ public function process(){
     // ADD related and WRITE to PostGIS
     if ($this->process_poi && $pois->count() >0){
         foreach($pois->getFeatures() as $poi){
+            if($this->add_ele) $poi->addEle();
             $poi->addRelated($this->distance,$this->limit);
             $poi->writeToPostGis();
         }
@@ -96,6 +98,7 @@ public function process(){
             system($cmd);
         }
         foreach($tracks->getFeatures() as $track){
+            if($this->add_ele) $track->addEle();
             $track->addRelated($this->distance,$this->limit);
             $track->writeToPostGis();
             $track->addBBox();
