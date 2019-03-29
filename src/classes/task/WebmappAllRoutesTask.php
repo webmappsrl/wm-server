@@ -103,9 +103,9 @@ private function processMainTaxonomies() {
     $trg = $this->getRoot().'/taxonomies/where.json';
     $cmd = "cp -f $src $trg"; system($cmd);
 
-    // target
-    $src = $this->endpoint.'/taxonomies/target.json';
-    $trg = $this->getRoot().'/taxonomies/target.json';
+    // who
+    $src = $this->endpoint.'/taxonomies/who.json';
+    $trg = $this->getRoot().'/taxonomies/who.json';
     $cmd = "cp -f $src $trg"; system($cmd);
 
 
