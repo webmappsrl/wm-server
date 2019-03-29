@@ -308,9 +308,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
         public function generateLandscapeRBImages($instance_id='',$path='') {
             // BIKE
-            // $this->generateRBImages(624,491,3300,$instance_id,$path);
+            $this->generateRBImages(624,491,3300,$instance_id,$path);
             // TREKKING
-            $this->generateRBImages(624,491,1300,$instance_id,$path);
+            // $this->generateRBImages(624,491,1300,$instance_id,$path);
         }
 
         // TODO: gestire output coordinate
