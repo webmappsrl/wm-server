@@ -291,11 +291,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
             $pois_geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/track/'.$this->getId().'_rb_related_poi.geojson';
 
-            $headers = @get_headers($pois_geojson_url);
-            if(strpos($headers[0],'200')===false){
-                WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
-            } else {
+            if(isset($this->properties['related']['poi']['roadbook']) &&
+                count($this->properties['related']['poi']['roadbook'])>0 ){
                 WebmappUtils::generateImageWithPois($geojson_url,$pois_geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);                
+            } else {
+                WebmappUtils::generateImage($geojson_url,$this->properties['bbox_metric'],$width,$height,$img_path);
             }
 
         }
@@ -393,11 +393,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     $geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/geojson/'.$this->getId().'.geojson';
                     $pois_geojson_url = 'https://a.webmapp.it/'.preg_replace('|http://|', '', $instance_id).'/track/'.$this->getId().'_rb_related_poi.geojson';
                     $image_path=$path.'/'.$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
-                    $headers = @get_headers($pois_geojson_url);
-                    if(strpos($headers[0],'200')===false){
-                        WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
-                    } else {
+                    if(isset($this->properties['related']['poi']['roadbook']) &&
+                        count($this->properties['related']['poi']['roadbook'])>0 ){
                         WebmappUtils::generateImageWithPois($geojson_url,$pois_geojson_url,$bbox,$width,$height,$image_path,false);                        
+                    } else {
+                        WebmappUtils::generateImage($geojson_url,$bbox,$width,$height,$image_path,false);
                     }
                     $images[]=$this->getId().'_'.$width.'x'.$height.'_'.$bbox_dx.'_'.$i.'.png';
 
