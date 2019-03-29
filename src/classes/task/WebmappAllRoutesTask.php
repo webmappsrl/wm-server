@@ -128,8 +128,12 @@ private function processRoutes() {
 
 private function processRoute($id) {
     $route_path=$this->getRoot().'/routes/'.$id;
+    $route_tax_path=$this->getRoot().'/routes/'.$id.'/taxonomies';
     if(!file_exists($route_path)) {
         $cmd = "mkdir $route_path"; system($cmd);
+    }
+    if(!file_exists($route_tax_path)) {
+        $cmd = "mkdir $route_tax_path"; system($cmd);
     }
 
 }

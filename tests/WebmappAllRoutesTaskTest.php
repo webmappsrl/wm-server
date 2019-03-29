@@ -72,6 +72,7 @@ class WebmappAllRoutesTaskTests extends TestCase
          $r_ids = array(772,686,346);
          foreach ($r_ids as $rid) {
              $this->assertTrue(file_exists($root.'/routes/'.$rid));
+             $this->assertTrue(file_exists($root.'/routes/'.$rid.'/taxonomies'));
          }
 
          // 4. Creare i file di tassonomia semplificati per le routes
