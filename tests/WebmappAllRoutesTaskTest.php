@@ -7,7 +7,6 @@ class WebmappAllRoutesTaskTests extends TestCase
     private $data=__DIR__.'/../data/tmp/';
 
 
-
     public function testNoUrlOrCode() {
         $p = $this->getBadStructure('dev');
         $this->expectException(WebmappExceptionConfTask::class);
@@ -44,6 +43,30 @@ class WebmappAllRoutesTaskTests extends TestCase
 
          // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
          // rimuovendo la sezione items relativa a POI e TRACK
+         $webmapp_category = $root.'/taxonomies/webmapp_category.json';
+         $this->assertTrue(file_exists($webmapp_category));
+         $ja = json_decode(file_get_contents($webmapp_category),TRUE);
+         $this->assertTrue(isset($ja['34']));
+         $this->assertTrue(!isset($ja['34']['items']));
+
+         $activity = $root.'/taxonomies/activity.json';
+         $this->assertTrue(file_exists($activity));
+         $ja = json_decode(file_get_contents($activity),TRUE);
+         $this->assertTrue(!isset($ja['40']['items']['track']));
+         $this->assertTrue(isset($ja['40']['items']['route']));
+         $this->assertTrue(in_array(772, $ja['40']['items']['route']));
+         $this->assertTrue(in_array(686, $ja['40']['items']['route']));
+         $this->assertTrue(in_array(346, $ja['40']['items']['route']));
+
+         $theme = $root.'/taxonomies/theme.json';
+         $this->assertTrue(file_exists($theme));
+         $ja = json_decode(file_get_contents($theme),TRUE);
+         $this->assertTrue(!isset($ja['41']['items']['track']));
+         $this->assertTrue(isset($ja['41']['items']['route']));
+         $this->assertTrue(in_array(917, $ja['41']['items']['route']));
+         $this->assertTrue(in_array(772, $ja['41']['items']['route']));
+         $this->assertTrue(in_array(686, $ja['41']['items']['route']));
+
 
          // 3. Creare le directory routes/[route_id]
 

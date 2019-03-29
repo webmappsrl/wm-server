@@ -36,14 +36,11 @@ class WebmappAllRoutesTask extends WebmappAbstractTask {
 public function process(){
 
     // 1. Creare i link simbolici alla directory geojson
-    $src = $this->getRoot().'/geojson';
-    $trg = $this->endpoint.'/geojson';
-    $cmd = "rm -Rf $src"; system($cmd);
-    $cmd = "ln -s $trg $src"; system($cmd);
-
+    $this->processSymLinks();
 
     // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
     // rimuovendo la sezione items relativa a POI e TRACK
+    $this->processMainTaxonomies();
 
     // 3. Creare le directory routes/[route_id]
 
@@ -52,6 +49,66 @@ public function process(){
     // che contengono solo gli items specifici della route
 
     return TRUE;
+}
+
+private function processSymLinks() {
+    $src = $this->getRoot().'/geojson';
+    $trg = $this->endpoint.'/geojson';
+    $cmd = "rm -Rf $src"; system($cmd);
+    $cmd = "ln -s $trg $src"; system($cmd);
+
+    $tax_dir = $this->getRoot().'/taxonomies';
+    if (!file_exists($tax_dir)) {
+        $cmd = "mkdir $tax_dir"; system($cmd);
+    }
+
+}
+
+private function processMainTaxonomies() {
+    // webmapp_category: tolgo items
+    $src = $this->endpoint.'/taxonomies/webmapp_category.json';
+    $trg = $this->getRoot().'/taxonomies/webmapp_category.json';
+    $ja = json_decode(file_get_contents($src),TRUE);
+    $ja_new = array();
+    foreach($ja as $id => $term) {
+        if(isset($term['items'])) unset($term['items']);
+        $ja_new[$id]=$term;
+    }
+    file_put_contents($trg, json_encode($ja_new));
+
+    // activity
+    $src = $this->endpoint.'/taxonomies/activity.json';
+    $trg = $this->getRoot().'/taxonomies/activity.json';
+    $ja = json_decode(file_get_contents($src),TRUE);
+    $ja_new = array();
+    foreach($ja as $id => $term) {
+        if(isset($term['items']['poi'])) unset($term['items']['poi']);
+        if(isset($term['items']['track'])) unset($term['items']['track']);
+        $ja_new[$id]=$term;
+    }
+    file_put_contents($trg, json_encode($ja_new));
+
+    // theme
+    $src = $this->endpoint.'/taxonomies/theme.json';
+    $trg = $this->getRoot().'/taxonomies/theme.json';
+    $cmd = "cp -f $src $trg"; system($cmd);
+
+    // when
+    $src = $this->endpoint.'/taxonomies/when.json';
+    $trg = $this->getRoot().'/taxonomies/when.json';
+    $cmd = "cp -f $src $trg"; system($cmd);
+
+    // where
+    $src = $this->endpoint.'/taxonomies/where.json';
+    $trg = $this->getRoot().'/taxonomies/where.json';
+    $cmd = "cp -f $src $trg"; system($cmd);
+
+    // target
+    $src = $this->endpoint.'/taxonomies/target.json';
+    $trg = $this->getRoot().'/taxonomies/target.json';
+    $cmd = "cp -f $src $trg"; system($cmd);
+
+
 }
 
 }
