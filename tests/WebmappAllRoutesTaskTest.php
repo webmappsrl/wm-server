@@ -69,6 +69,10 @@ class WebmappAllRoutesTaskTests extends TestCase
 
 
          // 3. Creare le directory routes/[route_id]
+         $r_ids = array(772,686,346);
+         foreach ($r_ids as $rid) {
+             $this->assertTrue(file_exists($root.'/routes/'.$rid));
+         }
 
          // 4. Creare i file di tassonomia semplificati per le routes
          // (solo webmapp_category.json e activity.json) routes/[route_id]/taxonomies/

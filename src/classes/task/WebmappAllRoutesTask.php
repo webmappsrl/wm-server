@@ -43,10 +43,11 @@ public function process(){
     $this->processMainTaxonomies();
 
     // 3. Creare le directory routes/[route_id]
-
     // 4. Creare i file di tassonomia semplificati per le routes 
     // (solo webmapp_category.json e activity.json) routes/[route_id]/taxonomies/ 
     // che contengono solo gli items specifici della route
+    $this->processRoutes();
+
 
     return TRUE;
 }
@@ -108,6 +109,28 @@ private function processMainTaxonomies() {
     $trg = $this->getRoot().'/taxonomies/who.json';
     $cmd = "cp -f $src $trg"; system($cmd);
 
+}
+
+private function processRoutes() {
+    $route_index = $this->endpoint.'/geojson/route_index.geojson';
+    if(!file_exists($this->getRoot().'/routes')) {
+        $cmd = 'mkdir '.$this->getRoot().'/routes'; system($cmd);
+    }
+    if(file_exists($route_index)) {
+        $ja=json_decode(file_get_contents($this->endpoint.'/geojson/route_index.geojson'),TRUE);
+        if(isset($ja['features'])&&count($ja['features'])>0){
+            foreach ($ja['features'] as $route) {
+                $this->processRoute($route['properties']['id']);
+            }
+        }        
+    }
+}
+
+private function processRoute($id) {
+    $route_path=$this->getRoot().'/routes/'.$id;
+    if(!file_exists($route_path)) {
+        $cmd = "mkdir $route_path"; system($cmd);
+    }
 
 }
 
