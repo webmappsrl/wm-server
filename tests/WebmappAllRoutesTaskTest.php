@@ -26,7 +26,32 @@ class WebmappAllRoutesTaskTests extends TestCase
          $p = $this->getStructure('dev');
          $this->assertTrue($p->check());
     }
-    // public function testProcess() {    }
+    public function testProcess() {    
+         $p = $this->getStructure('dev');
+         $p->check();
+         $p->process();
+
+         // Altri controlli dopo il Process
+         global $wm_config;
+         $endpoint = $wm_config['endpoint']['a'].'/dev.be.webmapp.it';
+         $root=$p->getRoot();
+
+         // 1. Creare i link simbolici alla directory geojson
+         $this->assertTrue(file_exists($root.'/geojson'));
+         $this->assertTrue(is_link($root.'/geojson'));
+         $this->assertEquals($endpoint.'/geojson',readlink($root.'/geojson'));
+
+
+         // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
+         // rimuovendo la sezione items relativa a POI e TRACK
+
+         // 3. Creare le directory routes/[route_id]
+
+         // 4. Creare i file di tassonomia semplificati per le routes
+         // (solo webmapp_category.json e activity.json) routes/[route_id]/taxonomies/
+         // che contengono solo gli items specifici della route
+
+    }
 
     // LASCIARE X ULTIMA
     public function testNoEndpoint() {

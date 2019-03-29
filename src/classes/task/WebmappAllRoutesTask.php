@@ -34,7 +34,24 @@ class WebmappAllRoutesTask extends WebmappAbstractTask {
 }
 
 public function process(){
-    return FALSE;
+
+    // 1. Creare i link simbolici alla directory geojson
+    $src = $this->getRoot().'/geojson';
+    $trg = $this->endpoint.'/geojson';
+    $cmd = "rm -Rf $src"; system($cmd);
+    $cmd = "ln -s $trg $src"; system($cmd);
+
+
+    // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
+    // rimuovendo la sezione items relativa a POI e TRACK
+
+    // 3. Creare le directory routes/[route_id]
+
+    // 4. Creare i file di tassonomia semplificati per le routes 
+    // (solo webmapp_category.json e activity.json) routes/[route_id]/taxonomies/ 
+    // che contengono solo gli items specifici della route
+
+    return TRUE;
 }
 
 }
