@@ -304,8 +304,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $this->generateRBImages(491,624,1300,$instance_id,$path);
         }
 
+        // Parameters:
+
         public function generateLandscapeRBImages($instance_id='',$path='') {
-            $this->generateRBImages(624,491,3300,$instance_id,$path);
+            // BIKE
+            // $this->generateRBImages(624,491,3300,$instance_id,$path);
+            // TREKKING
+            $this->generateRBImages(624,491,1300,$instance_id,$path);
         }
 
         // TODO: gestire output coordinate
@@ -348,6 +353,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             return $l;
         }
 
+        // W Width in pixel
+        // H Height in pixel
+        // BBOX_DX in m  
         public function generateRBImages($width,$height,$bbox_dx,$instance_id='',$path=''){
 
             // TODO: check PARAMETER
