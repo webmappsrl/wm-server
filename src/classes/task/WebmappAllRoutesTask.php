@@ -148,6 +148,7 @@ private function processRoute($id) {
 
     // LOOP ON RELATED TRACK
     $activities = array();
+    $webmapp_categories = array();
     if(isset($ja['features']) && count($ja['features'])>0) {
         foreach($ja['features'] as $track) {
             if (isset($track['properties']['taxonomy']) && 
@@ -157,10 +158,28 @@ private function processRoute($id) {
                     $activities[$term_id]['items']['track'][]=$track['properties']['id'];
                 }
             }
+            if(isset($track['properties']['related']) && 
+                isset($track['properties']['related']['poi']) && 
+                isset($track['properties']['related']['poi']['related']) && 
+                count($track['properties']['related']['poi']['related'])>0) {
+                foreach($track['properties']['related']['poi']['related'] as $pid) {
+                    $poi = json_decode(file_get_contents($this->endpoint.'/geojson/'.$pid.'.geojson'),TRUE);
+                    if(isset($poi['properties']['taxonomy']) && 
+                        isset($poi['properties']['taxonomy']['webmapp_category']) &&
+                        count($poi['properties']['taxonomy']['webmapp_category'])>0) {
+                        foreach($poi['properties']['taxonomy']['webmapp_category'] as $term_id) {
+                            $webmapp_categories[$term_id]['items']['poi'][]=$poi['properties']['id'];
+                        }
+                    }
+                }
+            }
         }
     }
     if(count($activities)>0) {
         file_put_contents($route_tax_path.'/activity.json',json_encode($activities));
+    }
+    if(count($webmapp_categories)>0) {
+        file_put_contents($route_tax_path.'/webmapp_category.json',json_encode($webmapp_categories));
     }
 
 }

@@ -99,6 +99,33 @@ class WebmappAllRoutesTaskTests extends TestCase
          // deve avere solo la sezione "term_id":"items":"poi" 
          // con la lista di tutti i POI di quel termine
 
+         // TEST: route_id: 346
+         // RELATED POI nella related track 348: 443(7),456(7),513(30),514(30),786(34),800(35)
+         $this->assertTrue(file_exists($root.'/routes/346/taxonomies/webmapp_category.json'));
+         $ja=json_decode(file_get_contents($root.'/routes/346/taxonomies/webmapp_category.json'),TRUE);
+         $this->assertTrue(isset($ja[7]));
+         $this->assertTrue(isset($ja[30]));
+         $this->assertTrue(isset($ja[34]));
+         $this->assertTrue(isset($ja[35]));
+
+         $this->assertTrue(isset($ja[7]['items']));
+         $this->assertTrue(isset($ja[30]['items']));
+         $this->assertTrue(isset($ja[34]['items']));
+         $this->assertTrue(isset($ja[35]['items']));
+
+         $this->assertTrue(isset($ja[7]['items']['poi']));
+         $this->assertTrue(isset($ja[30]['items']['poi']));
+         $this->assertTrue(isset($ja[34]['items']['poi']));
+         $this->assertTrue(isset($ja[35]['items']['poi']));
+
+         $this->assertTrue(in_array(443,$ja[7]['items']['poi']));
+         $this->assertTrue(in_array(456,$ja[7]['items']['poi']));
+         $this->assertTrue(in_array(513,$ja[30]['items']['poi']));
+         $this->assertTrue(in_array(514,$ja[30]['items']['poi']));
+         $this->assertTrue(in_array(786,$ja[34]['items']['poi']));
+         $this->assertTrue(in_array(800,$ja[35]['items']['poi']));
+
+
     }
 
     // LASCIARE X ULTIMA
