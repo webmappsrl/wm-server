@@ -75,9 +75,29 @@ class WebmappAllRoutesTaskTests extends TestCase
              $this->assertTrue(file_exists($root.'/routes/'.$rid.'/taxonomies'));
          }
 
-         // 4. Creare i file di tassonomia semplificati per le routes
-         // (solo webmapp_category.json e activity.json) routes/[route_id]/taxonomies/
-         // che contengono solo gli items specifici della route
+         // 4. Creazione del file di tassonomia 
+         // /routes/[route_id]/taxonomies/activity.json 
+         // deve avere solo la sezione "term_id":"items":"track" 
+         // con la lista di tutte le TRACK di quel termine
+
+         // TEST: route_id 346
+         // Track_id: 348 activity: 47,40
+         $this->assertTrue(file_exists($root.'/routes/346/taxonomies/activity.json'));
+         $ja=json_decode(file_get_contents($root.'/routes/346/taxonomies/activity.json'),TRUE);
+         $this->assertTrue(isset($ja[47]));
+         $this->assertTrue(isset($ja[40]));
+         $this->assertTrue(isset($ja[47]['items']));
+         $this->assertTrue(isset($ja[40]['items']));
+         $this->assertTrue(isset($ja[47]['items']['track']));
+         $this->assertTrue(isset($ja[40]['items']['track']));
+         $this->assertTrue(in_array(348,$ja[47]['items']['track']));
+         $this->assertTrue(in_array(348,$ja[40]['items']['track']));
+
+
+         // 5. Creazione del file di tassonomia 
+         // /routes/[route_id]/taxonomies/webmapp_category.json 
+         // deve avere solo la sezione "term_id":"items":"poi" 
+         // con la lista di tutti i POI di quel termine
 
     }
 

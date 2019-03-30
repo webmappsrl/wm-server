@@ -43,9 +43,16 @@ public function process(){
     $this->processMainTaxonomies();
 
     // 3. Creare le directory routes/[route_id]
-    // 4. Creare i file di tassonomia semplificati per le routes 
-    // (solo webmapp_category.json e activity.json) routes/[route_id]/taxonomies/ 
-    // che contengono solo gli items specifici della route
+         // 4. Creazione del file di tassonomia 
+         // /routes/[route_id]/taxonomies/activity.json 
+         // deve avere solo la sezione "term_id":"items":"track" 
+         // con la lista di tutte le TRACK di quel termine
+
+         // 5. Creazione del file di tassonomia 
+         // /routes/[route_id]/taxonomies/webmapp_category.json 
+         // deve avere solo la sezione "term_id":"items":"poi" 
+         // con la lista di tutti i POI di quel termine
+
     $this->processRoutes();
 
 
@@ -134,6 +141,26 @@ private function processRoute($id) {
     }
     if(!file_exists($route_tax_path)) {
         $cmd = "mkdir $route_tax_path"; system($cmd);
+    }
+
+    // LOAD ROUTE FILE
+    $ja = json_decode(file_get_contents($this->endpoint.'/geojson/'.$id.'.geojson'),TRUE);
+
+    // LOOP ON RELATED TRACK
+    $activities = array();
+    if(isset($ja['features']) && count($ja['features'])>0) {
+        foreach($ja['features'] as $track) {
+            if (isset($track['properties']['taxonomy']) && 
+                isset($track['properties']['taxonomy']['activity']) && 
+                count ($track['properties']['taxonomy']['activity'])>0 ) {
+                foreach ($track['properties']['taxonomy']['activity'] as $term_id) {
+                    $activities[$term_id]['items']['track'][]=$track['properties']['id'];
+                }
+            }
+        }
+    }
+    if(count($activities)>0) {
+        file_put_contents($route_tax_path.'/activity.json',json_encode($activities));
     }
 
 }
