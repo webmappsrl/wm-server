@@ -43,6 +43,7 @@ require 'classes/task/WebmappRouteTask.php';
 require 'classes/task/WebmappAllRoutesTask.php';
 require 'classes/task/WebmappCustomConfigTask.php';
 require 'classes/task/WebmappTranslateTask.php';
+require 'classes/task/WebmappAddTermNameToFeaturesTask.php';
 require 'classes/task/WebmappTaskFactory.php';
 
 require 'classes/features/WebmappAbstractFeature.php';
