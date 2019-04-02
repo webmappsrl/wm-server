@@ -14,8 +14,8 @@ class WebmappFSTTask extends WebmappAbstractTask {
             // ”asta” → Aree di sosta
 
     private $all_activity_types = array(
-            'aata' => array('name'=>'Agriturismi','color'=>'#285D7A','icon'=>'wm-icon-farm'),
-            'alba' => array('name'=>'Alberghi','color'=>'#285D7A','icon'=>'wm-icon-lodging-15')
+            'aata' => array('name'=>'Agriturismi','color'=>'#eb2c37','icon'=>'wm-icon-farm'),
+            'alba' => array('name'=>'Alberghi','color'=>'#eb2c37','icon'=>'wm-icon-lodging-15')
         );
     private $activities = array();
     private $towns = array();
