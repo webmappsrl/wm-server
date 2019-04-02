@@ -298,6 +298,21 @@ class WebmappUtils {
 		if ($debug) echo "\n";
 		return json_decode($output,TRUE);
 	}
+
+	public static function urlExists($url) {
+		$ch = @curl_init($url);
+	    curl_setopt($ch, CURLOPT_HEADER, TRUE);
+	    curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+	    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	    curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+	    $ret = curl_exec($ch);
+	   	$val = preg_match('/HTTP\/.* (200) .*/', $ret);
+	   	if ($val>=1) return true;
+	   	return false;
+
+	}
+
 	// Returns an array of multiple JSON API CALLS paged (?per_page=XX)
 	public static function getMultipleJsonFromApi($url) {
 		$r=array();
@@ -305,9 +320,7 @@ class WebmappUtils {
 		$page=1;
 		$go_next=false;
         $paged_url=self::getPagedUrl($url,$page);
-		$headers=get_headers($paged_url);
-		$ret=$headers[0];
-		if (preg_match('/200/',$ret)){
+		if (self::urlExists($paged_url)){
 			$res=self::getJsonFromApi($paged_url);
 			if(is_array($res) && count($res)>0){
 				$r=array_merge($r,$res);
@@ -319,9 +332,7 @@ class WebmappUtils {
 			$page=$page+1;
 			$go_next=false;
             $paged_url=self::getPagedUrl($url,$page);
-			$headers=get_headers($paged_url);
-			$ret=$headers[0];
-			if (preg_match('/200/',$ret)){
+			if (self::urlExists($paged_url)){
 				$res=self::getJsonFromApi($paged_url);
 				if(is_array($res) && count($res)>0){
 					$r=array_merge($r,$res);
