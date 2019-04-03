@@ -15,8 +15,8 @@ class WebmappTDPTask extends WebmappAbstractTask {
     echo "\n\n Processing\n\n";
 
     self::setCategories();
-    self::processItinerari();
     self::processTerritori();
+    self::processItinerari();
     self::processCamper();
     self::processAttrazioni();
     self::processMembers();
@@ -35,14 +35,34 @@ private function processItinerari(){
         // Mapping
         $id = $ja['id'];
         $name = $ja['title']['rendered'];
+
         echo "Processing percorso $name ($id) ... ";
         if(isset($ja['acf']['percorso_geometry']) && 
           !empty($ja['acf']['percorso_geometry'])) {
             echo " creating track ";
             $track = new WebmappTrackFeature($ja,true);
             $track->setGeometryGeoJSON($ja['acf']['percorso_geometry']);
-            $track->write($this->getRoot().'/geojson/');
             // Traduzioni:
+
+            // Creazione LAYER con PIN dei territori (LAYER feature collection con ID della track)
+            if(isset($ja['acf']['percorso_territorio_rel']) && count($ja['acf']['percorso_territorio_rel'])>0) {
+                echo "\n -> Adding related Territori\n";
+                // Creo layer con ome ID della traccia
+                $track_layer = new WebmappLayer($id);
+                // LOOP sui POI che aggiungo al LAYER
+                foreach($ja['acf']['percorso_territorio_rel'] as $item){
+                    $track_layer->addFeature($this->all_territori->getFeature($item['ID']));
+                }
+                // Aggiungo Traccia
+                $track_layer->addFeature($track);
+                // Scrivo TRACCIA (ovvero layer)
+                $track_layer->write($this->getRoot().'/geojson/');
+
+            }
+            else {
+                $track->write($this->getRoot().'/geojson/');
+            }
+            
             self::translateItem($ja,$id);
             $itinerari->addFeature($track);
         } else {
