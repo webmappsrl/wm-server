@@ -1,7 +1,30 @@
 <?php
+
 // Task per la realizzazione della mappa interattiva
 // del Sentiero Italia (SIMAP)
 class WebmappSIMapTask extends WebmappAbstractTask {
+
+    private $regioni_osm = 
+array(
+    "7011030" => "Sardegna",
+    "7011950" => "Sicilia",
+    "7125614" => "Calabria",
+    "7164643" => "Basilicata",
+    "7186477" => "Campania",
+    "9290765" => "Puglia",
+    "7220974" => "Molise",
+    "7401588" => "Abruzzo",
+    "7246181" => "Lazio",
+    "7448629" => "Umbria",
+    "7458976" => "Marche",
+    "7468319" => "Toscana Emilia Romagna",
+    "7561168" => "Liguria",
+    "7029511" => "Piemonte",
+    "7029512" => "Lombardia",
+    "7029513" => "Trentino Alto Adige",
+    "7029514" => "Veneto",
+    "7332771" => "Friuli Venezia Giulia"
+);
 
     private $layers;
     private $limit=0;
@@ -89,8 +112,11 @@ class WebmappSIMapTask extends WebmappAbstractTask {
 
     private function processRegion($id) {
         $regione = new WebmappOSMSuperRelation($id);
-        $layer = new WebmappLayer($regione->getTag('name'));
-        $layer->setLabel($regione->getTag('name'));
+
+        $name = $this->regioni_osm[$id];
+        // $regione->getTag('name')
+        $layer = new WebmappLayer($this->regioni_osm[$id]);
+        $layer->setLabel($this->regioni_osm[$id]);
         $layer->setId($id);
         echo "Processing Regione ($id) ";
         echo $regione->getTag('name') . "\n";
@@ -103,12 +129,12 @@ class WebmappSIMapTask extends WebmappAbstractTask {
                     $tappa_name = $tappa->getTag('name');
                     echo "  -> Processing TAPPA ($ref) $tappa_name ... ";
 
+
+                    $track = $tappa->getTrack();
                     // Gestione Liguria
                     if($id==7561168 && $tappa->hasTag('alt_name')) {
                         $track->addProperty('name',$tappa->getTag('alt_name'));
                     }
-
-                    $track = $tappa->getTrack();
                     // ENRICH from WP:
                     if(array_key_exists($ref,$this->all_tracks_osmid_mapping)) {
                         echo "enrich ";
