@@ -80,6 +80,7 @@ private function processTracks() {
             }
             $t->addRelated($this->distance,$this->limit);
             $t->writeToPostGis();
+            $t->addEle();
             $t->addBBox();
             $t->writeRBRelatedPoi($this->track_path);
             $t->generateAllImages('',$this->track_path);
@@ -111,6 +112,7 @@ private function processRoutes() {
                     }
                     $t->addRelated($this->distance,$this->limit);
                     $t->writeToPostGis();
+                    $t->addEle();
                     $t->addBBox();
                     $t->writeRBRelatedPoi($this->track_path);
                     $t->generateAllImages('',$this->track_path);
