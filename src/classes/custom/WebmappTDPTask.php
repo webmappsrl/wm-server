@@ -228,7 +228,7 @@ echo "\n\nTOTAL MEBMER $tot - ADDED $tot_added\n";
 private function processEvents() {
     echo "\n\n\n Processing Events \n\n";
     $path = $this->getRoot().'/geojson/';
-    $events_url = 'http://www.terredipisa.it/wp-json/wp/v2/event/';
+    $events_url = 'https://www.terredipisa.it/wp-json/wp/v2/event/';
     $events = WebmappUtils::getMultipleJsonFromApi($events_url);
     $all_events_layer = new WebmappLayer('Events');
 
