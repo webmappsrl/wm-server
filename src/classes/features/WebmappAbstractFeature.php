@@ -129,6 +129,7 @@ abstract class WebmappAbstractFeature {
     	    $this->setProperty('rendered',$json_array['title'],'name');
         if (isset($json_array['content'])) 
          	$this->setProperty('rendered',$json_array['content'],'description');
+        $this->setProperty('modified',$json_array);
     	$this->setProperty('color',$json_array);
     	$this->setProperty('icon',$json_array);
         $this->setPropertyBool('noDetails',$json_array);

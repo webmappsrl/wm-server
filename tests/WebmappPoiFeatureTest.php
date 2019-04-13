@@ -254,4 +254,15 @@ class WebmappPoiFeatureTest extends TestCase {
         }
 
 
+        public function testModified() {
+            $wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/poi/509';
+            $ja = WebmappUtils::getJsonFromApi($wp_url);
+            $modified = $ja['modified'];
+
+            $poi = new WebmappPoiFeature($wp_url);
+            $j = json_decode($poi->getJson(),TRUE);
+            $this->assertEquals($modified,$j['properties']['modified']);
+        }
+
+
 }
