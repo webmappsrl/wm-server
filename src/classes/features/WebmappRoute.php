@@ -73,6 +73,7 @@ class WebmappRoute {
 	}
 	$this->properties['source']=$source;
 	$this->properties['wp_edit']=$wp_edit;
+	$this->properties['modified']=$this->json_array['modified'];
 
 	        // TRANSLATIONS
 	if (isset($this->json_array['wpml_translations'])) {

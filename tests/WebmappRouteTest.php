@@ -130,5 +130,16 @@ class WebmappRouteTest extends TestCase {
 
 	}
 
+	public function testModified() {
+		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/917';
+        $ja = WebmappUtils::getJsonFromApi($wp_url);
+        $modified = $ja['modified'];
+
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertEquals($modified,$j['properties']['modified']);
+
+	}
+
 
 }
