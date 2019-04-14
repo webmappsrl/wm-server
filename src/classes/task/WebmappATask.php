@@ -41,7 +41,7 @@ public function process(){
 
     $this->processPois();
     $this->processTracks();
-    //$this->processRoutes();
+    $this->processRoutes();
 
     return true;
 
@@ -53,6 +53,10 @@ private function processPois() {
 
 private function processTracks() {
     $this->processFeatures('track');
+}
+
+private function processRoutes() {
+    $this->processFeatures('route');
 }
 
 
@@ -128,48 +132,17 @@ private function processTrack($id) {
     $t->write($this->path);
 }
 
-private function getListByType($type) {
-    return WebmappUtils::getJsonFromAPI($this->wp->getBaseUrl().'/wp-json/webmapp/v1/list?type='.$type);
+private function processRoute($id) {
+    $r = new WebmappRoute($this->wp->getApiRoute($id));
+    $r->writeToPostGis();
+    $r->addBBox();
+    //$r->generateAllImages('',$this->route_path);
+    $r->write($this->path);
+
 }
 
-
-private function processRoutes() {
-    echo "\n";
-    if(count($this->routes)>0){
-        foreach ($this->routes as $id) {
-            $r = new WebmappRoute($this->wp->getApiRoute($id));
-            echo "ROUTE: {$r->getId()}\n";
-            $ts = $r->getTracks();
-            if (count($ts)>0) {
-                foreach ($ts as $t) {
-                    echo "TRACK: {$t->getId()}\n";
-                    $ps = $t->getRelatedPois();
-                    if(count($ps)>0){
-                        foreach($ps as $p) {
-                            echo "POI: {$p->getId()}\n";
-                            $p->writeToPostGis();
-                            $p->addRelated($this->distance,$this->limit);
-                            $p->write($this->path);
-                        }
-                    }
-                    $t->addRelated($this->distance,$this->limit);
-                    $t->writeToPostGis();
-                    $t->addEle();
-                    $t->addBBox();
-                    $t->writeRBRelatedPoi($this->track_path);
-                    $t->generateAllImages('',$this->track_path);
-                    $t->generateLandscapeRBImages('',$this->track_path);
-                    $t->write($this->path);
-                }
-            }
-            $r->writeToPostGis();
-            $r->addBBox();
-            $r->generateAllImages('',$this->route_path);
-            $r->write($this->path);
-            echo "\n\n";
-        }
-    }
-
+private function getListByType($type) {
+    return WebmappUtils::getJsonFromAPI($this->wp->getBaseUrl().'/wp-json/webmapp/v1/list?type='.$type);
 }
 
 }
