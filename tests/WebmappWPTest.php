@@ -275,4 +275,12 @@ class WebmappWPTest extends TestCase
 		$this->assertTrue(in_array('fr',$others));
 		$this->assertTrue(in_array('de',$others));
 	}
+
+	public function testVNWebmappCategory4() {
+		$wp = new WebmappWP('vn');
+		$wp->loadTaxonomy('webmapp_category');
+		$t=$wp->getTaxonomies();
+		$this->assertTrue(isset($t['webmapp_category'][4]));
+
+	}
 }
