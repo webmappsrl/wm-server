@@ -142,9 +142,12 @@ abstract class WebmappAbstractFeature {
     	if (isset($json_array['n7webmap_media_gallery'])) {
     		$this->mappingImage($json_array['n7webmap_media_gallery']);
     	}
-    	if (isset($json_array['n7webmap_track_media_gallery'])) {
-    		$this->mappingImage($json_array['n7webmap_track_media_gallery']);
-    	}
+        if (isset($json_array['n7webmap_track_media_gallery'])) {
+            $this->mappingImage($json_array['n7webmap_track_media_gallery']);
+        }
+        if (isset($json_array['n7webmap_route_media_gallery'])) {
+            $this->mappingImage($json_array['n7webmap_route_media_gallery']);
+        }
 
         // Se è presente la featured image viene messa come immagine principale
         if(isset($json_array['featured_media']) 

@@ -23,6 +23,18 @@ class WebmappRoute {
 		else {
 			$this -> base_url = preg_replace('|route/.*|', '', $array_or_url);
 			$this->json_array = WebmappUtils::getJsonFromApi($array_or_url);
+			// BAD TRICK: la carico come TRACK e prendo quello che mi serve
+			$feature = new WebmappTrackFeature($array_or_url);
+			$feature_json = json_decode($feature->getJson(),TRUE);
+		}
+
+		// Image
+		if(isset($feature_json['properties']['image'])){
+			$this->properties['image']=$feature_json['properties']['image'];
+		}
+		// ImageGallery
+		if(isset($feature_json['properties']['imageGallery'])){
+			$this->properties['imageGallery']=$feature_json['properties']['imageGallery'];
 		}
 
 		if (isset($this->json_array['wpml_translations']) && 
@@ -75,8 +87,6 @@ class WebmappRoute {
 
 	$this->buildPropertiesAndFeatures();
 
-	// Translations
-	        // SOURCE and WP_EDIT
 	$source = 'unknown';
 	$wp_edit = 'unknown';
 	if(isset($this->json_array['_links']['self'][0]['href'])) {

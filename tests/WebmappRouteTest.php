@@ -159,6 +159,14 @@ class WebmappRouteTest extends TestCase {
         $j = json_decode($r->getJson(),TRUE);
         $this->assertEquals(2,$j['properties']['stages']);
 	}
+	public function testBugImageRouteVN() {
+		$wp_url = 'http://vn.be.webmapp.it/wp-json/wp/v2/route/1123';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertTrue(isset($j['properties']['image']));
+        $this->assertEquals('http://vn.be.webmapp.it/wp-content/uploads/2017/10/L004-copertina-300x300.jpg',$j['properties']['image']);
+        $this->assertTrue(isset($j['properties']['imageGallery']));
+	}
 
 
 }
