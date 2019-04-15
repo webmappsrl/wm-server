@@ -141,5 +141,24 @@ class WebmappRouteTest extends TestCase {
 
 	}
 
+	public function testCode() {
+		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/772';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertEquals('PIPPO2',$j['properties']['code']);
+	}
+	public function testDifficulty() {
+		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/772';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertEquals(2.5,$j['properties']['difficulty']);
+	}
+	public function testStages() {
+		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/772';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertEquals(2,$j['properties']['stages']);
+	}
+
 
 }

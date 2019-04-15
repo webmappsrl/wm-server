@@ -45,10 +45,26 @@ class WebmappRoute {
 		$this->id = $this->json_array['id'];
 		$this->title = $this->json_array['title']['rendered'];
 		$this->description = $this->json_array['content']['rendered'];
+
+		// TODO: Difficulty
+		if(isset($this->json_array['n7webmapp_route_difficulty'])){
+			$this->properties['difficulty']=$this->json_array['n7webmapp_route_difficulty'];
+		}
+
+		// TODO: CODE
+		if(isset($this->json_array['n7webmapp_route_cod'])){
+			$this->properties['code']=$this->json_array['n7webmapp_route_cod'];
+		}
+
+		// TODO: STAGES
 		if (isset($this->json_array['n7webmap_route_related_track']) && 
 			count($this->json_array['n7webmap_route_related_track']) > 0 ) {
 			$this->loadTracks();
-	}
+		    $this->properties['stages']=count($this->json_array['n7webmap_route_related_track']);
+	    }
+	    else {
+	    	$this->properties['stages']=0;
+	    }
 	        // Taxonomies
 	$this->addTaxonomy('webmapp_category');
 	$this->addTaxonomy('activity');
@@ -138,22 +154,12 @@ private function loadTracks() {
 		}		
 	}
 }
-    // TODO Patch per APIWP non coerente su ROUTE da sistemare dopo
-    // aver sistemato APIWP per route con multimappa
 
 private function addTaxonomy($name) {
 	if (isset($this->json_array[$name]) &&
 		is_array($this->json_array[$name]) &&
 		count($this->json_array[$name])>0) {
-		if($name=='activity'){
-			foreach ($this->json_array[$name] as $term ) {
-				$this->properties['taxonomy'][$name][]=$term['term_id'];
-			}
-		}
-		else {
-	        	    //  Ripristinare questo codice (vedi TODO sopra) anche per activity
 			$this->properties['taxonomy'][$name]=$this->json_array[$name];
-		}
 	}       
 }
 
