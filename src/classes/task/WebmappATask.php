@@ -55,6 +55,7 @@ public function process(){
     $this->processTracks();
     $this->processRoutes();
     $this->processTaxonomies();
+    $this->processRouteIndex();
 
     return true;
 
@@ -172,6 +173,42 @@ private function processRoute($id) {
 
 private function getListByType($type) {
     return WebmappUtils::getJsonFromAPI($this->wp->getBaseUrl().'/wp-json/webmapp/v1/list?type='.$type);
+}
+
+private function processRouteIndex() {
+    // Lista delle route:
+    $routes = $this->getListByType('route');
+    $features = array();
+    if(count($routes)>0){
+        foreach ($routes as $rid => $date) {
+            echo "\n\n\n Processing route $rid\n";
+            $feature=array();
+            $r=WebmappUtils::getJsonFromAPI($this->path.'/'.$rid.'.geojson');
+            $feature['properties']=$r['properties'];
+            $feature['type']=$r['type'];
+            // Geometry (solo se ha le related track)
+            if(isset($r['properties']['related']['track']['related']) && 
+                count($r['properties']['related']['track']['related'])>0) {
+                $first_track_id = $r['properties']['related']['track']['related'][0];
+                $t=WebmappUtils::getJsonFromAPI($this->path.'/'.$first_track_id.'.geojson');
+                if(isset($t['geometry']['coordinates'])) {
+                    $lon = $t['geometry']['coordinates'][0][0];
+                    $lat = $t['geometry']['coordinates'][0][1];
+                    $feature['geometry']['type']='Point';
+                    $feature['geometry']['coordinates']=array($lon,$lat);
+                } else {
+                    echo "Warning no GEOMETRY In first track $first_track_id\n";
+                }
+            } else {
+                echo "Warning no RELATED TRACK\n";
+            }
+            $features[]=$feature;
+        }
+        $j=array();
+        $j['type']='FeatureCollection';
+        $j['features']=$features;
+        file_put_contents($this->path.'/route_index.geojson',json_encode($j));
+    }
 }
 
 }
