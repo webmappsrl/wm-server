@@ -12,7 +12,9 @@ class WebmappWP {
 	private $api_categories;
 	private $per_page=100;
 
+	// TAXONOMIES management
 	private $taxonomies=array();
+
 	// active Language code
 	private $languages_active='';
 	// Others lanugages code
@@ -56,6 +58,7 @@ class WebmappWP {
 	}
 
 	public function loadTaxonomy($name) {
+		$parents=array();
 		$url=$this->api_url.'/'.$name;
 		$res = WebmappUtils::getMultipleJsonFromApi($url);
 		$new=array();
@@ -80,9 +83,24 @@ class WebmappWP {
 			if(empty($item['color'])) unset($item['color']);
 			if(empty($item['icon'])) unset($item['icon']);	
 			if(empty($item['title'])) unset($item['title']);	
-			if(empty($item['featured_icon'])) unset($item['featured_icon']);	
+			if(empty($item['featured_icon'])) unset($item['featured_icon']);
+			// Gestione del parent
+			if(isset($item['parent']) && $item['parent']!=0) {
+				$parents[]=$item['parent'];
+			}
+			// Azzera il count
+			$item['count']=0;
+			// is parent deafult false
+			$item['is_parent']=false;
 
 			$new[$item['id']]=$item;
+			}
+		}
+		// Gestione dei parents
+		if(count($parents)>0) {
+			$parents = array_unique($parents);
+			foreach ($parents as $term_id) {
+				$new[$term_id]['is_parent']=true;
 			}
 		}
 		$this->taxonomies[$name]=$new;
@@ -512,5 +530,53 @@ class WebmappWP {
             }
 		}
 		return $l;
+	}
+
+	// $items = array con la lista di tutte le associazioni features -> term_id
+// 	Array
+// (
+//     [poi] => Array
+//         (
+//             [971] => Array
+//                 (
+//                     [webmapp_category] => Array
+//                         (
+//                             [0] => 9
+//                         )
+
+//                 )
+	public function addItemsAndPruneTaxonomies($tax) {
+		foreach ($tax as $type => $items) {
+			foreach ($items as $id => $taxs) {
+				if(is_array($taxs) && count($taxs)>0) {
+					foreach($taxs as $tax_name=>$values) {
+						if(is_array($values) && count($values)>0) {
+							foreach($values as $term_id) {
+								echo "taxonomies[$tax_name][$term_id]['items'][$type][]=$id\n";
+								$this->taxonomies[$tax_name][$term_id]['items'][$type][]=$id;
+								$this->taxonomies[$tax_name][$term_id]['count']++;
+							}
+						}
+					}
+				}
+			}
+		}
+		// Find terms to remove !is_parent && count==0
+		$to_remove=array();
+		foreach ($this->taxonomies as $tax_name => $terms) {
+			foreach ($terms as $term_id => $meta) {
+				if($meta['is_parent']==false && $meta['count']==0) {
+					$to_remove[]=array($tax_name,$term_id);
+				}
+			}
+		}
+
+		// Remove terms
+		if(count($to_remove)>0) {
+			foreach ($to_remove as $term) {
+				echo "Removing term {$term[0]} {$term[1]}\n";
+				unset($this->taxonomies[$term[0]][$term[1]]);
+			}
+		}
 	}
 }

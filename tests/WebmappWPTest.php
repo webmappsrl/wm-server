@@ -283,4 +283,23 @@ class WebmappWPTest extends TestCase
 		$this->assertTrue(isset($t['webmapp_category'][4]));
 
 	}
+
+	public function testTaxonomyParentAndCount() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomy('webmapp_category');
+		$taxs=$wp->getTaxonomies();
+		$wm_cat=$taxs['webmapp_category'];
+
+		$this->assertTrue(isset($wm_cat[14]));
+		$this->assertTrue(isset($wm_cat[10]));
+
+		$this->assertEquals(0,$wm_cat[14]['count']);
+		$this->assertEquals(0,$wm_cat[10]['count']);
+
+		$this->assertTrue(isset($wm_cat[14]['is_parent']));
+		$this->assertTrue(isset($wm_cat[10]['is_parent']));
+
+		$this->assertFalse($wm_cat[14]['is_parent']);
+		$this->assertTrue($wm_cat[10]['is_parent']);
+	}
 }

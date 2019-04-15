@@ -8,6 +8,9 @@ class WebmappATask extends WebmappAbstractTask {
  private $path;
  private $track_path;
  private $route_path;
+ private $tax_path;
+
+ private  $taxonomies=array();
 
  public function check() {
 
@@ -30,6 +33,15 @@ public function process(){
     $this->path = $this->project_structure->getRoot().'/geojson';
     $this->track_path = $this->project_structure->getRoot().'/track';
     $this->route_path = $this->project_structure->getRoot().'/route';
+    $this->tax_path = $this->project_structure->getRoot().'/taxonomies';
+    if (!file_exists($this->tax_path)) {
+        if (!is_writable($this->project_structure->getRoot())) {
+            throw new Exception("Error Processing Request", 1);
+        }
+        $cmd = "mkdir {$this->tax_path}";
+        system($cmd);
+    }
+
     if(!file_exists($this->track_path)) {
         $cmd = "mkdir {$this->track_path}";
             system($cmd);
@@ -42,6 +54,7 @@ public function process(){
     $this->processPois();
     $this->processTracks();
     $this->processRoutes();
+    $this->processTaxonomies();
 
     return true;
 
@@ -57,6 +70,12 @@ private function processTracks() {
 
 private function processRoutes() {
     $this->processFeatures('route');
+}
+
+private function processTaxonomies() {
+    $this->wp->loadTaxonomies();
+    $this->wp->addItemsAndPruneTaxonomies($this->taxonomies);
+    $this->wp->writeTaxonomies($this->tax_path);
 }
 
 
@@ -80,6 +99,7 @@ private function processFeatures($type) {
                     }
                     else {
                         echo "$type updated ($mod VS $poi_mod). Skipping ";
+                        $this->taxonomies[$type][$id]=$j['properties']['taxonomy'];
                         $to_process = FALSE;
                     }
                 }
@@ -112,6 +132,9 @@ private function processFeature($type,$id) {
 
 private function processPoi($id) {
     $poi = new WebmappPoiFeature($this->wp->getApiPoi($id));
+    $j=json_decode($poi->getJson(),TRUE);
+    if (isset($j['properties']['taxonomy']))
+        $this->taxonomies['poi'][$id]=$j['properties']['taxonomy'];
     $poi->write($this->path);
 }
 private function processTrack($id) {
@@ -129,6 +152,9 @@ private function processTrack($id) {
     //$t->generateAllImages('',$this->track_path);
     //$t->generateLandscapeRBImages('',$this->track_path);
     echo "write.";
+    $j=json_decode($t->getJson(),TRUE);
+    if (isset($j['properties']['taxonomy']))
+        $this->taxonomies['track'][$id]=$j['properties']['taxonomy'];
     $t->write($this->path);
 }
 
@@ -137,6 +163,9 @@ private function processRoute($id) {
     $r->writeToPostGis();
     $r->addBBox();
     //$r->generateAllImages('',$this->route_path);
+    $j=json_decode($r->getJson(),TRUE);
+    if (isset($j['properties']['taxonomy']))
+        $this->taxonomies['route'][$id]=$j['properties']['taxonomy'];
     $r->write($this->path);
 
 }
