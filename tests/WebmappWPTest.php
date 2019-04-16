@@ -302,4 +302,20 @@ class WebmappWPTest extends TestCase
 		$this->assertFalse($wm_cat[14]['is_parent']);
 		$this->assertTrue($wm_cat[10]['is_parent']);
 	}
+
+	public function testTranslations() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomy('webmapp_category');
+		$taxs=$wp->getTaxonomies();
+		$wm_cat=$taxs['webmapp_category'];
+
+		$this->assertTrue(isset($wm_cat[32]));
+		$this->assertTrue(isset($wm_cat[32]['translations']['en']['name']));
+		$this->assertEquals('Ancient church',$wm_cat[32]['translations']['en']['name']);
+		$this->assertTrue(isset($wm_cat[32]['translations']['fr']['name']));
+		$this->assertEquals('Églises anciennes',$wm_cat[32]['translations']['fr']['name']);
+		$this->assertTrue(isset($wm_cat[32]['translations']['de']['name']));
+		$this->assertEquals('Alte Kirchen',$wm_cat[32]['translations']['de']['name']);
+
+	}
 }

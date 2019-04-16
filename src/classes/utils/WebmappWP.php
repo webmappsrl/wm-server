@@ -39,12 +39,16 @@ class WebmappWP {
 		$this->api_maps = "{$this->api_url}/map";
 		$this->api_categories = "{$this->api_url}/webmapp_category";
 
+		$this->loadLanguages();
+
 	}
 
 	public function loadLanguages() {
 		$r = WebmappUtils::getJsonFromApi($this->api_wpml_list);
-		$this->languages_active=$r['active'];
-		$this->languages_others=$r['others'];
+		if(isset($r['active'])){
+			$this->languages_active=$r['active'];
+			$this->languages_others=$r['others'];			
+		}
 	}
 
 	public function loadTaxonomies() {
@@ -72,7 +76,7 @@ class WebmappWP {
 				}
 			}
 			//Other values
-			$item['source']=$item['_links']['self'][0]['href'];
+			$source = $item['source']=$item['_links']['self'][0]['href'];
 			$item['web']=$this->base_url."/$name/{$item['slug']}";
 			$item['wp_edit']=$this->base_url."/wp-admin/term.php?taxonomy=$name&tag_ID={$item['id']}";
 
@@ -93,6 +97,21 @@ class WebmappWP {
 			// is parent deafult false
 			$item['is_parent']=false;
 
+			// TRANSLATIONS
+			if(count($this->languages_others)>0) {
+				foreach($this->languages_others as $lang) {
+					// TODO: verificare che funzioni sempre
+					$source_lang = $source ."?lang=$lang";
+					//echo "Adding lang $lang $source_lang\n";
+					$j_trans=WebmappUtils::getJsonFromApi($source_lang);
+					if($j_trans['id']!=$item['id']) {
+						$item['translations'][$lang]['name']=$j_trans['name'];
+						if(!empty($j_trans['description'])) {
+							$item['translations'][$lang]['description']=$j_trans['description'];
+						}
+					}
+				}
+			}
 			$new[$item['id']]=$item;
 			}
 		}
