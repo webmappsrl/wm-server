@@ -10,6 +10,9 @@ class WebmappATask extends WebmappAbstractTask {
  private $route_path;
  private $tax_path;
 
+ // Array utilizzato nelle configurazioni per forzare la rigenerazione di tipi specici
+ private $force_type=array();
+
  private  $taxonomies=array();
 
  public function check() {
@@ -17,6 +20,11 @@ class WebmappATask extends WebmappAbstractTask {
     // Controllo parametro code http://[code].be.webmapp.it
     if(!array_key_exists('url_or_code', $this->options))
         throw new Exception("'url_or_code' option is mandatory", 1);
+
+    // Controllo parametro code http://[code].be.webmapp.it
+    if(array_key_exists('force_type', $this->options)) {
+        $this->force_type=$this->options['force_type'];
+    }
 
     $wp = new WebmappWP($this->options['url_or_code']);
     // Controlla esistenza della piattaforma
@@ -92,7 +100,10 @@ private function processFeatures($type) {
                 $to_process = TRUE;
             } else {
                 $j=WebmappUtils::getJsonFromAPI($geojson);
-                if(isset($j['properties']['modified'])) {
+                if(in_array($type,$this->force_type)){
+                    $to_process=TRUE;
+                }
+                else if(isset($j['properties']['modified'])) {
                     $poi_mod = $j['properties']['modified'];
                     if(strtotime($mod)>strtotime($poi_mod)) {
                         echo " $type need to be updated ($mod VS $poi_mod)";
