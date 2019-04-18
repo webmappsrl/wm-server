@@ -310,6 +310,8 @@ class WebmappWPTest extends TestCase
 		$wm_cat=$taxs['webmapp_category'];
 
 		$this->assertTrue(isset($wm_cat[32]));
+		$this->assertTrue(isset($wm_cat[32]['locale']));
+		$this->assertEquals('it',$wm_cat[32]['locale']);
 		$this->assertTrue(isset($wm_cat[32]['translations']['en']['name']));
 		$this->assertEquals('Ancient church',$wm_cat[32]['translations']['en']['name']);
 		$this->assertTrue(isset($wm_cat[32]['translations']['fr']['name']));

@@ -110,6 +110,9 @@ class WebmappRouteTest extends TestCase {
 		$route = new WebmappRoute('http://dev.be.webmapp.it/wp-json/wp/v2/route/346');
 		$j = json_decode($route->getJson(),true);
 
+		$this->assertTrue(isset($j['properties']['locale']));
+		$this->assertEquals('it',$j['properties']['locale']);
+
 		$this->assertTrue(isset($j['properties']['translations']));
 		$t=$j['properties']['translations'];
 		$this->assertTrue(isset($t['en']));

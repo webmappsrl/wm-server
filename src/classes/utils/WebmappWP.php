@@ -98,6 +98,7 @@ class WebmappWP {
 			$item['is_parent']=false;
 
 			// TRANSLATIONS
+			$item['locale']=$this->languages_active;
 			if(count($this->languages_others)>0) {
 				foreach($this->languages_others as $lang) {
 					// TODO: verificare che funzioni sempre

@@ -51,6 +51,7 @@ class WebmappRoute {
 			$actual = $this->json_array['wpml_current_locale'];
 			$lang=preg_replace('|_.*$|', '', $actual);
 			array_push($this->languages, $lang);
+			$this->properties['locale']=$lang;
 		}
 
 
