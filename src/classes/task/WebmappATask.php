@@ -196,7 +196,8 @@ private function processRouteIndex() {
             $feature=array();
             $r=WebmappUtils::getJsonFromAPI($this->path.'/'.$rid.'.geojson');
             $feature['properties']=$r['properties'];
-            $feature['type']=$r['type'];
+            // CAMBIA QUI il TYPE
+            $feature['type']='Feature';
             // Geometry (solo se ha le related track)
             if(isset($r['properties']['related']['track']['related']) && 
                 count($r['properties']['related']['track']['related'])>0) {
