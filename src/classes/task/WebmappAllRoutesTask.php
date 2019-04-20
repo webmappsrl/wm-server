@@ -182,6 +182,34 @@ private function processRoute($id) {
         file_put_contents($route_tax_path.'/webmapp_category.json',json_encode($webmapp_categories));
     }
 
+    // Generazione del file map.json
+    // Al momento si deve distinguere il caso presente nelle API e non
+    $map = array();
+    $jb = WebmappUtils::getJsonFromApi($ja['properties']['source']);
+    if(isset($jb['n7webmapp_route_bbox']) && !empty($jb['n7webmapp_route_bbox'])) {
+        echo "Building map.json info from API\n";
+        $bb = $jb['n7webmapp_route_bbox'];
+        $map['maxZoom']=$bb['maxZoom'];
+        $map['minZoom']=$bb['minZoom'];
+        $map['defZoom']=$bb['defZoom'];
+        $map['center'][0]=$bb['center']['lon'];
+        $map['center'][1]=$bb['center']['lat'];
+        $map['bbox'][0]=$bb['bounds']['southWest'][1];
+        $map['bbox'][1]=$bb['bounds']['southWest'][0];
+        $map['bbox'][2]=$bb['bounds']['northEast'][1];
+        $map['bbox'][3]=$bb['bounds']['northEast'][0];
+
+    } else {
+        echo "Building map.json info from route bbox\n";
+        $map['maxZoom']=17;
+        $map['minZoom']=8;
+        $map['defZoom']=9;
+        $map['center'][0]=($ja['bbox'][0]+$ja['bbox'][2])/2;
+        $map['center'][1]=($ja['bbox'][1]+$ja['bbox'][3])/2;
+        $map['bbox']=$ja['bbox']
+    }
+    // Writing file
+    file_put_contents($route_path.'/map.json',json_encode($map));
 }
 
 }
