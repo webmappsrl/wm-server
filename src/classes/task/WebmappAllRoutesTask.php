@@ -188,7 +188,7 @@ private function processRoute($id) {
     $jb = WebmappUtils::getJsonFromApi($ja['properties']['source']);
     if(isset($jb['n7webmapp_route_bbox']) && !empty($jb['n7webmapp_route_bbox'])) {
         echo "Building map.json info from API\n";
-        $bb = $jb['n7webmapp_route_bbox'];
+        $bb = json_decode($jb['n7webmapp_route_bbox'],TRUE);
         $map['maxZoom']=$bb['maxZoom'];
         $map['minZoom']=$bb['minZoom'];
         $map['defZoom']=$bb['defZoom'];
