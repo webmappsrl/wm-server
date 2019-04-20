@@ -206,7 +206,7 @@ private function processRoute($id) {
         $map['defZoom']=9;
         $map['center'][0]=($ja['bbox'][0]+$ja['bbox'][2])/2;
         $map['center'][1]=($ja['bbox'][1]+$ja['bbox'][3])/2;
-        $map['bbox']=$ja['bbox']
+        $map['bbox']=$ja['bbox'];
     }
     // Writing file
     file_put_contents($route_path.'/map.json',json_encode($map));
