@@ -192,7 +192,7 @@ private function processRoute($id) {
         $map['maxZoom']=$bb['maxZoom'];
         $map['minZoom']=$bb['minZoom'];
         $map['defZoom']=$bb['defZoom'];
-        $map['center'][0]=$bb['center']['lon'];
+        $map['center'][0]=$bb['center']['lng'];
         $map['center'][1]=$bb['center']['lat'];
         $map['bbox'][0]=$bb['bounds']['southWest'][1];
         $map['bbox'][1]=$bb['bounds']['southWest'][0];
