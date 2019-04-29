@@ -204,7 +204,7 @@ private function processRoute($id) {
             $map['maxZoom']=17;
             $map['minZoom']=8;
             $map['defZoom']=9;
-            $bb=explode(',', $ja['properties']);
+            $bb=explode(',', $ja['properties']['bbox']);
             $map['center'][0]=($bb[0]+$bb[2])/2.0;
             $map['center'][1]=($bb[1]+$bb[3])/2.0;
             $map['bbox']=$bb;            
@@ -214,7 +214,7 @@ private function processRoute($id) {
         $map['maxZoom']=17;
         $map['minZoom']=8;
         $map['defZoom']=9;
-        $bb=explode(',', $ja['properties']);
+        $bb=explode(',', $ja['properties']['bbox']);
         $map['center'][0]=($bb[0]+$bb[2])/2.0;
         $map['center'][1]=($bb[1]+$bb[3])/2.0;
         $map['bbox']=$bb;            
