@@ -189,6 +189,7 @@ private function processRoute($id) {
     if(isset($jb['n7webmapp_route_bbox']) && !empty($jb['n7webmapp_route_bbox'])) {
         echo "Building map.json info from API\n";
         $bb = json_decode($jb['n7webmapp_route_bbox'],TRUE);
+        print_r($bb);
         $map['maxZoom']=$bb['maxZoom'];
         $map['minZoom']=$bb['minZoom'];
         $map['defZoom']=$bb['defZoom'];
