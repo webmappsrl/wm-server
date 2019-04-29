@@ -69,6 +69,10 @@ class WebmappRoute {
 			$this->properties['code']=$this->json_array['n7webmapp_route_cod'];
 		}
 
+		if(isset($this->json_array['wm_route_public'])){
+			$this->properties['isPublic']=$this->json_array['wm_route_public'];
+		}
+
 		// TODO: STAGES
 		if (isset($this->json_array['n7webmap_route_related_track']) && 
 			count($this->json_array['n7webmap_route_related_track']) > 0 ) {

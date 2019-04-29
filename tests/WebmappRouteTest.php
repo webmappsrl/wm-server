@@ -171,5 +171,19 @@ class WebmappRouteTest extends TestCase {
         $this->assertTrue(isset($j['properties']['imageGallery']));
 	}
 
+	public function testIsPublic() {
+		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/686';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertTrue(isset($j['properties']['isPublic']));		
+        $this->assertTrue($j['properties']['isPublic']);		
+
+		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/917';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertTrue(isset($j['properties']['isPublic']));		
+        $this->assertFalse($j['properties']['isPublic']);		
+	}
+
 
 }
