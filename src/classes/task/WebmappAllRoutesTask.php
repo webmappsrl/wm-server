@@ -187,19 +187,27 @@ private function processRoute($id) {
     $map = array();
     $jb = WebmappUtils::getJsonFromApi($ja['properties']['source']);
     if(isset($jb['n7webmapp_route_bbox']) && !empty($jb['n7webmapp_route_bbox'])) {
-        echo "Building map.json info from API\n";
+        echo "Building map.json info from WP\n";
         $bb = json_decode($jb['n7webmapp_route_bbox'],TRUE);
-        print_r($bb);
-        $map['maxZoom']=$bb['maxZoom'];
-        $map['minZoom']=$bb['minZoom'];
-        $map['defZoom']=$bb['defZoom'];
-        $map['center'][0]=$bb['center']['lng'];
-        $map['center'][1]=$bb['center']['lat'];
-        $map['bbox'][0]=$bb['bounds']['southWest'][1];
-        $map['bbox'][1]=$bb['bounds']['southWest'][0];
-        $map['bbox'][2]=$bb['bounds']['northEast'][1];
-        $map['bbox'][3]=$bb['bounds']['northEast'][0];
-
+        if (is_array($bb)) {
+            $map['maxZoom']=$bb['maxZoom'];
+            $map['minZoom']=$bb['minZoom'];
+            $map['defZoom']=$bb['defZoom'];
+            $map['center'][0]=$bb['center']['lng'];
+            $map['center'][1]=$bb['center']['lat'];
+            $map['bbox'][0]=$bb['bounds']['southWest'][1];
+            $map['bbox'][1]=$bb['bounds']['southWest'][0];
+            $map['bbox'][2]=$bb['bounds']['northEast'][1];
+            $map['bbox'][3]=$bb['bounds']['northEast'][0];        
+        } else {
+            echo "Building map.json info from route bbox\n";
+            $map['maxZoom']=17;
+            $map['minZoom']=8;
+            $map['defZoom']=9;
+            $map['center'][0]=($ja['bbox'][0]+$ja['bbox'][2])/2;
+            $map['center'][1]=($ja['bbox'][1]+$ja['bbox'][3])/2;
+            $map['bbox']=$ja['bbox'];            
+        }
     } else {
         echo "Building map.json info from route bbox\n";
         $map['maxZoom']=17;
