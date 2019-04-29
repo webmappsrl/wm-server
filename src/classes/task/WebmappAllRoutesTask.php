@@ -207,7 +207,10 @@ private function processRoute($id) {
             $bb=explode(',', $ja['properties']['bbox']);
             $map['center'][0]=($bb[0]+$bb[2])/2.0;
             $map['center'][1]=($bb[1]+$bb[3])/2.0;
-            $map['bbox']=$bb;            
+            $map['bbox'][0]=(float)$bb[0];            
+            $map['bbox'][1]=(float)$bb[1];            
+            $map['bbox'][2]=(float)$bb[2];            
+            $map['bbox'][3]=(float)$bb[3];            
         }
     } else {
         echo "Building map.json info from route bbox\n";
@@ -217,7 +220,10 @@ private function processRoute($id) {
         $bb=explode(',', $ja['properties']['bbox']);
         $map['center'][0]=($bb[0]+$bb[2])/2.0;
         $map['center'][1]=($bb[1]+$bb[3])/2.0;
-        $map['bbox']=$bb;            
+        $map['bbox'][0]=(float)$bb[0];            
+        $map['bbox'][1]=(float)$bb[1];            
+        $map['bbox'][2]=(float)$bb[2];            
+        $map['bbox'][3]=(float)$bb[3];            
     }
     // Writing file
     file_put_contents($route_path.'/map.json',json_encode($map));
