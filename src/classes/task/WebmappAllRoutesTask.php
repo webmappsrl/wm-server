@@ -200,12 +200,12 @@ private function processRoute($id) {
             $map['bbox'][2]=$bb['bounds']['northEast'][1];
             $map['bbox'][3]=$bb['bounds']['northEast'][0];        
         } else {
-            echo "Building map.json info from route bbox\n";
+            echo "Building map.json info from route bbox (NO ARRAY)\n";
             $map['maxZoom']=17;
             $map['minZoom']=8;
             $map['defZoom']=9;
-            $map['center'][0]=($ja['properties']['bbox'][0]+$ja['properties']['bbox'][2])/2;
-            $map['center'][1]=($ja['properties']['bbox'][1]+$ja['properties']['bbox'][3])/2;
+            $map['center'][0]=((float)$ja['properties']['bbox'][0]+(float)$ja['properties']['bbox'][2])/2.0;
+            $map['center'][1]=((float)$ja['properties']['bbox'][1]+(float)$ja['properties']['bbox'][3])/2.0;
             $map['bbox']=$ja['properties']['bbox'];            
         }
     } else {
@@ -213,8 +213,8 @@ private function processRoute($id) {
         $map['maxZoom']=17;
         $map['minZoom']=8;
         $map['defZoom']=9;
-        $map['center'][0]=($ja['properties']['bbox'][0]+$ja['properties']['bbox'][2])/2;
-        $map['center'][1]=($ja['properties']['bbox'][1]+$ja['properties']['bbox'][3])/2;
+        $map['center'][0]=((float)$ja['properties']['bbox'][0]+(float)$ja['properties']['bbox'][2])/2.0;
+        $map['center'][1]=((float)$ja['properties']['bbox'][1]+(float)$ja['properties']['bbox'][3])/2.0;
         $map['bbox']=$ja['properties']['bbox'];
     }
     // Writing file
