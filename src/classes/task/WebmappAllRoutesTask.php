@@ -204,18 +204,18 @@ private function processRoute($id) {
             $map['maxZoom']=17;
             $map['minZoom']=8;
             $map['defZoom']=9;
-            $map['center'][0]=($ja['bbox'][0]+$ja['bbox'][2])/2;
-            $map['center'][1]=($ja['bbox'][1]+$ja['bbox'][3])/2;
-            $map['bbox']=$ja['bbox'];            
+            $map['center'][0]=($ja['properties']['bbox'][0]+$ja['properties']['bbox'][2])/2;
+            $map['center'][1]=($ja['properties']['bbox'][1]+$ja['properties']['bbox'][3])/2;
+            $map['bbox']=$ja['properties']['bbox'];            
         }
     } else {
         echo "Building map.json info from route bbox\n";
         $map['maxZoom']=17;
         $map['minZoom']=8;
         $map['defZoom']=9;
-        $map['center'][0]=($ja['bbox'][0]+$ja['bbox'][2])/2;
-        $map['center'][1]=($ja['bbox'][1]+$ja['bbox'][3])/2;
-        $map['bbox']=$ja['bbox'];
+        $map['center'][0]=($ja['properties']['bbox'][0]+$ja['properties']['bbox'][2])/2;
+        $map['center'][1]=($ja['properties']['bbox'][1]+$ja['properties']['bbox'][3])/2;
+        $map['bbox']=$ja['properties']['bbox'];
     }
     // Writing file
     file_put_contents($route_path.'/map.json',json_encode($map));
