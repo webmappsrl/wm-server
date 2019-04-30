@@ -19,6 +19,7 @@ array(
     "7458976" => "Marche",
     "7468319" => "Toscana Emilia Romagna",
     "7561168" => "Liguria",
+    "9521613" => "Valle d'Aosta",
     "7029511" => "Piemonte",
     "7029512" => "Lombardia",
     "7029513" => "Trentino Alto Adige",
@@ -33,7 +34,6 @@ array(
 
     private $all_tracks;
     private $all_tracks_osmid_mapping;
-
 
 	public function check() {
         // Check mandatory parameters;
