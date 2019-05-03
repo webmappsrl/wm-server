@@ -174,7 +174,7 @@ private function processRoute($id) {
     $r = new WebmappRoute($this->wp->getApiRoute($id));
     $r->writeToPostGis();
     $r->addBBox();
-    //$r->generateAllImages('',$this->route_path);
+    $r->generateAllImages('',$this->route_path);
     $j=json_decode($r->getJson(),TRUE);
     if (isset($j['properties']['taxonomy']))
         $this->taxonomies['route'][$id]=$j['properties']['taxonomy'];
@@ -192,6 +192,7 @@ private function processRouteIndex() {
     $features = array();
     if(count($routes)>0){
         foreach ($routes as $rid => $date) {
+            $skip = false;
             echo "\n\n\n Processing route $rid\n";
             $feature=array();
             $r=WebmappUtils::getJsonFromAPI($this->path.'/'.$rid.'.geojson');
@@ -209,12 +210,13 @@ private function processRouteIndex() {
                     $feature['geometry']['type']='Point';
                     $feature['geometry']['coordinates']=array($lon,$lat);
                 } else {
-                    echo "Warning no GEOMETRY In first track $first_track_id\n";
+                    echo "Warning no GEOMETRY In first track $first_track_id ... SKIP!\n";
+                    $skip = true;
                 }
             } else {
                 echo "Warning no RELATED TRACK\n";
             }
-            $features[]=$feature;
+            if(!$skip) $features[]=$feature;
         }
         $j=array();
         $j['type']='FeatureCollection';
