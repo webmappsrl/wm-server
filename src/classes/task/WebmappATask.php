@@ -161,8 +161,9 @@ private function processTrack($id) {
     $t->addBBox();
     echo "RBpois.";
     $t->writeRBRelatedPoi($this->track_path);
-    //$t->generateAllImages('',$this->track_path);
-    //$t->generateLandscapeRBImages('',$this->track_path);
+    echo "Images.";
+    $t->generateAllImages('',$this->track_path);
+    $t->generateLandscapeRBImages('',$this->track_path);
     echo "write.";
     $j=json_decode($t->getJson(),TRUE);
     if (isset($j['properties']['taxonomy']))
