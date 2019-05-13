@@ -19,6 +19,8 @@ class WebmappFSTTask extends WebmappAbstractTask {
         );
     private $activities = array();
     private $towns = array();
+    private $add_web = false;
+    private $web_info = array();
 
 	public function check() {
         // Parametri del task
@@ -55,6 +57,12 @@ class WebmappFSTTask extends WebmappAbstractTask {
         if(count($this->towns)==0) {
             throw new WebmappExceptionParameterMandatory("Parameter towns can't be empty", 1);           
         }
+
+        if(array_key_exists('add_web', $this->options)) {
+            $this->add_web=true;
+            $this->web_info['pre_id']=$this->options['add_web']['pre_id'];
+            $this->web_info['post_id']=$this->options['add_web']['post_id'];
+        } 
 
 		return TRUE;
 	}
@@ -131,10 +139,11 @@ class WebmappFSTTask extends WebmappAbstractTask {
                     // Creazione del POI
                     $poi = new WebmappPoiFeature($j);
 
-                    // TODO: riattivare per inversilia... o generalizzare per VT
-                    // $urls = array('http://magazine-turismo.it/demo/inversilia.com/test/?i='.$ja['idhotel_i'].'|');
-                    // $poi->addProperty('web',$urls[0]);
-                    // $poi->addProperty('related_url',$urls);
+                    if($this->add_web) {
+                        $urls = array($this->web_info['pre_id'].$ja['idhotel_i'].$this->web_info['post_id']);
+                        $poi->addProperty('web',$urls[0]);
+                        $poi->addProperty('related_url',$urls);                        
+                    }
 
                     // Gestione immagini
                     // IMAGE https://alloggi.visittuscany.com/html/xml/vtcard_resize.php?width=1080&height=608&src=26426agriturismo_esterno.jpg
