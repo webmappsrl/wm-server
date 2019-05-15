@@ -20,14 +20,12 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         $codes = '';
 
         foreach ($this->options['codes'] as $code) {
-            if ($codes != '') {
-                $codes .= ', ';
-            }
-
-            $codes .= $code;
+            $codes .= "\n{$code}";
         }
 
-        echo "\nVerranno rigenerate le webapp per {$codes} nella root directory " . $this . $options['base_rl'] . "\n";
+        $codes .= "\n";
+
+        echo "\nVerranno rigenerate le webapp per {$codes} nella root directory " . $this->$options['base_rl'] . "\n";
 
         return true;
     }
