@@ -39,6 +39,7 @@ require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
 require 'classes/task/WebmappWPTask.php';
 require 'classes/task/WebmappATask.php';
+require 'classes/task/WebmappWebappElbrusTask.php';
 require 'classes/task/WebmappSingleTask.php';
 require 'classes/task/WebmappRouteTask.php';
 require 'classes/task/WebmappAllRoutesTask.php';
