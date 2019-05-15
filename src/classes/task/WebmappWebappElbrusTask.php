@@ -5,8 +5,8 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
     public function check()
     {
-        if (!file_exists($this->project_structure->getRoot() . 'core.zip')) {
-            throw new Exception("ERRORE: Core mancante in {$this->project_structure->getRoot()} . 'core.zip'", 1);
+        if (!file_exists($this->project_structure->getRoot() . '/core.zip')) {
+            throw new Exception("ERRORE: Core mancante in '{$this->project_structure->getRoot()}/core.zip'", 1);
         }
 
         if (!array_key_exists('codes', $this->options)) {
