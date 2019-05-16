@@ -2,31 +2,44 @@
 class WebmappWebappElbrusTask extends WebmappAbstractTask
 {
     private $path;
-    private $base_path;
+    private $zip_base_url;
 
     public function check()
     {
-        if (!file_exists($this->project_structure->getRoot() . '/core.zip')) {
-            throw new WebmappExceptionNoFile("ERROR: Missing core zip in '{$this->project_structure->getRoot()}/core.zip'", 1);
+        $this->zip_base_url = '/root/wm-webapp-elbrus';
+        if (array_key_exists('zip_base_url', $this->options)) {
+            $this->zip_base_url = $this->options['zip_base_url'];
         }
 
-        if (!array_key_exists('base_url', $this->options)) {
-            throw new WebmappExceptionParameterMandatory("ERROR: 'base_url' option is mandatory", 1);
+        if (!file_exists($this->zip_base_url . '/core.zip')) {
+            throw new WebmappExceptionNoFile("ERROR: Missing file 'core.zip' in '{$this->zip_base_url}/'", 1);
         }
 
-        if (!array_key_exists('codes', $this->options)) {
-            throw new WebmappExceptionParameterMandatory("ERROR: 'codes' option is mandatory", 1);
+        $cmd = "rm -Rf {$this->zip_base_url}/tmp";
+        exec($cmd);
+
+        $cmd = "mkdir {$this->zip_base_url}/tmp";
+        exec($cmd);
+
+        $cmd = "unzip {$this->zip_base_url}/core.zip -d {$this->zip_base_url}/tmp";
+        exec($cmd);
+
+        if (!file_exists("{$this->zip_base_url}/tmp/core/index.html")) {
+            $this->clearTemp();
+            throw new WebmappExceptionNoFile("ERROR: Missing file 'index.html' in {$this->zip_base_url}/core.zip", 1);
         }
 
-        $codes = '';
-
-        foreach ($this->options['codes'] as $code) {
-            $codes .= "\n - {$code}";
+        if (!file_exists("{$this->zip_base_url}/tmp/core/assets")) {
+            $this->clearTemp();
+            throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets' in {$this->zip_base_url}/core.zip", 1);
         }
 
-        $codes .= "\n";
+        if (!file_exists("{$this->zip_base_url}/tmp/core/assets/icon")) {
+            $this->clearTemp();
+            throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets/icon' in {$this->zip_base_url}/core.zip", 1);
+        }
 
-        echo "\nThe following webapps located in the root directory " . $this->options['base_url'] . " will be regenerated:{$codes}\n\n";
+        echo "Check OK - Ready to generate the webapp in " . $this->project_structure->getRoot() . "\n\n";
 
         return true;
     }
@@ -35,110 +48,69 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
     {
         $this->path = $this->project_structure->getRoot();
 
-        // Check if zip contains everything
-        $cmd = "rm -Rf {$this->path}/tmp";
-        exec($cmd);
-
-        $cmd = "mkdir {$this->path}/tmp";
-        exec($cmd);
-
-        $cmd = "unzip {$this->path}/core.zip -d {$this->path}/tmp";
-        exec($cmd);
-
-        echo "Extracted {$this->path}/core.zip in {$this->path}/tmp\n";
-        echo "Checking {$this->path}/tmp content...\n";
-
-        echo "index.html                 ";
-        if (!file_exists("{$this->path}/tmp/core/index.html")) {
-            $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->path}/core.zip", 1);
+        $this->zip_base_url = '/root/wm-webapp-elbrus';
+        if (array_key_exists('zip_base_url', $this->options)) {
+            $this->zip_base_url = $this->options['zip_base_url'];
         }
 
-        echo " OK\n";
-        echo "assets                     ";
+        echo "Updating core...  ";
 
-        if (!file_exists("{$this->path}/tmp/core/assets")) {
-            $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->path}/core.zip", 1);
-        }
+        $cmd = "rm -Rf {$this->zip_base_url}/core";
+        exec($cmd);
 
-        echo " OK\n";
-        echo "assets/icon                ";
+        $cmd = "mkdir {$this->zip_base_url}/core";
+        exec($cmd);
 
-        if (!file_exists("{$this->path}/tmp/core/assets/icon")) {
-            $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->path}/core.zip", 1);
-        }
+        $cmd = "unzip {$this->zip_base_url}/core.zip -d {$this->zip_base_url}";
+        exec($cmd);
 
-        echo " OK\n";
-        echo "Updating existing core...  ";
+        echo "Extracted {$this->zip_base_url}/core.zip in {$this->zip_base_url}/\n";
 
-        // Update wm-webapp/core
+        // For each instance copy the updated core, copy the icon, update the index.html and link config.json
+        echo "\nUpdating webapp core...\n";
+        echo "Removing old core...       ";
+
         $cmd = "rm -Rf {$this->path}/core";
         exec($cmd);
 
-        $cmd = "mv {$this->path}/tmp/core {$this->path}/core";
+        echo " OK\n";
+        echo "Copying new core...        ";
+
+        $cmd = "cp -r {$this->zip_base_url}/core {$this->path}/core";
+        exec($cmd);
+
+        echo " OK\n";
+        echo "Copying favicon.png...     ";
+
+        $cmd = "cp {$this->path}/resources/icon.png {$this->path}/core/assets/icon/favicon.png";
+        exec($cmd);
+
+        echo " OK\n";
+        echo "Updating index.html...     ";
+
+        $json = json_decode(file_get_contents("{$this->path}/config.json"), true);
+        $title = $json["APP"]["name"];
+
+        $file = file_get_contents("{$this->path}/core/index.html");
+        $file = preg_replace('/<title>[^<]*<\/title>/', "<title>" . $title . "</title>", $file);
+        file_put_contents("{$this->path}/core/index.html", $file);
+
+        echo " OK\n";
+        echo "Linking config.json...     ";
+
+        $cmd = "ln -s {$this->path}/config.json {$this->path}/core/config.json";
         exec($cmd);
 
         echo " OK\n";
 
-        $base_path = $this->options['base_url'];
-
-        // For each instance copy the updated core, copy the icon, update the index.html and link config.json
-        foreach ($this->options['codes'] as $code) {
-            echo "\nUpdating {$code}...\n";
-            echo "Removing old core...       ";
-
-            $cmd = "rm -Rf {$base_path}/{$code}/core";
-            exec($cmd);
-
-            echo " OK\n";
-            echo "Copying new core...        ";
-
-            $cmd = "cp -r {$this->path}/core {$base_path}/{$code}/core";
-            exec($cmd);
-
-            echo " OK\n";
-            echo "Copying favicon.png...     ";
-
-            $cmd = "cp {$base_path}/{$code}/resources/icon.png {$base_path}/{$code}/core/assets/icon/favicon.png";
-            exec($cmd);
-
-            echo " OK\n";
-            echo "Updating index.html...     ";
-
-            $json = json_decode(file_get_contents("{$base_path}/{$code}/config.json"), true);
-            $title = $json["APP"]["name"];
-
-            $file = file_get_contents("{$base_path}/{$code}/core/index.html");
-            $file = preg_replace('/<title>[^<]*<\/title>/', "<title>" . $title . "</title>", $file);
-            file_put_contents("{$base_path}/{$code}/core/index.html", $file);
-
-            echo " OK\n";
-            echo "Linking config.json...     ";
-
-            $cmd = "ln -s {$base_path}/{$code}/config.json {$base_path}/{$code}/core/config.json";
-            exec($cmd);
-
-            echo " OK\n";
-
-            echo "{$code} updated successfully\n";
-        }
-
-        echo "\n\n";
-
-        echo "Clearing temp files...     ";
-        $this->clearTemp();
-        echo " OK\n\n";
-
-        echo "Task terminated successfully\n\n";
+        echo "Webapp updated successfully\n\n\n";
 
         return true;
     }
 
     private function clearTemp()
     {
-        $cmd = "rm -rf {$this->path}/tmp";
-        system($cmd);
+        $cmd = "rm -Rf {$this->zip_base_url}/tmp";
+        exec($cmd);
     }
 }
