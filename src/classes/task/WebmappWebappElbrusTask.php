@@ -124,7 +124,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo " OK\n";
             echo "Linking config.json...     ";
 
-            $cmd = "ln -s {$base_path}/{$code}/config.json config.json";
+            $cmd = "ln -s {$base_path}/{$code}/config.json {$base_path}/{$code}/core/config.json";
             exec($cmd);
 
             echo " OK\n";
