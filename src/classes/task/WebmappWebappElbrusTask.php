@@ -33,48 +33,48 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
     public function process()
     {
-        $this->$path = $this->project_structure->getRoot();
+        $this->path = $this->project_structure->getRoot();
 
         // Check if zip contains everything
-        $cmd = "rm -Rf {$this->$path}/tmp";
+        $cmd = "rm -Rf {$this->path}/tmp";
         exec($cmd);
 
-        $cmd = "mkdir {$this->$path}/tmp";
+        $cmd = "mkdir {$this->path}/tmp";
         exec($cmd);
 
-        $cmd = "unzip {$this->$path}/core.zip -d {$this->$path}/tmp";
+        $cmd = "unzip {$this->path}/core.zip -d {$this->path}/tmp";
         exec($cmd);
 
-        echo "Extracted {$this->$path}/core.zip in {$this->$path}/tmp\n";
-        echo "Checking {$this->$path}/tmp content...\n";
+        echo "Extracted {$this->path}/core.zip in {$this->path}/tmp\n";
+        echo "Checking {$this->path}/tmp content...\n";
 
-        if (!file_exists("{$this->$path}/tmp/core/index.html")) {
+        if (!file_exists("{$this->path}/tmp/core/index.html")) {
             $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->$path}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->path}/core.zip", 1);
         }
 
         echo "index.html    OK\n";
 
-        if (!file_exists("{$this->$path}/tmp/core/assets")) {
+        if (!file_exists("{$this->path}/tmp/core/assets")) {
             $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->$path}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->path}/core.zip", 1);
         }
 
         echo "assets        OK\n";
 
-        if (!file_exists("{$this->$path}/tmp/core/assets/icon")) {
+        if (!file_exists("{$this->path}/tmp/core/assets/icon")) {
             $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->$path}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->path}/core.zip", 1);
         }
 
         echo "assets/icon   OK\n";
         echo "Updating existing core...";
 
         // Update wm-webapp/core
-        $cmd = "rm -Rf {$this->$path}/core";
+        $cmd = "rm -Rf {$this->path}/core";
         exec($cmd);
 
-        $cmd = "mv {$this->$path}/tmp/core {$this->$path}/core";
+        $cmd = "mv {$this->path}/tmp/core {$this->path}/core";
         exec($cmd);
 
         echo " OK\n";
@@ -92,7 +92,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo " OK\n";
             echo "Copying new core...   ";
 
-            $cmd = "cp -r {$this->$path}/core {$base_path}/{$code}/core";
+            $cmd = "cp -r {$this->path}/core {$base_path}/{$code}/core";
             exec($cmd);
 
             echo " OK\n";
@@ -129,7 +129,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
     private function clearTemp()
     {
-        $cmd = "rm -rf {$this->$path}/tmp";
+        $cmd = "rm -rf {$this->path}/tmp";
         system($cmd);
     }
 }
