@@ -48,26 +48,29 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         echo "Extracted {$this->path}/core.zip in {$this->path}/tmp\n";
         echo "Checking {$this->path}/tmp content...\n";
 
+        echo "index.html                 ";
         if (!file_exists("{$this->path}/tmp/core/index.html")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "index.html                  OK\n";
+        echo " OK\n";
+        echo "assets                     ";
 
         if (!file_exists("{$this->path}/tmp/core/assets")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "assets                      OK\n";
+        echo " OK\n";
+        echo "assets/icon                ";
 
         if (!file_exists("{$this->path}/tmp/core/assets/icon")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "assets/icon                 OK\n";
+        echo " OK\n";
         echo "Updating existing core...  ";
 
         // Update wm-webapp/core
@@ -88,7 +91,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         $base_path = $this->options['base_url'];
 
-        // For each instance copy the updated core, copy the icon and update the index.html
+        // For each instance copy the updated core, copy the icon, update the index.html and link config.json
         foreach ($this->options['codes'] as $code) {
             echo "\nUpdating {$code}...\n";
             echo "Removing old core...       ";
@@ -117,6 +120,12 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             $file = file_get_contents("{$base_path}/{$code}/core/index.html");
             $file = preg_replace('/<title>[^<]*<\/title>/', "<title>" . $title . "</title>", $file);
             file_put_contents("{$base_path}/{$code}/core/index.html", $file);
+
+            echo " OK\n";
+            echo "Linking config.json...     ";
+
+            $cmd = "ln -s {$base_path}/{$code}/config.json config.json";
+            exec($cmd);
 
             echo " OK\n";
 
