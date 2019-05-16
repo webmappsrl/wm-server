@@ -37,13 +37,13 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         // Check if zip contains everything
         $cmd = "rm -Rf {$this->$path}/tmp";
-        system($cmd);
+        exec($cmd);
 
         $cmd = "mkdir {$this->$path}/tmp";
-        system($cmd);
+        exec($cmd);
 
         $cmd = "unzip {$this->$path}/core.zip -d {$this->$path}/tmp";
-        system($cmd);
+        exec($cmd);
 
         echo "Extracted {$this->$path}/core.zip in {$this->$path}/tmp\n";
         echo "Checking {$this->$path}/tmp content...\n";
@@ -72,10 +72,10 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         // Update wm-webapp/core
         $cmd = "rm -Rf {$this->$path}/core";
-        system($cmd);
+        exec($cmd);
 
         $cmd = "mv {$this->$path}/tmp/core {$this->$path}/core";
-        system($cmd);
+        exec($cmd);
 
         echo " OK\n";
 
@@ -87,19 +87,19 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo "Removing old core...";
 
             $cmd = "rm -Rf {$base_path}/{$code}/core";
-            system($cmd);
+            exec($cmd);
 
             echo " OK\n";
             echo "Copying new core...   ";
 
             $cmd = "cp -r {$this->$path}/core {$base_path}/{$code}/core";
-            system($cmd);
+            exec($cmd);
 
             echo " OK\n";
             echo "Copying favicon.png...";
 
             $cmd = "cp {$base_path}/{$code}/resurces/icon.png {$base_path}/{$code}/assets/icon/favicon.png";
-            system($cmd);
+            exec($cmd);
 
             echo " OK\n";
             echo "Updating index.html...";
