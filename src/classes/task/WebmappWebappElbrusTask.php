@@ -53,22 +53,22 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "index.html    OK\n";
+        echo "index.html                 OK\n";
 
         if (!file_exists("{$this->path}/tmp/core/assets")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "assets        OK\n";
+        echo "assets                     OK\n";
 
         if (!file_exists("{$this->path}/tmp/core/assets/icon")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "assets/icon   OK\n";
-        echo "Updating existing core...";
+        echo "assets/icon                OK\n";
+        echo "Updating existing core...  ";
 
         // Update wm-webapp/core
         $cmd = "rm -Rf {$this->path}/core";
@@ -78,7 +78,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         exec($cmd);
 
         echo " OK\n";
-        echo "Updating index.html...";
+        echo "Updating index.html...     ";
 
         $file = file_get_contents("{$this->path}/core/index.html");
         $file = preg_replace('/<base href="\/" \/>/', '<base href="/core/" \/>', $file);
@@ -91,32 +91,32 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         // For each instance copy the updated core, copy the icon and update the index.html
         foreach ($this->options['codes'] as $code) {
             echo "\nUpdating {$code}...\n";
-            echo "Removing old core...";
+            echo "Removing old core...       ";
 
             $cmd = "rm -Rf {$base_path}/{$code}/core";
             exec($cmd);
 
             echo " OK\n";
-            echo "Copying new core...   ";
+            echo "Copying new core...        ";
 
             $cmd = "cp -r {$this->path}/core {$base_path}/{$code}/core";
             exec($cmd);
 
             echo " OK\n";
-            echo "Copying favicon.png...";
+            echo "Copying favicon.png...     ";
 
             $cmd = "cp {$base_path}/{$code}/resources/icon.png {$base_path}/{$code}/core/assets/icon/favicon.png";
             exec($cmd);
 
             echo " OK\n";
-            echo "Updating index.html...";
+            echo "Updating index.html...     ";
 
             $json = json_decode(file_get_contents("{$base_path}/{$code}/config.json"), true);
             $title = $json["APP"]["name"];
 
             $file = file_get_contents("{$base_path}/{$code}/core/index.html");
-            $file = preg_replace('/<title>[^<]*<\/title>/', "<title>{$title}</title>", $file);
-            file_put_contents("{$base_path}/{$code}/index.html", $file);
+            $file = preg_replace('/<title>[^<]*<\/title>/', "<title>" . $title . "</title>", $file);
+            file_put_contents("{$base_path}/{$code}/core/index.html", $file);
 
             echo " OK\n";
 
@@ -125,7 +125,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         echo "\n\n";
 
-        echo "Clearing temp files...";
+        echo "Clearing temp files...     ";
         $this->clearTemp();
         echo " OK\n\n";
 
