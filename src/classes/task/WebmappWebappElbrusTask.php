@@ -39,6 +39,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets/icon' in {$this->zip_base_url}/core.zip", 1);
         }
 
+        $this->clearTemp();
         echo "Check OK - Ready to generate the webapp in " . $this->project_structure->getRoot() . "\n\n";
 
         return true;
