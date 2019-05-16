@@ -78,6 +78,13 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         exec($cmd);
 
         echo " OK\n";
+        echo "Updating index.html...";
+
+        $file = file_get_contents("{$this->path}/core/index.html");
+        $file = preg_replace('/<base href="\/" \/>/', '<base href="\/core\/" \/>', $file);
+        file_put_contents("{$this->path}/core/index.html", $file);
+
+        echo " OK\n";
 
         $base_path = $this->options['base_url'];
 
@@ -98,18 +105,8 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo " OK\n";
             echo "Copying favicon.png...";
 
-            $cmd = "cp {$base_path}/{$code}/resources/icon.png {$base_path}/{$code}/assets/icon/favicon.png";
+            $cmd = "cp {$base_path}/{$code}/resources/icon.png {$base_path}/{$code}/core/assets/icon/favicon.png";
             exec($cmd);
-
-            echo " OK\n";
-            echo "Updating index.html...";
-
-            $json = json_decode(file_get_contents("{$base_path}/{$code}/config.json"), true);
-            $title = $json["APP"]["name"];
-
-            $file = file_get_contents("{$base_path}/{$code}/index.html");
-            $file = preg_replace('/<title>[^<]*<\/title>/', "<title>" . $title . "</title>", $file);
-            file_put_contents("{$base_path}/{$code}/index.html", $file);
 
             echo " OK\n";
 
