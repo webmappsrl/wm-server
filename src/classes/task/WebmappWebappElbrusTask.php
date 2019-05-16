@@ -114,7 +114,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             $json = json_decode(file_get_contents("{$base_path}/{$code}/config.json"), true);
             $title = $json["APP"]["name"];
 
-            $file = file_get_contents("{$base_path}/{$code}/index.html");
+            $file = file_get_contents("{$base_path}/{$code}/core/index.html");
             $file = preg_replace('/<title>[^<]*<\/title>/', "<title>{$title}</title>", $file);
             file_put_contents("{$base_path}/{$code}/index.html", $file);
 
