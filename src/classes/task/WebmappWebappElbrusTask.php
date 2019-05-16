@@ -7,15 +7,15 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
     public function check()
     {
         if (!file_exists($this->project_structure->getRoot() . '/core.zip')) {
-            throw new Exception("ERROR: Missing core zip in '{$this->project_structure->getRoot()}/core.zip'", 1);
+            throw new WebmappExceptionNoFile("ERROR: Missing core zip in '{$this->project_structure->getRoot()}/core.zip'", 1);
         }
 
         if (!array_key_exists('base_url', $this->options)) {
-            throw new Exception("ERROR: 'base_url' option is mandatory", 1);
+            throw new WebmappExceptionParameterMandatory("ERROR: 'base_url' option is mandatory", 1);
         }
 
         if (!array_key_exists('codes', $this->options)) {
-            throw new Exception("ERROR: 'codes' option is mandatory", 1);
+            throw new WebmappExceptionParameterMandatory("ERROR: 'codes' option is mandatory", 1);
         }
 
         $codes = '';
@@ -33,7 +33,6 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
     public function process()
     {
-        $this->check();
         $this->$path = $this->project_structure->getRoot();
 
         // Check if zip contains everything
@@ -51,21 +50,21 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         if (!file_exists("{$this->$path}/tmp/core/index.html")) {
             $this->clearTemp();
-            throw new Exception("ERRORE: File index.hml mancante nel file {$this->$path}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->$path}/core.zip", 1);
         }
 
         echo "index.html    OK\n";
 
         if (!file_exists("{$this->$path}/tmp/core/assets")) {
             $this->clearTemp();
-            throw new Exception("ERRORE: Cartella assets mancante nel file {$this->$path}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->$path}/core.zip", 1);
         }
 
         echo "assets        OK\n";
 
         if (!file_exists("{$this->$path}/tmp/core/assets/icon")) {
             $this->clearTemp();
-            throw new Exception("ERRORE: Cartella assets/icon mancante nel file {$this->$path}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->$path}/core.zip", 1);
         }
 
         echo "assets/icon   OK\n";
