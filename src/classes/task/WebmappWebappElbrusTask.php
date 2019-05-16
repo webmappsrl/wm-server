@@ -53,21 +53,21 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             throw new WebmappExceptionNoFile("ERROR: File index.hml mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "index.html                 OK\n";
+        echo "index.html                  OK\n";
 
         if (!file_exists("{$this->path}/tmp/core/assets")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Cartella assets mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "assets                     OK\n";
+        echo "assets                      OK\n";
 
         if (!file_exists("{$this->path}/tmp/core/assets/icon")) {
             $this->clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Cartella assets/icon mancante nel file {$this->path}/core.zip", 1);
         }
 
-        echo "assets/icon                OK\n";
+        echo "assets/icon                 OK\n";
         echo "Updating existing core...  ";
 
         // Update wm-webapp/core
