@@ -109,6 +109,16 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             exec($cmd);
 
             echo " OK\n";
+            echo "Updating index.html...";
+
+            $json = json_decode(file_get_contents("{$base_path}/{$code}/config.json"), true);
+            $title = $json["APP"]["name"];
+
+            $file = file_get_contents("{$base_path}/{$code}/index.html");
+            $file = preg_replace('/<title>[^<]*<\/title>/', "<title>{$title}</title>", $file);
+            file_put_contents("{$base_path}/{$code}/index.html", $file);
+
+            echo " OK\n";
 
             echo "{$code} updated successfully\n";
         }
