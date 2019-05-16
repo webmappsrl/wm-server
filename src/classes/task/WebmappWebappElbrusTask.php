@@ -81,7 +81,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         echo "Updating index.html...";
 
         $file = file_get_contents("{$this->path}/core/index.html");
-        $file = preg_replace('/<base href="\/" \/>/', '<base href="\/core\/" \/>', $file);
+        $file = preg_replace('/<base href="\/" \/>/', '<base href="/core/" \/>', $file);
         file_put_contents("{$this->path}/core/index.html", $file);
 
         echo " OK\n";
