@@ -104,6 +104,25 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         echo " OK\n";
 
+        echo "Linking deeplinks files... ";
+
+        if (file_exists("{$this->path}/.well-known")) {
+            $cmd = "ln -s {$this->path}/.well-known {$this->path}/core/.well-known";
+            exec($cmd);
+            echo "\niOS files                   OK\n";
+        } else {
+            echo "\nWARNING: {$this->path}/.well-known/ directory missing and needed for iOS deeplinks\n";
+        }
+
+        $list = glob("{$this->path}/google*.html");
+        if (sizeof($list) >= 1) {
+            $cmd = "ln -s {$this->path}/google*.html {$this->path}/core/";
+            exec($cmd);
+            echo "\nandroid files               OK\n";
+        } else {
+            echo "\nWARNING: {$this->path}/google*.html file missing and needed for android deeplinks\n";
+        }
+
         echo "Webapp updated successfully\n\n\n";
 
         return true;
