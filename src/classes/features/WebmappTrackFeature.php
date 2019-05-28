@@ -428,12 +428,17 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $l=new WebmappLayer("{$this->getId()}_rb_related_poi");
                 foreach ($this->properties['related']['poi']['related'] as $pid) {
                     $poi_url = preg_replace('|track/[0-9]*|','',$this->properties['source']).'poi/'.$pid;
-                    $poi = new WebmappPoiFeature($poi_url);
-                    $noDetails = $poi->getProperty('noDetails');
-                    $noInteraction = $poi->getProperty('noInteraction');
-                    if(!$noDetails && !$noInteraction) {
-                        $l->addFeature($poi);
-                        $ids[]=$poi->getId();
+                    try {
+                        $poi = new WebmappPoiFeature($poi_url);
+                        $noDetails = $poi->getProperty('noDetails');
+                        $noInteraction = $poi->getProperty('noInteraction');
+                        if(!$noDetails && !$noInteraction) {
+                            $l->addFeature($poi);
+                            $ids[]=$poi->getId();
+                        }                       
+                    } catch (Exception $e) {
+                        echo "WARNING Exception thrown ".get_class($e)."\n";
+                        echo $e->getMessage()."\n";
                     }
                 }
                 if (count($ids)>0) {
