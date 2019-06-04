@@ -574,7 +574,12 @@ class WebmappWP {
 							foreach($values as $term_id) {
 								echo "taxonomies[$tax_name][$term_id]['items'][$type][]=$id\n";
 								$this->taxonomies[$tax_name][$term_id]['items'][$type][]=$id;
-								$this->taxonomies[$tax_name][$term_id]['count']++;
+								if(!isset($this->taxonomies[$tax_name][$term_id]['count'])) {
+									$this->taxonomies[$tax_name][$term_id]['count']=1;
+								}
+								else {
+									$this->taxonomies[$tax_name][$term_id]['count']++;
+								}
 							}
 						}
 					}
