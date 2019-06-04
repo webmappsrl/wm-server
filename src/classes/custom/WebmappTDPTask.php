@@ -178,7 +178,9 @@ private function processAttrazioni() {
             $poi_id = $ja['id'];
         foreach ($ja['acf']['territorio_attrazioni_rel'] as $item) {
             echo "Adding POI($poi_id) to attrazione(".$item['ID'].")\n";
-            $attrazioni_layers[$item['ID']]->addFeature($this->all_territori->getFeature($poi_id));
+            if(array_key_exists($item['ID'],$attrazioni_layers)) {
+                $attrazioni_layers[$item['ID']]->addFeature($this->all_territori->getFeature($poi_id));
+            }
         }            
     }
 }
