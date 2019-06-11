@@ -92,8 +92,8 @@ class WebmappRouteTest extends TestCase {
 		$this->assertTrue(isset($ja['properties']['bbox']));
 		$this->assertTrue(isset($ja['properties']['bbox_metric']));
 
-		$this->assertEquals('10.39471,43.70904,10.3989,43.72326',$ja['properties']['bbox']);
-		$this->assertEquals('1157134,5420525,1157600,5422715',$ja['properties']['bbox_metric']);
+		$this->assertEquals('10.34471,43.65904,10.4489,43.77326',$ja['properties']['bbox']);
+		$this->assertEquals('1152134,5415525,1162600,5427715',$ja['properties']['bbox_metric']);
 
 	}
 
