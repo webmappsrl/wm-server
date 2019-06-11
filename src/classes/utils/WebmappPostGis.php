@@ -192,12 +192,12 @@ final class WebmappPostGis
             $a = $this->select($q);
             $bbox = $a[0]['bbox'];
             $bboxArray = explode(',', $bbox);
-            $dx = $bboxArray[2] - $bboxArray[0];
-            $dy = $bboxArray[3] - $bboxArray[1];
-            $bboxArray[0] -= $dx / 10;
-            $bboxArray[1] -= $dy / 10;
-            $bboxArray[2] += $dx / 10;
-            $bboxArray[3] += $dy / 10;
+            $dx = 0.05;
+            $dy = 0.05;
+            $bboxArray[0] -= $dx;
+            $bboxArray[1] -= $dy;
+            $bboxArray[2] += $dx;
+            $bboxArray[3] += $dy;
 
             return implode(',', $bboxArray);
         }
