@@ -164,6 +164,10 @@ private function processTrack($id) {
     echo "Images.";
     $t->generateAllImages('',$this->track_path);
     $t->generateLandscapeRBImages('',$this->track_path);
+    echo "GPX.";
+    $t->writeGPX($this->track_path);
+    echo "KML.";
+    $t->writeKML($this->track_path);
     echo "write.";
     $j=json_decode($t->getJson(),TRUE);
     if (isset($j['properties']['taxonomy']))
