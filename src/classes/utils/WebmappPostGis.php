@@ -176,6 +176,7 @@ final class WebmappPostGis
         }
     }
 
+    // TODO: calculate dx proportionally to latitude
     public function getRouteBBox($instance_id, $route_id)
     {
         if ($this->routeExists($instance_id, $route_id)) {
@@ -217,7 +218,17 @@ final class WebmappPostGis
  		 WHERE track_id
  		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id');";
             $a = $this->select($q);
-            return $a[0]['bbox'];
+
+            $bbox = $a[0]['bbox'];
+            $bboxArray = explode(',', $bbox);
+            $dx = 5000;
+            $dy = 5000;
+            $bboxArray[0] -= $dx;
+            $bboxArray[1] -= $dy;
+            $bboxArray[2] += $dx;
+            $bboxArray[3] += $dy;
+
+            return implode(',', $bboxArray);
         }
     }
 
