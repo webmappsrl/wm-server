@@ -63,6 +63,7 @@ public function process(){
     $this->processTracks();
     $this->processRoutes();
     $this->processTaxonomies();
+    $this->processPoiIndex();
     $this->processRouteIndex();
 
     return true;
@@ -227,6 +228,27 @@ private function processRouteIndex() {
         $j['type']='FeatureCollection';
         $j['features']=$features;
         file_put_contents($this->path.'/route_index.geojson',json_encode($j));
+    }
+}
+private function processPoiIndex() {
+    // Lista delle route:
+    $pois = $this->getListByType('poi');
+    $features = array();
+    if(count($pois)>0){
+        foreach ($pois as $pid => $date) {
+            $skip = false;
+            echo "\n\n\n Processing POI $pid\n";
+            $p=WebmappUtils::getJsonFromAPI($this->path.'/'.$pid.'.geojson');
+            if(!isset($p['geometry'])) {
+                echo "Warning no GEOMETRY: SKIPPING POI\n";
+                $skip=true;
+            }
+            if(!$skip) $features[]=$p;
+        }
+        $j=array();
+        $j['type']='FeatureCollection';
+        $j['features']=$features;
+        file_put_contents($this->path.'/poi_index.geojson',json_encode($j));
     }
 }
 
