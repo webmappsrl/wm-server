@@ -93,14 +93,14 @@ class WebmappPoiFeatureTest extends TestCase {
             $poi = new WebmappPoiFeature('http://dev.be.webmapp.it/wp-json/wp/v2/poi/567');
             $j = json_decode($poi->getJson(),true);
             $g = $j['properties']['imageGallery'];
-            $has_572 = false;
+            $has_942 = false;
             foreach($g as $image) {
-                if($image['id']==572) {
-                    $has_572=true;
+                if($image['id']==942) {
+                    $has_942=true;
                     $caption = $image['caption'];
                 }
             }
-            $this->assertTrue($has_572);
+            $this->assertTrue($has_942);
             $this->assertEquals('CAPTION TEST',$caption);
         }
 
@@ -263,6 +263,16 @@ class WebmappPoiFeatureTest extends TestCase {
             $j = json_decode($poi->getJson(),TRUE);
             $this->assertEquals($modified,$j['properties']['modified']);
         }
+
+        public function testAudio() {
+            $wp_url = 'http://bicievacanze.be.webmapp.it/wp-json/wp/v2/poi/1316';
+            $poi = new WebmappPoiFeature($wp_url);
+            $ja = json_decode($poi->getJson(),TRUE);
+            $this->assertTrue(isset($ja['properties']['audio']));
+            $this->assertEquals('http://bicievacanze.be.webmapp.it/wp-content/uploads/2019/04/arco-della-pace.mp3',$ja['properties']['audio']);
+        }
+
+
 
 
 }

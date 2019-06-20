@@ -164,6 +164,11 @@ abstract class WebmappAbstractFeature {
             }
         }
 
+        // FILE AUDIO
+        if(isset($json_array['audio'])) {
+           $this->addProperty('audio',$json_array['audio']['url']); 
+        }
+
         // Gestione delle categorie WEBMAPP
         // http://dev.be.webmapp.it/wp-json/wp/v2/poi/610
         // http://dev.be.webmapp.it/wp-json/wp/v2/track/580
