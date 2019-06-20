@@ -4,16 +4,13 @@
 //require 'vendor/gisconverter/gisconverter.php';
 require 'vendor/GPXIngest/GPXIngest.php';
 require_once 'vendor/gisconverter/vendor/autoload.php';
-use Symm\Gisconverter\Gisconverter;
-
-
 
 // Configuration file
-$conf=__DIR__.'/config.json';
-if(!file_exists($conf)) {
-	throw new Exception("Impossibile eseguire il server: manca il file di configurazione $conf", 1);	
+$conf = __DIR__ . '/config.json';
+if (!file_exists($conf)) {
+    throw new Exception("Impossibile eseguire il server: manca il file di configurazione $conf", 1);
 }
-$wm_config = json_decode(file_get_contents($conf),TRUE);
+$wm_config = json_decode(file_get_contents($conf), true);
 
 // Caricamento classi obbligatorie
 require 'classes/utils/WebmappExceptions.php';
@@ -40,6 +37,7 @@ require 'classes/task/WebmappBETask.php';
 require 'classes/task/WebmappWPTask.php';
 require 'classes/task/WebmappATask.php';
 require 'classes/task/WebmappWebappElbrusTask.php';
+require 'classes/task/WebmappSingleMapTask.php';
 require 'classes/task/WebmappSingleTask.php';
 require 'classes/task/WebmappRouteTask.php';
 require 'classes/task/WebmappAllRoutesTask.php';
