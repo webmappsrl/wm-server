@@ -266,6 +266,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
             $sizes = array(
                     array(491,624),
+                    array(624,468),
                     array(400,300),
                     array(200,200),
                     array(1000,1000)
