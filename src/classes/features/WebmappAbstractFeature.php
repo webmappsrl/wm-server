@@ -235,6 +235,11 @@ abstract class WebmappAbstractFeature {
                     if(isset($ja['rb_track_section'])) {
                         $val['rb_track_section']=$ja['rb_track_section'];
                     }
+                    if(isset($ja['audio'])) {
+                        $val['audio']=$ja['audio']['url']; 
+                    }
+
+
                     $tp[$locale]=$val;
                 }
                 $this->addProperty('translations',$tp);

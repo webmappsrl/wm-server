@@ -272,6 +272,14 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals('http://bicievacanze.be.webmapp.it/wp-content/uploads/2019/04/arco-della-pace.mp3',$ja['properties']['audio']);
         }
 
+        public function testAudioTranslation() {
+            $wp_url = 'http://bicievacanze.be.webmapp.it/wp-json/wp/v2/poi/1183';
+            $poi = new WebmappPoiFeature($wp_url);
+            $ja = json_decode($poi->getJson(),TRUE);
+            $this->assertTrue(isset($ja['properties']['translations']['en']['audio']));
+            $this->assertEquals('http://bicievacanze.be.webmapp.it/wp-content/uploads/2019/05/Piazza-della-scala-ENG.mp3',$ja['properties']['translations']['en']['audio']);
+        }
+
 
 
 
