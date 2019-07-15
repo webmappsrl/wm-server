@@ -50,8 +50,12 @@ private function processItinerari(){
                 // Creo layer con ome ID della traccia
                 $track_layer = new WebmappLayer($id);
                 // LOOP sui POI che aggiungo al LAYER
-                foreach($ja['acf']['percorso_territorio_rel'] as $item){
-                    $track_layer->addFeature($this->all_territori->getFeature($item['ID']));
+                if(isset($ja['acf']['percorso_territorio_rel']) 
+                    && is_array($ja['acf']['percorso_territorio_rel'])
+                    && count($ja['acf']['percorso_territorio_rel'])>0 ) {
+                    foreach($ja['acf']['percorso_territorio_rel'] as $item){
+                        $track_layer->addFeature($this->all_territori->getFeature($item['ID']));
+                    }
                 }
                 // Aggiungo Traccia
                 $track_layer->addFeature($track);
@@ -167,10 +171,12 @@ private function processAttrazioni() {
     $attrazioni_url = 'http://www.terredipisa.it/wp-json/wp/v2/attrazione/';
     $attrazioni = WebmappUtils::getMultipleJsonFromApi($attrazioni_url);
     $attrazioni_layers = array();
+    $attrazioni_jas = array();
     foreach($attrazioni as $ja) {
         $id = $ja['id'];
         echo "Creating layer id: $id\n";
         $attrazioni_layers[$id] = new WebmappLayer($id);
+        $attrazioni_jas[$id]=$ja;
     }
     foreach ($this->pois as $ja) {
         if (isset($ja['acf']['territorio_attrazioni_rel']) && 
@@ -188,6 +194,7 @@ private function processAttrazioni() {
 foreach ($attrazioni_layers as $id => $attrazione_layer) {
     echo "Writing layer $id\n";
     $attrazione_layer->write($path);
+    $this->translateItem($attrazioni_jas[$id],$id);
 }
 }
 private function processMembers() {
