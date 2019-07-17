@@ -99,7 +99,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         echo " OK\n";
         echo "Linking config.json...     ";
 
-        $cmd = "ln -s {$this->path}/config.json {$this->path}/core/config.json";
+        $cmd = "cd {$this->path}/core && ln -s ../config.json ./config.json";
         exec($cmd);
 
         echo " OK\n";
@@ -107,7 +107,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         echo "Linking deeplinks files... ";
 
         if (file_exists("{$this->path}/.well-known")) {
-            $cmd = "ln -s {$this->path}/.well-known {$this->path}/core/.well-known";
+            $cmd = "cd {$this->path}/core && ln -s ../.well-known ./.well-known";
             exec($cmd);
             echo "\niOS files                   OK\n";
         } else {
@@ -116,7 +116,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         $list = glob("{$this->path}/google*.html");
         if (sizeof($list) >= 1) {
-            $cmd = "ln -s {$this->path}/google*.html {$this->path}/core/";
+            $cmd = "cd {$this->path}/core && ln -s ../google*.html ./google*.html";
             exec($cmd);
             echo "\nandroid files               OK\n";
         } else {
