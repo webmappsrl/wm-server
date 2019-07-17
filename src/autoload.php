@@ -64,6 +64,7 @@ require 'classes/caiosm/WebmappOSMListTask.php';
 require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 
 // CUSTOM
+require 'classes/custom/WebmappTrentinoATask.php';
 require 'classes/custom/WebmappVetrinaToscanaTask.php';
 require 'classes/custom/WebmappDrupalTask.php';
 require 'classes/custom/WebmappPNABAlgorabTask.php';
