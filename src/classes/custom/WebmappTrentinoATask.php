@@ -12,6 +12,11 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
   }
 
   public function process(){
+
+    // CONF
+    global $wm_config;
+    $pg_host = $wm_config['postgis']['host'];
+
     // Creating tmp dir
     $this->tmp_path=$this->getRoot().'/tmp';
     if (file_exists($this->tmp_path)) {
@@ -30,7 +35,7 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
 
     // UPDATE POSTGRES
     // ogr2ogr -t_srs EPSG:3857 -f "PostgreSQL" PG:"dbname=sat user=pgadmin host=localhost" "punti_appoggio.json" -nln punti_appoggio -overwrite
-    $options = "-t_srs EPSG:3857 -f 'PostgreSQL' PG:'dbname=sat user=pgadmin host=46.101.124.52' -overwrite";
+    $options = "-t_srs EPSG:3857 -f 'PostgreSQL' PG:'dbname=sat user=pgadmin host=$pg_host' -overwrite";
     echo "Upload punti_appoggio.json to postgis\n";
     $cmd = "ogr2ogr $options '{$this->tmp_path}/punti_appoggio.json' -nln 'punti_appoggio'"; system($cmd);
     
@@ -53,12 +58,12 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
     $cmd = "ogr2ogr $options '{$this->tmp_path}/sentieri_luoghi.json' -nln 'sentieri_luoghi'"; system($cmd);
 
     // PSQL 
-    $psql_conn = "-U pgadmin -d sat -h 46.101.124.52";
+    $psql_conn = "-U pgadmin -d sat -h $pg_host";
     echo "Adding status to sentieri_sottotratte";
     $cmd = "psql $psql_conn -c 'alter table sentieri_sottotratte add column stato varchar(10);'"; system($cmd);
 
 
-    $options = "-nlt LINESTRING 'PG:host=46.101.124.52 dbname=sat user=pgadmin'";
+    $options = "-nlt LINESTRING 'PG:host=$pg_host dbname=sat user=pgadmin'";
 // NO ogr2ogr -f GeoJSON sentieri_tratte.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT  ST_Transform (ST_Simplify(wkb_geometry, 1000), 4326) as geom, ogc_fid as id, numero as ref, descr as description, dataagg, competenza, concat(numero, ' ', denominaz) as \"name\", difficolta, loc_inizio, loc_fine, quota_iniz, quota_fine, quota_min, quota_max, concat(lun_planim,' m') as distance, lun_inclin, t_andata, t_ritorno, gr_mont, comuni_toc, concat('sentieri.sat.tn.it/schede-sentieri?numero=', numero) as url_scheda, concat('sentieri.sat.tn.it/imgviewer?numero=', numero) as url_foto from sentieri_tratte  order by ref"
 // NO ogr2ogr -f GeoJSON sentieri_lunga_percorrenza.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Union(ST_Transform (ST_Simplify(wkb_geometry, 8), 4326)) as geom, concat(sentiero, ' - ', tappe) as ref, label from sentieri_lp group by ref, label order by ref"
 // NO ogr2ogr -f GeoJSON sentieri_luoghi.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, numero as ref, luogo as place_code, concat('N ', nord_geo, ', E ', est_geo) as coordinates, concat('N ', nord_utm, ', E ', est_utm) as utm_coordinates from sentieri_luoghi order by ref"
