@@ -132,7 +132,7 @@ EOS;
         $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/punti_appoggio.geojson $options -sql \"$select\"";
         system($cmd);
 
-        echo "\nGenerating sentieri_tratte_sy.geojson\n";
+        echo "\nGenerating sentieri_tratte.geojson\n";
         $select = <<<EOS
 SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom,
         ogc_fid as id,
@@ -159,9 +159,9 @@ SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom,
         concat('https://sentieri.sat.tn.it/gpx-sentieri?numero=', numero) as gpx
 FROM sentieri_tratte  order by ref
 EOS;
-        $cmd = "rm -f {$this->getRoot()}/geojson/sentieri_tratte_sy.geojson";
+        $cmd = "rm -f {$this->getRoot()}/geojson/sentieri_tratte.geojson";
         system($cmd);
-        $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/sentieri_tratte_sy.geojson $options -sql \"$select\"";
+        $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/sentieri_tratte.geojson $options -sql \"$select\"";
         system($cmd);
         // TODO: aggiornare con sed i nomi dei campi di timo XXX:YYY
         $to_change = array(
@@ -172,11 +172,11 @@ EOS;
             'duration_forward' => 'duration:forward',
             'duration_backward' => 'duration:backward',
         );
-        $in = file_get_contents($this->getRoot() . '/geojson/sentieri_tratte_sy.geojson');
+        $in = file_get_contents($this->getRoot() . '/geojson/sentieri_tratte.geojson');
         foreach ($to_change as $old => $new) {
             $in = preg_replace("/$old/", $new, $in);
         }
-        file_put_contents($this->getRoot() . '/geojson/sentieri_tratte_sy.geojson', $in);
+        file_put_contents($this->getRoot() . '/geojson/sentieri_tratte.geojson', $in);
 
         echo "\n\n\n CREATING GEOJSON \n\n\n";
         echo "\nUpdating postgis (closed tracks)\n";
