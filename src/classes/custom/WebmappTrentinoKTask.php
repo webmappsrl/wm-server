@@ -40,7 +40,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             try {
                 $file = $this->addId($file);
                 $file = $this->addTaxonomy($file, $filename);
-                file_put_contents($this->project_structure->getRoot() . "geojson/" . $filename, $file);
+                file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, $file);
                 echo "$filename DONE\n";
             } catch (WebmappException $e) {
                 echo "\n$filename WARNING: " . $e;
