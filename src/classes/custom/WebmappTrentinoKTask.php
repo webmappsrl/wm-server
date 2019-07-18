@@ -55,21 +55,23 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         $webmappCategory = array(
             "1" => array(
                 "id" => "1",
-                "name" => "Punti d'appoggio",
+                "name" => "Altri punti di appoggio",
                 "taxonomy" => "webmapp_category",
                 "is_parent" => false,
                 "locale" => "it",
                 "color" => "#FF3812",
                 "icon" => "wm-icon-wilderness-hut-cai",
+                "image" => "https://k.webmapp.it/trentino/media/images/sat_bivacchi.jpg",
             ),
             "2" => array(
                 "id" => "2",
-                "name" => "Punti d'interesse",
+                "name" => "Punti di interesse",
                 "taxonomy" => "webmapp_category",
                 "is_parent" => false,
                 "locale" => "it",
                 "color" => "#28A7DC",
                 "icon" => "wm-icon-star2",
+                "image" => "https://k.webmapp.it/trentino/media/images/sat_poi.jpg",
             ),
             "3" => array(
                 "id" => "3",
@@ -79,6 +81,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "locale" => "it",
                 "color" => "#FF3812",
                 "icon" => "wm-icon-alpine-hut-cai",
+                "image" => "https://k.webmapp.it/trentino/media/images/sat_rifugi.jpg",
             ),
             "4" => array(
                 "id" => "4",
@@ -88,26 +91,29 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "locale" => "it",
                 "color" => "#767A71",
                 "icon" => "wm-icon-generic",
+                "image" => "https://k.webmapp.it/trentino/media/images/sat_localita.jpg",
             ),
         );
 
         $activity = array(
             "21" => array(
                 "id" => "21",
-                "name" => "Sentieri SAT",
+                "name" => "I sentieri della SAT",
                 "taxonomy" => "activity",
                 "is_parent" => false,
                 "locale" => "it",
                 "icon" => "wm-icon-hiking-15",
+                "image" => "https://k.webmapp.it/trentino/media/images/sat_sentieri.jpg",
             ),
             "22" => array(
                 "id" => "22",
-                "name" => "Itinerari",
+                "name" => "Itinerari a tappe",
                 "taxonomy" => "activity",
                 "is_parent" => false,
                 "locale" => "it",
                 "color" => "#588248",
                 "icon" => "wm-icon-trail",
+                "image" => "https://k.webmapp.it/trentino/media/images/sat_itinerari.jpg",
             ),
         );
 
