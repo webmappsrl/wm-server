@@ -16,7 +16,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     {
         echo "Checking file presence...";
 
-        foreach ($this->$baseFileNames as $filename) {
+        foreach ($this->baseFileNames as $filename) {
             if (!file_exists($this->aBaseUrl . $filename)) {
                 throw new WebmappExceptionNoFile("ERROR: Missing file " . $this->aBaseUrl . $filename, 1);
             }
@@ -33,7 +33,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     {
         $this->generateTaxonomies();
 
-        foreach ($this->$baseFileNames as $filename) {
+        foreach ($this->baseFileNames as $filename) {
             echo "\nProcessing $filename...     ";
             $file = json_decode(file_get_contents($this->aBaseUrl . $filename), true);
 
