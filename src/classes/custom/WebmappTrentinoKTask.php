@@ -59,6 +59,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "taxonomy" => "webmapp_category",
                 "is_parent" => false,
                 "locale" => "it",
+                "color" => "#FF3812",
+                "icon" => "wm-icon-wilderness-hut-cai",
             ),
             "2" => array(
                 "id" => "2",
@@ -66,6 +68,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "taxonomy" => "webmapp_category",
                 "is_parent" => false,
                 "locale" => "it",
+                "color" => "#28A7DC",
+                "icon" => "wm-icon-star2",
             ),
             "3" => array(
                 "id" => "3",
@@ -73,17 +77,21 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "taxonomy" => "webmapp_category",
                 "is_parent" => false,
                 "locale" => "it",
+                "color" => "#FF3812",
+                "icon" => "wm-icon-alpine-hut-cai",
+            ),
+            "4" => array(
+                "id" => "4",
+                "name" => "Località",
+                "taxonomy" => "webmapp_category",
+                "is_parent" => false,
+                "locale" => "it",
+                "color" => "#767A71",
+                "icon" => "wm-icon-generic",
             ),
         );
 
         $activity = array(
-            "20" => array(
-                "id" => "20",
-                "name" => "Località",
-                "taxonomy" => "activity",
-                "is_parent" => false,
-                "locale" => "it",
-            ),
             "21" => array(
                 "id" => "21",
                 "name" => "Sentieri SAT",
@@ -97,6 +105,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "taxonomy" => "activity",
                 "is_parent" => false,
                 "locale" => "it",
+                "color" => "#588248",
+                "icon" => "wm-icon-trail",
             ),
         );
 
@@ -150,7 +160,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 $taxonomy = array("webmapp_category" => array("3"));
                 break;
             case "sentieri_localita.geojson":
-                $taxonomy = array("activity" => array("20"));
+                $taxonomy = array("webmapp_category" => array("4"));
                 break;
             case "sentieri_tratte.geojson":
                 $taxonomy = array("activity" => array("21"));
