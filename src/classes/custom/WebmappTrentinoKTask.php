@@ -98,6 +98,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "taxonomy" => "activity",
                 "is_parent" => false,
                 "locale" => "it",
+                "icon" => "wm-icon-hiking-15",
             ),
             "22" => array(
                 "id" => "22",
