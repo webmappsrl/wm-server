@@ -40,7 +40,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             try {
                 $file = $this->addId($file);
                 $file = $this->addTaxonomy($file, $filename);
-                file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, $file);
+                file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, json_encode($file));
                 echo "$filename DONE\n";
             } catch (WebmappException $e) {
                 echo "\n$filename WARNING: " . $e;
@@ -100,8 +100,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             ),
         );
 
-        file_put_contents($this->project_structure->getRoot() . "taxonomies/webmapp_category.json", $webmappCategory);
-        file_put_contents($this->project_structure->getRoot() . "taxonomies/activity.json", $activity);
+        file_put_contents($this->project_structure->getRoot() . "taxonomies/webmapp_category.json", json_encode($webmappCategory));
+        file_put_contents($this->project_structure->getRoot() . "taxonomies/activity.json", json_encode($activity));
     }
 
     public function addId($file)
