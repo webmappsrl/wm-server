@@ -24,7 +24,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             echo "...";
         }
 
-        echo "Check OK";
+        echo "Check OK\n";
 
         return true;
     }
@@ -34,7 +34,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         $this->generateTaxonomies();
 
         foreach ($this->baseFileNames as $filename) {
-            echo "\nProcessing $filename...     ";
+            echo "\nProcessing $filename... \n";
             $file = json_decode(file_get_contents($this->aBaseUrl . "geojson/" . $filename), true);
 
             try {
@@ -100,8 +100,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             ),
         );
 
-        file_put_contents($this->project_structure->getRoot() . "taxonomies/webmapp_category.json", json_encode($webmappCategory));
-        file_put_contents($this->project_structure->getRoot() . "taxonomies/activity.json", json_encode($activity));
+        file_put_contents($this->project_structure->getRoot() . "/taxonomies/webmapp_category.json", json_encode($webmappCategory));
+        file_put_contents($this->project_structure->getRoot() . "/taxonomies/activity.json", json_encode($activity));
     }
 
     public function addId($file)
@@ -115,8 +115,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             throw new WebmappExceptionGeoJson("ERROR: No features");
         }
 
-        foreach ($file["features"] as $feature) {
-            $feature["properties"]["id"] = $i . "";
+        foreach ($file["features"] as $key => $feature) {
+            $file["features"][$key]["properties"]["id"] = $i . "";
             $i++;
         }
 
@@ -156,8 +156,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 break;
         }
 
-        foreach ($file["features"] as $feature) {
-            $feature["properties"]["taxonomy"] = $taxonomy;
+        foreach ($file["features"] as $key => $feature) {
+            $file["features"][$key]["properties"]["taxonomy"] = $taxonomy;
         }
 
         return $file;
