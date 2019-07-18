@@ -27,6 +27,7 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
     // Start script
 
     // DOWNLOAD and UNZIP DATA
+    echo "\n\n\n DOWNLOAD AND UNZIP DATA\n\n\n";
     $zip=$this->tmp_path.'sentieri_tratte.json.zip';
     $cmd="curl -o $zip -g https://sentieri.sat.tn.it/download/webmapp/sentierisat.json.zip";
     system ($cmd);
@@ -35,6 +36,7 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
 
     // UPDATE POSTGRES
     // ogr2ogr -t_srs EPSG:3857 -f "PostgreSQL" PG:"dbname=sat user=pgadmin host=localhost" "punti_appoggio.json" -nln punti_appoggio -overwrite
+    echo "\n\n\n UPLOAD TO POSTGRES\n\n\n";
     $options = "-t_srs EPSG:3857 -f 'PostgreSQL' PG:'dbname=sat user=pgadmin host=$pg_host' -overwrite";
     echo "Upload punti_appoggio.json to postgis\n";
     $cmd = "ogr2ogr $options '{$this->tmp_path}/punti_appoggio.json' -nln 'punti_appoggio'"; system($cmd);
@@ -63,6 +65,7 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
     $cmd = "psql $psql_conn -c 'alter table sentieri_sottotratte add column stato varchar(10);'"; system($cmd);
 
 
+    echo "\n\n\n CREATING GEOJSON \n\n\n";
     $options = "-nlt LINESTRING 'PG:host=$pg_host dbname=sat user=pgadmin'";
 // NO ogr2ogr -f GeoJSON sentieri_tratte.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT  ST_Transform (ST_Simplify(wkb_geometry, 1000), 4326) as geom, ogc_fid as id, numero as ref, descr as description, dataagg, competenza, concat(numero, ' ', denominaz) as \"name\", difficolta, loc_inizio, loc_fine, quota_iniz, quota_fine, quota_min, quota_max, concat(lun_planim,' m') as distance, lun_inclin, t_andata, t_ritorno, gr_mont, comuni_toc, concat('sentieri.sat.tn.it/schede-sentieri?numero=', numero) as url_scheda, concat('sentieri.sat.tn.it/imgviewer?numero=', numero) as url_foto from sentieri_tratte  order by ref"
 // NO ogr2ogr -f GeoJSON sentieri_lunga_percorrenza.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Union(ST_Transform (ST_Simplify(wkb_geometry, 8), 4326)) as geom, concat(sentiero, ' - ', tappe) as ref, label from sentieri_lp group by ref, label order by ref"
@@ -70,11 +73,54 @@ class WebmappTrentinoATask extends WebmappAbstractTask {
 
 // SI ogr2ogr -f GeoJSON sentieri_localita.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, localita as name, quota as ele, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates  from sentieri_localita order by name"
 
+echo "\nGenerating sentieri_localita.geojson\n";
+$select = <<<EOS
+SELECT ST_Transform(wkb_geometry, 4326) as geom, 
+       localita as name,
+       quota as ele, 
+       concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates, 
+       concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates  
+FROM sentieri_localita order by name
+EOS;
+    $cmd = "rm -f {$this->getRoot()}/geojson/sentieri_localita.geojson"; system($cmd);
+    $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/sentieri_localita.geojson $options -sql \"$select\"";
+    system($cmd);
+
 // SI ogr2ogr -f GeoJSON punti_interesse.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, nome as name, categoria as category, descrizione as description, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates from punti_interesse order by name"
+echo "\nGenerating punti_interesse.geojson\n";
+$select = <<<EOS
+SELECT ST_Transform(wkb_geometry, 4326) as geom, 
+       nome as name, 
+       categoria as category, 
+       descrizione as description, 
+       concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates,
+       concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates 
+FROM punti_interesse order by name
+EOS;
+    $cmd = "rm -f {$this->getRoot()}/geojson/punti_interesse.geojson"; system($cmd);
+    $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/punti_interesse.geojson $options -sql \"$select\"";
+    system($cmd);
+
 
 // SI ogr2ogr -f GeoJSON punti_appoggio.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, nome as name, localita as locality, quota as ele, descrizione as description, posti as capacity, CASE WHEN acqua = 'Sì' THEN 'yes' ELSE 'no' END as drinking_water, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates from punti_appoggio order by name"
+echo "\nGenerating punti_appoggio.geojson\n";
+$select = <<<EOS
+SELECT ST_Transform(wkb_geometry, 4326) as geom,
+       nome as name, 
+       localita as locality, 
+       quota as ele, 
+       descrizione as description, 
+       posti as capacity, 
+       CASE WHEN acqua = 'Sì' THEN 'yes' ELSE 'no' END as drinking_water, 
+       concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates,
+       concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates 
+FROM punti_appoggio order by name
+EOS;
+    $cmd = "rm -f {$this->getRoot()}/geojson/punti_appoggio.geojson"; system($cmd);
+    $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/punti_appoggio.geojson $options -sql \"$select\"";
+    system($cmd);
 
-// SI ogr2ogr -f GeoJSON sentieri_tratte_sy.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" 
+echo "\nGenerating sentieri_tratte_sy.geojson\n";
     $select = <<<EOS
 SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom, 
         ogc_fid as id, 
@@ -96,9 +142,9 @@ SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom,
         t_ritorno as duration_backword, 
         gr_mont, 
         comuni_toc, 
-        concat('sentieri.sat.tn.it/schede-sentieri?numero=', numero) as web, 
-        concat('sentieri.sat.tn.it/imgviewer?numero=', numero) as image, 
-        concat('sentieri.sat.tn.it/gpx-sentieri?numero=', numero) as gpx 
+        concat('https://sentieri.sat.tn.it/schede-sentieri?numero=', numero) as web, 
+        concat('https://sentieri.sat.tn.it/imgviewer?numero=', numero) as image_gallery, 
+        concat('https://sentieri.sat.tn.it/gpx-sentieri?numero=', numero) as gpx 
 FROM sentieri_tratte  order by ref
 EOS;
     $cmd = "rm -f {$this->getRoot()}/geojson/sentieri_tratte_sy.geojson"; system($cmd);
