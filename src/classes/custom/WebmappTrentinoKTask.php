@@ -43,7 +43,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 file_put_contents($this->project_structure->getRoot() . "geojson/" . $filename, $file);
                 echo "$filename DONE\n";
             } catch (WebmappException $e) {
-                echo "\n$filename WARNING: " . $e->message;
+                echo "\n$filename WARNING: " . $e;
             }
         }
 
@@ -107,7 +107,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     public function addId($file)
     {
         $i = 1;
-        if ($file->type !== "FeatureCollection") {
+        if ($file["type"] !== "FeatureCollection") {
             throw new WebmappExceptionGeoJson("ERROR: Wrong geojson type");
         }
 
@@ -115,8 +115,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             throw new WebmappExceptionGeoJson("ERROR: No features");
         }
 
-        foreach ($file->features as $feature) {
-            $feature->properties->id = $i . "";
+        foreach ($file["features"] as $feature) {
+            $feature["properties"]["id"] = $i . "";
             $i++;
         }
 
@@ -125,7 +125,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
 
     public function addTaxonomy($file, $filename)
     {
-        if ($file->type !== "FeatureCollection") {
+        if ($file["type"] !== "FeatureCollection") {
             throw new WebmappExceptionGeoJson("ERROR: Wrong geojson type");
         }
 
@@ -156,8 +156,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 break;
         }
 
-        foreach ($file->features as $feature) {
-            $feature->properties->taxonomy = $taxonomy;
+        foreach ($file["features"] as $feature) {
+            $feature["properties"]["taxonomy"] = $taxonomy;
         }
 
         return $file;
