@@ -127,9 +127,9 @@ SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom,
         numero as ref, 
         descr as description, 
         dataagg as modified, 
-        competenza, 
+        competenza as operator, 
         concat(numero, ' ', denominaz) as \"name\", 
-        difficolta as scale, 
+        difficolta as cai_scale, 
         loc_inizio as start, 
         loc_fine as end, 
         quota_iniz as ele_from, 
@@ -157,7 +157,7 @@ EOS;
         'ele_min'=>'ele:min',
         'ele_max'=>'ele:max',
         'duration_forward'=>'duration:forward',
-        'duration_backword'=>'duration_backword'
+        'duration_backword'=>'duration:backword'
         );
     $in = file_get_contents($this->getRoot().'/geojson/sentieri_tratte_sy.geojson');
     foreach($to_change as $old => $new) {
@@ -165,7 +165,26 @@ EOS;
     }
     file_put_contents($this->getRoot().'/geojson/sentieri_tratte_sy.geojson', $in);
 
+    echo "\n\n\n CREATING GEOJSON \n\n\n";
+    echo "\nUpdating postgis (closed tracks)\n";
+//  psql -U pgadmin -d sat -h localhost -c "update sentieri_sottotratte set stato='aperto';"
+    echo $cmd = "psql $psql_conn -c \"update sentieri_sottotratte set stato='aperto'\""; system($cmd);
+
+//  psql -U pgadmin -d sat -h localhost -c "
+$update = <<<EOS
+UPDATE sentieri_sottotratte 
+SET stato='chiuso' 
+WHERE ogc_fid IN (
+      SELECT sentieri_sottotratte.ogc_fid 
+      FROM sentieri_sottotratte, sentierichiusitemp  
+      WHERE sentieri_sottotratte.numero = sentierichiusitemp.numero 
+        AND CAST(sentieri_sottotratte.tratta as VARCHAR) = sentierichiusitemp.tratta
+     )
+EOS;
+// echo $cmd = "psql $psql_conn -c 'UPDATE sentieri_sottotratte SET stato=\"chiuso\" WHERE ogc_fid IN (SELECT sentieri_sottotratte.ogc_fid FROM sentieri_sottotratte, sentierichiusitemp WHERE sentieri_sottotratte.numero = sentierichiusitemp.numero AND CAST(sentieri_sottotratte.tratta as VARCHAR) = sentierichiusitemp.tratta );'"; system($cmd);
+    echo $cmd = "psql $psql_conn -c \"$update\""; system($cmd);
     //system("rm -rf ".$this->tmp_path);
+
     return TRUE;
   }
 
