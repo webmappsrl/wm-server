@@ -217,7 +217,7 @@ EOS;
           // /root/work-tiles/tileoven/index.js export sentierisat 
           $mbtiles = $this->getRoot().'/tiles/sentierisat.mbtiles';
           system("rm -f $mbtiles");
-          $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1 --quite --verbose=off";
+          $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1 --quiet --verbose=off";
           echo $cmd = "$tileoven_cmd export sentierisat $mbtiles $options";
           system($cmd);
         }
