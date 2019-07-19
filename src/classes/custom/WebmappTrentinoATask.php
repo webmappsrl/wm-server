@@ -219,9 +219,10 @@ EOS;
           system("rm -f $mbtiles");
           $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1";
           echo $cmd = "$tileoven_cmd export sentierisat $mbtiles $options";
+          system($cmd);
         }
 
-        //system("rm -rf ".$this->tmp_path);
+        system("rm -rf ".$this->tmp_path);
 
         return true;
     }
