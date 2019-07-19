@@ -211,7 +211,7 @@ EOS;
         echo "\n\n\n GENERATING TILES \n\n\n";
         $tileoven_cmd = '/root/work-tiles/tileoven/index.js';
         if (!file_exists($tileoven_cmd)) {
-          echo "\n$tileoven_cmd does not exixts! Run task in production environment\n"
+          echo "\n$tileoven_cmd does not exixts! Run task in production environment\n";
         } else {
           echo "Using tileoven @ $tileoven_cmd\n";
         }
