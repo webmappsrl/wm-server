@@ -198,6 +198,24 @@ EOS;
 // echo $cmd = "psql $psql_conn -c 'UPDATE sentieri_sottotratte SET stato=\"chiuso\" WHERE ogc_fid IN (SELECT sentieri_sottotratte.ogc_fid FROM sentieri_sottotratte, sentierichiusitemp WHERE sentieri_sottotratte.numero = sentierichiusitemp.numero AND CAST(sentieri_sottotratte.tratta as VARCHAR) = sentierichiusitemp.tratta );'"; system($cmd);
         echo $cmd = "psql $psql_conn -c \"$update\"";
         system($cmd);
+
+        # export mbtiles dei sentierisat (su server):
+// cd /root/api.webmapp.it/trentino/tiles/
+// rm sentierisat.mbtiles sentierisat.zip
+// /root/work-tiles/tileoven/index.js export sentierisat /root/api.webmapp.it/trentino/tiles/sentierisat.mbtiles --format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1
+// rm sentierisat.export-failed sentierisat.export
+// mb-util --grid_callback="" sentierisat.mbtiles sentierisat_temp
+// rm -rf sentierisat_old_utfgrid
+// mv sentierisat_new_utfgrid sentierisat_old_utfgrid
+// mv sentierisat_temp sentierisat_new_utfgrid
+        echo "\n\n\n GENERATING TILES \n\n\n";
+        $tileoven_cmd = '/root/work-tiles/tileoven/index.js';
+        if (!file_exists($tileoven_cmd)) {
+          echo "\n$tileoven_cmd does not exixts! Run task in production environment\n"
+        } else {
+          echo "Using tileoven @ $tileoven_cmd\n";
+        }
+
         //system("rm -rf ".$this->tmp_path);
 
         return true;
