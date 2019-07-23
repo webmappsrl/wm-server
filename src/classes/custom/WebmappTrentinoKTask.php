@@ -90,7 +90,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "is_parent" => false,
                 "locale" => "it",
                 "color" => "#767A71",
-                "icon" => "wm-icon-generic",
+                "icon" => "wm-icon-star2",
                 "image" => "https://k.webmapp.it/trentino/media/images/sat_localita.jpg",
             ),
         );
@@ -111,7 +111,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 "taxonomy" => "activity",
                 "is_parent" => false,
                 "locale" => "it",
-                "color" => "#588248",
+                "color" => "#387EF5",
                 "icon" => "wm-icon-trail",
                 "image" => "https://k.webmapp.it/trentino/media/images/sat_itinerari.jpg",
             ),
