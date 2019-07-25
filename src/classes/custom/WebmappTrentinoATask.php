@@ -176,6 +176,9 @@ EOS;
         foreach ($to_change as $old => $new) {
             $in = preg_replace("/$old/", $new, $in);
         }
+
+        $in = preg_replace("/\"web\":([^,]*)/", "\"related_url\": [$1]", $in);
+
         file_put_contents($this->getRoot() . '/geojson/sentieri_tratte.geojson', $in);
 
         echo "\n\n\n CREATING GEOJSON \n\n\n";
@@ -200,30 +203,30 @@ EOS;
         system($cmd);
 
         # export mbtiles dei sentierisat (su server):
-// cd /root/api.webmapp.it/trentino/tiles/
-// rm sentierisat.mbtiles sentierisat.zip
-// /root/work-tiles/tileoven/index.js export sentierisat /root/api.webmapp.it/trentino/tiles/sentierisat.mbtiles --format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1
-// rm sentierisat.export-failed sentierisat.export
-// mb-util --grid_callback="" sentierisat.mbtiles sentierisat_temp
-// rm -rf sentierisat_old_utfgrid
-// mv sentierisat_new_utfgrid sentierisat_old_utfgrid
-// mv sentierisat_temp sentierisat_new_utfgrid
+        // cd /root/api.webmapp.it/trentino/tiles/
+        // rm sentierisat.mbtiles sentierisat.zip
+        // /root/work-tiles/tileoven/index.js export sentierisat /root/api.webmapp.it/trentino/tiles/sentierisat.mbtiles --format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1
+        // rm sentierisat.export-failed sentierisat.export
+        // mb-util --grid_callback="" sentierisat.mbtiles sentierisat_temp
+        // rm -rf sentierisat_old_utfgrid
+        // mv sentierisat_new_utfgrid sentierisat_old_utfgrid
+        // mv sentierisat_temp sentierisat_new_utfgrid
         echo "\n\n\n GENERATING TILES \n\n\n";
         $tileoven_cmd = "/mnt/webmapp-server-data-1/work-tiles/tileoven/index.js";
         // $tileoven_cmd = '/root/work-tiles/tileoven/index.js';
         if (!file_exists($tileoven_cmd)) {
-          echo "\n$tileoven_cmd does not exixts! Run task in production environment\n";
+            echo "\n$tileoven_cmd does not exixts! Run task in production environment\n";
         } else {
-          echo "Using tileoven @ $tileoven_cmd\n";
-          // /root/work-tiles/tileoven/index.js export sentierisat 
-          $mbtiles = $this->getRoot().'/tiles/sentierisat.mbtiles';
-          system("rm -f $mbtiles");
-          $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1 --quiet --verbose=off";
-          echo $cmd = "$tileoven_cmd export sentierisat $mbtiles $options";
-          system($cmd);
+            echo "Using tileoven @ $tileoven_cmd\n";
+            // /root/work-tiles/tileoven/index.js export sentierisat
+            $mbtiles = $this->getRoot() . '/tiles/sentierisat.mbtiles';
+            system("rm -f $mbtiles");
+            $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1 --quiet --verbose=off";
+            echo $cmd = "$tileoven_cmd export sentierisat $mbtiles $options";
+            system($cmd);
         }
 
-        system("rm -rf ".$this->tmp_path);
+        system("rm -rf " . $this->tmp_path);
 
         return true;
     }
