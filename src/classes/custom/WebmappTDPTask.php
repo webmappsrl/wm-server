@@ -371,6 +371,14 @@ private function processAttrazioniInTerritori() {
                     $poi->addProperty('color','#FFC0B6');
                     $poi->addProperty('web',$atdata['link']);
                     $poi->addProperty('source', "http://www.terredipisa.it/wp-json/wp/v2/attrazione/".$atid);
+
+                    // Gestione della immagine
+                    if (isset($atdata['featured_media'])) {
+                        $media_url = "http://www.terredipisa.it/wp-json/wp/v2/media/".$atdata['featured_media'];
+                        $media = WebmappUtils::getJsonFromApi($media_url);
+                        $poi->addProperty('image',$media['media_details']['sizes']['medium']['source_url']);
+                    }
+
                     $l->addFeature($poi);                    
                 }
 
