@@ -21,6 +21,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
     self::processAttrazioni();
     self::processMembers();
     self::processEvents();
+    self::processAttrazioniInTerritori();
 
     echo "\n\nDONE!\n\n";
 
@@ -120,10 +121,11 @@ private function processTerritori() {
         self::translateItem($ja,$id);
 
         $this->all_territori->addFeature($poi);
-            // $cat_id = $ja['categories'][0];
+        // $cat_id = $ja['categories'][0];
         $cat_id=88;
         $l=$this->categories[$cat_id];
         $l->addFeature($poi);
+
     }
 
     foreach ($this->categories as $id => $l) {
@@ -186,16 +188,16 @@ private function processAttrazioni() {
             echo "Adding POI($poi_id) to attrazione(".$item['ID'].")\n";
             if(array_key_exists($item['ID'],$attrazioni_layers)) {
                 $attrazioni_layers[$item['ID']]->addFeature($this->all_territori->getFeature($poi_id));
-            }
-        }            
-    }
-}
-        // Writing Layers
+                }
+            }            
+        }
+    }   
+// Writing Layers
 foreach ($attrazioni_layers as $id => $attrazione_layer) {
     echo "Writing layer $id\n";
     $attrazione_layer->write($path);
     $this->translateItem($attrazioni_jas[$id],$id);
-}
+    }
 }
 private function processMembers() {
     echo "\n\n\n Processing Members \n\n";
@@ -320,6 +322,78 @@ private function translateItem($ja,$id) {
             }
         }
 
+}
+
+private function processAttrazioniInTerritori() {
+
+    self::banner('processAttrazioniInTerritori');
+
+    // Creazione del geojson con le attrazioni related
+    // ACF: territorio_attrazioni_rel
+    // URL: http://www.terredipisa.it/wp-json/wp/v2/attrazione/$id
+    // File da caricare: geojson/{$tid}_attrazioni.geojson
+
+    // $attrazioni_layer = new WebmappLayer('Attrazioni');
+    $url = 'http://www.terredipisa.it/wp-json/wp/v2/territorio/';
+    $ts = WebmappUtils::getMultipleJsonFromApi($url);
+
+    // LOOP sui territori
+    foreach ($ts as $t) {
+        $tid=$t['id'];
+        $tname=$t['title']['rendered'];
+        echo "Creating attrazioni geojson for territorio $tid ($tname) ... ";
+        // Crea Layer
+        $l = new WebmappLayer($tid.'_attrazioni',$this->getRoot().'/geojson');
+
+        // TODO: Loop su attrazioni (aggiunta POI)
+        if(isset($t['acf']['territorio_attrazioni_rel']) &&
+           is_array($t['acf']['territorio_attrazioni_rel']) &&
+           count($t['acf']['territorio_attrazioni_rel'])>0 ) {
+            $count = 0;
+            foreach($t['acf']['territorio_attrazioni_rel'] as $at) {
+                $atid=$at['ID'];
+                $atdata = WebmappUtils::getJsonFromApi("http://www.terredipisa.it/wp-json/wp/v2/attrazione/$atid");
+                // x le coord: page_attrazione_geolocalizzazione
+                if(isset($atdata['acf']['page_attrazione_geolocalizzazione']) && 
+                    isset($atdata['acf']['page_attrazione_geolocalizzazione']['lat']) &&
+                    isset($atdata['acf']['page_attrazione_geolocalizzazione']['lng'])) {
+                    $count ++;
+                    $lat = $atdata['acf']['page_attrazione_geolocalizzazione']['lat'];
+                    $lng = $atdata['acf']['page_attrazione_geolocalizzazione']['lng'];
+
+                    // TODO: Mapping (vedi attrazioni) and adding to layer
+                    $j['id']=$atdata['id'];
+                    $j['title']['rendered']=$atdata['title']['rendered'];
+                    $j['content']['rendered']=$atdata['content']['rendered'];
+                    $j['n7webmap_coord']['lng']=$lng;
+                    $j['n7webmap_coord']['lat']=$lat;
+                    $poi = new WebmappPoiFeature($j);
+                    $poi->addProperty('color','#FFC0B6');
+                    $poi->addProperty('web',$atdata['link']);
+                    $poi->addProperty('source', "http://www.terredipisa.it/wp-json/wp/v2/attrazione/".$atid);
+                    $l->addFeature($poi);                    
+                }
+
+            } 
+            echo "adding $count attrazioni";
+        } else {
+            echo "no territorio_attrazioni_rel elements found";
+        }
+        // Scrivi layer 
+        $l->write();
+
+        echo "\n";
+    }
+
+}
+
+private function banner($s) {
+    echo str_repeat("\n",4);
+    echo str_repeat("=",50);
+    echo "\n$s\n";
+    echo str_repeat("=",50);
+    echo str_repeat("\n",4);
+    return;
 }
 
 
