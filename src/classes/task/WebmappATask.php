@@ -86,8 +86,53 @@ private function processTaxonomies() {
     $this->wp->loadTaxonomies();
     $this->wp->addItemsAndPruneTaxonomies($this->taxonomies);
     $this->wp->writeTaxonomies($this->tax_path);
+
+    // Creates /taxonomies/[term_id].geojson
+    $this->writeTaxonomyCollection('webmapp_category','poi');
+    $this->writeTaxonomyCollection('activity','track');
+    $this->writeTaxonomyCollection('theme','track');
+    $this->writeTaxonomyCollection('when','track');
+    $this->writeTaxonomyCollection('where','track');
+    $this->writeTaxonomyCollection('who','track');
+
 }
 
+private function writeTaxonomyCollection($taxn,$feature_type) {
+    // Controlla esistenza del file di tassonomia con i singoli termini -> load
+    $taxf = $this->tax_path.'/'.$taxn.'.json';
+    if(!file_exists($taxf)) {
+        echo "WARN: $taxf does not exists\n";
+        return;
+    }
+    echo "Writing taxonomy collection $taxf\n";
+    $taxj = WebmappUtils::getJsonFromAPI($taxf);
+    if(is_array($taxj) && count($taxj)>0) {
+    // Loop sui singoli termini
+        foreach ($taxj as $termid => $term) {
+          // Controlla esistenza degli items del tipo richiesto (count >0) -> aggiungi feature al layer
+            echo "Processing term $termid ... ";
+            $features = array();
+            if(isset($term['items'][$feature_type]) && 
+                is_array($term['items'][$feature_type]) &&
+                count($term['items'][$feature_type])>0) {
+                    echo "adding features ";
+                    foreach ($term['items'][$feature_type] as $fid) {
+                        $features[]=WebmappUtils::getJsonFromApi($this->path.'/'.$fid.'.geojson');
+                    }
+            }
+            else {
+                echo "no features found ";
+            }
+          // Scrivi Layer
+            echo " ... writing ";
+            $l=array();
+            $l['type']='featureCollection';
+            $l['features']=$features;
+            file_put_contents($this->tax_path.'/'.$termid.'.geojson', json_encode($l));
+            echo " DONE!\n";
+        }
+    }
+}
 
 private function processFeatures($type) {
     $pois = $this->getListByType($type);
