@@ -246,10 +246,37 @@ class WebmappWP {
 	// CONTROLLI DI RISPOSTA DALLA PIATTAFORMA
 
 	private function checkUrl($url) {
-		$a = get_headers($url);
-		$match = (preg_match('/200|301/', $a[0]));
+		$url=$url.'/wp-json/wp/v2';
+		$ch = curl_init();
+		$headers = [];
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+
+		// this function is called by curl for each header received
+		curl_setopt($ch, CURLOPT_HEADERFUNCTION,
+		  function($curl, $header) use (&$headers)
+		  {
+		    $len = strlen($header);
+		    $header = explode(':', $header, 2);
+		    if (count($header) < 2) // ignore invalid headers
+		      return $len;
+
+		    $headers[strtolower(trim($header[0]))][] = trim($header[1]);
+
+		    return $len;
+		  }
+		);
+
+		$data = curl_exec($ch);
+		//print_r($headers);
+		$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		//echo "CODE $httpcode\n\n\n\n";
+
+		$match = (preg_match('/200|301/', $httpcode));
 		if($match==0) {
-			echo "\n\nWARN: header[0] ! 200:" .$a[0]. "\n\n";
+			echo "\n\nWARN: header[0] ! 200:" .$httpcode. "\n\n";
 			return false;
 		}
 		return true;
