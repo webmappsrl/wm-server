@@ -246,7 +246,6 @@ class WebmappWP {
 	// CONTROLLI DI RISPOSTA DALLA PIATTAFORMA
 
 	private function checkUrl($url) {
-		$url=$url.'/wp-json/wp/v2';
 		$ch = curl_init();
 		$headers = [];
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -284,7 +283,8 @@ class WebmappWP {
 	}
 
 	public function check() {
-		return $this->checkUrl($this->base_url);
+		$url=$this->base_url.'/wp-json/wp/v2';
+		return $this->checkUrl($url);
 	}
 
 	public function checkPoi($id) {
