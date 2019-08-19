@@ -266,6 +266,7 @@ private function processRouteIndex() {
                 }
             } else {
                 echo "Warning no RELATED TRACK\n";
+                $skip = true;
             }
             if(!$skip) $features[]=$feature;
         }
