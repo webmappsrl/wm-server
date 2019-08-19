@@ -241,6 +241,8 @@ private function processRouteIndex() {
     // Lista delle route:
     $routes = $this->getListByType('route');
     $features = array();
+    $to_prune = array();
+
     if(count($routes)>0){
         foreach ($routes as $rid => $date) {
             $skip = false;
@@ -269,13 +271,38 @@ private function processRouteIndex() {
                 $skip = true;
             }
             if(!$skip) $features[]=$feature;
+            if($skip) $to_prune[]=$rid;
         }
         $j=array();
         $j['type']='FeatureCollection';
         $j['features']=$features;
         file_put_contents($this->path.'/route_index.geojson',json_encode($j));
+
+        // PRUNE taxonomies items
+        if(count($to_prune)>0){
+            $this->pruneTax('activity',$to_prune);
+            $this->pruneTax('theme',$to_prune);
+            $this->pruneTax('who',$to_prune);
+            $this->pruneTax('when',$to_prune);
+            $this->pruneTax('where',$to_prune);
+        }
     }
 }
+
+private function pruneTax($name,$to_prune) {
+    $tax_file = $this->tax_path . '/' . $name . '.json';
+    if(file_exists($tax_file)) {
+        $ja=WebmappUtils::getJsonFromApi($tax_file);
+        foreach($ja as $id => $term) {
+            if(isset($term['items']['route']) && count($term['items']['route'])>0) {
+                $ja[$id]['items']['route']=array_diff($term['items']['route'],$to_prune);
+            }
+
+        }
+        file_put_contents($tax_file, json_encode($ja));
+    }
+}
+
 private function processPoiIndex() {
     // Lista delle route:
     $pois = $this->getListByType('poi');
