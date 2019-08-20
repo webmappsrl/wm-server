@@ -278,14 +278,14 @@ private function processRouteIndex() {
         $j['features']=$features;
         file_put_contents($this->path.'/route_index.geojson',json_encode($j));
 
-        // PRUNE taxonomies items
-        if(count($to_prune)>0){
-            $this->pruneTax('activity',$to_prune);
-            $this->pruneTax('theme',$to_prune);
-            $this->pruneTax('who',$to_prune);
-            $this->pruneTax('when',$to_prune);
-            $this->pruneTax('where',$to_prune);
-        }
+        // // PRUNE taxonomies items
+        // if(count($to_prune)>0){
+        //     $this->pruneTax('activity',$to_prune);
+        //     $this->pruneTax('theme',$to_prune);
+        //     $this->pruneTax('who',$to_prune);
+        //     $this->pruneTax('when',$to_prune);
+        //     $this->pruneTax('where',$to_prune);
+        // }
     }
 }
 
