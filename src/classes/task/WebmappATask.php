@@ -223,13 +223,19 @@ private function processTrack($id) {
 
 private function processRoute($id) {
     $r = new WebmappRoute($this->wp->getApiRoute($id));
-    $r->writeToPostGis();
-    $r->addBBox();
-    $r->generateAllImages('',$this->route_path);
-    $j=json_decode($r->getJson(),TRUE);
-    if (isset($j['properties']['taxonomy']))
-        $this->taxonomies['route'][$id]=$j['properties']['taxonomy'];
-    $r->write($this->path);
+    // SKIP NO TRACK
+    if (count($r->getTracks())>0){
+        $r->writeToPostGis();
+        $r->addBBox();
+        $r->generateAllImages('',$this->route_path);
+        $j=json_decode($r->getJson(),TRUE);
+        if (isset($j['properties']['taxonomy']))
+            $this->taxonomies['route'][$id]=$j['properties']['taxonomy'];
+        $r->write($this->path);        
+    }
+    else {
+        echo "NO TRACKS FOUND: skipping route\n";
+    }
 
 }
 
