@@ -174,7 +174,7 @@ private function addTaxonomy($name) {
 	if (isset($this->json_array[$name]) &&
 		is_array($this->json_array[$name]) &&
 		count($this->json_array[$name])>0) {
-			$this->properties['taxonomy'][$name]=array_unique($this->json_array[$name]);
+			$this->properties['taxonomy'][$name]=array_values(array_unique($this->json_array[$name]));
 	}       
 }
 
