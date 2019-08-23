@@ -297,7 +297,6 @@ private function pruneTax($name,$to_prune) {
             if(isset($term['items']['route']) && count($term['items']['route'])>0) {
                 $ja[$id]['items']['route']=array_diff($term['items']['route'],$to_prune);
             }
-
         }
         file_put_contents($tax_file, json_encode($ja));
     }

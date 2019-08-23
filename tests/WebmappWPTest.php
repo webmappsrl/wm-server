@@ -320,4 +320,5 @@ class WebmappWPTest extends TestCase
 		$this->assertEquals('Alte Kirchen',$wm_cat[32]['translations']['de']['name']);
 
 	}
+
 }
