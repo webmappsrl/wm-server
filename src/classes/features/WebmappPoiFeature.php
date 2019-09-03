@@ -158,7 +158,7 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 
     // Restituisce gli id dei POI all'interno del cerchio centrato in 
     // lon lat di raggio distance
-    public function getNeighborsByLonLat($distance, $lon, $lat, $instance='') {
+    public function getNeighborsByLonLat($distance, $lon, $lat, $instance_id='') {
         // Gestione della ISTANCE ID
         if(empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
@@ -167,7 +167,7 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         echo $q = "SELECT poi_id
               FROM  poi
               WHERE ST_Distance_Sphere(geom, ST_GeomFromText('POINT($lon $lat )', 4326)) < $distance
-              AND instance_id='$instance';";
+              AND instance_id='$instance_id';";
 
         // Esecuzione della query
         $pg = WebmappPostGis::Instance();
