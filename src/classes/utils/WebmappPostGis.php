@@ -70,9 +70,10 @@ final class WebmappPostGis
     // TODO: inserire anche ele
     public function insertPoi($instance_id, $poi_id, $lon, $lat)
     {
+        $poi_id = (int) $poi_id;
         $q = "
 		INSERT INTO poi(instance_id,poi_id, geom)
-		VALUES('$instance_id',$poi_id, ST_GeomFromText('POINT($lon $lat )', 4326))
+		VALUES('$instance_id','$poi_id', ST_GeomFromText('POINT($lon $lat )', 4326))
 		ON CONFLICT (instance_id,poi_id) DO
 		   UPDATE SET geom=ST_GeomFromText('POINT($lon $lat )', 4326)
 		;";

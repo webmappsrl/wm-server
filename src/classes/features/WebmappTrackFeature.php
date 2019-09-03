@@ -159,6 +159,27 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $this->addProperty('computed',$computed);
     }
 }
+    public function setComputedProperties2($instance_id='') {
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+
+            if(isset($this->geometry['coordinates']) &&
+                count($this->geometry['coordinates'])>0) {
+                $distance=$ascent=$descent=$ele_from=$ele_to=$ele_min=$ele_max=0;
+                $distance = $this->computeDistanceSpheroid($instance_id);
+                $computed = array(
+                    'distance' => $distance,
+                    'ascent' => $ascent,
+                    'descent' => $descent,
+                    'ele:from' => $ele_from,
+                    'ele:to' => $ele_to,
+                    'ele:min' => $ele_min,
+                    'ele:max' => $ele_max
+                    );
+                $this->addProperty('computed',$computed);
+    }
+}
 
 
         // COnvert geom to 3d geom (only if needed)
@@ -344,9 +365,27 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
             $pg = WebmappPostGis::Instance();
             $q= "SELECT ST_Length(ST_Transform(geom,3857)) as l
-                     FROM track 
-                     WHERE track_id={$this->getId()} AND 
-                     instance_id='$instance_id';";
+                 FROM track 
+                 WHERE track_id={$this->getId()} AND 
+                       instance_id='$instance_id';";
+            $r=$pg->select($q);
+            if(count($r)>0){
+                $l=$r[0]['l'];
+            }
+            return $l;
+        }
+
+        public function computeDistanceSpheroid($instance_id='') {
+            //ST_Length(ST_Transform(geom,3857))
+            $l = 0;
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+            $pg = WebmappPostGis::Instance();
+            $q= "SELECT ST_LengthSpheroid(geom,'SPHEROID[\"WGS_1984\",6378137,298.257223563]') as l
+                 FROM track 
+                 WHERE track_id={$this->getId()} AND 
+                       instance_id='$instance_id';";
             $r=$pg->select($q);
             if(count($r)>0){
                 $l=$r[0]['l'];

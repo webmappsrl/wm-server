@@ -406,4 +406,38 @@ class WebmappTrackFeatureTests extends TestCase {
         //     // TEST(S)
         // }
 
+        public function testAscDesc() {
+            // Prepare TEST
+            $pg=WebmappPostGis::Instance();
+            $pg->clearTables('test');
+            $j['id']=1;
+            $j['title']['rendered']='testAscDesc';
+            $t=new WebmappTrackFeature($j,true);
+
+            // LOAD DATA
+            $geojson = WebmappUtils::getJsonFromApi(dirname(__FILE__).'/fixtures/AscianoMirtetoRagnaieAscdesc.geojson');
+            $this->assertTrue(isset($geojson['features'][0]['geometry']));
+            $t->setGeometryGeoJSON(json_encode($geojson['features'][0]['geometry']));
+            $t->writeToPostGis('test');
+
+            // PERFORM OPERATIONS
+            $t->setComputedProperties2('test');
+
+            // TEST(S)
+            // d=5,82 Km
+            // d+=324 m
+            // d-=310
+            // Q0=2m
+            // QN=16m
+            // Qmin=2m
+            // Qmax=331m
+
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties']));
+            $p=$j['properties'];
+            $this->assertTrue(isset($p['computed']));
+            $this->assertTrue(abs(5820-$p['computed']['distance'])<100);
+
+        }
+
 }

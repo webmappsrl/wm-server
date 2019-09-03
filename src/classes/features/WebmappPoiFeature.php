@@ -117,6 +117,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
     public function getLng(){
        return $this->geometry['coordinates'][0]; 
     }
+    public function getLon(){
+       return $this->getLng(); 
+    }
     public function getLatMax(){return $this->getLat();}
     public function getLatMin(){return $this->getLat();}
     public function getLngMax(){return $this->getLng();}
@@ -151,6 +154,32 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
               ORDER BY distance
               $limit ;";
         $this->addRelatedPoi($q);
+    }
+
+    // Restituisce gli id dei POI all'interno del cerchio centrato in 
+    // lon lat di raggio distance
+    public function getNeighborsByLonLat($distance, $lon, $lat, $instance='') {
+        // Gestione della ISTANCE ID
+        if(empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        // Contruzione della query
+        echo $q = "SELECT poi_id
+              FROM  poi
+              WHERE ST_Distance_Sphere(geom, ST_GeomFromText('POINT($lon $lat )', 4326)) < $distance
+              AND instance_id='$instance';";
+
+        // Esecuzione della query
+        $pg = WebmappPostGis::Instance();
+        $res = $pg->select($q);
+        $ret = array();
+        if(is_array($res) && count($res)>0) {
+            foreach ($res as $item) {
+                $ret[]=$item['poi_id'];
+            }
+        }
+        return $ret;
+
     }
 
     public function addEle() {

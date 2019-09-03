@@ -5,14 +5,16 @@ class WebmappTDPTask extends WebmappAbstractTask {
     private $categories = array();
     private $pois;
     private $all_territori;
+    private $all_member_layer;
 
     public function check() {
       return TRUE;
   }
 
   public function process(){
+    $this->banner('START TASK');
+
     $this->all_territori = new WebmappLayer('Territori');
-    echo "\n\n Processing\n\n";
 
     self::setCategories();
     self::processTerritori();
@@ -22,8 +24,9 @@ class WebmappTDPTask extends WebmappAbstractTask {
     self::processMembers();
     self::processEvents();
     self::processAttrazioniInTerritori();
+    self::processMembersInTerritori();
 
-    echo "\n\nDONE!\n\n";
+    $this->banner('DONE');
 
     return TRUE;
 }
@@ -192,19 +195,56 @@ private function processAttrazioni() {
             }            
         }
     }   
-// Writing Layers
-foreach ($attrazioni_layers as $id => $attrazione_layer) {
-    echo "Writing layer $id\n";
-    $attrazione_layer->write($path);
-    $this->translateItem($attrazioni_jas[$id],$id);
+// Writing ATTRAZIONI AS LAYERS (for missing)
+    foreach ($attrazioni_layers as $id => $attrazione_layer) {
+        echo "Writing layer $id\n";
+        $attrazione_layer->write($path);
+        $this->translateItem($attrazioni_jas[$id],$id);
     }
+
+    // Nuovo loop sulle attrazioni: se c'è localizzazione settata viene riscritto il file
+    // (e ritradotto)
+    foreach ($attrazioni as $ja) {
+        if(isset($ja['acf']['page_attrazione_geolocalizzazione']) && 
+           isset($ja['acf']['page_attrazione_geolocalizzazione']['lat']) &&
+           isset($ja['acf']['page_attrazione_geolocalizzazione']['lng'])) {
+            $id=$ja['id'];
+            $source = "http://www.terredipisa.it/wp-json/wp/v2/attrazione/".$id;
+
+            echo "Processing ATTRAZIONE $id with lat lon\n";
+            $j=array();
+            $j['id']=$ja['id'];
+            $j['title']['rendered']=$ja['title']['rendered'];
+            $j['content']['rendered']=$ja['content']['rendered'];
+            $j['n7webmap_coord']['lng']=$ja['acf']['page_attrazione_geolocalizzazione']['lng'];
+            $j['n7webmap_coord']['lat']=$ja['acf']['page_attrazione_geolocalizzazione']['lat'];
+
+            $poi = new WebmappPoiFeature($j);
+            $poi->addProperty('color','#F6A502');
+            $poi->addProperty('web',$ja['link']);
+            $poi->addProperty('source',$source);
+
+            // Gestione della immagine
+            if (isset($ja['featured_media'])) {
+                $media_url = "http://www.terredipisa.it/wp-json/wp/v2/media/".$ja['featured_media'];
+                $media = WebmappUtils::getJsonFromApi($media_url);
+                $poi->addProperty('image',$media['media_details']['sizes']['medium']['source_url']);
+            } else { 
+                echo "no image\n";
+            }
+
+            $poi->write($path);
+            self::translateItem($ja,$id);
+        }
+    }
+
 }
 private function processMembers() {
     echo "\n\n\n Processing Members \n\n";
     $path = $this->getRoot().'/geojson/';
     $members_url = 'http://www.terredipisa.it/wp-json/wp/v2/users/';
     $members = WebmappUtils::getMultipleJsonFromApi($members_url);
-    $all_member_layer = new WebmappLayer('Members');
+    $this->all_member_layer = new WebmappLayer('Members');
     $tot = 0;
     $tot_added = 0;
     foreach($members as $m) {
@@ -227,12 +267,13 @@ private function processMembers() {
         $poi->addProperty('color','#E43322');
         $poi->addProperty('web',preg_replace('|/author/|', '/user/', $m['link']));
         $poi->write($path);
-        $all_member_layer->addFeature($poi);
+        $poi->writeToPostGis();
+        $this->all_member_layer->addFeature($poi);
     } else {
         echo "SKIPPING member $name (ID:$id)\n";
     }
 }
-$all_member_layer->write($path);
+$this->all_member_layer->write($path);
 echo "\n\nTOTAL MEBMER $tot - ADDED $tot_added\n";
 }
 
@@ -391,6 +432,23 @@ private function processAttrazioniInTerritori() {
         $l->write();
 
         echo "\n";
+    }
+
+}
+private function processMembersInTerritori() {
+
+    self::banner('processMembersInTerritori');
+    foreach($this->all_territori->getFeatures() as $t) {
+        $tid = $t->getId();
+        $l = new WebmappLayer($tid.'_members',$this->getRoot().'/geojson');
+        // Esegui la query postgis per trovare i member vicini
+        $results = $t->getNeighborsByLonLat(5000,$t->getLon(),$t->getLat());
+        if(is_array($results) && count($results)>0) {
+            foreach($results as $mid) {
+                $l->addFeature($this->all_member_layer->getFeature($mid.'_user'));
+            }
+        }
+        $l->write();
     }
 
 }
