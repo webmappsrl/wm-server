@@ -409,7 +409,7 @@ private function processAttrazioniInTerritori() {
                     $j['n7webmap_coord']['lng']=$lng;
                     $j['n7webmap_coord']['lat']=$lat;
                     $poi = new WebmappPoiFeature($j);
-                    $poi->addProperty('color','#FFC0B6');
+                    $poi->addProperty('color','#009551');
                     $poi->addProperty('web',$atdata['link']);
                     $poi->addProperty('source', "http://www.terredipisa.it/wp-json/wp/v2/attrazione/".$atid);
 
