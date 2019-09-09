@@ -462,4 +462,26 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
+        public function testHas3D() {
+            // CASO 1 no geometria
+            $j['id']=1;
+            $j['title']['rendered']='testHasGeometry';
+            $t = new WebmappTrackFeature($j,true);
+            $this->assertFalse($t->has3D());
+
+            // CASO 2 geometria senza 3D
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+            $this->assertFalse($t->has3D());
+
+            // CASO 3 calcolo il 3D
+            $t->add3D();
+            $this->assertTrue($t->has3D());
+
+            // CASO 4 geometria con 3d
+            $geojson = WebmappUtils::getJsonFromApi(dirname(__FILE__).'/fixtures/AscianoMirtetoRagnaieAscdesc.geojson');
+            $this->assertTrue(isset($geojson['features'][0]['geometry']));
+            $t->setGeometryGeoJSON(json_encode($geojson['features'][0]['geometry']));
+            $this->assertTrue($t->has3D());
+        }
+
 }

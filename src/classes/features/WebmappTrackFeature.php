@@ -53,6 +53,27 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
          }
          public function setGeometry($geometry){$this->geometry=$geometry;}
 
+         public function add3D() {
+            if($this->hasGeometry()) {
+                $pg = WebmappPostGis::Instance();
+                $this->geometry=json_decode($pg->addEle(json_encode($this->geometry)),TRUE);                
+            }
+         }
+         public function has3D() {
+            if(empty($this->geometry)) {
+                return false;
+            }
+            if(isset($this->geometry['coordinates']) &&
+                is_array($this->geometry['coordinates']) &&
+                count($this->geometry['coordinates'])>0 &&
+                is_array($this->geometry['coordinates'][0]) &&
+                count($this->geometry['coordinates'][0])>=3) {
+                return true;
+            }
+            return false;
+
+         }
+
          private function computeBB() {
             $coords = $this->geometry['coordinates'];
             $first = true;
