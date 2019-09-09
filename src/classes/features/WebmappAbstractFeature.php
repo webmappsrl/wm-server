@@ -87,6 +87,9 @@ abstract class WebmappAbstractFeature {
     public function getGeometry() {
         return $this->geometry;
     }
+    public function hasGeometry() {
+        return !empty($this->geometry);
+    }
 
     // Setters
     public function setImage($url) {

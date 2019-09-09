@@ -424,11 +424,8 @@ class WebmappTrackFeatureTests extends TestCase {
             $t->setComputedProperties2('test');
 
             // TEST(S)
-            // d=5,82 Km
             // d+=324 m
             // d-=310
-            // Q0=2m
-            // QN=16m
             // Qmin=2m
             // Qmax=331m
 
@@ -436,7 +433,32 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertTrue(isset($j['properties']));
             $p=$j['properties'];
             $this->assertTrue(isset($p['computed']));
+
+            // distance tolleranza: 100 m
+            // d=5,82 Km
+            $this->assertTrue(isset($p['computed']['distance']));
             $this->assertTrue(abs(5820-$p['computed']['distance'])<100);
+
+            // ele:from tolleranza: 10 m
+            // Q0=2m
+            $this->assertTrue(isset($p['computed']['ele:from']));
+            $this->assertTrue(abs(2-$p['computed']['ele:from'])<10);
+
+            // ele:to tolleranza: 10 m
+            // QN=16m
+            $this->assertTrue(isset($p['computed']['ele:to']));
+            $this->assertTrue(abs(16-$p['computed']['ele:to'])<10);
+
+        }
+
+        public function testHasGeometry() {
+            $j['id']=1;
+            $j['title']['rendered']='testHasGeometry';
+            $t = new WebmappTrackFeature($j,true);
+            $this->assertFalse($t->hasGeometry());
+
+            $t1 = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+            $this->assertTrue($t1->hasGeometry());
 
         }
 

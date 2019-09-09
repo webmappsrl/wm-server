@@ -280,6 +280,18 @@ class WebmappPoiFeatureTest extends TestCase {
             $this->assertEquals('http://bicievacanze.be.webmapp.it/wp-content/uploads/2019/05/Piazza-della-scala-ENG.mp3',$ja['properties']['translations']['en']['audio']);
         }
 
+        public function testHasGeometry() {
+            $j['id']=1;
+            $j['title']['rendered']='testHasGeometry';
+            $p = new WebmappPoiFeature($j,true);
+            $this->assertFalse($p->hasGeometry());
+
+            $wp_url = 'http://bicievacanze.be.webmapp.it/wp-json/wp/v2/poi/1183';
+            $poi = new WebmappPoiFeature($wp_url);
+            $this->assertTrue($poi->hasGeometry());
+
+        }
+
 
 
 
