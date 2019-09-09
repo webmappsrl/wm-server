@@ -81,9 +81,11 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         exec($cmd);
 
         echo " OK\n";
-        echo "Copying favicon.png...     ";
+        echo "Copying favicon.png and splash.png...     ";
 
         $cmd = "cp {$this->path}/resources/icon.png {$this->path}/core/assets/icon/favicon.png";
+        exec($cmd);
+        $cmd = "cp {$this->path}/resources/splash.png {$this->path}/core/assets/icon/splash.png";
         exec($cmd);
 
         echo " OK\n";
