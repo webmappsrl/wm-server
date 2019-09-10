@@ -35,4 +35,8 @@ class WebmappExceptionPostgisNoFeature extends WebmappException {}
 class WebmappExceptionGeoJson extends WebmappException {}
 class WebmappExceptionGeoJsonBadGeomType extends WebmappException {}
 
+// Features
+class WebmappExceptionFeatures extends WebmappException {}
+class WebmappExceptionFeaturesNoGeometry extends WebmappExceptionFeatures {}
+
 ?>

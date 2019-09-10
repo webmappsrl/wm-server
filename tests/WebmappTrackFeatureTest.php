@@ -442,12 +442,12 @@ class WebmappTrackFeatureTests extends TestCase {
             // ele:from tolleranza: 10 m
             // Q0=2m
             $this->assertTrue(isset($p['computed']['ele:from']));
-            $this->assertTrue(abs(2-$p['computed']['ele:from'])<10);
+            $this->assertEquals(2,$p['computed']['ele:from']);
 
             // ele:to tolleranza: 10 m
             // QN=16m
             $this->assertTrue(isset($p['computed']['ele:to']));
-            $this->assertTrue(abs(16-$p['computed']['ele:to'])<10);
+            $this->assertEquals(16,$p['computed']['ele:to']);
 
         }
 

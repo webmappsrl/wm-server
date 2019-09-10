@@ -181,14 +181,23 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     }
 }
     public function setComputedProperties2($instance_id='') {
+
+            if(!$this->hasGeometry()) {
+                throw new WebmappExceptionFeaturesNoGeometry("No Geometry found");
+            }
+            if (!$this->has3D()) {
+                $this->add3D();
+            }
+
             if(empty($instance_id)) {
                 $instance_id = WebmappProjectStructure::getInstanceId();
             }
-
             if(isset($this->geometry['coordinates']) &&
                 count($this->geometry['coordinates'])>0) {
                 $distance=$ascent=$descent=$ele_from=$ele_to=$ele_min=$ele_max=0;
                 $distance = $this->computeDistanceSpheroid($instance_id);
+                $ele_from=$this->geometry['coordinates'][0][2];
+                $ele_to=$this->geometry['coordinates'][count($this->geometry['coordinates'])-1][2];
                 $computed = array(
                     'distance' => $distance,
                     'ascent' => $ascent,
