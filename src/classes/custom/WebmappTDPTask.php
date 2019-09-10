@@ -25,6 +25,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
     self::processEvents();
     self::processAttrazioniInTerritori();
     self::processMembersInTerritori();
+    self::processMembersInItinerari();
 
     $this->banner('DONE');
 
@@ -453,6 +454,48 @@ private function processMembersInTerritori() {
 
 }
 
+private function processMembersInItinerari() {
+
+    self::banner('processMembersInItinerari');
+
+    // Creazione del geojson con le attrazioni related
+    // ACF: territorio_attrazioni_rel
+    // URL: http://www.terredipisa.it/wp-json/wp/v2/attrazione/$id
+    // File da caricare: geojson/{$tid}_attrazioni.geojson
+
+    // $attrazioni_layer = new WebmappLayer('Attrazioni');
+    $url = 'http://www.terredipisa.it/wp-json/wp/v2/percorso/';
+    $is = WebmappUtils::getMultipleJsonFromApi($url);
+
+    // LOOP sui territori
+    foreach ($is as $i) {
+        $iid=$i['id'];
+        $iname=$i['title']['rendered'];
+        echo "Creating members geojson for itinerario $iid ($iname) ... ";
+        // Crea Layer
+        $l = new WebmappLayer($iid.'_members',$this->getRoot().'/geojson');
+
+        // TODO: Loop su attrazioni (aggiunta POI)
+        if(isset($i['acf']['percorso_membri_rel']) &&
+           is_array($i['acf']['percorso_membri_rel']) &&
+           count($i['acf']['percorso_membri_rel'])>0 ) {
+            $count = 0;
+            foreach($i['acf']['percorso_membri_rel'] as $mt) {
+                $mtid=$mt['ID'];
+                    $l->addFeature($this->all_member_layer->getFeature($mtid.'_user'));
+                    $count++;
+                }
+            echo "adding $count members";
+            
+        } else {
+            echo "no percorso_membri_rel elements found";
+        }
+        // Scrivi layer 
+        $l->write();
+        echo "\n";
+    }
+
+}
 private function banner($s) {
     echo str_repeat("\n",4);
     echo str_repeat("=",50);
