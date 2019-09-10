@@ -426,8 +426,6 @@ class WebmappTrackFeatureTests extends TestCase {
             // TEST(S)
             // d+=324 m
             // d-=310
-            // Qmin=2m
-            // Qmax=331m
 
             $j=json_decode($t->getJson(),true);
             $this->assertTrue(isset($j['properties']));
@@ -439,16 +437,25 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertTrue(isset($p['computed']['distance']));
             $this->assertTrue(abs(5820-$p['computed']['distance'])<100);
 
-            // ele:from tolleranza: 10 m
+            // ele:from tolleranza
             // Q0=2m
             $this->assertTrue(isset($p['computed']['ele:from']));
             $this->assertEquals(2,$p['computed']['ele:from']);
 
-            // ele:to tolleranza: 10 m
+            // ele:to tolleranza
             // QN=16m
             $this->assertTrue(isset($p['computed']['ele:to']));
             $this->assertEquals(16,$p['computed']['ele:to']);
 
+            // ele:max tolleranza
+            // Qmin=2m
+            $this->assertTrue(isset($p['computed']['ele:min']));
+            $this->assertEquals(2,$p['computed']['ele:min']);
+
+            // ele:miv tolleranza
+            // Qmax=331m
+            $this->assertTrue(isset($p['computed']['ele:max']));
+            $this->assertEquals(331,$p['computed']['ele:max']);
         }
 
         public function testHasGeometry() {

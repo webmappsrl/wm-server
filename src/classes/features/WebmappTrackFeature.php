@@ -194,10 +194,21 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
             if(isset($this->geometry['coordinates']) &&
                 count($this->geometry['coordinates'])>0) {
+                // INIT to 0
                 $distance=$ascent=$descent=$ele_from=$ele_to=$ele_min=$ele_max=0;
+                // Distance
                 $distance = $this->computeDistanceSpheroid($instance_id);
+                // Ele from to
                 $ele_from=$this->geometry['coordinates'][0][2];
                 $ele_to=$this->geometry['coordinates'][count($this->geometry['coordinates'])-1][2];
+                // Ele min max
+                $quotes=array();
+                foreach($this->geometry['coordinates'] as $coordinates) {
+                    $quotes[]=$coordinates[2];
+                }
+                $ele_min=min($quotes);
+                $ele_max=max($quotes);
+
                 $computed = array(
                     'distance' => $distance,
                     'ascent' => $ascent,
