@@ -399,14 +399,128 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
-        // public function testXXXX() {
-        //     // Prepare TEST
-        //     // LOAD DATA
-        //     // PERFORM OPERATIONS
-        //     // TEST(S)
-        // }
-
         public function testAscDesc() {
+            // Asciano Mirteto
+            $this->AscDescPrivate('Asciano.geojson',5820,2,16,2,331,380,350);
+            // Pania.geojson
+            $this->AscDescPrivate('Pania.geojson',2700,551,1822,551,1822,1271,0);
+
+        }
+
+        private function AscDescPrivate($input,$distance,$ele_from,$ele_to,$ele_min,$ele_max,$ascent,$descent) {
+            // Delta%
+            $delta_dist = 50;
+            $delta_ele = 10;
+            $delta_asc = 40;
+
+            $pg=WebmappPostGis::Instance();
+            $pg->clearTables('test');
+            $j['id']=1;
+            $j['title']['rendered']='testAscDesc';
+            $t=new WebmappTrackFeature($j,true);
+
+            // LOAD DATA
+            $geojson = WebmappUtils::getJsonFromApi(dirname(__FILE__).'/fixtures/'.$input);
+            $this->assertTrue(isset($geojson['features'][0]['geometry']));
+            $t->setGeometryGeoJSON(json_encode($geojson['features'][0]['geometry']));
+            $t->writeToPostGis('test');
+
+            // PERFORM OPERATIONS
+            $t->setComputedProperties2('test');
+
+            // TEST(S)
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties']));
+            $p=$j['properties'];
+            $this->assertTrue(isset($p['computed']));
+            $c=$p['computed'];
+
+            $this->assertTrue(isset($c['distance']));
+            $this->assertEqualsWithDelta($distance,$c['distance'],$delta_dist);
+
+            $this->assertTrue(isset($c['ele:from']));
+            $this->assertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
+
+            $this->assertTrue(isset($c['ele:to']));
+            $this->assertEqualsWithDelta($ele_to,$c['ele:to'],$delta_ele);
+
+            $this->assertTrue(isset($c['ele:min']));
+            $this->assertEqualsWithDelta($ele_min,$c['ele:min'],$delta_ele);
+
+            $this->assertTrue(isset($c['ele:max']));
+            $this->assertEqualsWithDelta($ele_max,$c['ele:max'],$delta_ele);
+
+            $this->assertTrue(isset($c['ascent']));
+            $this->assertEqualsWithDelta($ascent,$c['ascent'],$delta_asc);
+
+            $this->assertTrue(isset($c['descent']));
+            $this->assertEqualsWithDelta($descent,$c['descent'],$delta_asc);
+
+            $this->assertTrue(isset($p['distance']));
+            $this->assertEqualsWithDelta($distance,$p['distance'],$delta_dist);
+
+            $this->assertTrue(isset($p['ele:from']));
+            $this->assertEqualsWithDelta($ele_from,$p['ele:from'],$delta_ele);
+
+            $this->assertTrue(isset($p['ele:to']));
+            $this->assertEqualsWithDelta($ele_to,$p['ele:to'],$delta_ele);
+
+            $this->assertTrue(isset($p['ele:min']));
+            $this->assertEqualsWithDelta($ele_min,$p['ele:min'],$delta_ele);
+
+            $this->assertTrue(isset($p['ele:max']));
+            $this->assertEqualsWithDelta($ele_max,$p['ele:max'],$delta_ele);
+
+            $this->assertTrue(isset($p['ascent']));
+            $this->assertEqualsWithDelta($ascent,$p['ascent'],$delta_asc);
+
+            $this->assertTrue(isset($p['descent']));
+            $this->assertEqualsWithDelta($descent,$p['descent'],$delta_asc);
+        }
+
+        public function testAscDescOverride() {
+
+            $input = 'Asciano.geojson';
+
+            $delta_dist = 50;
+
+            $pg=WebmappPostGis::Instance();
+            $pg->clearTables('test');
+            $j['id']=1;
+            $j['title']['rendered']='testAscDesc';
+            $j['distance']=10000;
+            $t=new WebmappTrackFeature($j,true);
+
+            // LOAD DATA
+            $geojson = WebmappUtils::getJsonFromApi(dirname(__FILE__).'/fixtures/'.$input);
+            $this->assertTrue(isset($geojson['features'][0]['geometry']));
+            $t->setGeometryGeoJSON(json_encode($geojson['features'][0]['geometry']));
+            $t->writeToPostGis('test');
+
+            // PERFORM OPERATIONS
+            $t->setComputedProperties2('test');
+
+            // TEST(S)
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties']));
+            $p=$j['properties'];
+            $this->assertTrue(isset($p['computed']));
+            $c=$p['computed'];
+
+            $this->assertTrue(isset($c['distance']));
+            $this->assertEqualsWithDelta(5820,$c['distance'],$delta_dist);
+
+            $this->assertTrue(isset($p['distance']));
+            $this->assertEqualsWithDelta(10000,$p['distance'],$delta_dist);
+
+        }
+
+        private function assertEqualsWithDelta($expected,$actual,$delta) {
+            $msg = "Expected: $expected Actual: $actual Delta: $delta";
+            $this->assertTrue(abs($expected-$actual)<$delta,$msg);
+        } 
+
+        public function testGetRunningPoint() {
             // Prepare TEST
             $pg=WebmappPostGis::Instance();
             $pg->clearTables('test');
@@ -416,46 +530,22 @@ class WebmappTrackFeatureTests extends TestCase {
 
             // LOAD DATA
             $geojson = WebmappUtils::getJsonFromApi(dirname(__FILE__).'/fixtures/AscianoMirtetoRagnaieAscdesc.geojson');
-            $this->assertTrue(isset($geojson['features'][0]['geometry']));
             $t->setGeometryGeoJSON(json_encode($geojson['features'][0]['geometry']));
             $t->writeToPostGis('test');
 
-            // PERFORM OPERATIONS
-            $t->setComputedProperties2('test');
+            // INIT
+            $vals = $t->getRunningPoint(0,4326,'test');
+            $this->assertEquals(10.4628896,$vals[0]);
+            $this->assertEquals(43.747847100000001,$vals[1]);
 
-            // TEST(S)
-            // d+=324 m
-            // d-=310
+            $vals = $t->getRunningPoint(0.5,4326,'test');
+            $this->assertEquals(10.4774185437983,$vals[0]);
+            $this->assertEquals(43.7540467918674,$vals[1]);
 
-            $j=json_decode($t->getJson(),true);
-            $this->assertTrue(isset($j['properties']));
-            $p=$j['properties'];
-            $this->assertTrue(isset($p['computed']));
+            $vals = $t->getRunningPoint(1,4326,'test');
+            $this->assertEquals(10.46721,$vals[0]);
+            $this->assertEquals(43.751759999999997,$vals[1]);
 
-            // distance tolleranza: 100 m
-            // d=5,82 Km
-            $this->assertTrue(isset($p['computed']['distance']));
-            $this->assertTrue(abs(5820-$p['computed']['distance'])<100);
-
-            // ele:from tolleranza
-            // Q0=2m
-            $this->assertTrue(isset($p['computed']['ele:from']));
-            $this->assertEquals(2,$p['computed']['ele:from']);
-
-            // ele:to tolleranza
-            // QN=16m
-            $this->assertTrue(isset($p['computed']['ele:to']));
-            $this->assertEquals(16,$p['computed']['ele:to']);
-
-            // ele:max tolleranza
-            // Qmin=2m
-            $this->assertTrue(isset($p['computed']['ele:min']));
-            $this->assertEquals(2,$p['computed']['ele:min']);
-
-            // ele:miv tolleranza
-            // Qmax=331m
-            $this->assertTrue(isset($p['computed']['ele:max']));
-            $this->assertEquals(331,$p['computed']['ele:max']);
         }
 
         public function testHasGeometry() {
@@ -490,5 +580,13 @@ class WebmappTrackFeatureTests extends TestCase {
             $t->setGeometryGeoJSON(json_encode($geojson['features'][0]['geometry']));
             $this->assertTrue($t->has3D());
         }
+
+        // public function testXXXX() {
+        //     // Prepare TEST
+        //     // LOAD DATA
+        //     // PERFORM OPERATIONS
+        //     // TEST(S)
+        // }
+
 
 }

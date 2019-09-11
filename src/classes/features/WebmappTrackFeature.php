@@ -8,6 +8,14 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     private $latMax;
     private $bb_computed = false;
 
+    private $distance=-1;
+    private $ascent=-1;
+    private $descent=-1;
+    private $ele_from=-1;
+    private $ele_to=-1;
+    private $ele_max=-1;
+    private $ele_min=-1;
+
 	// Mapping dei meta specifici delle tracks
     // 
     protected function mappingSpecific($json_array) {
@@ -194,33 +202,128 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
             if(isset($this->geometry['coordinates']) &&
                 count($this->geometry['coordinates'])>0) {
-                // INIT to 0
-                $distance=$ascent=$descent=$ele_from=$ele_to=$ele_min=$ele_max=0;
                 // Distance
-                $distance = $this->computeDistanceSpheroid($instance_id);
+                if ($this->distance==-1) {
+                    $this->distance = $this->computeDistanceSpheroid($instance_id);
+                }
                 // Ele from to
-                $ele_from=$this->geometry['coordinates'][0][2];
-                $ele_to=$this->geometry['coordinates'][count($this->geometry['coordinates'])-1][2];
+                $this->ele_from=$this->geometry['coordinates'][0][2];
+                $this->ele_to=$this->geometry['coordinates'][count($this->geometry['coordinates'])-1][2];
                 // Ele min max
                 $quotes=array();
                 foreach($this->geometry['coordinates'] as $coordinates) {
                     $quotes[]=$coordinates[2];
                 }
-                $ele_min=min($quotes);
-                $ele_max=max($quotes);
+                $this->ele_min=min($quotes);
+                $this->ele_max=max($quotes);
+                $this->computeAscDesc($instance_id);
 
                 $computed = array(
-                    'distance' => $distance,
-                    'ascent' => $ascent,
-                    'descent' => $descent,
-                    'ele:from' => $ele_from,
-                    'ele:to' => $ele_to,
-                    'ele:min' => $ele_min,
-                    'ele:max' => $ele_max
+                    'distance' => $this->distance,
+                    'ascent' => $this->ascent,
+                    'descent' => $this->descent,
+                    'ele:from' => $this->ele_from,
+                    'ele:to' => $this->ele_to,
+                    'ele:min' => $this->ele_min,
+                    'ele:max' => $this->ele_max
                     );
                 $this->addProperty('computed',$computed);
+
+                // Set "normal properties"
+                $this->setPropsFromComputed('distance');
+                $this->setPropsFromComputed('ele:from');
+                $this->setPropsFromComputed('ele:to');
+                $this->setPropsFromComputed('ele:min');
+                $this->setPropsFromComputed('ele:max');
+                $this->setPropsFromComputed('ascent');
+                $this->setPropsFromComputed('descent');
     }
 }
+
+    private function setPropsFromComputed($props_name) {
+        if(isset($this->properties['computed'][$props_name]) &&
+            (!isset($this->properties[$props_name]) || empty($this->properties[$props_name]))) {
+            $this->properties[$props_name] = $this->properties['computed'][$props_name];
+        }
+    }
+
+    private function computeAscDesc($instance_id='') {
+        // INIT
+        $quotes = array();
+        $d = 0;
+        $h = $this->ele_from;
+        $quotes[]=$h;
+        // Gestione della ISTANCE ID
+        if(empty($instance_id)) {
+          $instance_id = WebmappProjectStructure::getInstanceId();
+        }        
+
+        // LOOP
+        while($d<$this->distance) {
+
+            //$dump="WHILE IN computeAscDesc d=$d h=$h\n";
+            //fwrite(STDERR, print_r($dump, TRUE));
+            
+            $vals = $this->getNextNormalizedQuote($d,$h,$instance_id);
+            $d=$vals[0];
+            $h=$vals[1];
+            $quotes[]=$h;
+        }
+
+
+        // set ascent / descent
+        $n = count($quotes);
+        $threshold = 40;
+        //$thresholds=array(0,10,20,30,40,50);
+        //$ascents = array();
+        //foreach ($thresholds as $threshold) {
+        if($n>=0) {
+            $this->ascent=0;
+            $this->descent=0;
+            $q0=$quotes[0];
+            for ($i=1; $i<$n; $i++) { 
+                if(abs($quotes[$i]-$q0)>$threshold) {
+                    if($quotes[$i]>$q0) {
+                        $this->ascent = $this->ascent + $quotes[$i] - $q0;
+                    } else {
+                        $this->descent = $this->descent + $q0 - $quotes[$i];
+                    }
+                    $q0=$quotes[$i];                    
+                }
+            }
+            //$ascents[]=$this->ascent;
+        }
+        //}
+        // print_r($ascents);
+    }
+
+    private function getNextNormalizedQuote($d,$h,$instance_id='') {
+        // PARAMETER
+        $B = $b = 100;
+
+        // INIT
+        $d1 = $d + $B - $b;
+        $h1 = $h;
+        $pg=WebmappPostGis::Instance();
+        // Gestione della ISTANCE ID
+        if(empty($instance_id)) {
+          $instance_id = WebmappProjectStructure::getInstanceId();
+        }        
+
+        // RUNNING DISTANCE
+        while($h1==$h) {
+            $d1 = $d1 + $b;
+            // CHECK DISTANCE
+            if ($d1>=$this->distance) {
+                return array($this->distance,$this->ele_to);
+            }
+            $p = $d1 / $this->distance;
+            $vals = $this->getRunningPoint($p,4326,$instance_id);
+            $h1=$pg->getEle($vals[0],$vals[1]);
+        }
+        return array($d1,$h1);
+
+    }
 
 
         // COnvert geom to 3d geom (only if needed)
@@ -397,6 +500,26 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
             return $results;
         }
+
+        // Returns array(lon,lat)
+        // $p must be 0<p<1 (TODO: check parameter)
+        // $coord_type = 3857 -> WEB MARCATOR
+        // $coord_type = 4326 -> Coordinate geografiche
+        public function getRunningPoint($p,$coord_type,$instance_id='') {
+            // Gestione della ISTANCE ID
+            if(empty($instance_id)) {
+                $instance_id = WebmappProjectStructure::getInstanceId();
+            }
+            $pg = WebmappPostGis::Instance();
+            $id=$this->getId();
+            $q= "SELECT ST_X(ST_Transform(ST_Lineinterpolatepoint(geom,$p),$coord_type)) as x,
+                            ST_Y(ST_Transform(ST_Lineinterpolatepoint(geom,$p),$coord_type)) as y 
+                 FROM track 
+                 WHERE track_id=$id AND 
+                  instance_id='$instance_id';";
+            $r = $pg->select($q);
+            return array($r[0]['x'],$r[0]['y']);
+            }
 
         public function computeDistance3857($instance_id='') {
             //ST_Length(ST_Transform(geom,3857))
