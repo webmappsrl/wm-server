@@ -202,7 +202,9 @@ private function processTrack($id) {
     echo "postgis.";
     $t->writeToPostGis();
     echo "3d.";
-    $t->addEle();
+    $t->add3D();
+    echo "computedProps";
+    $t->setComputedProperties2();
     echo "bbox.";
     $t->addBBox();
     echo "RBpois.";
