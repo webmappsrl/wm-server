@@ -405,6 +405,13 @@ class WebmappTrackFeatureTests extends TestCase {
             // Pania.geojson
             $this->AscDescPrivate('Pania.geojson',2700,551,1822,551,1822,1271,0);
 
+            // TEST di Marco
+            $this->AscDescPrivate('GiroPiano.geojson',6120,0,0,-3,1,21,21);
+            $this->AscDescPrivate('Salita.geojson',1320,131,891,131,891,760,0);
+            $this->AscDescPrivate('SalitaEDiscesa.geojson',2460,1587,1605,1587,2322,700,716);
+            $this->AscDescPrivate('GiroLungo.geojson',71313,1448,1426,1004,4081,6778,6887);
+
+
         }
 
         private function AscDescPrivate($input,$distance,$ele_from,$ele_to,$ele_min,$ele_max,$ascent,$descent) {
