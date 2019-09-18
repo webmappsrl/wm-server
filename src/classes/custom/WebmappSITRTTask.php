@@ -240,7 +240,7 @@ class WebmappSITRTTask extends WebmappAbstractTask {
         $ids_all = array_keys($this->tratte);
         $ids = array_shift($ids_all);
         $where = "(" . implode(',', $ids_all ) .")";
-        $query = "SELECT osm_id AS IDRT, ST_transform(way, 25832) as geom FROM planet_osm_line WHERE osm_id IN $where";
+        $query = "SELECT osm_id AS IDRT, ST_transform(way, 3003) as geom FROM planet_osm_line WHERE osm_id IN $where";
         $cmd = "pgsql2shp -P $password -f $shp -h $host -u $username $database \"$query\"";
         system($cmd);
 
