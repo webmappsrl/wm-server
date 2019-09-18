@@ -40,12 +40,16 @@ require 'classes/task/WebmappWebappElbrusTask.php';
 require 'classes/task/WebmappSingleMapTask.php';
 require 'classes/task/WebmappSingleTask.php';
 require 'classes/task/WebmappRouteTask.php';
-require 'classes/task/WebmappAllRoutesTask.php';
 require 'classes/task/WebmappCustomConfigTask.php';
 require 'classes/task/WebmappTranslateTask.php';
 require 'classes/task/WebmappAddTermNameToFeaturesTask.php';
 require 'classes/task/WebmappTaskFactory.php';
 
+// TASK K
+require 'classes/task/WebmappAllRoutesTask.php';
+require 'classes/task/WebmappKTracksTask.php';
+
+// Features
 require 'classes/features/WebmappAbstractFeature.php';
 require 'classes/features/WebmappPoiFeature.php';
 require 'classes/features/WebmappTrackFeature.php';
