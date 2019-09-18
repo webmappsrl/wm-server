@@ -32,4 +32,12 @@ class WebmappPostGisOSMTest extends TestCase {
 		$this->assertTrue(count($pair)==2);
 	}
 
+	public function testGetWayMeta() {
+		$osm_id = 43320999;
+		$pg = WebmappPostGisOSM::Instance();
+		$meta = $pg->getWayMeta($osm_id);
+
+		$this->assertEquals('tertiary',$meta['highway']);
+	}
+
 }

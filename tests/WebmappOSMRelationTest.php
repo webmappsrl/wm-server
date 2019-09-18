@@ -70,7 +70,7 @@ class WebmappOSMRelationTest extends TestCase {
 	public function testMembers() {
 		$r = new WebmappOSMRelation(7454121);
 		$members = array(
-			167059866,167059851,331862052,135319690,138545603
+			167059866,135319687
 			);
 		$r_members = $r->getMembers();
 		foreach($members as $id) {

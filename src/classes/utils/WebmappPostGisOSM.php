@@ -66,6 +66,12 @@ final class WebmappPostGisOSM {
 		return $a;
 	}
 
+	public function getWayMeta($osmid) {
+		$q="SELECT * from planet_osm_line WHERE osm_id=$osmid";
+		$a = $this->select($q);
+		return array('highway'=>$a[0]['highway'],'surface'=>$a[0]['surface']);
+	}
+
 	private function getFeatureJsonGeometry($type,$osmid) {
 		switch ($type) {
 			case 'relation':

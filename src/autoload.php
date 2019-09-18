@@ -77,3 +77,4 @@ require 'classes/custom/WebmappSIMapStatsTask.php';
 require 'classes/custom/WebmappMaratonaDiPisaTask.php';
 require 'classes/custom/WebmappFSTTask.php';
 require 'classes/custom/WebmappTrentinoKTask.php';
+require 'classes/custom/WebmappSITRTTask.php';
