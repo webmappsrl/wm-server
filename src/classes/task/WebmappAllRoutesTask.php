@@ -18,6 +18,8 @@ class WebmappAllRoutesTask extends WebmappAbstractTask {
         $this->url = "http://$code.be.webmapp.it";
     }
 
+
+
     global $wm_config;
     if(!isset($wm_config['endpoint']['a'])) {
         throw new WebmappExceptionConfEndpoint("No ENDPOINT section in conf.json", 1);  

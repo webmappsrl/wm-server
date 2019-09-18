@@ -8,6 +8,9 @@ class WebmappKTracksTask extends WebmappAbstractTask {
 
  // Other members
  private $url;
+ private $tracks_layer;
+ private $pois_layer;
+ private $wp;
 
 
  public function check() {
@@ -22,6 +25,14 @@ class WebmappKTracksTask extends WebmappAbstractTask {
     else {
         $this->url = "http://$code.be.webmapp.it";
     }
+
+    $wp = new WebmappWP($this->options['url_or_code']);
+    // Controlla esistenza della piattaforma
+    if (!$wp->check()) {
+        throw new Exception("ERRORE: La piattaforma {$wp->getBaseUrl()} non risponde o non esiste.", 1);
+    }
+    $this->wp = $wp;
+
 
     global $wm_config;
     if(!isset($wm_config['endpoint']['a'])) {
@@ -53,25 +64,14 @@ class WebmappKTracksTask extends WebmappAbstractTask {
 
 public function process(){
 
-    // 1. Creare i link simbolici alla directory geojson
+    $this->tracks_layer=new WebmappLayer('tracks',$this->getRoot().'/resources');
+    $this->pois_layer=new WebmappLayer('pois',$this->getRoot().'/resources');
+
     $this->processSymLinks();
 
-    // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
-    // rimuovendo la sezione items relativa a POI e TRACK
-    //$this->processMainTaxonomies();
+    $this->processTracks();
 
-    // 3. Creare le directory routes/[route_id]
-         // 4. Creazione del file di tassonomia 
-         // /routes/[route_id]/taxonomies/activity.json 
-         // deve avere solo la sezione "term_id":"items":"track" 
-         // con la lista di tutte le TRACK di quel termine
-
-         // 5. Creazione del file di tassonomia 
-         // /routes/[route_id]/taxonomies/webmapp_category.json 
-         // deve avere solo la sezione "term_id":"items":"poi" 
-         // con la lista di tutti i POI di quel termine
-
-    //$this->processRoutes();
+    $this->processTaxonomies();
 
     return TRUE;
 }
@@ -89,58 +89,69 @@ private function processSymLinks() {
 
 }
 
-private function processMainTaxonomies() {
-    // webmapp_category: tolgo items
-    $src = $this->endpoint.'/taxonomies/webmapp_category.json';
-    $trg = $this->getRoot().'/taxonomies/webmapp_category.json';
+private function processTaxonomies() {
+    $this->processTaxonomy('webmapp_category');
+    $this->processTaxonomy('activity');
+    $this->processTaxonomy('who');
+    $this->processTaxonomy('where');
+    $this->processTaxonomy('when');
+    $this->processTaxonomy('theme');
+}
+
+private function processTaxonomy($name) {
+    $src = $this->endpoint.'/taxonomies/'.$name.'.json';
+    $trg = $this->getRoot().'/taxonomies/'.$name.'.json';
     $ja = json_decode(file_get_contents($src),TRUE);
     $ja_new = array();
+
+    // UNSET TERMS
     foreach($ja as $id => $term) {
         if(isset($term['items'])) unset($term['items']);
         $ja_new[$id]=$term;
     }
-    file_put_contents($trg, json_encode($ja_new));
 
-    // activity
-    $src = $this->endpoint.'/taxonomies/activity.json';
-    $trg = $this->getRoot().'/taxonomies/activity.json';
-    $ja = json_decode(file_get_contents($src),TRUE);
-    $ja_new = array();
-    foreach($ja as $id => $term) {
-        if(isset($term['items']['poi'])) unset($term['items']['poi']);
-        if(isset($term['items']['track'])) unset($term['items']['track']);
-        $ja_new[$id]=$term;
+    // ADD TERM - POI
+    if($this->pois_layer->count()>0) {
+        foreach($this->pois_layer->getFeatures() as $poi) {
+            $p=$poi->getProperties();
+            if(isset($p['taxonomy'][$name]) && is_array($p['taxonomy'][$name]) && count($p['taxonomy'][$name])) {
+                foreach($p['taxonomy'][$name] as $term_id) {
+                    $ja_new[$term_id]['items']['poi'][]=$poi->getId();
+                }
+            }
+        }
     }
+
+    // ADD TERM - TRACK
+    if($this->tracks_layer->count()>0) {
+        foreach($this->tracks_layer->getFeatures() as $track) {
+            $p=$track->getProperties();
+            if(isset($p['taxonomy'][$name]) && is_array($p['taxonomy'][$name]) && count($p['taxonomy'][$name])) {
+                foreach($p['taxonomy'][$name] as $term_id) {
+                    $ja_new[$term_id]['items']['track'][]=$track->getId();
+                }
+            }
+        }
+    }
+
     file_put_contents($trg, json_encode($ja_new));
-
-    // theme
-    $src = $this->endpoint.'/taxonomies/theme.json';
-    $trg = $this->getRoot().'/taxonomies/theme.json';
-    $cmd = "cp -f $src $trg"; system($cmd);
-
-    // when
-    $src = $this->endpoint.'/taxonomies/when.json';
-    $trg = $this->getRoot().'/taxonomies/when.json';
-    $cmd = "cp -f $src $trg"; system($cmd);
-
-    // where
-    $src = $this->endpoint.'/taxonomies/where.json';
-    $trg = $this->getRoot().'/taxonomies/where.json';
-    $cmd = "cp -f $src $trg"; system($cmd);
-
-    // who
-    $src = $this->endpoint.'/taxonomies/who.json';
-    $trg = $this->getRoot().'/taxonomies/who.json';
-    $cmd = "cp -f $src $trg"; system($cmd);
-
 }
 
 private function processTracks() {
 
-}
-
-private function processTrack($id) {
-
+    foreach($this->tracks as $tid) {
+        $track=new WebmappTrackFeature($this->wp->getApiTrack($tid));
+        $this->tracks_layer->addFeature($track);
+        $p=$track->getProperties();
+        if(isset($p['related']['poi']['related']) && count($p['related']['poi']['related'])>=1) {
+            foreach($p['related']['poi']['related'] as $pid) {
+                $poi=new WebmappPoiFeature($this->wp->getApiPoi($pid));
+                if(!$this->pois_layer->idExists($pid)) {
+                    $this->pois_layer->addFeature($poi);
+                }
+            }
+        }
+    }
 }
 
 }
