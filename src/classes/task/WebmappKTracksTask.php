@@ -36,11 +36,11 @@ class WebmappKTracksTask extends WebmappAbstractTask {
 public function process(){
 
     // 1. Creare i link simbolici alla directory geojson
-    $this->processSymLinks();
+    //$this->processSymLinks();
 
     // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
     // rimuovendo la sezione items relativa a POI e TRACK
-    $this->processMainTaxonomies();
+    //$this->processMainTaxonomies();
 
     // 3. Creare le directory routes/[route_id]
          // 4. Creazione del file di tassonomia 
@@ -53,8 +53,7 @@ public function process(){
          // deve avere solo la sezione "term_id":"items":"poi" 
          // con la lista di tutti i POI di quel termine
 
-    $this->processRoutes();
-
+    //$this->processRoutes();
 
     return TRUE;
 }
