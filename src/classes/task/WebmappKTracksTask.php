@@ -2,9 +2,13 @@
 
 class WebmappKTracksTask extends WebmappAbstractTask {
 
+ // PARAMETERS
+ private $endpoint;
+ private $tracks=array();
+
+ // Other members
  private $url;
 
- private $endpoint;
 
  public function check() {
 
@@ -30,13 +34,27 @@ class WebmappKTracksTask extends WebmappAbstractTask {
         throw new WebmappExceptionAllRoutesTaskNoEndpoint("Directory {$this->endpoint} does not exists", 1);        
     }
 
+    // TRACKS
+    if(!array_key_exists('tracks', $this->options))
+        throw new WebmappExceptionConfTask("L'array options deve avere la chiave 'tracks'", 1);
+    $this->tracks=$this->options['tracks'];
+
+    if(!is_array($this->tracks)) {
+        throw new WebmappExceptionConfTask("Options tracks must be array", 1);        
+    }
+
+    if(count($this->tracks)==0) {
+        throw new WebmappExceptionConfTask("Array tracks must have one element", 1);        
+    }
+
+
     return TRUE;
 }
 
 public function process(){
 
     // 1. Creare i link simbolici alla directory geojson
-    //$this->processSymLinks();
+    $this->processSymLinks();
 
     // 2. Pulire le tassonomie della parte comune iniziale /taxonomies/* 
     // rimuovendo la sezione items relativa a POI e TRACK
@@ -117,115 +135,12 @@ private function processMainTaxonomies() {
 
 }
 
-private function processRoutes() {
-    $route_index = $this->endpoint.'/geojson/route_index.geojson';
-    if(!file_exists($this->getRoot().'/routes')) {
-        $cmd = 'mkdir '.$this->getRoot().'/routes'; system($cmd);
-    }
-    if(file_exists($route_index)) {
-        $ja=json_decode(file_get_contents($this->endpoint.'/geojson/route_index.geojson'),TRUE);
-        if(isset($ja['features'])&&count($ja['features'])>0){
-            foreach ($ja['features'] as $route) {
-                $this->processRoute($route['properties']['id']);
-            }
-        }        
-    }
+private function processTracks() {
+
 }
 
-private function processRoute($id) {
-    $route_path=$this->getRoot().'/routes/'.$id;
-    $route_tax_path=$this->getRoot().'/routes/'.$id.'/taxonomies';
-    if(!file_exists($route_path)) {
-        $cmd = "mkdir $route_path"; system($cmd);
-    }
-    if(!file_exists($route_tax_path)) {
-        $cmd = "mkdir $route_tax_path"; system($cmd);
-    }
+private function processTrack($id) {
 
-    // LOAD ROUTE FILE
-    $ja = json_decode(file_get_contents($this->endpoint.'/geojson/'.$id.'.geojson'),TRUE);
-
-    // LOOP ON RELATED TRACK
-    $activities = array();
-    $webmapp_categories = array();
-    if(isset($ja['features']) && count($ja['features'])>0) {
-        foreach($ja['features'] as $track) {
-            if (isset($track['properties']['taxonomy']) && 
-                isset($track['properties']['taxonomy']['activity']) && 
-                count ($track['properties']['taxonomy']['activity'])>0 ) {
-                foreach ($track['properties']['taxonomy']['activity'] as $term_id) {
-                    $activities[$term_id]['items']['track'][]=$track['properties']['id'];
-                }
-            }
-            if(isset($track['properties']['related']) && 
-                isset($track['properties']['related']['poi']) && 
-                isset($track['properties']['related']['poi']['related']) && 
-                count($track['properties']['related']['poi']['related'])>0) {
-                foreach($track['properties']['related']['poi']['related'] as $pid) {
-                    $poi = json_decode(file_get_contents($this->endpoint.'/geojson/'.$pid.'.geojson'),TRUE);
-                    if(isset($poi['properties']['taxonomy']) && 
-                        isset($poi['properties']['taxonomy']['webmapp_category']) &&
-                        count($poi['properties']['taxonomy']['webmapp_category'])>0) {
-                        foreach($poi['properties']['taxonomy']['webmapp_category'] as $term_id) {
-                            $webmapp_categories[$term_id]['items']['poi'][]=$poi['properties']['id'];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if(count($activities)>0) {
-        file_put_contents($route_tax_path.'/activity.json',json_encode($activities));
-    }
-    if(count($webmapp_categories)>0) {
-        file_put_contents($route_tax_path.'/webmapp_category.json',json_encode($webmapp_categories));
-    }
-
-    // Generazione del file map.json
-    // Al momento si deve distinguere il caso presente nelle API e non
-    $map = array();
-    $jb = WebmappUtils::getJsonFromApi($ja['properties']['source']);
-    if(isset($jb['n7webmapp_route_bbox']) && !empty($jb['n7webmapp_route_bbox'])) {
-        echo "Building map.json info from WP\n";
-        $bb = json_decode($jb['n7webmapp_route_bbox'],TRUE);
-        if (is_array($bb)) {
-            $map['maxZoom']=$bb['maxZoom'];
-            $map['minZoom']=$bb['minZoom'];
-            $map['defZoom']=$bb['defZoom'];
-            $map['center'][0]=$bb['center']['lng'];
-            $map['center'][1]=$bb['center']['lat'];
-            $map['bbox'][0]=$bb['bounds']['southWest'][1];
-            $map['bbox'][1]=$bb['bounds']['southWest'][0];
-            $map['bbox'][2]=$bb['bounds']['northEast'][1];
-            $map['bbox'][3]=$bb['bounds']['northEast'][0];        
-        } else {
-            echo "Building map.json info from route bbox (NO ARRAY)\n";
-            $map['maxZoom']=17;
-            $map['minZoom']=8;
-            $map['defZoom']=9;
-            $bb=explode(',', $ja['properties']['bbox']);
-            $map['center'][0]=($bb[0]+$bb[2])/2.0;
-            $map['center'][1]=($bb[1]+$bb[3])/2.0;
-            $map['bbox'][0]=(float)$bb[0];            
-            $map['bbox'][1]=(float)$bb[1];            
-            $map['bbox'][2]=(float)$bb[2];            
-            $map['bbox'][3]=(float)$bb[3];            
-        }
-    } else {
-        echo "Building map.json info from route bbox\n";
-        $map['maxZoom']=17;
-        $map['minZoom']=8;
-        $map['defZoom']=9;
-        $bb=explode(',', $ja['properties']['bbox']);
-        $map['center'][0]=($bb[0]+$bb[2])/2.0;
-        $map['center'][1]=($bb[1]+$bb[3])/2.0;
-        $map['bbox'][0]=(float)$bb[0];            
-        $map['bbox'][1]=(float)$bb[1];            
-        $map['bbox'][2]=(float)$bb[2];            
-        $map['bbox'][3]=(float)$bb[3];            
-    }
-    // Writing file
-    file_put_contents($route_path.'/map.json',json_encode($map));
 }
 
 }
