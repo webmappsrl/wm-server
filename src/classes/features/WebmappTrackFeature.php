@@ -61,6 +61,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
          }
          public function setGeometry($geometry){$this->geometry=$geometry;}
 
+         public function getFirst() {
+            if($this->hasGeometry()) {
+                return $this->geometry['coordinates'][0];
+            }
+            return array();
+         }
+
          public function add3D() {
             if($this->hasGeometry()) {
                 $pg = WebmappPostGis::Instance();
@@ -617,6 +624,8 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
 
         }
+
+
 
         public function writeRBRelatedPoi($path,$instance_id='') {
 

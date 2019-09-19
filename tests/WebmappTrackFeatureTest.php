@@ -588,6 +588,13 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertTrue($t->has3D());
         }
 
+        public function testGetFirst() {
+            $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+            $first = $t->getFirst();
+            $this->assertEquals(10.4016816,$first[0]);
+            $this->assertEquals(43.7155037,$first[1]);
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA
