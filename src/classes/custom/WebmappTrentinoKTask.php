@@ -40,6 +40,16 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             try {
                 $file = $this->addId($file);
                 $file = $this->addTaxonomy($file, $filename);
+                if ($filename == "punti_appoggio.geojson") {
+                    $file = mapDrinkingWater($file);
+                    $file = mapCapacity($file);
+                    $file = mapLocalityToAddress($file);
+                }
+                if ($filename == "rifugi.geojson") {
+                    $file = mapWebsiteToRelatedUrl($file);
+                    $file = mapPictureUrlToImage($file);
+                }
+
                 file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, json_encode($file));
                 echo "$filename DONE\n";
             } catch (WebmappException $e) {
@@ -181,6 +191,66 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
 
         foreach ($file["features"] as $key => $feature) {
             $file["features"][$key]["properties"]["taxonomy"] = $taxonomy;
+        }
+
+        return $file;
+    }
+
+    public function mapDrinkingWater($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("drinking_water", $file["features"][$key]["properties"]) && $file["features"][$key]["properties"]["drinking_water"] == "yes") {
+                $file["features"][$key]["properties"]["drinking_water"] = true;
+            } else {
+                unset($file["features"][$key]["properties"]["drinking_water"]);
+            }
+        }
+
+        return $file;
+    }
+
+    public function mapCapacity($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("capacity", $file["features"][$key]["properties"]) && $file["features"][$key]["properties"]["capacity"] == null) {
+                unset($file["features"][$key]["properties"]["capacity"]);
+            }
+        }
+
+        return $file;
+    }
+
+    public function mapLocalityToAddress($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("locality", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["address"] = $file["features"][$key]["properties"]["locality"];
+                unset($file["features"][$key]["properties"]["locality"]);
+            }
+        }
+
+        return $file;
+    }
+
+    public function mapWebsiteToRelatedUrl($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("website", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["related_url"] = array($file["features"][$key]["properties"]["website"]);
+                unset($file["features"][$key]["properties"]["website"]);
+            }
+        }
+
+        return $file;
+    }
+
+    public function mapPictureUrlToImage($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("picture_url", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["image"] = $file["features"][$key]["properties"]["picture_url"];
+                unset($file["features"][$key]["properties"]["picture_url"]);
+            }
         }
 
         return $file;
