@@ -41,13 +41,13 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 $file = $this->addId($file);
                 $file = $this->addTaxonomy($file, $filename);
                 if ($filename == "punti_appoggio.geojson") {
-                    $file = mapDrinkingWater($file);
-                    $file = mapCapacity($file);
-                    $file = mapLocalityToAddress($file);
+                    $file = $this->mapDrinkingWater($file);
+                    $file = $this->mapCapacity($file);
+                    $file = $this->mapLocalityToAddress($file);
                 }
                 if ($filename == "rifugi.geojson") {
-                    $file = mapWebsiteToRelatedUrl($file);
-                    $file = mapPictureUrlToImage($file);
+                    $file = $this->mapWebsiteToRelatedUrl($file);
+                    $file = $this->mapPictureUrlToImage($file);
                 }
 
                 file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, json_encode($file));
