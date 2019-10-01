@@ -238,6 +238,10 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             if (array_key_exists("website", $file["features"][$key]["properties"])) {
                 $file["features"][$key]["properties"]["related_url"] = array($file["features"][$key]["properties"]["website"]);
                 unset($file["features"][$key]["properties"]["website"]);
+
+                if (substr($file["features"][$key]["properties"]["related_url"][0], 0, 3) == "www") {
+                    $file["features"][$key]["properties"]["related_url"][0] = "http://" . $file["features"][$key]["properties"]["related_url"][0];
+                }
             }
         }
 
