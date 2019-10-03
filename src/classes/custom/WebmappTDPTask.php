@@ -319,7 +319,7 @@ private function processEvents() {
             $j['n7webmap_coord']['lng']=$lon;
             $j['n7webmap_coord']['lat']=$lat;
             $poi = new WebmappPoiFeature($j);
-            $poi->addProperty('color','#F6A502');
+            $poi->addProperty('color','#4DA5BE');
             $poi->addProperty('web',$ja['link']);
             $poi->write($path);
 
