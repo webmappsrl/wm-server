@@ -6,6 +6,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
     private $pois;
     private $all_territori;
     private $all_member_layer;
+    private $all_events_layer;
 
     public function check() {
       return TRUE;
@@ -26,6 +27,7 @@ class WebmappTDPTask extends WebmappAbstractTask {
     self::processAttrazioniInTerritori();
     self::processMembersInTerritori();
     self::processMembersInItinerari();
+    self::processEventsInTerritori();
 
     $this->banner('DONE');
 
@@ -117,6 +119,16 @@ private function processTerritori() {
             $poi->addProperty('image',$media['media_details']['sizes']['medium']['source_url']);
         } else { 
             echo "no image\n";
+        }
+
+        if (isset($ja['acf']['territorio_eventi_rel']) && 
+            is_array($ja['acf']['territorio_eventi_rel']) &&
+            count($ja['acf']['territorio_eventi_rel']) >0 ) {
+            $event_related = array();
+            foreach($ja['acf']['territorio_eventi_rel'] as $event) {
+                $event_related['event']['related'][]=$event['ID'];
+            }
+            $poi->addProperty('related',$event_related);
         }
 
         $poi->write($path);
@@ -283,7 +295,7 @@ private function processEvents() {
     $path = $this->getRoot().'/geojson/';
     $events_url = 'https://www.terredipisa.it/wp-json/wp/v2/event/';
     $events = WebmappUtils::getMultipleJsonFromApi($events_url);
-    $all_events_layer = new WebmappLayer('Events');
+    $this->all_events_layer = new WebmappLayer('Events');
 
     // Filter events
     $filtered = array();
@@ -326,14 +338,14 @@ private function processEvents() {
             // GEstione delle traduzioni
             self::translateItem($ja,$id);
 
-            $all_events_layer->addFeature($poi);
+            $this->all_events_layer->addFeature($poi);
         } else {
             " NO COORD: SKIP ";
         }
-        $all_events_layer->write($path);
+        $this->all_events_layer->write($path);
         echo "\n";
     }
-    $all_events_layer->write($path);
+    $this->all_events_layer->write($path);
 }
 
 private function setCategories() {
@@ -436,6 +448,33 @@ private function processAttrazioniInTerritori() {
     }
 
 }
+private function processEventsInTerritori() {
+
+    self::banner('processEventsInTerritori');
+
+    // Creazione del geojson con le attrazioni related
+    // ACF: territorio_attrazioni_rel
+    // URL: http://www.terredipisa.it/wp-json/wp/v2/attrazione/$id
+    // File da caricare: geojson/{$tid}_attrazioni.geojson
+    foreach($this->all_territori->getFeatures() as $t) {
+        $tid = $t->getId();
+        $p = $t->getProperties();
+        if(isset($p['related']['event']['related']) && 
+           is_array($p['related']['event']['related']) &&
+           count($p['related']['event']['related'])>0) {
+            $l = new WebmappLayer($tid.'_events',$this->getRoot().'/geojson');
+            foreach($p['related']['event']['related'] as $evid) {
+                if($this->all_events_layer->idExists($evid)){
+                    $l->addFeature($this->all_events_layer->getFeature($evid));
+                }
+            }
+        }
+        // Esegui la query postgis per trovare i member vicini
+        $l->write();
+    }
+
+
+}
 private function processMembersInTerritori() {
 
     self::banner('processMembersInTerritori');
@@ -446,7 +485,16 @@ private function processMembersInTerritori() {
         $results = $t->getNeighborsByLonLat(5000,$t->getLon(),$t->getLat());
         if(is_array($results) && count($results)>0) {
             foreach($results as $mid) {
-                $l->addFeature($this->all_member_layer->getFeature($mid.'_user'));
+                echo "User $mid ";
+                if($this->all_member_layer->idExists($mid.'_user')) {
+                    echo "ADD ";
+                    $l->addFeature($this->all_member_layer->getFeature($mid.'_user'));
+                }
+                else {
+                    echo "SKIP ";
+                }
+                echo "\n";
+
             }
         }
         $l->write();
