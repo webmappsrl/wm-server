@@ -203,26 +203,41 @@ EOS;
         system($cmd);
 
         # export mbtiles dei sentierisat (su server):
-        // cd /root/api.webmapp.it/trentino/tiles/
-        // rm sentierisat.mbtiles sentierisat.zip
-        // /root/work-tiles/tileoven/index.js export sentierisat /root/api.webmapp.it/trentino/tiles/sentierisat.mbtiles --format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1
-        // rm sentierisat.export-failed sentierisat.export
-        // mb-util --grid_callback="" sentierisat.mbtiles sentierisat_temp
-        // rm -rf sentierisat_old_utfgrid
-        // mv sentierisat_new_utfgrid sentierisat_old_utfgrid
-        // mv sentierisat_temp sentierisat_new_utfgrid
+        // DONE cd /root/api.webmapp.it/trentino/tiles/
+        // DONE rm sentierisat.mbtiles sentierisat.zip
+        // DONE /root/work-tiles/tileoven/index.js export sentierisat /root/api.webmapp.it/trentino/tiles/sentierisat.mbtiles --format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1
+        // DONE rm sentierisat.export-failed sentierisat.export
+        // DONE mb-util --grid_callback="" sentierisat.mbtiles sentierisat_temp
+        // DONE rm -rf sentierisat_old_utfgrid
+        // DONE mv sentierisat_new_utfgrid sentierisat_old_utfgrid
+        // DONE mv sentierisat_temp sentierisat_new_utfgrid
         echo "\n\n\n GENERATING TILES \n\n\n";
         $tileoven_cmd = "/mnt/webmapp-server-data-1/work-tiles/tileoven/index.js";
+        $mbutil_cmd = "/usr/local/bin/mb-util";
         // $tileoven_cmd = '/root/work-tiles/tileoven/index.js';
         if (!file_exists($tileoven_cmd)) {
             echo "\n$tileoven_cmd does not exixts! Run task in production environment\n";
         } else {
             echo "Using tileoven @ $tileoven_cmd\n";
             // /root/work-tiles/tileoven/index.js export sentierisat
+            $baseDir = $this->getRoot() . '/tiles';
             $mbtiles = $this->getRoot() . '/tiles/sentierisat.mbtiles';
+            $utfgrid = $this->getRoot() . '/tiles/sentierisat_utfgrid';
             system("rm -f $mbtiles");
             $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1 --quiet --verbose=off";
             echo $cmd = "$tileoven_cmd export sentierisat $mbtiles $options";
+            system($cmd);
+
+            echo $cmd = "rm $baseDir/sentierisat.export-failed $baseDir/sentierisat.export";
+            system($cmd);
+
+            echo $cmd = "rm -rf $baseDir/sentierisat_old_utfgrid";
+            system($cmd);
+
+            echo $cmd = "mv $utfgrid $baseDir/sentierisat_old_utfgrid";
+            system($cmd);
+
+            echo $cmd = "$mbutil_cmd --grid_callback=\"\" $mbtiles $utfgrid";
             system($cmd);
         }
 
