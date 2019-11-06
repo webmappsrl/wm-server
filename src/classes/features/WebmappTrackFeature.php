@@ -225,8 +225,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $this->ele_max=max($quotes);
                 $this->computeAscDesc($instance_id);
 
+                $dist = round($this->distance/1000,1);
                 $computed = array(
-                    'distance' => $this->distance,
+                    'distance' => $dist,
                     'ascent' => $this->ascent,
                     'descent' => $this->descent,
                     'ele:from' => $this->ele_from,
@@ -237,7 +238,8 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                 $this->addProperty('computed',$computed);
 
                 // Set "normal properties"
-                $this->setPropsFromComputed('distance');
+                $this->addProperty('distance',$dist);
+                //this->setPropsFromComputed('distance');
                 $this->setPropsFromComputed('ele:from');
                 $this->setPropsFromComputed('ele:to');
                 $this->setPropsFromComputed('ele:min');

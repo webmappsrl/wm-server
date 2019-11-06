@@ -401,22 +401,22 @@ class WebmappTrackFeatureTests extends TestCase {
 
         public function testAscDesc() {
             // Asciano Mirteto
-            $this->AscDescPrivate('Asciano.geojson',5820,2,16,2,331,380,350);
+            $this->AscDescPrivate('Asciano.geojson',5.8,2,16,2,331,380,350);
             // Pania.geojson
-            $this->AscDescPrivate('Pania.geojson',2700,551,1822,551,1822,1271,0);
+            $this->AscDescPrivate('Pania.geojson',2.7,551,1822,551,1822,1271,0);
 
             // TEST di Marco
-            $this->AscDescPrivate('GiroPiano.geojson',6120,0,0,-3,1,21,21);
-            $this->AscDescPrivate('Salita.geojson',1320,131,891,131,891,760,0);
-            $this->AscDescPrivate('SalitaEDiscesa.geojson',2460,1587,1605,1587,2322,700,716);
-            $this->AscDescPrivate('GiroLungo.geojson',71313,1448,1426,1004,4081,6778,6887);
+            $this->AscDescPrivate('GiroPiano.geojson',6.1,0,0,-3,1,21,21);
+            $this->AscDescPrivate('Salita.geojson',1.3,131,891,131,891,760,0);
+            $this->AscDescPrivate('SalitaEDiscesa.geojson',2.5,1587,1605,1587,2322,700,716);
+            $this->AscDescPrivate('GiroLungo.geojson',71.3,1448,1426,1004,4081,6778,6800);
 
 
         }
 
         private function AscDescPrivate($input,$distance,$ele_from,$ele_to,$ele_min,$ele_max,$ascent,$descent) {
             // Delta%
-            $delta_dist = 50;
+            $delta_dist = 0.1;
             $delta_ele = 10;
             $delta_asc = 40;
 
@@ -515,10 +515,10 @@ class WebmappTrackFeatureTests extends TestCase {
             $c=$p['computed'];
 
             $this->assertTrue(isset($c['distance']));
-            $this->assertEqualsWithDelta(5820,$c['distance'],$delta_dist);
+            $this->assertEqualsWithDelta(5.8,$c['distance'],$delta_dist);
 
             $this->assertTrue(isset($p['distance']));
-            $this->assertEqualsWithDelta(10000,$p['distance'],$delta_dist);
+            $this->assertEqualsWithDelta(10.0,$p['distance'],$delta_dist);
 
         }
 
