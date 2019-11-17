@@ -6,25 +6,33 @@ class WebmappSIMapCheckTask extends WebmappAbstractTask {
 
     private $regioni_osm = 
 array(
-    "7011030" => "Sardegna",
-    "7011950" => "Sicilia",
-    "7125614" => "Calabria",
-    "7164643" => "Basilicata",
-    "7186477" => "Campania",
-    "9290765" => "Puglia",
-    "7220974" => "Molise",
-    "7401588" => "Abruzzo",
-    "7246181" => "Lazio",
-    "7448629" => "Umbria-Marche",
-    "7468319" => "Toscana Emilia Romagna",
-    "7561168" => "Liguria",
-    "9521613" => "Valle d'Aosta",
-    "7029511" => "Piemonte",
-    "7029512" => "Lombardia",
-    "7029513" => "Trentino Alto Adige",
-    "7029514" => "Veneto",
-    "7332771" => "Friuli Venezia Giulia"
+    "7011030" => "z-sardegna",
+    "7011950" => "v-sicilia",
+    "7125614" => "u-calabria",
+    "7164643" => "t-basilicata",
+    "7186477" => "s-campania",
+    "9290765" => "r-puglia",
+    "7220974" => "q-molise",
+    "7401588" => "p-abruzzo",
+    "7246181" => "m-lazio",
+    "7448629" => "n-umbria-marche",
+    "7468319" => "l-toscana-emilia-romagna",
+    "7561168" => "g-liguria",
+    "9521613" => "f-valle-d-aosta",
+    "7029511" => "e-piemonte",
+    "7029512" => "d-lombardia",
+    "7029513" => "c-trentino-alto-adige",
+    "7029514" => "b-veneto",
+    "7332771" => "a-friuli-venezia-giulia"
 );
+    
+    // Variabili relative a WP
+    private $wp;
+    // Tassonomia places_to_go
+    private $wp_regioni;
+
+    // OUTPUT (json con tutte le informazioni)
+    private $out;
 
     private $layers;
     private $limit=0;
@@ -42,9 +50,30 @@ array(
     }
 
     public function process() {
-        echo "Processing Sentiero Italia \n\n";
-        die();
+        echo "Verifico la struttura dati per la creazione del Sentiero Italia \n\n";
+        $this->wp = new WebmappWP('simap');
 
+        // Scarica i places
+        // Verifica: devono essere presenti tutti e 18 (ID fissato, da associare agli ID di OSM)
+        $this->processWpRegioni();
+
+        // Scarica i meta di tutte le route (no geometry)
+
+        // Scarica tutte le track dal sito
+
+        // Loop su tutte le relation scaricate da OSM e effettua per ogni relation al seguente verifica:
+        // 1. esiste track corrispondente nel sito
+        // Se esiste
+        // 2. La regione associata con tassonomia sia quella corretta
+        // 3. Il tiolo sia quello corretto
+        // Fasi successive
+        // Controllo dello START POI
+        // Controllo del PREV/NEXT
+
+        // Output in un json human-readable che può essere poi usato da un task di wp per aggiornare la piattaforma
+
+
+        die();
 
         $path = $this->getRoot().'/geojson';
 
@@ -100,6 +129,42 @@ array(
 
         $this->end();
         return TRUE;
+    }
+
+    private function processWpRegioni() {
+        $this->wp->loadTaxonomy('where');
+        $taxs = $this->wp->getTaxonomies();
+        $this->wp_regioni=$taxs['where'];
+        $slugs = array_column($this->wp_regioni,'slug');
+
+        if(count($slugs)!=18) {
+            echo "FATAL ERROR: il numero delle regioni nella Piattaforma editoriale è errato\n\n";
+            print_r($slugs);
+            die();
+        }
+
+        echo "Numero delle regioni OK - procedo\n";
+
+        // Ferifica presenza di tutte le regioni attese
+
+        $error = false;
+        $regioni_error = array();
+
+        foreach($this->regioni_osm as $osmid => $slug) {
+            if(!in_array($slug, $slugs)) {
+                $error = true;
+                $regioni_error[]=$slug;
+            }
+        }
+
+        if($error) {
+            echo "FATAL ERROR: mancano una o più regioni nella piattaforma editoriale\n\n";
+            print_r($regioni_error);
+            die();
+        }
+
+        echo "Regioni OK - procedo\n\n";
+
     }
 
     private function processRegion($id) {
