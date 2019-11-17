@@ -372,7 +372,7 @@ class WebmappUtils {
 			while ($row=$r->fetchArray()) {
 				$output = simplexml_load_string($row['content']);
 				$download = false;
-				//echo " cache.";
+				echo " getting data from webcache ";
 			}
 		}
 		if ($download) {
