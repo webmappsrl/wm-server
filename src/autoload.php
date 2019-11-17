@@ -76,9 +76,14 @@ require 'classes/custom/WebmappAlaTask.php';
 require 'classes/custom/WebmappEmpTask.php';
 require 'classes/custom/WebmappPfEventsTask.php';
 require 'classes/custom/WebmappTDPTask.php';
-require 'classes/custom/WebmappSIMapTask.php';
-require 'classes/custom/WebmappSIMapStatsTask.php';
 require 'classes/custom/WebmappMaratonaDiPisaTask.php';
 require 'classes/custom/WebmappFSTTask.php';
 require 'classes/custom/WebmappTrentinoKTask.php';
 require 'classes/custom/WebmappSITRTTask.php';
+
+// SIMAP
+require 'classes/simap/WebmappSIMapCheckTask.php';
+// to remove (once simap2 is concluded)
+require 'classes/custom/WebmappSIMapTask.php';
+require 'classes/custom/WebmappSIMapStatsTask.php';
+
