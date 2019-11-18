@@ -595,6 +595,35 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals(43.7155037,$first[1]);
         }
 
+        public function testOSM() {
+            // Prepare TEST
+            // Delta%
+            $delta_dist = 0.1;
+            $delta_ele = 10;
+            $delta_asc = 40;
+
+            $pg=WebmappPostGis::Instance();
+            $pg->clearTables('test');
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/1256');
+            $t->writeToPostGis('test');
+            $t->setComputedProperties2('test');
+            // TEST(S)
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties']));
+            $p=$j['properties'];
+            $this->assertTrue(isset($p['computed']));
+            $c=$p['computed'];
+
+            $distance = 16.1;
+            $ele_from = 1032;
+
+            $this->assertTrue(isset($c['distance']));
+            $this->assertEqualsWithDelta($distance,$c['distance'],$delta_dist);
+
+            $this->assertTrue(isset($c['ele:from']));
+            $this->assertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA

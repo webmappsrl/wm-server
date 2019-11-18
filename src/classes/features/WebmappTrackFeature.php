@@ -55,8 +55,15 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     **/
         protected function mappingGeometry($json_array) {
         // TODO: controllo esistenza coordinate
-                if (isset($json_array['n7webmap_geojson'])) {
+
+             if (isset($json_array['n7webmap_geojson'])) {
                  $this->geometry=unserialize($json_array['n7webmap_geojson']);            
+             }
+             if (empty($this->geometry) && $this->hasProperty('osmid')) {
+                $r = new WebmappOSMRelation($this->getProperty('osmid'));
+                $t = $r->getTrack();
+                $this->setGeometry($t->getGeometry());
+                // TODO: other options only for SI
              }
          }
          public function setGeometry($geometry){$this->geometry=$geometry;}
