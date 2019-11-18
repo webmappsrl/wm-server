@@ -47,6 +47,7 @@ class WebmappSIMapCheckTask extends WebmappAbstractTask {
     // OUTPUT (json con tutte le informazioni)
     private $out;
     private $out_osm = array();
+    private $out_new = array();
 
 
 	public function check() {
@@ -308,7 +309,11 @@ class WebmappSIMapCheckTask extends WebmappAbstractTask {
 
             // 4.5. Controllo dello START POI / END POI
             // 4.6. Controllo del PREV/NEXT
+        } else {
+          $this->out_new[$this->regioni_mapping[$ref_regione]][$osmid]=$tappa_info;
         }
+
+
         $this->out[$this->regioni_mapping[$ref_regione]][$osmid]=$tappa_info;
         if($osm_check==false) {
             $this->out_osm[$this->regioni_mapping[$ref_regione]][$osmid]=$tappa_info;
@@ -324,6 +329,10 @@ class WebmappSIMapCheckTask extends WebmappAbstractTask {
         // Errori OSM (da correggere prima)
         $fname = $this->getRoot().'/resources/si_osm_check_'.date('Ymd').'.json';
         file_put_contents($fname,json_encode($this->out_osm));
+
+        // Tracce nuove (da inserire)
+        $fname = $this->getRoot().'/resources/si_new_track_'.date('Ymd').'.json';
+        file_put_contents($fname,json_encode($this->out_new));
     }
 
 }
