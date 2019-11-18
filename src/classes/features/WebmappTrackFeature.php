@@ -60,10 +60,15 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                  $this->geometry=unserialize($json_array['n7webmap_geojson']);            
              }
              if (empty($this->geometry) && $this->hasProperty('osmid')) {
-                $r = new WebmappOSMRelation($this->getProperty('osmid'));
-                $t = $r->getTrack();
-                $this->setGeometry($t->getGeometry());
-                // TODO: other options only for SI
+                try {
+                    $r = new WebmappOSMRelation($this->getProperty('osmid'));
+                    $t = $r->getTrack();
+                    $this->setGeometry($t->getGeometry());        
+                    // TODO: other options only for SI
+                } catch (Exception $e) {    
+                    echo "\n\n\nWARNING Exception ".get_class($e)." thrown. ".$e->getMessage()."\n";
+                    echo "Geometry not set\n\n\n";
+                }
              }
          }
          public function setGeometry($geometry){$this->geometry=$geometry;}
