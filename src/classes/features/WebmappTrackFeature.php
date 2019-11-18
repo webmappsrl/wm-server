@@ -61,9 +61,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
              }
              if (empty($this->geometry) && $this->hasProperty('osmid')) {
                 try {
-                    $r = new WebmappOSMRelation($this->getProperty('osmid'));
-                    $t = $r->getTrack();
-                    $this->setGeometry($t->getGeometry());        
+                    $osmid=$this->getProperty('osmid');
+                    $pg = WebmappPostGisOsm::Instance();
+                    $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
                     // TODO: other options only for SI
                 } catch (Exception $e) {    
                     echo "\n\n\nWARNING Exception ".get_class($e)." thrown. ".$e->getMessage()."\n";
