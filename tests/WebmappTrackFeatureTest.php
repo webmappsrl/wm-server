@@ -624,6 +624,23 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
         }
 
+        public function testStartEndPoi() {
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/1245');
+            $j=json_decode($t->getJson(),true);
+
+            // Properties
+            $this->assertTrue(isset($j['properties']));
+            $p=$j['properties'];
+
+            // FROM_POI
+            $this->assertTrue(isset($p['from_poi']));
+            $this->assertEquals(4765,isset($p['from_poi']));
+
+            // TO_POI
+            $this->assertTrue(isset($p['to_poi']));
+            $this->assertEquals(4251,isset($p['to_poi']));
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA

@@ -30,6 +30,22 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         $this->setProperty('duration:forward',$json_array);
         $this->setProperty('duration:backward',$json_array);
         $this->setProperty('cai_scale',$json_array);
+
+        // ADD START AND END POI        
+        if(isset($json_array['n7webmap_start_poi']) && 
+            is_array($json_array['n7webmap_start_poi']) &&
+                count($json_array['n7webmap_start_poi'])>0) {
+            $from_id = $json_array['n7webmap_start_poi'][0]['ID'];
+            $this->addProperty('from_poi',$from_id);
+        }
+        if(isset($json_array['n7webmap_end_poi']) && 
+            is_array($json_array['n7webmap_end_poi']) &&
+                count($json_array['n7webmap_end_poi'])>0) {
+            $from_id = $json_array['n7webmap_end_poi'][0]['ID'];
+            $this->addProperty('to_poi',$from_id);
+        }
+
+
         // ADD id_pois
         $related_pois_id=$this->getRelatedPoisId();
         $json_array['id_pois']=$related_pois_id;
