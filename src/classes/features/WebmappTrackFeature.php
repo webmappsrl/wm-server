@@ -80,8 +80,25 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     $osmid=$this->getProperty('osmid');
                     $pg = WebmappPostGisOsm::Instance();
                     $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
-                    // TODO: other options only for SI
-                } catch (Exception $e) {    
+                    // Other options only for SI
+                    // TODO: put in option(s)
+                    $relation = new WebmappOSMRelation($osmid);
+                    $red_symbols = array(
+                       'red:red:white_stripe:SI:black',
+                       'red:red:white_stripe:AV:black'
+                       );
+                    $color = '#636363';
+                    if($relation->hasTag('source') && 
+                     $relation->getTag('source') == 'survey:CAI') {
+                        $color = '#A63FD1';
+                        if($relation->hasTag('osmc:symbol') && 
+                         in_array($relation->getTag('osmc:symbol'),$red_symbols)) {
+                            $color = '#E35234';
+                           }
+                      }
+                      $this->addProperty('color',$color);
+
+                    } catch (Exception $e) {    
                     echo "\n\n\nWARNING Exception ".get_class($e)." thrown. ".$e->getMessage()."\n";
                     echo "Geometry not set\n\n\n";
                 }

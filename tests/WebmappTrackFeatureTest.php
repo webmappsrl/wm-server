@@ -624,6 +624,18 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
         }
 
+        public function testOSMColor() {
+            // Prepare TEST
+            // Delta%
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/1256');
+            // TEST(S)
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties']));
+            $p=$j['properties'];
+            $this->assertTrue(isset($p['color']));
+            $this->assertEquals('#E35234',$p['color']);
+        }
+
         public function testStartEndPoi() {
             $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/1245');
             $j=json_decode($t->getJson(),true);
