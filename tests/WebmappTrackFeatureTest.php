@@ -653,6 +653,33 @@ class WebmappTrackFeatureTests extends TestCase {
             $this->assertEquals(4251,isset($p['to_poi']));
         }
 
+        public function testPrevNext() {
+
+            $id =1420; $next=1421;
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/'.$id);
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties'])); $p=$j['properties'];
+            $this->assertTrue(isset($p['next_track']));
+            $this->assertEquals($next,isset($p['next_track']));
+
+            $id =1833; $next=3011; $prev=3010;
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/'.$id);
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties'])); $p=$j['properties'];
+            $this->assertTrue(isset($p['next_track']));
+            $this->assertEquals($next,isset($p['next_track']));
+            $this->assertTrue(isset($p['prev_track']));
+            $this->assertEquals($prev,isset($p['prev_track']));
+
+            $id =3011; $prev=3010;
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/'.$id);
+            $j=json_decode($t->getJson(),true);
+            $this->assertEquals($next,isset($p['next_track']));
+            $this->assertTrue(isset($p['prev_track']));
+            $this->assertEquals($prev,isset($p['prev_track']));
+
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA

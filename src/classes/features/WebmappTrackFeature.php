@@ -45,6 +45,20 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $this->addProperty('to_poi',$from_id);
         }
 
+        // PREV AND NEXT TRACK
+        if(isset($json_array['prev_track']) && 
+            is_array($json_array['prev_track']) &&
+                count($json_array['prev_track'])>0) {
+            $this->addProperty('prev_track',$json_array['prev_track'][0]);
+        }
+
+        if(isset($json_array['next_track']) && 
+            is_array($json_array['next_track']) &&
+                count($json_array['next_track'])>0) {
+            $this->addProperty('next_track',$json_array['next_track'][0]);
+        }
+
+
 
         // ADD id_pois
         $related_pois_id=$this->getRelatedPoisId();
