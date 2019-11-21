@@ -49,6 +49,9 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                     $file = $this->mapWebsiteToRelatedUrl($file);
                     $file = $this->mapPictureUrlToImage($file);
                 }
+                if ($filename == "sentieri_tratte.geojson") {
+                    $file = $this->mapImageGalleryUrl($file);
+                }
 
                 file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, json_encode($file));
                 echo "$filename DONE\n";
@@ -254,6 +257,18 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             if (array_key_exists("picture_url", $file["features"][$key]["properties"])) {
                 $file["features"][$key]["properties"]["image"] = $file["features"][$key]["properties"]["picture_url"];
                 unset($file["features"][$key]["properties"]["picture_url"]);
+            }
+        }
+
+        return $file;
+    }
+
+    public function mapImageGalleryUrl($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("image_gallery", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["imageGalleryUrl"] = $file["features"][$key]["properties"]["image_gallery"];
+                unset($file["features"][$key]["properties"]["image_gallery"]);
             }
         }
 

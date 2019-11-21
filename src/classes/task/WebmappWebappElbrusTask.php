@@ -69,13 +69,13 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         // For each instance copy the updated core, copy the icon, update the index.html and link config.json
         echo "\nUpdating webapp core...\n";
-        echo "Removing old core...       ";
+        echo "Removing old core...                      ";
 
         $cmd = "rm -Rf {$this->path}/core";
         exec($cmd);
 
         echo " OK\n";
-        echo "Copying new core...        ";
+        echo "Copying new core...                       ";
 
         $cmd = "cp -r {$this->zip_base_url}/core {$this->path}/core";
         exec($cmd);
@@ -89,7 +89,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         exec($cmd);
 
         echo " OK\n";
-        echo "Updating index.html...     ";
+        echo "Updating index.html...                    ";
 
         $json = json_decode(file_get_contents("{$this->path}/config.json"), true);
         $title = $json["APP"]["name"];
@@ -99,7 +99,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         file_put_contents("{$this->path}/core/index.html", $file);
 
         echo " OK\n";
-        echo "Linking config.json...     ";
+        echo "Linking config.json...                    ";
 
         $cmd = "cd {$this->path}/core && ln -s ../config.json ./config.json";
         exec($cmd);
@@ -111,21 +111,21 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         if (file_exists("{$this->path}/.well-known")) {
             $cmd = "cd {$this->path}/core && ln -s ../.well-known ./.well-known";
             exec($cmd);
-            echo "\niOS files                   OK\n";
+            echo "\n - iOS files                   OK";
         } else {
-            echo "\nWARNING: {$this->path}/.well-known/ directory missing and needed for iOS deeplinks\n";
+            echo "\n - iOS: WARNING: {$this->path}/.well-known/ directory missing and needed for iOS deeplinks";
         }
 
         $list = glob("{$this->path}/google*.html");
         if (sizeof($list) >= 1) {
             $cmd = "cd {$this->path}/core && ln -s ../google*.html ./google*.html";
             exec($cmd);
-            echo "\nandroid files               OK\n";
+            echo "\n - Android files               OK";
         } else {
-            echo "\nWARNING: {$this->path}/google*.html file missing and needed for android deeplinks\n";
+            echo "\n - Android: WARNING: {$this->path}/google*.html file missing and needed for android deeplinks";
         }
 
-        echo "Webapp updated successfully\n\n\n";
+        echo "\n\nWebapp updated successfully\n\n\n";
 
         return true;
     }
