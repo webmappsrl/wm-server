@@ -60,6 +60,15 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             }
         }
 
+        $src = $this->getRoot();
+        $trg = $this->endpoint;
+        $cmd = "rm -Rf {$src}/track";
+        system($cmd);
+        if (file_exists($trg . '/track')) {
+            $cmd = "ln -s {$trg}/track {$src}/track";
+            system($cmd);
+        }
+
         return true;
     }
 
