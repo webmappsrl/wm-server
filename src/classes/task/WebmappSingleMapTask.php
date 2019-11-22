@@ -49,6 +49,11 @@ class WebmappSingleMapTask extends WebmappAbstractTask
         $cmd = "ln -s {$trg}/taxonomies {$src}/taxonomies";
         exec($cmd);
 
+        $cmd = "rm -Rf {$src}/track";
+        system($cmd);
+        $cmd = "ln -s {$trg}/track {$src}/track";
+        system($cmd);
+
         return true;
     }
 }
