@@ -51,8 +51,10 @@ class WebmappSingleMapTask extends WebmappAbstractTask
 
         $cmd = "rm -Rf {$src}/track";
         system($cmd);
-        $cmd = "ln -s {$trg}/track {$src}/track";
-        system($cmd);
+        if (file_exists($trg . '/track')) {
+            $cmd = "ln -s {$trg}/track {$src}/track";
+            system($cmd);
+        }
 
         return true;
     }

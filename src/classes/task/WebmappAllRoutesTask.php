@@ -80,8 +80,10 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
         $trg = $this->endpoint . '/track';
         $cmd = "rm -Rf $src";
         system($cmd);
-        $cmd = "ln -s $trg $src";
-        system($cmd);
+        if (file_exists($trg)) {
+            $cmd = "ln -s $trg $src";
+            system($cmd);
+        }
     }
 
     private function processMainTaxonomies()
