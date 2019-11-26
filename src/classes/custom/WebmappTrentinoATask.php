@@ -88,8 +88,8 @@ class WebmappTrentinoATask extends WebmappAbstractTask
 // SI ogr2ogr -f GeoJSON sentieri_localita.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, localita as name, quota as ele, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates  from sentieri_localita order by name"
 
         echo "\nGenerating sentieri_lp.geojson\n";
-        $destDir = $this->getRoot() . "geojson/";
-        $cmd = "cp {$this->tmp_path}/sentieri_lp.json " . $destDir;
+        $destDir = $this->getRoot() . "/geojson";
+        $cmd = "cp {$this->tmp_path}/sentieri_lp.json {$destDir}/sentieri_lp.geojson";
         system($cmd);
 
         echo "\nGenerating sentieri_localita.geojson\n";
