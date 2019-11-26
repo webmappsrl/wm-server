@@ -9,8 +9,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         "rifugi.geojson",
         "sentieri_localita.geojson",
         "sentieri_tratte.geojson",
-        // "sentieri_lunga_percorrenza.geojson",
-        "sentieri_lp.geojson",
+        "sentieri_lunga_percorrenza.geojson",
+        // "sentieri_lp.geojson",
     );
 
     public function check()
@@ -197,7 +197,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             case "sentieri_tratte.geojson":
                 $taxonomy = array("activity" => array("21"));
                 break;
-            // case "sentieri_lunga_percorrenza.geojson":
+            case "sentieri_lunga_percorrenza.geojson":
             case "sentieri_lp.geojson":
                 $taxonomy = array("activity" => array("22"));
                 break;
