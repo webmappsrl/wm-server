@@ -53,8 +53,12 @@ class WebmappTrentinoATask extends WebmappAbstractTask
         $cmd = "ogr2ogr $options '{$this->tmp_path}/sentieri_localita.json' -nln 'sentieri_localita'";
         system($cmd);
 
-        echo "Upload sentieri_lunga_percorrenza.json to postgis\n";
-        $cmd = "ogr2ogr $options '{$this->tmp_path}/sentieri_lunga_percorrenza.json' -nln 'sentieri_lp'";
+        // echo "Upload sentieri_lunga_percorrenza.json to postgis\n";
+        // $cmd = "ogr2ogr $options '{$this->tmp_path}/sentieri_lunga_percorrenza.json' -nln 'sentieri_lp'";
+        // system($cmd);
+        echo "The file sentieri_lunga_percorrenza.json has been ignored and it's used sentieri_lp.json\n";
+        echo "Upload sentieri_lp.json to postgis\n";
+        $cmd = "ogr2ogr $options '{$this->tmp_path}/sentieri_lp.json' -nln 'sentieri_lp'";
         system($cmd);
 
         echo "Upload sentieri_sottotratte.json to postgis\n";
@@ -82,6 +86,11 @@ class WebmappTrentinoATask extends WebmappAbstractTask
         // NO ogr2ogr -f GeoJSON sentieri_luoghi.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, numero as ref, luogo as place_code, concat('N ', nord_geo, ', E ', est_geo) as coordinates, concat('N ', nord_utm, ', E ', est_utm) as utm_coordinates from sentieri_luoghi order by ref"
 
 // SI ogr2ogr -f GeoJSON sentieri_localita.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Transform(wkb_geometry, 4326) as geom, localita as name, quota as ele, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5), ', E ', round(ST_X(ST_Transform(wkb_geometry, 4326)::geometry)::numeric,5)) as coordinates, concat('N ', round(ST_Y(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0), ', E ', round(ST_X(ST_Transform(wkb_geometry, 25832)::geometry)::numeric,0)) as utm_coordinates  from sentieri_localita order by name"
+
+        echo "\nGenerating sentieri_lp.geojson\n";
+        $destDir = $this->getRoot() . "geojson/";
+        $cmd = "cp {$this->tmp_path}/sentieri_lp.json " . $destDir;
+        system($cmd);
 
         echo "\nGenerating sentieri_localita.geojson\n";
         $select = <<<EOS
