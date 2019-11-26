@@ -94,8 +94,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                     $osmid=$this->getProperty('osmid');
                     $pg = WebmappPostGisOsm::Instance();
                     $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
-                    // Other options only for SI
-                    // TODO: put in option(s)
                     $relation = new WebmappOSMRelation($osmid);
                     $red_symbols = array(
                        'red:red:white_stripe:SI:black',
@@ -111,6 +109,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
                            }
                       }
                       $this->addProperty('color',$color);
+
+                      // ADD lineDash for alternate
+                      if($relation->hasTag('state') && $relation->getTag('state')=='alternate') {
+                        $this->addProperty('lineDash',array(20,20));
+                      }
+
+                      // TODO: ADD cai_scale 
 
                     } catch (Exception $e) {    
                     echo "\n\n\nWARNING Exception ".get_class($e)." thrown. ".$e->getMessage()."\n";

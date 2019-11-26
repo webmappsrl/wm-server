@@ -680,6 +680,24 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
+        public function testLineDash() {
+            // Test sulla track relativa alla relation https://www.openstreetmap.org/relation/9351675
+            // (SI V23B) Randazzo - Bivacco Forestale di Monte Scavo (9351675)
+            // ID WP: 1728
+            $id =1728;
+            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/'.$id);
+            $j=json_decode($t->getJson(),true);
+            $this->assertTrue(isset($j['properties'])); $p=$j['properties'];
+            $this->assertTrue(isset($p['lineDash']));
+            $ld = $p['lineDash'];
+
+            $this->assertEquals(2,count($ld));
+            $this->assertEquals(20,$ld[0]);
+            $this->assertEquals(20,$ld[1]);
+
+
+        }
+
         // public function testXXXX() {
         //     // Prepare TEST
         //     // LOAD DATA
