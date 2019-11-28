@@ -112,7 +112,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 
                       // ADD lineDash for alternate
                       if($relation->hasTag('state') && $relation->getTag('state')=='alternate') {
-                        $this->addProperty('lineDash',array(20,20));
+                        $this->addProperty('lineDash',array(12,8));
                       }
 
                       // TODO: ADD cai_scale 

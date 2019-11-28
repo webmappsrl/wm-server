@@ -692,8 +692,8 @@ class WebmappTrackFeatureTests extends TestCase {
             $ld = $p['lineDash'];
 
             $this->assertEquals(2,count($ld));
-            $this->assertEquals(20,$ld[0]);
-            $this->assertEquals(20,$ld[1]);
+            $this->assertEquals(12,$ld[0]);
+            $this->assertEquals(8,$ld[1]);
 
 
         }
