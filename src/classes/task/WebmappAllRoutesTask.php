@@ -210,9 +210,13 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
         }
         if (count($activities) > 0) {
             file_put_contents($route_tax_path . '/activity.json', json_encode($activities));
+        } else {
+            file_put_contents($route_tax_path . '/activity.json', '{}';            
         }
         if (count($webmapp_categories) > 0) {
             file_put_contents($route_tax_path . '/webmapp_category.json', json_encode($webmapp_categories));
+        } else {
+            file_put_contents($route_tax_path . '/webmapp_category.json', '{}');
         }
 
         // Generazione del file map.json
