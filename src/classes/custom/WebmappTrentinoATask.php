@@ -141,6 +141,38 @@ EOS;
         $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/punti_appoggio.geojson $options -sql \"$select\"";
         system($cmd);
 
+
+/// SENTIERI LUNGA PERCORRENZA
+// ogr2ogr -f GeoJSON sentieri_lunga_percorrenza.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Union(ST_Transform (ST_Simplify(wkb_geometry, 8), 4326)) as geom, concat(sentiero, ' - ', tappe) as ref, label from sentieri_lp group by ref, label order by ref"
+// CAMPI PRESENTI NELLA TABELLA sentieri_lp
+// codice
+// nome
+// label
+// lun_planim (intero, metri)
+// lun_inclin (intero, metri)
+// descrizione (vuota)
+// link (URL)
+
+        
+        echo "Generating sentieri lunga percorrenza\n";
+
+        $select = <<<EOS
+SELECT ST_Transform (ST_Simplify(ST_LineMerge(wkb_geometry), 8), 4326) as geom, 
+       label as ref, 
+       nome as name,
+       link as web
+FROM sentieri_lp 
+ORDER BY ref
+EOS;
+        $cmd = "rm -f {$this->getRoot()}/geojson/sentieri_lunga_percorrenza.geojson";
+        system($cmd);
+        $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/sentieri_lunga_percorrenza.geojson $options -sql \"$select\"";
+        system($cmd);
+        // $in = file_get_contents($this->getRoot() . '/geojson/sentieri_lunga_percorrenza.geojson');
+        // $in = preg_replace("/\"web\":([^,]*)/", "\"related_url\": [$1]", $in);
+        // file_put_contents($this->getRoot() . '/geojson/sentieri_lunga_percorrenza.geojson', $in);
+        echo "Sentieri lunga percorrenza generated.\n\n";
+
         echo "\nGenerating sentieri_tratte.geojson\n";
         $select = <<<EOS
 SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom,
