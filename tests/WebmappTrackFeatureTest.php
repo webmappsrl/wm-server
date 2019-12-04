@@ -615,7 +615,7 @@ class WebmappTrackFeatureTests extends TestCase {
             $c=$p['computed'];
 
             $distance = 16.1;
-            $ele_from = 1032;
+            $ele_from = 1583;
 
             $this->assertTrue(isset($c['distance']));
             $this->assertEqualsWithDelta($distance,$c['distance'],$delta_dist);
