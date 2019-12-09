@@ -71,7 +71,7 @@ class WebmappWP {
 			if(isset($item['featured_image']) && is_array($item['featured_image'])) {
 				if (isset($item['featured_image']['sizes']['medium_large'])){
 					$item['image']=($item['featured_image']['sizes']['medium_large']);
-				} else if (isset($jm['media_details']['sizes']['medium'])) {
+				} else if (isset($item['featured_image']['sizes']['medium'])) {
 					$item['image']=($item['featured_image']['sizes']['medium']);
 				}
 			}
