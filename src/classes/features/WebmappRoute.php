@@ -73,6 +73,16 @@ class WebmappRoute {
 			$this->properties['isPublic']=$this->json_array['wm_route_public'];
 		}
 
+		if(isset($this->json_array['use_password'])){
+			$this->properties['use_password']=$this->json_array['use_password'];
+		}
+
+		if(isset($this->json_array['route_password'])){
+			global $wm_config;
+			$pk = $wm_config['route_password']['private_key'];
+			$this->properties['route_password']=md5($pk.$this->json_array['route_password']);
+		}
+
 		// TODO: STAGES
 		if (isset($this->json_array['n7webmap_route_related_track']) && 
 			count($this->json_array['n7webmap_route_related_track']) > 0 ) {

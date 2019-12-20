@@ -185,5 +185,18 @@ class WebmappRouteTest extends TestCase {
         $this->assertFalse($j['properties']['isPublic']);		
 	}
 
+	public function testRoutePassword() {
+		$wp_url = 'http://develop.be.webmapp.it/wp-json/wp/v2/route/262';
+        $r = new WebmappRoute($wp_url);
+        $j = json_decode($r->getJson(),TRUE);
+        $this->assertTrue(isset($j['properties']['use_password']));
+        $this->assertTrue($j['properties']['use_password']);
+        $this->assertTrue(isset($j['properties']['route_password']));
+        $pwd = 'pippo234';
+        $pk = '2K7TGxm98QBTga7DB6kDh4YSAv39rYN5';
+        $md5 = md5($pk.$pwd);
+        $this->assertEquals($md5,$j['properties']['route_password']);
+	}
+
 
 }
