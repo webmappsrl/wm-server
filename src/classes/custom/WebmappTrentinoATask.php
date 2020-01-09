@@ -160,7 +160,8 @@ EOS;
 SELECT ST_Transform (ST_Simplify(ST_LineMerge(wkb_geometry), 8), 4326) as geom, 
        label as ref, 
        nome as name,
-       link as web
+       concat(lun_planim,' m') as distance,
+       link as website
 FROM sentieri_lp 
 ORDER BY ref
 EOS;
@@ -190,7 +191,7 @@ SELECT  ST_Transform (ST_Simplify(wkb_geometry, 20), 4326) as geom,
         quota_min as ele_min,
         quota_max as ele_max,
         concat(lun_planim,' m') as distance,
-        lun_inclin ,
+        lun_inclin,
         t_andata as duration_forward,
         t_ritorno as duration_backward,
         gr_mont,
