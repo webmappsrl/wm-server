@@ -53,6 +53,9 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 if ($filename == "sentieri_tratte.geojson") {
                     $file = $this->mapImageGalleryUrl($file);
                 }
+                if ($filename == "sentieri_lunga_percorrenza.geojson") {
+                    $file = $this->mapWebsiteToRelatedUrl($file);
+                }
 
                 file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, json_encode($file));
                 echo "$filename DONE\n";
