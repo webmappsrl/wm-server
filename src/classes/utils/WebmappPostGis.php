@@ -190,7 +190,9 @@ final class WebmappPostGis
 			ST_Ymax(ST_Envelope(ST_Collect(geom)))) as bbox
  		 FROM track
  		 WHERE track_id
- 		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id');";
+ 		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id')
+         AND instance_id='$instance_id'
+            ;";
             $a = $this->select($q);
             $bbox = $a[0]['bbox'];
             $bboxArray = explode(',', $bbox);
@@ -217,7 +219,9 @@ final class WebmappPostGis
 			ROUND(ST_Ymax(ST_Transform(ST_Envelope(ST_Collect(geom)), 3857)))) as bbox
  		 FROM track
  		 WHERE track_id
- 		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id');";
+ 		    IN (SELECT track_id FROM related_track WHERE route_id=$route_id AND instance_id='$instance_id')
+         AND instance_id='$instance_id'
+            ";
             $a = $this->select($q);
 
             $bbox = $a[0]['bbox'];

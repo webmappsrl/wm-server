@@ -97,6 +97,33 @@ class WebmappRouteTest extends TestCase {
 
 	}
 
+	public function testBBoxAmalfi() {
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+
+		$tracks = array(1864,1868,1875,1878,1881,1872,1884,1887,1899,1890,1904);
+		foreach($tracks as $tid) {
+			$turl = "http://merlot.be.webmapp.it/wp-json/wp/v2/track/$tid";
+			$t1 = new WebmappTrackFeature($turl);
+			$t1->writeToPostGis('test');			
+		} 
+
+		$rurl = "http://merlot.be.webmapp.it/wp-json/wp/v2/route/1907";
+		$r = new WebmappRoute($rurl);
+		$r->writeToPostGis('test');
+
+		$bb = $r->addBBox('test');
+
+		$ja=json_decode($r->getJson(),TRUE);
+
+		$this->assertTrue(isset($ja['properties']['bbox']));
+		$this->assertTrue(isset($ja['properties']['bbox_metric']));
+
+		$this->assertEquals('13.964479992911,40.494779999182,14.684010009468,40.904405239224',$ja['properties']['bbox']);
+		$this->assertEquals('1555085,4940427,1634051,4995890',$ja['properties']['bbox_metric']);
+
+	}
+
 	public function testGenerateRBHTML($instance_id='') {
 		$file = '/tmp/346_rb.html';
 		system("rm -Rf $file");
@@ -162,15 +189,6 @@ class WebmappRouteTest extends TestCase {
         $j = json_decode($r->getJson(),TRUE);
         $this->assertEquals(2,$j['properties']['stages']);
 	}
-	public function testBugImageRouteVN() {
-		$wp_url = 'http://vn.be.webmapp.it/wp-json/wp/v2/route/1123';
-        $r = new WebmappRoute($wp_url);
-        $j = json_decode($r->getJson(),TRUE);
-        $this->assertTrue(isset($j['properties']['image']));
-        $this->assertEquals('http://vn.be.webmapp.it/wp-content/uploads/2017/10/L004-copertina-300x300.jpg',$j['properties']['image']);
-        $this->assertTrue(isset($j['properties']['imageGallery']));
-	}
-
 	public function testIsPublic() {
 		$wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/route/686';
         $r = new WebmappRoute($wp_url);
