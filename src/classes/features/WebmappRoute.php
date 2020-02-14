@@ -116,7 +116,12 @@ class WebmappRoute {
 	$this->properties['wp_edit']=$wp_edit;
 	$this->properties['modified']=$this->json_array['modified'];
 
-	        // TRANSLATIONS
+	// LINK WEB
+	if(isset($this->json_array['link']) && !empty($this->json_array['link'])) {
+		$this->properties['web']=$this->json_array['link'];
+	}
+
+	// TRANSLATIONS
 	if (isset($this->json_array['wpml_translations'])) {
 		$t = $this->json_array['wpml_translations'];
 		if (is_array($t) && count($t)>0) {
