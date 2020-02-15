@@ -1,4 +1,4 @@
-# wm-server
+# wm-server (ELBRUS)
 
 The wm-server software performs all the operations for creating the application instances (APP, WEBAPP, API) WEBMAPP starting from the data contained in the instances of WORDPRESS in the content type of MAPPA
 
