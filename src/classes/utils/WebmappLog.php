@@ -1,6 +1,5 @@
 <?php
 
-// Manage Logfile
 final class WebmappLog {
 
 	private $log_path;
