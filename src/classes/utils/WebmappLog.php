@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class WebmappLog
+ */
 final class WebmappLog {
 
 	private $log_path;
@@ -9,6 +12,10 @@ final class WebmappLog {
 	private $id;
 	private $is_open = false;
 
+    /**
+     * @return WebmappLog|null
+     * @throws WebmappExceptionLogPathNotExist
+     */
 	public static function Instance()
 	{
 		static $inst = null;
@@ -18,6 +25,10 @@ final class WebmappLog {
 		return $inst;
 	}
 
+    /**
+     * WebmappLog constructor.
+     * @throws WebmappExceptionLogPathNotExist
+     */
 	private function __construct()
 	{
 		global $wm_config;
@@ -61,15 +72,25 @@ final class WebmappLog {
 		$this->log_file=$day_path.'/'.str_pad((int) $this->id,5,"0",STR_PAD_LEFT).'.log';
 	}
 
+    /**
+     * @return int
+     */
 	public function getId() {
 		return $this->id;
 	}
 
+    /**
+     * @param $k
+     * @param $v
+     */
 	private function setIndexVal($k,$v) {
 		$this->index[$this->id][$k]=$v;
 		file_put_contents($this->index_file, json_encode($this->index));
 	}
 
+    /**
+     * @param $msg
+     */
 	public function open($msg) {
 		if (!$this->is_open) {
 			$start_msg = '* LOG START AT '.date('r').': '.$msg.' *';
@@ -81,6 +102,9 @@ final class WebmappLog {
 		}
 	}
 
+    /**
+     * @param $msg
+     */
 	public function log($msg) {
 		if(!$this->is_open) {
 			$this->is_open('UNKNOWN');
@@ -89,6 +113,9 @@ final class WebmappLog {
 		file_put_contents($this->log_file,$new_msg."\n",FILE_APPEND);
 	}
 
+    /**
+     *
+     */
 	public function close() {
 		$stop_msg = '* LOG STOP AT '.date('r').' *';
 		file_put_contents($this->log_file,"\n\n",FILE_APPEND);
