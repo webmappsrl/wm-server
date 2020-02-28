@@ -84,6 +84,7 @@ require 'classes/custom/WebmappSITRTTask.php';
 // SIMAP
 require 'classes/simap/WebmappSIMapCheckTask.php';
 require 'classes/simap/WebmappSIMapFindGhostTask.php';
+require 'classes/simap/WebmappSIMapCSVTask.php';
 // to remove (once simap2 is concluded)
 require 'classes/custom/WebmappSIMapTask.php';
 require 'classes/custom/WebmappSIMapStatsTask.php';
