@@ -116,22 +116,22 @@ class WebmappWPTest extends TestCase
 
 	}
 
-	public function testgetImageLayer() {
-		$wp = new WebmappWP('dev');
-		$l = $wp->getImageLayer();
-		$path=__DIR__.'/../data';
-		$l->write($path);
+	// public function testgetImageLayer() {
+	// 	$wp = new WebmappWP('dev');
+	// 	$l = $wp->getImageLayer();
+	// 	$path=__DIR__.'/../data';
+	// 	$l->write($path);
 
-		$o=$path.'/image.geojson';
-		$j=WebmappUtils::getJsonFromApi($o);
-		$this->assertTrue(is_array($j));
-		$this->assertTrue(isset($j['type']));
-		$this->assertEquals('FeatureCollection',$j['type']);
+	// 	$o=$path.'/image.geojson';
+	// 	$j=WebmappUtils::getJsonFromApi($o);
+	// 	$this->assertTrue(is_array($j));
+	// 	$this->assertTrue(isset($j['type']));
+	// 	$this->assertEquals('FeatureCollection',$j['type']);
 
-		// TODO: decommentare dopo implementazione
-		// $this->assertTrue(isset($j['features']));
+	// 	// TODO: decommentare dopo implementazione
+	// 	// $this->assertTrue(isset($j['features']));
 
-	}
+	// }
 
 	public function testGetAllRoutesLayer() {
 		$wp = new WebmappWp('dev');
@@ -171,6 +171,15 @@ class WebmappWPTest extends TestCase
 		$this->assertEquals('#5b55d1',$tax['where'][46]['color']);
 		$this->assertEquals('#997a00',$tax['when'][43]['color']);
 
+		// Description
+		$this->assertTrue(!empty($tax['activity'][40]['description']));
+
+		//BDC
+		$bdc=$tax['activity'][40];
+		$this->assertEquals('http://dev.be.webmapp.it/wp-json/wp/v2/activity/40',$bdc['source']);
+		$this->assertEquals('http://dev.be.webmapp.it/activity/bici-da-corsa',$bdc['web']);
+		$this->assertEquals('http://dev.be.webmapp.it/wp-admin/term.php?taxonomy=activity&tag_ID=40',$bdc['wp_edit']);
+
 	}
 
 	public function testWriteTaxonomies() {
@@ -190,4 +199,126 @@ class WebmappWPTest extends TestCase
 			$this->assertTrue(file_exists($file));
 		}		
 	}
+
+	public function testPoisInTaxonomy() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$l=$wp->getAllPoisLayer('all_poi');
+		$t=$wp->getTaxonomies();
+
+		// WEBMAPP CATEGORY
+		$this->assertTrue(isset($t['webmapp_category'][35]));
+		$t_35 = $t['webmapp_category'][35];
+		$this->assertTrue(isset($t_35['items']['poi']));
+		$this->assertTrue(count($t_35['items']['poi'])>0);
+		$this->assertTrue(in_array(800, $t_35['items']['poi']));
+
+	}
+
+	public function testTracksInTaxonomy() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$l=$wp->getAllTracksLayer('all_track');
+		$t=$wp->getTaxonomies();
+
+		// ACTIVITY
+		$this->assertTrue(isset($t['activity'][40]));
+		$t_40 = $t['activity'][40];
+		$this->assertTrue(isset($t_40['items']['track']));
+		$this->assertTrue(count($t_40['items']['track'])>0);
+		$this->assertTrue(in_array(882, $t_40['items']['track']));
+	}
+
+	public function testRoutesInTaxonomy() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomies();
+		$l=$wp->getAllRoutesLayer('all_route');
+		$t=$wp->getTaxonomies();
+
+		// ACTIVITY
+		$this->assertTrue(isset($t['activity'][40]));
+		$t_40 = $t['activity'][40];
+		$this->assertTrue(isset($t_40['items']['route']));
+		$this->assertTrue(count($t_40['items']['route'])>0);
+		$this->assertTrue(in_array(346, $t_40['items']['route']));
+
+		// THEME
+		$this->assertTrue(isset($t['theme'][41]));
+		$t_41 = $t['theme'][41];
+		$this->assertTrue(isset($t_41['items']['route']));
+		$this->assertTrue(count($t_41['items']['route'])>0);
+		$this->assertTrue(in_array(917, $t_41['items']['route']));
+
+
+	}
+
+	public function testTaxonomyImage() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomy('activity');
+		$tax = $wp->getTaxonomies();
+
+		$this->assertTrue(isset($tax['activity'][40]));
+		$bdc = $tax['activity'][40];
+		$this->assertTrue(is_array($bdc));
+		$this->assertTrue(isset($bdc['image']));
+		$image_url = 'http://dev.be.webmapp.it/wp-content/uploads/2019/03/sommer-mountainbike-768x389.jpg';
+		$this->assertEquals($image_url,$bdc['image']);
+	}
+
+	public function testLanguages() {
+		$wp = new WebmappWP('dev');
+		$wp->loadLanguages();
+		$this->assertEquals('it',$wp->getLanguageActive());
+		$others = $wp->getLanguageOthers();
+		$this->assertEquals(3,count($others));
+		$this->assertTrue(in_array('en',$others));
+		$this->assertTrue(in_array('fr',$others));
+		$this->assertTrue(in_array('de',$others));
+	}
+
+	public function testVNWebmappCategory4() {
+		$wp = new WebmappWP('vn');
+		$wp->loadTaxonomy('webmapp_category');
+		$t=$wp->getTaxonomies();
+		$this->assertTrue(isset($t['webmapp_category'][4]));
+
+	}
+
+	public function testTaxonomyParentAndCount() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomy('webmapp_category');
+		$taxs=$wp->getTaxonomies();
+		$wm_cat=$taxs['webmapp_category'];
+
+		$this->assertTrue(isset($wm_cat[14]));
+		$this->assertTrue(isset($wm_cat[10]));
+
+		$this->assertEquals(0,$wm_cat[14]['count']);
+		$this->assertEquals(0,$wm_cat[10]['count']);
+
+		$this->assertTrue(isset($wm_cat[14]['is_parent']));
+		$this->assertTrue(isset($wm_cat[10]['is_parent']));
+
+		$this->assertFalse($wm_cat[14]['is_parent']);
+		$this->assertTrue($wm_cat[10]['is_parent']);
+	}
+
+	public function testTranslations() {
+		$wp = new WebmappWP('dev');
+		$wp->loadTaxonomy('webmapp_category');
+		$taxs=$wp->getTaxonomies();
+		$wm_cat=$taxs['webmapp_category'];
+
+		$this->assertTrue(isset($wm_cat[32]));
+		$this->assertTrue(isset($wm_cat[32]['locale']));
+		$this->assertEquals('it',$wm_cat[32]['locale']);
+		$this->assertTrue(isset($wm_cat[32]['translations']['en']['name']));
+		$this->assertEquals('Ancient church',$wm_cat[32]['translations']['en']['name']);
+		$this->assertTrue(isset($wm_cat[32]['translations']['fr']['name']));
+		$this->assertEquals('Églises anciennes',$wm_cat[32]['translations']['fr']['name']);
+		$this->assertTrue(isset($wm_cat[32]['translations']['de']['name']));
+		$this->assertEquals('Alte Kirchen',$wm_cat[32]['translations']['de']['name']);
+
+	}
+
 }

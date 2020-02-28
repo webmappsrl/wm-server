@@ -66,9 +66,19 @@ final class WebmappPostGisOSM {
 		return $a;
 	}
 
+	public function getWayMeta($osmid) {
+		$q="SELECT * from planet_osm_line WHERE osm_id=$osmid";
+		$a = $this->select($q);
+		return array('highway'=>$a[0]['highway'],'surface'=>$a[0]['surface']);
+	}
+
 	private function getFeatureJsonGeometry($type,$osmid) {
 		switch ($type) {
 			case 'relation':
+				$table = 'planet_osm_line';
+				$geo_field = 'way';
+				break;
+			case 'way':
 				$table = 'planet_osm_line';
 				$geo_field = 'way';
 				break;
@@ -80,13 +90,55 @@ final class WebmappPostGisOSM {
 		// SELECT  ST_AsGeoJSON(ST_Transform (way, 4326)) as geojson 
 		// FROM planet_osm_line 
 		// WHERE osm_id = '-7006731';
+
 		$q = "SELECT ST_AsGeoJSON(ST_Transform ($geo_field, 4326)) as geojson 
 		      FROM $table
 		      WHERE osm_id=$osmid ;
 		";
 
 		$a = $this->select($q);
+
 		if (count($a)>0) {
+
+			// Check inverted
+			if($type=='relation') {
+				$ja=json_decode($a[0]['geojson'],TRUE);
+				$lon0=$ja['coordinates'][0][0];
+				$lat0=$ja['coordinates'][0][1];
+				$rid=-$osmid;
+				$q="select members from planet_osm_rels where id='$rid'";
+				$b = $this->select($q);
+				if(count($b)>0) {
+					$members=$b[0]['members'];
+					$members=preg_replace('|{|','',$members);
+					$members=preg_replace('|}|','',$members);
+					$members=explode(',',$members);
+					foreach ($members as $member) {
+						if(preg_match('|w|',$member)) {
+							$member=preg_replace('|w|','',$member);
+							break;
+						}
+					}
+					$way_geojson = $this->getFeatureJsonGeometry('way',$member);
+					$way_array = json_decode($way_geojson,TRUE);
+					$first = $way_array['coordinates'][0];
+					$last = end($way_array['coordinates']);
+					$to_invert = true;
+					if($first[0]==$lon0 && $first[1]==$lat0) {
+						$to_invert = false;
+					} else if ($last[0]==$lon0 && $last[1]==$lat0) {
+						$to_invert = false;
+					}
+					if ($to_invert) {
+						$q = "SELECT ST_AsGeoJSON(ST_Transform (ST_Reverse($geo_field), 4326)) as geojson 
+			      			  FROM $table
+		      			     WHERE osm_id=$osmid ;";
+						$a = $this->select($q);
+					}
+				}				
+			} 
+
+
 			return $a[0]['geojson'];
 		}
 		else {

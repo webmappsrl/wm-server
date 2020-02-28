@@ -132,7 +132,7 @@ class WebmappUtilsTests extends TestCase {
 		$this->assertEquals(1,$info['tracks']);
 		$this->assertEquals(5,$info['trackpoints']);
 		$this->assertEquals(0.1,$info['distance']);
-		print_r($info);
+		//print_r($info);
 		$this->assertTrue($info['has_ele']);
 		$this->delta(1478,$info['ele_max']);
 		$this->delta(1475,$info['ele_min']);
@@ -273,6 +273,35 @@ class WebmappUtilsTests extends TestCase {
 			$lat = $res[1];
 			$this->assertTrue(sqrt(($lon0-$lon)*($lon0-$lon)+($lat0-$lat)*($lat0-$lat))<=$rho);
 		}
+	}
+
+	public function testGetOptimalBBox() {
+        // INPUT W=491 H=624 BB=1157909,5421149,1158672,5421639 PERC=0.05
+        // OUTPUT BB=1157870.85,5420860.6769857,1158710.15,5421927.3230143
+        $bbin = '1157909,5421149,1158672,5421639';
+        $bbout = explode(',', WebmappUtils::getOptimalBBox($bbin,491,624,0.05));
+        $this->assertEquals(1157870.85,$bbout[0]);
+        $this->assertEquals(5420860.6769857,$bbout[1]);
+        $this->assertEquals(1158710.15,$bbout[2]);
+        $this->assertEquals(5421927.3230143,$bbout[3]);
+
+	}
+
+	public function testUrlExists() {
+		$url = 'http://google.com';
+		$this->assertTrue(WebmappUtils::urlExists($url));
+
+		$url = 'https://google.com';
+		$this->assertTrue(WebmappUtils::urlExists($url));
+
+		$url = 'https://www.terredipisa.it/wp-json/wp/v2/percorso/?page=1';
+		$this->assertTrue(WebmappUtils::urlExists($url));
+
+		$url = 'https://www.terredipisa.it/xxx';
+		$this->assertFalse(WebmappUtils::urlExists($url));
+
+		$url = 'http://aaa.aaa.aaa/';
+		$this->assertFalse(WebmappUtils::urlExists($url));
 	}
 
 }

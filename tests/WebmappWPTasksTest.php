@@ -15,6 +15,7 @@ class WebmappWPTasksTests extends TestCase {
 
     public function testProcess() {
         $p = $this->getStructure('dev');
+        $p->getStructure()->setInstanceId('http://dev.be.webmapp.it');
         $this->assertTrue($p->check());
         $this->assertTrue($p->process());
 
@@ -36,7 +37,7 @@ class WebmappWPTasksTests extends TestCase {
         $this->assertEquals('Point',$poi['geometry']['type']);
 
         // CHECK TRACK Single file
-        $ids = array(835,769,711,688,683,580,576,348);
+        $ids = array(835,769,711,688,683,580);
         foreach ($ids as $id) {
             $poi_file = $path.'/'.$id.'.geojson';
             $this->assertTrue(file_exists($poi_file));
@@ -83,6 +84,8 @@ class WebmappWPTasksTests extends TestCase {
         $item=json_decode(file_get_contents($path.'/711.geojson'),TRUE);
         $this->assertTrue(isset($item['properties']['color']));
         $this->assertEquals('#262163',$item['properties']['color']);
+        $this->assertTrue(isset($item['properties']['bbox']));
+        $this->assertTrue(isset($item['properties']['bbox_metric']));
 
         $taxs = array('webmapp_category','theme','activity','who','where','when');
         $tax_path = $p->getStructure()->getRoot().'/taxonomies';
@@ -108,6 +111,9 @@ class WebmappWPTasksTests extends TestCase {
             $this->assertTrue(isset($track['properties']));
             $this->assertTrue(isset($track['geometry']));
         }
+        $this->assertTrue(isset($item['properties']['bbox']));
+        $this->assertTrue(isset($item['properties']['bbox_metric']));
+
 
         // Route index
         $this->assertTrue(file_exists($path.'/route_index.geojson'));
@@ -126,6 +132,15 @@ class WebmappWPTasksTests extends TestCase {
             $this->assertEquals($lat,$values[$id][1]);
         }
 
+        // Check prune taxonomies
+        $path_tax = $p->getStructure()->getRoot().'/taxonomies';
+        $terms = json_decode(file_get_contents("$path_tax/webmapp_category.json"),TRUE);
+        // POI(id=4) è parent vuota => deve esistere
+        $this->assertTrue(isset($terms[4]));
+        // Ristoranti(id=7) ha item => deve esistere
+        $this->assertTrue(isset($terms[7]));
+        // EMPTY (id=48) non ha item => non deve esistere
+        $this->assertFalse(isset($terms[48]));
 
     }
 

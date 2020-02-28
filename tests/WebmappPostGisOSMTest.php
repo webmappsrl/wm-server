@@ -32,4 +32,47 @@ class WebmappPostGisOSMTest extends TestCase {
 		$this->assertTrue(count($pair)==2);
 	}
 
+	public function testRelationInverted() {
+		// Da invertire
+		$osm_id = 7468547;
+
+		// Da non invertire
+		// $osm_id = 7635772;
+		// 
+
+		$pg = WebmappPostGisOSM::Instance();
+		$geo = $pg->getRelationJsonGeometry($osm_id);
+		$j=json_decode($geo,TRUE);
+		$this->assertTrue(isset($j['type']));
+		$this->assertEquals($j['type'],'LineString');
+		$this->assertTrue(isset($j['coordinates']));
+		$coord = $j['coordinates'];
+		$p0 = $coord[0];
+		$this->assertEquals(11.876578850466,$p0[0]);
+		$this->assertEquals(43.794309788881,$p0[1]);
+	}
+	public function testRelationNotInverted() {
+		// Da non invertire
+		$osm_id = 7635772;
+
+		$pg = WebmappPostGisOSM::Instance();
+		$geo = $pg->getRelationJsonGeometry($osm_id);
+		$j=json_decode($geo,TRUE);
+		$this->assertTrue(isset($j['type']));
+		$this->assertEquals($j['type'],'LineString');
+		$this->assertTrue(isset($j['coordinates']));
+		$coord = $j['coordinates'];
+		$p0 = $coord[0];
+		$this->assertEquals(7.0549472011010499,$p0[0]);
+		$this->assertEquals(44.798997003949701,$p0[1]);
+	}
+
+	public function testGetWayMeta() {
+		$osm_id = 43320999;
+		$pg = WebmappPostGisOSM::Instance();
+		$meta = $pg->getWayMeta($osm_id);
+
+		$this->assertEquals('tertiary',$meta['highway']);
+	}
+
 }

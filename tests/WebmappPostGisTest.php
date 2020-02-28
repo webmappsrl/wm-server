@@ -43,6 +43,38 @@ class WebmappPostGisTest extends TestCase {
 		$this->assertTrue(count($a)>0);
 	}
 
+	public function testTrack() {
+		$t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/927');
+        $g = $t->getGeometry();
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,$g);
+		$q="SELECT * from track where instance_id='test';";
+		$a = $pg->select($q);
+		$this->assertTrue(count($a)>0);
+	}
+
+	public function testRoute() {
+		$pg = WebmappPostGis::Instance();
+		$instance_id = 'test';
+		$route_id = 1;
+		$tracks = array(1,2,3);
+		$pg->clearTables('test');
+		$pg->insertRoute($instance_id,$route_id,$tracks);
+
+		$q = "SELECT * FROM related_track where instance_id='test' ORDER BY track_id ASC";
+		$a = $pg->select($q);
+		$this->assertEquals(3,count($a));
+
+		for ($i=0; $i <=2 ; $i++) { 
+			$vals=$a[$i];
+			$this->assertEquals('test',$vals['instance_id']);
+			$this->assertEquals($route_id,$vals['route_id']);
+			$this->assertEquals($i+1,$vals['track_id']);
+		}
+
+	}
+
 	public function testGetEle() {
 		$pg = WebmappPostGis::Instance();
 		$data = array (
@@ -59,6 +91,99 @@ class WebmappPostGisTest extends TestCase {
 		}
 	}
 	public function testAddEleTrack() {
+		$geom = $this->getTrackExampleGeom();
+	$pg = WebmappPostGis::Instance();
+	$geom_ele = $pg->addEle($geom);
+	$j=json_decode($geom_ele,TRUE);
+	$this->assertTrue($j['type']=='LineString');
+	$this->assertTrue(count($j['coordinates'])==7);
+	$this->assertTrue(count($j['coordinates'][0])==3);
+	$this->assertTrue(count($j['coordinates'][1])==3);
+	$this->assertTrue(count($j['coordinates'][2])==3);
+	$this->assertTrue(count($j['coordinates'][3])==3);
+	$this->assertTrue(count($j['coordinates'][4])==3);
+	$this->assertTrue(count($j['coordinates'][5])==3);
+	$this->assertTrue(count($j['coordinates'][6])==3);
+    }
+
+	public function testAddElePoi() {
+		$geom = '{
+        "type": "Point",
+        "coordinates": [
+          10.520095825195312,
+          43.77667168029756
+        ]
+      }';
+	$pg = WebmappPostGis::Instance();
+	$geom_ele = $pg->addEle($geom);
+	$j=json_decode($geom_ele,TRUE);
+	$this->assertTrue($j['type']=='Point');
+	$this->assertTrue(count($j['coordinates'])==3);
+	$this->assertEquals(10.520095825195312,$j['coordinates'][0]);
+	$this->assertEquals(43.77667168029756,$j['coordinates'][1]);
+	}
+
+	public function testTrackExists() {
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$this->assertFalse($pg->trackExists('test',1));
+		$pg->insertTrack('test',1,json_decode($this->getTrackExampleGeom(),TRUE));
+		$this->assertTrue($pg->trackExists('test',1));
+	}
+
+	public function testGetTrackBBox() {
+		$pg= WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,json_decode($this->getTrackExampleGeom(),TRUE));
+		$bb=$pg->getTrackBBox('test',1);
+		$this->assertEquals('10.458126068115,43.747909127091,10.525417327881,43.76725098758',$bb);
+	}
+
+	public function testGetTrackBBoxMetric() {
+		$pg= WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,json_decode($this->getTrackExampleGeom(),TRUE));
+		$bb=$pg->getTrackBBoxMetric('test',1);
+		$this->assertEquals('1164193,5426513,1171684,5429494',$bb);
+	}
+
+	public function testRouteExists() {
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$this->assertFalse($pg->routeExists('test',1));
+		$tracks = array(1,2,3);
+		$pg->insertRoute('test',1,$tracks);
+		$this->assertTrue($pg->routeExists('test',1));
+
+	}
+
+	public function testGetRouteBBox() {
+		$c1 = array(array(0,0),array(2,2));
+		$g1 = array('type'=>'LineString','coordinates'=>$c1);
+		$c2 = array(array(1,1),array(3,3));
+		$g2 = array('type'=>'LineString','coordinates'=>$c2);
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,$g1);
+		$pg->insertTrack('test',2,$g2);
+		$pg->insertRoute('test',1,array(1,2));
+		$this->assertEquals('0,0,3,3',$pg->getRouteBBox('test',1));
+	}
+
+	public function testGetRouteBBoxMetric() {
+		$c1 = array(array(0,0),array(2,2));
+		$g1 = array('type'=>'LineString','coordinates'=>$c1);
+		$c2 = array(array(1,1),array(3,3));
+		$g2 = array('type'=>'LineString','coordinates'=>$c2);
+		$pg = WebmappPostGis::Instance();
+		$pg->clearTables('test');
+		$pg->insertTrack('test',1,$g1);
+		$pg->insertTrack('test',2,$g2);
+		$pg->insertRoute('test',1,array(1,2));
+		$this->assertEquals('0,-0,333958,334111',$pg->getRouteBBoxMetric('test',1));
+	}
+
+	private static function getTrackExampleGeom() {
 		$geom = '{
         "type": "LineString",
         "coordinates": [
@@ -92,34 +217,7 @@ class WebmappPostGisTest extends TestCase {
           ]
         ]
       }';
-	$pg = WebmappPostGis::Instance();
-	$geom_ele = $pg->addEle($geom);
-	$j=json_decode($geom_ele,TRUE);
-	$this->assertTrue($j['type']=='LineString');
-	$this->assertTrue(count($j['coordinates'])==7);
-	$this->assertTrue(count($j['coordinates'][0])==3);
-	$this->assertTrue(count($j['coordinates'][1])==3);
-	$this->assertTrue(count($j['coordinates'][2])==3);
-	$this->assertTrue(count($j['coordinates'][3])==3);
-	$this->assertTrue(count($j['coordinates'][4])==3);
-	$this->assertTrue(count($j['coordinates'][5])==3);
-	$this->assertTrue(count($j['coordinates'][6])==3);
-    }
-
-	public function testAddElePoi() {
-		$geom = '{
-        "type": "Point",
-        "coordinates": [
-          10.520095825195312,
-          43.77667168029756
-        ]
-      }';
-	$pg = WebmappPostGis::Instance();
-	$geom_ele = $pg->addEle($geom);
-	$j=json_decode($geom_ele,TRUE);
-	$this->assertTrue($j['type']=='Point');
-	$this->assertTrue(count($j['coordinates'])==3);
-	$this->assertEquals(10.520095825195312,$j['coordinates'][0]);
-	$this->assertEquals(43.77667168029756,$j['coordinates'][1]);
+      return $geom;
 	}
+
 }

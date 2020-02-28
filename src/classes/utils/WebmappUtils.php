@@ -298,6 +298,21 @@ class WebmappUtils {
 		if ($debug) echo "\n";
 		return json_decode($output,TRUE);
 	}
+
+	public static function urlExists($url) {
+		$ch = @curl_init($url);
+	    curl_setopt($ch, CURLOPT_HEADER, TRUE);
+	    curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+	    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	    curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+	    $ret = curl_exec($ch);
+	   	$val = preg_match('/HTTP\/.* (200) .*/', $ret);
+	   	if ($val>=1) return true;
+	   	return false;
+
+	}
+
 	// Returns an array of multiple JSON API CALLS paged (?per_page=XX)
 	public static function getMultipleJsonFromApi($url) {
 		$r=array();
@@ -305,9 +320,7 @@ class WebmappUtils {
 		$page=1;
 		$go_next=false;
         $paged_url=self::getPagedUrl($url,$page);
-		$headers=get_headers($paged_url);
-		$ret=$headers[0];
-		if (preg_match('/200/',$ret)){
+		if (self::urlExists($paged_url)){
 			$res=self::getJsonFromApi($paged_url);
 			if(is_array($res) && count($res)>0){
 				$r=array_merge($r,$res);
@@ -319,9 +332,7 @@ class WebmappUtils {
 			$page=$page+1;
 			$go_next=false;
             $paged_url=self::getPagedUrl($url,$page);
-			$headers=get_headers($paged_url);
-			$ret=$headers[0];
-			if (preg_match('/200/',$ret)){
+			if (self::urlExists($paged_url)){
 				$res=self::getJsonFromApi($paged_url);
 				if(is_array($res) && count($res)>0){
 					$r=array_merge($r,$res);
@@ -361,7 +372,7 @@ class WebmappUtils {
 			while ($row=$r->fetchArray()) {
 				$output = simplexml_load_string($row['content']);
 				$download = false;
-				//echo " cache.";
+				echo " getting data ($url) from webcache \n";
 			}
 		}
 		if ($download) {
@@ -562,5 +573,149 @@ class WebmappUtils {
 			cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
 		return $angle * $earthRadius;
 	}
+
+	public static function getOptimalBBox($bbox,$width,$height,$perc=0.05) {
+		    $bbox_array = explode(',',$bbox);
+            $xmin = $bbox_array[0];
+            $ymin = $bbox_array[1];
+            $xmax = $bbox_array[2];
+            $ymax = $bbox_array[3];
+            $dx = abs($xmax-$xmin);
+            $dy = abs($ymax-$ymin);
+
+            if($dx/$dy > $width/$height) {
+                $d=($height/$width*$dx-$dy)*0.5;
+                $ymax = $ymax + $d;
+                $ymin = $ymin - $d;
+            }
+            else if ($dx/$dy < $width/$height) {
+                $d=($width/$height*$dy-$dx)*0.5;
+                $xmax = $xmax + $d;
+                $xmin = $xmin - $d;
+            }
+
+            // Allargare del $perc %
+            $dx = abs($xmax-$xmin);
+            $dy = abs($ymax-$ymin);
+            $xmin = $xmin - $dx*$perc;
+            $xmax = $xmax + $dx*$perc;
+            $ymin = $ymin - $dy*$perc;
+            $ymax = $ymax + $dy*$perc;
+
+            return implode(',', array($xmin,$ymin,$xmax,$ymax));
+	}
+
+	public static function generateImage($geojson_url,$bbox,$width,$height,$img_path,$fit=TRUE) {
+
+        if($fit) {
+	        $bbox=WebmappUtils::getOptimalBBox($bbox,$width,$height);        	
+        }
+
+		$post_data = array(
+			'geojson_url' => $geojson_url,
+			'bbox' => $bbox,
+			'width' => $width,
+			'height' => $height
+			);
+
+		$ch = curl_init('http://qgs.webmapp.it/track.php');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+		$image_url = curl_exec($ch);
+		curl_close($ch);
+		file_put_contents($img_path, file_get_contents($image_url));
+	}
+
+	public static function generateImageWithPois($geojson_url,$pois_geojson_url,$bbox,$width,$height,$img_path,$fit=TRUE) {
+
+        if($fit) {
+	        $bbox=WebmappUtils::getOptimalBBox($bbox,$width,$height);        	
+        }
+
+		$post_data = array(
+			'geojson_url' => $geojson_url,
+			'pois_geojson_url' => $pois_geojson_url,
+			'bbox' => $bbox,
+			'width' => $width,
+			'height' => $height
+			);
+
+		$ch = curl_init('http://qgs.webmapp.it/track.php');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+		$image_url = curl_exec($ch);
+
+		echo "\n\n\n$image_url\n\n\n";
+
+		curl_close($ch);
+		file_put_contents($img_path, file_get_contents($image_url));
+	}
+
+	/**
+ * show a status bar in the console
+ * 
+ * <code>
+ * for($x=1;$x<=100;$x++){
+ * 
+ *     show_status($x, 100);
+ * 
+ *     usleep(100000);
+ *                           
+ * }
+ * </code>
+ *
+ * @param   int     $done   how many items are completed
+ * @param   int     $total  how many items are to be done total
+ * @param   int     $size   optional size of the status bar
+ * @return  void
+ *
+ */
+ 
+public static function showStatus($done, $total, $size=30) {
+ 
+    static $start_time;
+ 
+    // if we go over our bound, just ignore it
+    if($done > $total) return;
+ 
+    if(empty($start_time)) $start_time=time();
+    $now = time();
+ 
+    $perc=(double)($done/$total);
+ 
+    $bar=floor($perc*$size);
+ 
+    $status_bar="\r[";
+    $status_bar.=str_repeat("=", $bar);
+    if($bar<$size){
+        $status_bar.=">";
+        $status_bar.=str_repeat(" ", $size-$bar);
+    } else {
+        $status_bar.="=";
+    }
+ 
+    $disp=number_format($perc*100, 0);
+ 
+    $status_bar.="] $disp%  $done/$total";
+ 
+    $rate = ($now-$start_time)/$done;
+    $left = $total - $done;
+    $eta = round($rate * $left, 2);
+ 
+    $elapsed = $now - $start_time;
+ 
+    $status_bar.= " remaining: ".number_format($eta)." sec.  elapsed: ".number_format($elapsed)." sec.";
+ 
+    echo "$status_bar  ";
+ 
+    flush();
+ 
+    // when done, send a newline
+    if($done == $total) {
+        echo "\n";
+    }
+ 
+}
+ 
 
 }

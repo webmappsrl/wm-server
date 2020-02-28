@@ -84,6 +84,13 @@ abstract class WebmappAbstractFeature {
         return $this->properties[$k];
     }
 
+    public function getGeometry() {
+        return $this->geometry;
+    }
+    public function hasGeometry() {
+        return !empty($this->geometry);
+    }
+
     // Setters
     public function setImage($url) {
         $this->properties['image']=$url;
@@ -125,6 +132,7 @@ abstract class WebmappAbstractFeature {
     	    $this->setProperty('rendered',$json_array['title'],'name');
         if (isset($json_array['content'])) 
          	$this->setProperty('rendered',$json_array['content'],'description');
+        $this->setProperty('modified',$json_array);
     	$this->setProperty('color',$json_array);
     	$this->setProperty('icon',$json_array);
         $this->setPropertyBool('noDetails',$json_array);
@@ -137,9 +145,12 @@ abstract class WebmappAbstractFeature {
     	if (isset($json_array['n7webmap_media_gallery'])) {
     		$this->mappingImage($json_array['n7webmap_media_gallery']);
     	}
-    	if (isset($json_array['n7webmap_track_media_gallery'])) {
-    		$this->mappingImage($json_array['n7webmap_track_media_gallery']);
-    	}
+        if (isset($json_array['n7webmap_track_media_gallery'])) {
+            $this->mappingImage($json_array['n7webmap_track_media_gallery']);
+        }
+        if (isset($json_array['n7webmap_route_media_gallery'])) {
+            $this->mappingImage($json_array['n7webmap_route_media_gallery']);
+        }
 
         // Se è presente la featured image viene messa come immagine principale
         if(isset($json_array['featured_media']) 
@@ -154,6 +165,11 @@ abstract class WebmappAbstractFeature {
             } else if (isset($jm['media_details']['sizes']['medium'])) {
                $this->setImage($jm['media_details']['sizes']['medium']['source_url']);                
             }
+        }
+
+        // FILE AUDIO
+        if(isset($json_array['audio'])) {
+           $this->addProperty('audio',$json_array['audio']['url']); 
         }
 
         // Gestione delle categorie WEBMAPP
@@ -189,23 +205,6 @@ abstract class WebmappAbstractFeature {
             $this->addProperty('locale',preg_replace('|_.*$|', '', $json_array['wpml_current_locale']));
         }
 
-        // TRANSLATIONS
-        if (isset($json_array['wpml_translations'])) {
-            $t = $json_array['wpml_translations'];
-            if (is_array($t) && count($t)>0) {
-                $tp = array();
-                foreach($t as $item) {
-                    $locale = preg_replace('|_.*$|', '', $item['locale']);
-                    $val=array();
-                    $val['id']=$item['id'];
-                    $val['name']=$item['post_title'];
-                    $val['web']=$item['href'];
-                    $tp[$locale]=$val;
-                }
-                $this->addProperty('translations',$tp);
-            }
-        }
-
         // SOURCE and WP_EDIT
         $source = 'unknown';
         $wp_edit = 'unknown';
@@ -220,11 +219,46 @@ abstract class WebmappAbstractFeature {
         $this->addProperty('source',$source);
         $this->addProperty('wp_edit',$wp_edit);
 
+        // TRANSLATIONS
+        if (isset($json_array['wpml_translations'])) {
+            $t = $json_array['wpml_translations'];
+            if (is_array($t) && count($t)>0) {
+                $tp = array();
+                foreach($t as $item) {
+                    $locale = preg_replace('|_.*$|', '', $item['locale']);
+                    $val=array();
+                    $val['id']=$item['id'];
+                    $val['name']=$item['post_title'];
+                    $val['web']=$item['href'];
+                    $val['source']= preg_replace('|/[0-9]*$|','/'.$val['id'],$this->properties['source']);
+                    $ja=WebmappUtils::getJsonFromApi($val['source']);
+                    if(isset($ja['content'])) {
+                        $val['description']=$ja['content']['rendered'];
+                    }
+                    if(isset($ja['rb_track_section'])) {
+                        $val['rb_track_section']=$ja['rb_track_section'];
+                    }
+                    if(isset($ja['audio'])) {
+                        $val['audio']=$ja['audio']['url']; 
+                    }
+
+
+                    $tp[$locale]=$val;
+                }
+                $this->addProperty('translations',$tp);
+            }
+        }
+
         // LINK WEB
         if(isset($json_array['link']) && !empty($json_array['link'])) {
             $this->addProperty('web',$json_array['link']);
         }
 
+
+    }
+
+    public function addImageToGallery($src,$caption='',$id='') {
+        $this->properties['imageGallery'][] = array('src'=>$src,'caption'=>$caption,'id'=>$id);
     }
 
     private function addTaxonomy($name) {
@@ -541,6 +575,7 @@ abstract class WebmappAbstractFeature {
         }
     }
 
+    abstract public function generateImage($width,$height,$instance_id='',$path='');
 
 }
 

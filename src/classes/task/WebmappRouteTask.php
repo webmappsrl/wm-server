@@ -87,6 +87,7 @@
                         if($track->getLngMin()<$lngMin) $lngMin=$track->getLngMin();
                         if($track->getLngMax()>$lngMax) $lngMax=$track->getLngMax();
                     }
+                    $track->addEle();
                     $this->tracks_layer->addFeature($track);
 
                     // LOOP sui POI delle tracce
