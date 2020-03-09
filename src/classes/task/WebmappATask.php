@@ -242,7 +242,22 @@ private function processRoute($id) {
 }
 
 private function getListByType($type) {
-    return WebmappUtils::getJsonFromAPI($this->wp->getBaseUrl().'/wp-json/webmapp/v1/list?type='.$type);
+    $j = WebmappUtils::getJsonFromAPI($this->wp->getBaseUrl().'/wp-json/webmapp/v1/list?type='.$type);
+    if (isset($j['code']) && $j['code']=='rest_no_route') {
+        echo "OLD VERSION: downloading all POIS\n\n";
+        $new_j = array();
+        // build j from usual
+        $fs = WebmappUtils::getMultipleJsonFromApi($this->wp->getBaseUrl().'/wp-json/wp/v2/'.$type);
+        if(is_array($fs) && count($fs)>0) {
+            foreach($fs as $f) {
+                $id = $f['id'];
+                $date = $f['modified'];
+                $new_j[$id]=$date;
+            }
+        }
+        $j = $new_j;
+    }
+    return $j;
 }
 
 private function processRouteIndex() {
