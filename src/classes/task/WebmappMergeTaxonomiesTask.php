@@ -71,7 +71,7 @@ class WebmappMergeTaxonomiesTask extends WebmappAbstractTask
             foreach ($taxonomies as $taxonomy) {
                 echo "Copying {$taxonomy} from {$trg}/taxonomies/ to {$src}/taxonomies/";
 
-                $cmd = "cp {$trg}/taxonomies/{$taxonomy} {$src}/taxonomies/";
+                $cmd = "cp {$trg}/taxonomies/{$taxonomy}.json {$src}/taxonomies/";
                 exec($cmd);
 
                 echo " OK\n";
