@@ -38,6 +38,7 @@ require 'classes/task/WebmappWPTask.php';
 require 'classes/task/WebmappATask.php';
 require 'classes/task/WebmappWebappElbrusTask.php';
 require 'classes/task/WebmappSingleMapTask.php';
+require 'classes/task/WebmappMergeTaxonomiesTask.php';
 require 'classes/task/WebmappSingleTask.php';
 require 'classes/task/WebmappRouteTask.php';
 require 'classes/task/WebmappCustomConfigTask.php';
@@ -88,4 +89,3 @@ require 'classes/simap/WebmappSIMapCSVTask.php';
 // to remove (once simap2 is concluded)
 require 'classes/custom/WebmappSIMapTask.php';
 require 'classes/custom/WebmappSIMapStatsTask.php';
-
