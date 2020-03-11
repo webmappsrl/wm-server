@@ -24,6 +24,8 @@ abstract class WebmappAbstractTask {
 		echo "Staring TASK: $this->name\n";
 		$root=$this->project_structure->getRoot();
 		echo "ROOT DIR: $root\n";
+		echo "Options: \n";
+		var_dump($this->options);
 		echo "==========================================\n\n";
 	}
 	

@@ -36,6 +36,7 @@ require 'classes/task/WebmappAbstractTask.php';
 require 'classes/task/WebmappBETask.php';
 require 'classes/task/WebmappWPTask.php';
 require 'classes/task/WebmappATask.php';
+require 'classes/task/WebmappItemListTask.php';
 require 'classes/task/WebmappWebappElbrusTask.php';
 require 'classes/task/WebmappSingleMapTask.php';
 require 'classes/task/WebmappMergeTaxonomiesTask.php';
