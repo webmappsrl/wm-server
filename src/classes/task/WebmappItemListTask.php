@@ -61,7 +61,7 @@ public function process(){
 
     // Write json file in resources
     $json = array('type'=>'featureCollection','features'=>$features);
-    file_put_contents($this->getRoot().'/resources/'.$this->options['name'].'.json',json_encode($json));
+    file_put_contents($this->getRoot().'/resources/'.$this->options['out'].'.json',json_encode($json));
     return true;
 }
 
