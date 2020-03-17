@@ -82,6 +82,7 @@ require 'classes/custom/WebmappMaratonaDiPisaTask.php';
 require 'classes/custom/WebmappFSTTask.php';
 require 'classes/custom/WebmappTrentinoKTask.php';
 require 'classes/custom/WebmappSITRTTask.php';
+require 'classes/custom/WebmappCovidTask.php';
 
 // SIMAP
 require 'classes/simap/WebmappSIMapCheckTask.php';
