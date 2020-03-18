@@ -3,6 +3,8 @@ class WebmappCovidTask extends WebmappAbstractTask {
 
     private $data_covid;
     private $last_update=0;
+    private $province=array('Arezzo','Firenze','Grosseto','Livorno','Lucca','Massa Carrara','Pisa','Pistoia','Prato','Siena');
+    private $data;
 
 	public function check() {
 
@@ -18,28 +20,37 @@ class WebmappCovidTask extends WebmappAbstractTask {
 
     public function process(){
 	    // READ data
-        $province=array('Arezzo','Firenze','Grosseto','Livorno','Lucca','Massa Carrara','Pisa','Pistoia','Prato','Siena');
-        $data_all = $this->readProvinceData($this->data_covid.'/dati-province/dpc-covid19-ita-province.csv');
+        $this->data = $this->readProvinceData($this->data_covid.'/dati-province/dpc-covid19-ita-province.csv');
         echo "LAST UPDATE: {$this->last_update}\n";
+
+        $this->processToscana();
+        $this->processItalia();
+        $this->processSeries();
+
+    	return TRUE;
+    }
+
+    /**
+     * (
+    [0] => 2020-03-17 17:00:00
+    [1] => ITA
+    [2] => 05
+    [3] => Veneto
+    [4] => 024
+    [5] => Vicenza
+    [6] => VI
+    [7] => 45.547497
+    [8] => 11.54597109
+    [9] => 325
+    )
+     */
+    private function processToscana() {
         // Elaborate DATA
         $features=array();
-        foreach ($data_all as $data) {
-            /**
-             * (
-            [0] => 2020-03-17 17:00:00
-            [1] => ITA
-            [2] => 05
-            [3] => Veneto
-            [4] => 024
-            [5] => Vicenza
-            [6] => VI
-            [7] => 45.547497
-            [8] => 11.54597109
-            [9] => 325
-            )
-             */
-            if(date('Y-m-d',strtotime($data[0]))==$this->last_update && in_array($data[5],$province)) {
+        foreach ($this->data as $data) {
+            if(date('Y-m-d',strtotime($data[0]))==$this->last_update && in_array($data[5],$this->province)) {
                 $props=array();
+                $props['id']=$data[5];
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
@@ -63,28 +74,50 @@ class WebmappCovidTask extends WebmappAbstractTask {
         $j = array();
         $j['type']='FeatureCollection';
         $j['features']=$features;
-        file_put_contents($this->getRoot().'/geojson/covid.geojson',json_encode($j));
+        file_put_contents($this->getRoot().'/geojson/covid_toscana.geojson',json_encode($j));
+    }
 
+    private function processItalia() {
+        // Elaborate DATA
+        $features=array();
+        foreach ($this->data as $data) {
+            if(date('Y-m-d',strtotime($data[0]))==$this->last_update && $data[5]!='In fase di definizione/aggiornamento') {
+                $props=array();
+                $props['id']=$data[5];
+                $props['name']=$data[5];
+                $props['modified']=$this->last_update;
+                $props['totale_casi']=$data[9];
+                $props['regione']=$data[3];
+                $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
+                $props['description']=$description;
+
+                $geom=array();
+                $geom['type']='Point';
+                $geom['coordinates']=array(floatval($data[8]),floatval($data[7]));
+
+                $feature=array();
+                $feature['type']='Feature';
+                $feature['properties']=$props;
+                $feature['geometry']=$geom;
+
+                $features[]=$feature;
+            }
+        }
+        // WRITE output
+        $j = array();
+        $j['type']='FeatureCollection';
+        $j['features']=$features;
+        file_put_contents($this->getRoot().'/geojson/covid_italia.geojson',json_encode($j));
+    }
+
+    private function processSeries() {
         // SERIES
         $series = array();
-        foreach ($data_all as $data) {
-            /**
-             * (
-            [0] => 2020-03-17 17:00:00
-            [1] => ITA
-            [2] => 05
-            [3] => Veneto
-            [4] => 024
-            [5] => Vicenza
-            [6] => VI
-            [7] => 45.547497
-            [8] => 11.54597109
-            [9] => 325
-            )
-             */
-            if(in_array($data['5'],$province)) {
-                $series[$data[5]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9]);
-            }
+        foreach ($this->data as $data) {
+                echo "\n\n\n DATA[5]: {$data[5]} ({$data[3]}{$data[2]})\n\n\n";
+                if ($data[5]!='In fase di definizione/aggiornamento') {
+                    $series[$data[5]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9]);
+                }
         }
         // WRITE
         foreach($series as $provincia => $data) {
@@ -96,7 +129,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
             }
             fclose($fp);
         }
-    	return TRUE;
+
     }
 
     private function readProvinceData($fname) {
