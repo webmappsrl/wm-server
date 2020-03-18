@@ -119,7 +119,11 @@ class WebmappCovidTask extends WebmappAbstractTask {
         foreach ($this->data as $data) {
                 echo "\n\n\n DATA[5]: {$data[5]} ({$data[3]}{$data[2]})\n\n\n";
                 if ($data[5]!='In fase di definizione/aggiornamento') {
-                    $series[$data[4]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9]);
+                    $new = 0;
+                    if(isset($series[$data[4]])) {
+                        $new = (int) $data[9] - $series[$data[4]][count($series[$data[4]])-1][1];
+                    }
+                    $series[$data[4]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9],$new);
                 }
         }
         // WRITE
@@ -132,9 +136,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
             }
             fclose($fp);
         }
-
         $this->series=$series;
-
     }
 
     private function readProvinceData($fname) {
