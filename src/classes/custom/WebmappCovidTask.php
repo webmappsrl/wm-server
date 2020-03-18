@@ -5,6 +5,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
     private $last_update=0;
     private $province=array('Arezzo','Firenze','Grosseto','Livorno','Lucca','Massa Carrara','Pisa','Pistoia','Prato','Siena');
     private $data;
+    private $series;
 
 	public function check() {
 
@@ -23,9 +24,9 @@ class WebmappCovidTask extends WebmappAbstractTask {
         $this->data = $this->readProvinceData($this->data_covid.'/dati-province/dpc-covid19-ita-province.csv');
         echo "LAST UPDATE: {$this->last_update}\n";
 
+        $this->processSeries();
         $this->processToscana();
         $this->processItalia();
-        $this->processSeries();
 
     	return TRUE;
     }
@@ -54,6 +55,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
+                $props['nuovi_casi']=$data[9]-$this->series[$data[5]][count($this->series[$data[5]])-2][1];
                 $props['regione']=$data[3];
                 $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
                 $props['description']=$description;
@@ -129,6 +131,8 @@ class WebmappCovidTask extends WebmappAbstractTask {
             }
             fclose($fp);
         }
+
+        $this->series=$series;
 
     }
 
