@@ -89,6 +89,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
+                $props['nuovi_casi']=$data[9]-$this->series[$data[5]][count($this->series[$data[5]])-2][1];
                 $props['regione']=$data[3];
                 $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
                 $props['description']=$description;
