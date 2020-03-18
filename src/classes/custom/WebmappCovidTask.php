@@ -51,7 +51,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
         foreach ($this->data as $data) {
             if(date('Y-m-d',strtotime($data[0]))==$this->last_update && in_array($data[5],$this->province)) {
                 $props=array();
-                $props['id']=$data[5];
+                $props['id']=$data[4];
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
@@ -85,7 +85,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
         foreach ($this->data as $data) {
             if(date('Y-m-d',strtotime($data[0]))==$this->last_update && $data[5]!='In fase di definizione/aggiornamento') {
                 $props=array();
-                $props['id']=$data[5];
+                $props['id']=$data[4];
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
