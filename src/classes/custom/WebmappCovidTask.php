@@ -55,7 +55,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
-                $props['nuovi_casi']=$data[9]-$this->series[$data[5]][count($this->series[$data[5]])-2][1];
+                $props['nuovi_casi']=$data[9]-$this->series[$data[4]][count($this->series[$data[4]])-2][1];
                 $props['regione']=$data[3];
                 $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
                 $props['description']=$description;
@@ -89,7 +89,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
-                $props['nuovi_casi']=$data[9]-$this->series[$data[5]][count($this->series[$data[5]])-2][1];
+                $props['nuovi_casi']=$data[9]-$this->series[$data[4]][count($this->series[$data[4]])-2][1];
                 $props['regione']=$data[3];
                 $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
                 $props['description']=$description;
@@ -119,7 +119,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
         foreach ($this->data as $data) {
                 echo "\n\n\n DATA[5]: {$data[5]} ({$data[3]}{$data[2]})\n\n\n";
                 if ($data[5]!='In fase di definizione/aggiornamento') {
-                    $series[$data[5]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9]);
+                    $series[$data[4]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9]);
                 }
         }
         // WRITE
