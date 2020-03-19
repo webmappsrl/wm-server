@@ -8,17 +8,29 @@ class WebmappCovidTask extends WebmappAbstractTask {
     private $series;
 
     // https://hihayk.github.io/scale/#4/6/50/80/-51/67/20/14/C237FB/194/55/251
-    private $colors = array('#B7C8FF',
-                    '#9C9FFF',
-                    '#9581FF',
-                    '#9B68FF',
-                    '#AB4FFE',
-                    '#C237FB',
-                    '#D12DDF',
-                    '#BF24AC',
-                    '#9F1C74',
-                    '#801546',
-                    );
+    private $colors_old = array('#B7C8FF',
+        '#9C9FFF',
+        '#9581FF',
+        '#9B68FF',
+        '#AB4FFE',
+        '#C237FB',
+        '#D12DDF',
+        '#BF24AC',
+        '#9F1C74',
+        '#801546',
+    );
+    private $colors = array(
+        '#fcf8cd',
+        '#fbe5b9',
+        '#f9d2a4',
+        '#f6be8f',
+        '#f3a97b',
+        '#f19367',
+        '#ee7b55',
+        '#eb6244',
+        '#e84634',
+        '#e52827'
+    );
 
 	public function check() {
 
