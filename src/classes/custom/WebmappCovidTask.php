@@ -7,6 +7,19 @@ class WebmappCovidTask extends WebmappAbstractTask {
     private $data;
     private $series;
 
+    // https://hihayk.github.io/scale/#4/6/50/80/-51/67/20/14/C237FB/194/55/251
+    private $colors = array('#B7C8FF',
+                    '#9C9FFF',
+                    '#9581FF',
+                    '#9B68FF',
+                    '#AB4FFE',
+                    '#C237FB',
+                    '#D12DDF',
+                    '#BF24AC',
+                    '#9F1C74',
+                    '#801546',
+                    );
+
 	public function check() {
 
 	    $this->data_covid=$this->getRoot().'/COVID-19';
@@ -46,6 +59,8 @@ class WebmappCovidTask extends WebmappAbstractTask {
     )
      */
     private function processToscana() {
+        $max = 0;
+        $min = 1000000;
         // Elaborate DATA
         $features=array();
         foreach ($this->data as $data) {
@@ -55,6 +70,8 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 $props['name']=$data[5];
                 $props['modified']=$this->last_update;
                 $props['totale_casi']=$data[9];
+                if ($data[9]<$min) $min = $data[9];
+                if ($data[9]>$max) $max = $data[9];
                 $props['nuovi_casi']=$data[9]-$this->series[$data[4]][count($this->series[$data[4]])-2][1];
                 $props['regione']=$data[3];
                 $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
@@ -72,6 +89,8 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 $features[]=$feature;
             }
         }
+
+
         // WRITE output
         $j = array();
         $j['type']='FeatureCollection';
@@ -87,6 +106,9 @@ class WebmappCovidTask extends WebmappAbstractTask {
             $feature_props[$id]=$props;
         }
         // Build area
+        $alfa = -9/($max-$min)*$min;
+        $beta = 9/($max-$min);
+        echo "\n\nMIN $min MAX $max\n\n";
         $aree = json_decode(file_get_contents('https://a.webmapp.it/covid/geojson/province_toscana.geojson'),TRUE);
 
         $feature_aree = $aree['features'];
@@ -97,7 +119,9 @@ class WebmappCovidTask extends WebmappAbstractTask {
 
             $new_feature = array();
             $new_feature['type']='Feature';
-            $new_feature['properties']=$feature_props[$id];
+            $props_new = $feature_props[$id];
+            $props_new['color']=$this->colors[floor($alfa+$beta*$props_new['totale_casi'])];
+            $new_feature['properties']=$props_new;
             $new_feature['geometry']=$feature['geometry'];
             $new_features[]=$new_feature;
         }
