@@ -77,6 +77,37 @@ class WebmappCovidTask extends WebmappAbstractTask {
         $j['type']='FeatureCollection';
         $j['features']=$features;
         file_put_contents($this->getRoot().'/geojson/covid_toscana.geojson',json_encode($j));
+
+        // Build AREA File
+        // Build props array
+        $feature_props = array();
+        foreach($features as $feature) {
+            $props = $feature['properties'];
+            $id = $props['id'];
+            $feature_props[$id]=$props;
+        }
+        // Build area
+        $aree = json_decode(file_get_contents('https://a.webmapp.it/covid/geojson/province_toscana.geojson'),TRUE);
+
+        $feature_aree = $aree['features'];
+        $new_features = array();
+        foreach ($feature_aree as $feature) {
+            $props = $feature['properties'];
+            $id = $props['id'];
+
+            $new_feature = array();
+            $new_feature['type']='Feature';
+            $new_feature['properties']=$feature_props[$id];
+            $new_feature['geometry']=$feature['geometry'];
+            $new_features[]=$new_feature;
+        }
+
+        // WRITE output
+        $j = array();
+        $j['type']='FeatureCollection';
+        $j['features']=$new_features;
+        file_put_contents($this->getRoot().'/geojson/covid_toscana_aree.geojson',json_encode($j));
+
     }
 
     private function processItalia() {
