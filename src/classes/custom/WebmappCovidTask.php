@@ -133,7 +133,6 @@ class WebmappCovidTask extends WebmappAbstractTask {
             $new_feature['type']='Feature';
             $props_new = $feature_props[$id];
             $props_new['fillColor']=$this->colors[floor($alfa+$beta*$props_new['totale_casi'])];
-            $props_new['color']='#ffffff';
             $new_feature['properties']=$props_new;
             $new_feature['geometry']=$feature['geometry'];
             $new_features[]=$new_feature;
