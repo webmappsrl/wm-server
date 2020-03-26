@@ -125,7 +125,7 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
             $row = 1;
             if (($handle = fopen($csv,"r")) !== FALSE) {
                 while (($data = fgetcsv($handle, 1000, ",",'"')) !== FALSE) {
-                    if($data[0]!='id') {
+                    if($data[0]!='id' && $data[0]!='Lat') {
                         $ret[]=$data;
                     }
                 }
