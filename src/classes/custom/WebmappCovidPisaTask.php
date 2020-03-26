@@ -2,6 +2,8 @@
 class WebmappCovidPisaTask extends WebmappAbstractTask {
 
     private $data;
+    private $crypt_method = 'aes-128-ecb';
+    private $crypt_key ='Q3mc+d:!&qSp;Z6~';
 
 	public function check() {
 
@@ -20,10 +22,14 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
         } catch (Exception $e) {
             echo "Error: {$e->getMessage()}\n\n";
         }
+
+        // CHECK CRYPT METHOD
 		return TRUE;
 	}
 
     public function process(){
+
+
 	    $fs = array();
 	    echo "Processing ";
 	    foreach ($this->data as $p) {
@@ -58,8 +64,14 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
 	    $j['update']=date('Y-m-d h:i');
 	    $j['features']=$fs;
 
+
+	    $data = json_encode($j);
         // Write FILE
-	    file_put_contents($this->getRoot().'/geojson/verifica_contagiati.geojson',json_encode($j));
+	    file_put_contents($this->getRoot().'/geojson/verifica_contagiati.geojson',$data);
+
+	    // WRITE CRYPT FILE
+        $encrypted = openssl_encrypt ($data, $this->crypt_method, $this->crypt_key);
+        file_put_contents($this->getRoot().'/geojson/verifica_contagiati_crypted.geojson',$encrypted);
 
         echo " ... done\n";
 
