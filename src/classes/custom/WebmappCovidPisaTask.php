@@ -26,8 +26,11 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
     }
     private function processContagiati(){
 
-
         $fs = array();
+        $fs_contagiati = array();
+        $fs_dimessi = array();
+        $fs_deceduti = array();
+
         echo "Processing CONTAGIATI ";
         foreach ($this->data as $p) {
             /*    [99] => Array
@@ -36,6 +39,7 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
             [1] => 43.676438
             [2] => 10.540639
             [3] => VIA S. FRANCESCO ASSISI,10 CASCINA
+            [4] => contagiato (dimesso,deceduto)
         )
         */
             echo ".{$p[0]}";
@@ -43,6 +47,7 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
             $ps = array();
             $ps['id']=$p[0];
             $ps['name']=$p[0];
+            $ps['contagiato_type']=$p[4];
 
 
             $f=array();
@@ -53,29 +58,50 @@ class WebmappCovidPisaTask extends WebmappAbstractTask {
 
             $fs[]=$f;
 
+            if($p[4]=='contagiato') {
+                $fs_contagiati[]=$f;
+            }
+            elseif ($p[4]=='dimesso') {
+                $fs_dimessi[]=$f;
+            }
+            elseif ($p[4]=='deceduto') {
+                $fs_deceduti[]=$f;
+            }
+            else {
+                throw new Exception("Tipo non riconosciuto:{$p[4]} ID: {$p[0]}");
+            }
+
         }
 
-        // geojson
-        $j = array();
-        $j['type']='FeatureCollection';
-        $j['update']=date('Y-m-d h:i');
-        $j['features']=$fs;
-
-
-        $data = json_encode($j);
-       // WRITE CRYPT FILE
-        $encrypted = openssl_encrypt ($data, $this->crypt_method, $this->crypt_key);
-        file_put_contents($this->getRoot().'/geojson/verifica_contagiati.geojson',$encrypted);
+        // WRITE
+        $this->writeGeoJson($this->getRoot().'/geojson/verifica_contagiati.geojson',$fs_contagiati);
+        $this->writeGeoJson($this->getRoot().'/geojson/verifica_dimessi.geojson',$fs_dimessi);
+        $this->writeGeoJson($this->getRoot().'/geojson/verifica_deceduti.geojson',$fs_deceduti);
 
         echo " ... done\n";
 
         return TRUE;
     }
+
+    private function writeGeoJson($file,$fs) {
+        // geojson
+        $j = array();
+        $j['type']='FeatureCollection';
+        $j['update']=date('Y-m-d h:i');
+        $j['features']=$fs;
+        $data = json_encode($j);
+
+        // WRITE CRYPT FILE
+        $encrypted = openssl_encrypt ($data, $this->crypt_method, $this->crypt_key);
+        file_put_contents($file,$encrypted);
+    }
+
     private function processQuarantene(){
 
         $fs = array();
         echo "Processing Quarantene ";
         $id = 1;
+
         foreach ($this->dataq as $p) {
             /*    [99] => Array
         (
