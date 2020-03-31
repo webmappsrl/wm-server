@@ -3,22 +3,28 @@ class WebmappCovidTask extends WebmappAbstractTask {
 
     private $data_covid;
     private $last_update=0;
-    private $province=array('Arezzo','Firenze','Grosseto','Livorno','Lucca','Massa Carrara','Pisa','Pistoia','Prato','Siena');
+    private $province=array();
+    private $toscana=array();
+    private $province_toscana=array(
+        '045',
+        '046',
+        '047',
+        '048',
+        '049',
+        '050',
+        '051',
+        '052',
+        '053',
+        '100'
+    );
     private $data;
     private $series;
+    private $min=1000000;
+    private $max=0;
+    private $min_toscana=1000000;
+    private $max_toscana=0;
 
     // https://hihayk.github.io/scale/#4/6/50/80/-51/67/20/14/C237FB/194/55/251
-    private $colors_old = array('#B7C8FF',
-        '#9C9FFF',
-        '#9581FF',
-        '#9B68FF',
-        '#AB4FFE',
-        '#C237FB',
-        '#D12DDF',
-        '#BF24AC',
-        '#9F1C74',
-        '#801546',
-    );
     private $colors = array(
         '#fcf8cd',
         '#fbe5b9',
@@ -34,7 +40,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
 
 	public function check() {
 
-	    $this->data_covid=$this->getRoot().'/COVID-19';
+        $this->data_covid=$this->getRoot().'/COVID-19';
 	    // Check data file
         if(!file_exists($this->data_covid)) {
             $msg = "No data in {$this->data_covid} download with git clone https://github.com/pcm-dpc/COVID-19.git";
@@ -46,155 +52,160 @@ class WebmappCovidTask extends WebmappAbstractTask {
 
     public function process(){
 	    // READ data
-        $this->data = $this->readProvinceData($this->data_covid.'/dati-province/dpc-covid19-ita-province.csv');
-        echo "LAST UPDATE: {$this->last_update}\n";
-
-        $this->processSeries();
+        $this->readProvinceIstat();
+        $this->readProvinceData();
+        $this->clean();
+        $this->setMinMax();
+        $this->addFillColor();
         $this->processToscana();
-        $this->processItalia();
 
-    	return TRUE;
+        $this->writeGeoJson($this->getRoot().'/geojson/covid_italia_aree.geojson',array_values($this->province));
+        $this->writeGeoJson($this->getRoot().'/geojson/covid_toscana_aree.geojson',array_values($this->toscana));
+
+        echo "LAST UPDATE: {$this->last_update}\n";
+        echo "MIN: {$this->min} MAX: {$this->max}\n";
+        echo "TOSCANA:\n";
+        echo "MIN: {$this->min_toscana} MAX: {$this->max_toscana}\n";
+
+        return TRUE;
     }
 
-    /**
-     * (
-    [0] => 2020-03-17 17:00:00
-    [1] => ITA
-    [2] => 05
-    [3] => Veneto
-    [4] => 024
-    [5] => Vicenza
-    [6] => VI
-    [7] => 45.547497
-    [8] => 11.54597109
-    [9] => 325
-    )
-     */
     private function processToscana() {
-        $max = 0;
-        $min = 1000000;
-        // Elaborate DATA
-        $features=array();
-        foreach ($this->data as $data) {
-            if(date('Y-m-d',strtotime($data[0]))==$this->last_update && in_array($data[5],$this->province)) {
-                $props=array();
-                $props['id']=$data[4];
-                $props['name']=$data[5];
-                $props['modified']=$this->last_update;
-                $props['totale_casi']=$data[9];
-                if ($data[9]<$min) $min = $data[9];
-                if ($data[9]>$max) $max = $data[9];
-                $props['nuovi_casi']=$data[9]-$this->series[$data[4]][count($this->series[$data[4]])-2][1];
-                $props['regione']=$data[3];
-                $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
-                $props['description']=$description;
+        $alfa = -9/($this->max_toscana-$this->min_toscana)*$this->min_toscana;
+        $beta = 9/($this->max_toscana-$this->min_toscana);
 
-                $geom=array();
-                $geom['type']='Point';
-                $geom['coordinates']=array(floatval($data[8]),floatval($data[7]));
-
-                $feature=array();
-                $feature['type']='Feature';
-                $feature['properties']=$props;
-                $feature['geometry']=$geom;
-
-                $features[]=$feature;
+        foreach($this->province as $cod => $f) {
+            if(in_array($cod,$this->province_toscana)) {
+                $f['properties']['fillColor']=$this->colors[floor($alfa+$beta*$f['properties']['totale_casi'])];
+                $this->toscana[$cod]=$f;
             }
         }
-
-
-        // WRITE output
-        $j = array();
-        $j['type']='FeatureCollection';
-        $j['features']=$features;
-        file_put_contents($this->getRoot().'/geojson/covid_toscana.geojson',json_encode($j));
-
-        // Build AREA File
-        // Build props array
-        $feature_props = array();
-        foreach($features as $feature) {
-            $props = $feature['properties'];
-            $id = $props['id'];
-            $feature_props[$id]=$props;
-        }
-        // Build area
-        $alfa = -9/($max-$min)*$min;
-        $beta = 9/($max-$min);
-        echo "\n\nMIN $min MAX $max\n\n";
-        $aree = json_decode(file_get_contents('https://a.webmapp.it/covid/geojson/province_toscana.geojson'),TRUE);
-
-        $feature_aree = $aree['features'];
-        $new_features = array();
-        foreach ($feature_aree as $feature) {
-            $props = $feature['properties'];
-            $id = $props['id'];
-
-            $new_feature = array();
-            $new_feature['type']='Feature';
-            $props_new = $feature_props[$id];
-            $props_new['fillColor']=$this->colors[floor($alfa+$beta*$props_new['totale_casi'])];
-            $new_feature['properties']=$props_new;
-            $new_feature['geometry']=$feature['geometry'];
-            $new_features[]=$new_feature;
-        }
-
-        // WRITE output
-        $j = array();
-        $j['type']='FeatureCollection';
-        $j['features']=$new_features;
-        file_put_contents($this->getRoot().'/geojson/covid_toscana_aree.geojson',json_encode($j));
-
     }
 
-    private function processItalia() {
-        // Elaborate DATA
-        $features=array();
-        foreach ($this->data as $data) {
-            if(date('Y-m-d',strtotime($data[0]))==$this->last_update && $data[5]!='In fase di definizione/aggiornamento') {
-                $props=array();
-                $props['id']=$data[4];
-                $props['name']=$data[5];
-                $props['modified']=$this->last_update;
-                $props['totale_casi']=$data[9];
-                $props['nuovi_casi']=$data[9]-$this->series[$data[4]][count($this->series[$data[4]])-2][1];
-                $props['regione']=$data[3];
-                $description = "Il {$this->last_update} nella provincia di {$data[5]} sono stati registrati {$data[9]} casi.";
-                $props['description']=$description;
-
-                $geom=array();
-                $geom['type']='Point';
-                $geom['coordinates']=array(floatval($data[8]),floatval($data[7]));
-
-                $feature=array();
-                $feature['type']='Feature';
-                $feature['properties']=$props;
-                $feature['geometry']=$geom;
-
-                $features[]=$feature;
+    private function setMinMax() {
+        foreach($this->province as $cod => $f) {
+            $d=$f['properties'];
+            if($d['totale_casi']>$this->max) {
+                $this->max=$d['totale_casi'];
             }
-        }
-        // WRITE output
-        $j = array();
-        $j['type']='FeatureCollection';
-        $j['features']=$features;
-        file_put_contents($this->getRoot().'/geojson/covid_italia.geojson',json_encode($j));
-    }
-
-    private function processSeries() {
-        // SERIES
-        $series = array();
-        foreach ($this->data as $data) {
-                echo "\n\n\n DATA[5]: {$data[5]} ({$data[3]}{$data[2]})\n\n\n";
-                if ($data[5]!='In fase di definizione/aggiornamento') {
-                    $new = 0;
-                    if(isset($series[$data[4]])) {
-                        $new = (int) $data[9] - $series[$data[4]][count($series[$data[4]])-1][1];
-                    }
-                    $series[$data[4]][] = array(date('Y-m-d',strtotime($data[0])),(int) $data[9],$new);
+            if($d['totale_casi']<$this->min) {
+                $this->min=$d['totale_casi'];
+            }
+            if (in_array($cod,$this->province_toscana)) {
+                if($d['totale_casi']>$this->max_toscana) {
+                    $this->max_toscana=$d['totale_casi'];
                 }
+                if($d['totale_casi']<$this->min_toscana) {
+                    $this->min_toscana=$d['totale_casi'];
+                }
+            }
         }
-        // WRITE
-        foreach($series as $provincia => $data) {
+    }
+
+    private function clean() {
+	    $to_be_removed = array();
+        foreach($this->province as $cod => $f) {
+            if(!isset($f['properties']['totale_casi'])) {
+                $to_be_removed[]=$cod;
+            }
+        }
+        if(count($to_be_removed)>0) {
+            foreach ($to_be_removed as $cod) {
+                unset($this->province[$cod]);
+            }
+        }
+
+    }
+
+    private function addFillColor() {
+        // Build area
+        $alfa = -9/($this->max-$this->min)*$this->min;
+        $beta = 9/($this->max-$this->min);
+        foreach($this->province as $cod => $f) {
+            if(isset($f['properties']['totale_casi'])) {
+                $this->province[$cod]['properties']['fillColor']=$this->colors[floor($alfa+$beta*$f['properties']['totale_casi'])];
+            }
+            else {
+                echo "Attenzione: no totale casi $cod\n";
+                print_r($f['properties']);
+            }
+        }
+    }
+
+    private function writeGeoJson($file,$fs) {
+        // geojson
+        $j = array();
+        $j['type']='FeatureCollection';
+        $j['features']=$fs;
+        $data = json_encode($j);
+        // WRITE CRYPT FILE
+        file_put_contents($file,$data);
+    }
+
+    private function readProvinceData() {
+        /**
+         (
+        [data] => 2020-03-26T17:00:00
+        [stato] => ITA
+        [codice_regione] => 5
+        [denominazione_regione] => Veneto
+        [codice_provincia] => 999
+        [denominazione_provincia] => In fase di definizione/aggiornamento
+        [sigla_provincia] =>
+        [lat] => 0
+        [long] => 0
+        [totale_casi] => 260
+        [note_it] =>
+        [note_en] =>
+        )
+         **/
+        $this->series=array();
+        $file=$this->data_covid.'/dati-json/dpc-covid19-ita-province.json';
+        $j=json_decode(file_get_contents($file),TRUE);
+        foreach ($j as $d) {
+            if(!empty($d['sigla_provincia'])) {
+                $cod = str_pad($d['codice_provincia'],3,'0',STR_PAD_LEFT);
+                // CSV structure
+                // 1. data (YYYY-mm-dd)
+                // 2. totale_casi
+                // 3. Incremento nuovi casi
+                // 4. Incremento percentuale
+                $date = date('Y-m-d',strtotime($d['data']));
+                $this->last_update=$date;
+                $incremento_totale_casi=0;
+                $incremento_totale_casi_perc=0;
+                if(isset($this->series[$cod])) {
+                    $prev_totale_casi = $this->series[$cod][count($this->series[$cod])-1][1];
+                    if ($prev_totale_casi>0){
+                        $incremento_totale_casi=$d['totale_casi']-$prev_totale_casi;
+                        $incremento_totale_casi_perc=$incremento_totale_casi/$prev_totale_casi;
+                    }
+                }
+                // Update $this->province (will be geojson)
+                /**
+                id: "047",
+                name: "Pistoia",
+                modified: "2020-03-29",
+                totale_casi: "309",
+                nuovi_casi: 11,
+                regione: "Toscana",
+                description: "Il 2020-03-29 nella provincia di Pistoia sono stati registrati 309 casi.",
+                fillColor: "#fbe5b9"
+                 */
+                $this->province[$cod]['properties']['name']=$d['denominazione_provincia'];
+                $this->province[$cod]['properties']['totale_casi']=$d['totale_casi'];
+                $this->province[$cod]['properties']['nuovi_casi']=$incremento_totale_casi;
+                $this->province[$cod]['properties']['incremento_totale_casi_perc']=number_format($incremento_totale_casi_perc*100,2);
+                $this->province[$cod]['properties']['regione']=$d['denominazione_regione'];
+                $this->province[$cod]['properties']['modified']=$date;
+                $this->province[$cod]['properties']['description']="Il $date nella provincia di {$d['denominazione_provincia']} sono stati registrati {$d['totale_casi']} casi.";
+
+                $item = array($date,$d['totale_casi'],$incremento_totale_casi,number_format($incremento_totale_casi_perc*100,2));
+                $this->series[$cod][]=$item;
+            }
+        }
+        // Write CSV
+        foreach($this->series as $provincia => $data) {
             $fname = $this->getRoot().'/resources/'.$provincia.'.csv';
             echo "\n\n$fname\n";
             $fp = fopen($fname  , 'w');
@@ -203,20 +214,18 @@ class WebmappCovidTask extends WebmappAbstractTask {
             }
             fclose($fp);
         }
-        $this->series=$series;
     }
 
-    private function readProvinceData($fname) {
-	    $ret=array();
-        if (($handle = fopen($fname, "r")) !== FALSE) {
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                $t = strtotime($data[0]);
-                if($t>$this->last_update) $this->last_update=$t;
-                $ret[]=$data;
-            }
-            fclose($handle);
+    private function readProvinceIstat() {
+        $j=json_decode(file_get_contents("https://a.webmapp.it/covid/geojson/covid_italia_aree_pop.geojson"),TRUE);
+        $this->province=array();
+        foreach ($j['features'] as $f) {
+            $id=$f['properties']['id'];
+            $f['properties']['popolazione']=$f['properties']['maschi']+$f['properties']['femmine'];
+            unset($f['properties']['maschi']);
+            unset($f['properties']['femmine']);
+            unset($f['properties']['popolazion']);
+            $this->province[$id]=$f;
         }
-        $this->last_update=date('Y-m-d',$this->last_update);
-        return $ret;
     }
 }
