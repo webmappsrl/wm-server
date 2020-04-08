@@ -83,6 +83,7 @@ require 'classes/custom/WebmappFSTTask.php';
 require 'classes/custom/WebmappTrentinoKTask.php';
 require 'classes/custom/WebmappSITRTTask.php';
 require 'classes/custom/WebmappCovidTask.php';
+require 'classes/custom/WebmappCovidRTTask.php';
 require 'classes/custom/WebmappCovidPisaTask.php';
 require 'classes/custom/WebmappIntense2ImportTask.php';
 
