@@ -39,7 +39,10 @@ class WebmappCovidRTTask extends WebmappAbstractTask {
     }
 
     private function setProvince() {
-	    $j = <<<EOF
+
+        //  FI / PO / PT / X / MS / LU / PI / LI / X / AR / SI / GR
+
+        $j = <<<EOF
 [
     {
         "stato": "ITA",
@@ -70,6 +73,16 @@ class WebmappCovidRTTask extends WebmappAbstractTask {
         "sigla_provincia": "PT",
         "lat": 43.933465,
         "long": 10.91734146
+    },
+    {
+        "stato": "ITA",
+        "codice_regione": "09",
+        "denominazione_regione": "Toscana",
+        "codice_provincia": "000",
+        "denominazione_provincia": "ASLCENTRO",
+        "sigla_provincia": "",
+        "lat": 43.76923077,
+        "long": 11.25588885
     },
     {
         "stato": "ITA",
@@ -115,6 +128,16 @@ class WebmappCovidRTTask extends WebmappAbstractTask {
         "stato": "ITA",
         "codice_regione": "09",
         "denominazione_regione": "Toscana",
+        "codice_provincia": "000",
+        "denominazione_provincia": "ASLNO",
+        "sigla_provincia": "",
+        "lat": 43.76923077,
+        "long": 11.25588885
+    },
+    {
+        "stato": "ITA",
+        "codice_regione": "09",
+        "denominazione_regione": "Toscana",
         "codice_provincia": "051",
         "denominazione_provincia": "Arezzo",
         "sigla_provincia": "AR",
@@ -140,6 +163,26 @@ class WebmappCovidRTTask extends WebmappAbstractTask {
         "sigla_provincia": "GR",
         "lat": 42.76026758,
         "long": 11.11356398
+    },
+    {
+        "stato": "ITA",
+        "codice_regione": "09",
+        "denominazione_regione": "Toscana",
+        "codice_provincia": "000",
+        "denominazione_provincia": "ASLISE",
+        "sigla_provincia": "",
+        "lat": 43.76923077,
+        "long": 11.25588885
+    },
+    {
+        "stato": "ITA",
+        "codice_regione": "09",
+        "denominazione_regione": "Toscana",
+        "codice_provincia": "000",
+        "denominazione_provincia": "",
+        "sigla_provincia": "",
+        "lat": 43.76923077,
+        "long": 11.25588885
     }
 ]
 EOF;
@@ -171,17 +214,19 @@ EOF;
         $this->fillTypeProvincia(0,$type,$this->rt_data[$start]); //FI
         $this->fillTypeProvincia(1,$type,$this->rt_data[$start+1]); //PO
         $this->fillTypeProvincia(2,$type,$this->rt_data[$start+2]); //PT
+        $this->fillTypeProvincia(3,$type,$this->rt_data[$start+3]); //ASLCENTRO
 
-        $this->fillTypeProvincia(3,$type,$this->rt_data[$start+4]); // MS
-        $this->fillTypeProvincia(4,$type,$this->rt_data[$start+5]); // LU
-        $this->fillTypeProvincia(5,$type,$this->rt_data[$start+6]); // PI
-        $this->fillTypeProvincia(6,$type,$this->rt_data[$start+7]); // LI
+        $this->fillTypeProvincia(4,$type,$this->rt_data[$start+4]); // MS
+        $this->fillTypeProvincia(5,$type,$this->rt_data[$start+5]); // LU
+        $this->fillTypeProvincia(6,$type,$this->rt_data[$start+6]); // PI
+        $this->fillTypeProvincia(7,$type,$this->rt_data[$start+7]); // LI
+        $this->fillTypeProvincia(8,$type,$this->rt_data[$start+8]); // ASLNO
 
-        $this->fillTypeProvincia(7,$type,$this->rt_data[$start+9]); // AR
-        $this->fillTypeProvincia(8,$type,$this->rt_data[$start+10]); // SI
-        $this->fillTypeProvincia(9,$type,$this->rt_data[$start+11]); // GR
-
-
+        $this->fillTypeProvincia(9,$type,$this->rt_data[$start+9]); // AR
+        $this->fillTypeProvincia(10,$type,$this->rt_data[$start+10]); // SI
+        $this->fillTypeProvincia(11,$type,$this->rt_data[$start+11]); // GR
+        $this->fillTypeProvincia(12,$type,$this->rt_data[$start+12]); // ASLNO
+        $this->fillTypeProvincia(13,$type,$this->rt_data[$start+13]); // TOSCANA
     }
 
     private function fillTypeProvincia($prov_pos,$type,$data) {
