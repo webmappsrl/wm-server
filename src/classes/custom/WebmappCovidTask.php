@@ -23,6 +23,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
     private $max=0;
     private $min_toscana=1000000;
     private $max_toscana=0;
+    private $rt_data=array();
 
     // https://hihayk.github.io/scale/#4/6/50/80/-51/67/20/14/C237FB/194/55/251
     private $colors = array(
@@ -71,13 +72,48 @@ class WebmappCovidTask extends WebmappAbstractTask {
     }
 
     private function processToscana() {
-        $alfa = -9/($this->max_toscana-$this->min_toscana)*$this->min_toscana;
-        $beta = 9/($this->max_toscana-$this->min_toscana);
 
+        $this->readToscanaData();
+
+        $max=0;
+        $min=100000000;
         foreach($this->province as $cod => $f) {
             if(in_array($cod,$this->province_toscana)) {
-                $f['properties']['fillColor']=$this->colors[floor($alfa+$beta*$f['properties']['totale_casi'])];
+                $rt_data=$this->rt_data[$f['properties']['codice_provincia']][$f['properties']['modified']];
+                $f['properties']['rt_totale_casi']=$rt_data['totale_casi'];
+                $f['properties']['rt_nuovi_positivi']=$rt_data['nuovi_positivi'];
+                $f['properties']['rt_totale_casi_perc_10000']=$rt_data['totale_casi_perc_10000'];
+                $f['properties']['rt_deceduti']=$rt_data['deceduti'];
+                $f['properties']['rt_totale_deceduti_perc_positivi']=$rt_data['totale_deceduti_perc_positivi'];
+                $f['properties']['rt_deceduti_perc_10000']=$rt_data['deceduti_perc_10000'];
                 $this->toscana[$cod]=$f;
+                if ($rt_data['totale_casi_perc_10000']<$min) { $min = $rt_data['totale_casi_perc_10000']; }
+                if ($rt_data['totale_casi_perc_10000']>$max) { $max = $rt_data['totale_casi_perc_10000']; }
+            }
+        }
+        foreach($this->toscana as $cod => $item) {
+            $p=$item['properties'];
+            $fillColor=$this->getColor($p['rt_totale_casi_perc_10000'],$min,$max);
+            $this->toscana[$cod]['properties']['fillColor']=$fillColor;
+        }
+    }
+
+// $fillColor=$this->getColor($f['properties']['totale_casi'],$this->min_toscana,$this->max_toscana);
+// $f['properties']['fillColor']=$fillColor;
+
+    private function getColor($val,$min,$max) {
+        $alfa = -9/($max-$min)*$min;
+        $beta = 9/($max-$min);
+        $color_val=$alfa+$beta*$val;
+        $color=$this->colors[floor($color_val)];
+        return $color;
+    }
+
+    private function readToscanaData() {
+	    $j = json_decode(file_get_contents($this->getRoot().'/geojson/drt-covid19-toscana.json'),TRUE);
+	    foreach($j as $data) {
+	        if( $data['codice_provincia']!='000') {
+	            $this->rt_data[$data['codice_provincia']][$data['data']]=$data;
             }
         }
     }
@@ -193,6 +229,7 @@ class WebmappCovidTask extends WebmappAbstractTask {
                 fillColor: "#fbe5b9"
                  */
                 $this->province[$cod]['properties']['name']=$d['denominazione_provincia'];
+                $this->province[$cod]['properties']['codice_provincia']=$cod;
                 $this->province[$cod]['properties']['totale_casi']=$d['totale_casi'];
                 $this->province[$cod]['properties']['nuovi_casi']=$incremento_totale_casi;
                 $this->province[$cod]['properties']['incremento_totale_casi_perc']=number_format($incremento_totale_casi_perc*100,2);
