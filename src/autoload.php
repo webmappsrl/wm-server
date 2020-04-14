@@ -85,12 +85,13 @@ require 'classes/custom/WebmappSITRTTask.php';
 require 'classes/custom/WebmappCovidTask.php';
 require 'classes/custom/WebmappCovidRTTask.php';
 require 'classes/custom/WebmappCovidPisaTask.php';
-require 'classes/custom/WebmappIntense2ImportTask.php';
+require 'classes/custom/WebmappIntense2ExportTask.php';
 
 // SIMAP
 require 'classes/simap/WebmappSIMapCheckTask.php';
 require 'classes/simap/WebmappSIMapFindGhostTask.php';
 require 'classes/simap/WebmappSIMapCSVTask.php';
+
 // to remove (once simap2 is concluded)
 require 'classes/custom/WebmappSIMapTask.php';
 require 'classes/custom/WebmappSIMapStatsTask.php';
