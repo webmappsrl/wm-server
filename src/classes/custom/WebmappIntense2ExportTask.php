@@ -14,11 +14,12 @@
  *
  * Properties da aggiungere a tutti i POI e TRACK:
  * "action":"add"
- * "field_fonte_dati":["Rielaborazione Webmapp"]
- * "class":"OST"
+ * "fonteDati":["Rielaborazione Webmapp"]
+ * "class":"Ost"
  *
  * Mapping campi (rename) a tutti i POI e TRACK
  * "name" -> "title"
+ * "id" -> "idExt"
  *
  * Property subclass
  * "subclass": "ost_sentiero_percorso" (TRACK)
@@ -52,8 +53,8 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
 
 
     public function process(){
-    $this->processPoiIndex();
-    //$this->processTrackIndex();
+    $this->processPois();
+    $this->processTracks();
     return true;
 
     }
@@ -76,8 +77,7 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
         }
         return $j;
     }
-    private function processPoiIndex() {
-        $l = new WebmappLayer('intense2pois',$this->getRoot().'/resources');
+    private function processPois() {
         // Lista delle route:
         $pois = $this->getListByType('poi');
         if(count($pois)>0){
@@ -87,8 +87,8 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
 
                 // Meta fissi
                 $p->addProperty('action','add');
-                $p->addProperty('field_fonte_dati', array('Rielaborazione Webmapp'));
-                $p->addProperty('class','OST');
+                $p->addProperty('fonteDati', array('Rielaborazione Webmapp'));
+                $p->addProperty('class','Ost');
 
                 // Gestione tassonomie
                 $taxs = $p->getProperty('taxonomy');
@@ -119,6 +119,11 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                         break;
                 }
 
+                // Mapping
+                $id = $p->getId();
+                $p->addProperty('idExt',$id);
+                $p->addProperty('title',$p->getProperty('name'));
+
                 // Remove property
                 $p->removeProperty('noDetails');
                 $p->removeProperty('noInteraction');
@@ -127,32 +132,69 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 $p->removeProperty('source');
                 $p->removeProperty('wp_edit');
                 $p->removeProperty('web');
+                $p->removeProperty('name');
+                $p->removeProperty('id');
                 $p->removeProperty('taxonomy');
 
-                $l->addFeature($p);
+                $j=array();
+                $j[0]['type']='FeatureCollection';
+                $j[0]['features']=array($p->getArrayJson());
+                $j[1]['type']='FeatureCollection';
+                $j[1]['features']=array();
+                file_put_contents($this->getRoot().'/resources/'.$id.'.geojson',json_encode($j));
             }
         }
-        $l->write();
     }
-    private function processTrackIndex() {
+    private function processTracks() {
         // Lista delle route:
-        $pois = $this->getListByType('poi');
-        $features = array();
-        if(count($pois)>0){
-            foreach ($pois as $pid => $date) {
-                $skip = false;
-                echo "\n\n\n Processing POI $pid\n";
-                $p=WebmappUtils::getJsonFromAPI($this->path.'/'.$pid.'.geojson');
-                if(!isset($p['geometry'])) {
-                    echo "Warning no GEOMETRY: SKIPPING POI\n";
-                    $skip=true;
+        $tracks = $this->getListByType('track');
+        if(count($tracks)>0){
+            foreach ($tracks as $tid => $date) {
+                $t=new WebmappTrackFeature($this->wp->getBaseUrl().'/wp-json/wp/v2/track/'.$tid);
+                // Intense2 mod
+
+                // Meta fissi
+                $t->addProperty('action','add');
+                $t->addProperty('fonteDati', array('Rielaborazione Webmapp'));
+                $t->addProperty('class','Ost');
+
+                // Gestione tassonomie
+                $taxs = $t->getProperty('taxonomy');
+                $term_id = (int) $taxs['activity']['0'];
+                echo "TERMID: $term_id \n";
+                if($term_id==373) {
+                    $t->addProperty('subclass','ost_sentiero_percorso');
+                    $t->addProperty('tipologia','Corsia ciclabile e/o ciclopedonale');
                 }
-                if(!$skip) $features[]=$p;
+                if($term_id==372) {
+                    $t->addProperty('subclass','ost_sentiero_percorso');
+                    $t->addProperty('tipologia','Sentiero Escursionistico');
+                }
+
+                // Mapping
+                $id = $t->getId();
+                $t->addProperty('idExt',$id);
+                $t->addProperty('title',$t->getProperty('name'));
+
+                // Remove property
+                $t->removeProperty('noDetails');
+                $t->removeProperty('noInteraction');
+                $t->removeProperty('accessibility');
+                $t->removeProperty('locale');
+                $t->removeProperty('source');
+                $t->removeProperty('wp_edit');
+                $t->removeProperty('web');
+                $t->removeProperty('name');
+                $t->removeProperty('id');
+                $t->removeProperty('taxonomy');
+
+                $j=array();
+                $j[0]['type']='FeatureCollection';
+                $j[0]['features']=array($t->getArrayJson());
+                $j[1]['type']='FeatureCollection';
+                $j[1]['features']=array();
+                file_put_contents($this->getRoot().'/resources/'.$id.'.geojson',json_encode($j));
             }
-            $j=array();
-            $j['type']='FeatureCollection';
-            $j['features']=$features;
-            file_put_contents($this->path.'/poi_index.geojson',json_encode($j));
         }
     }
 
