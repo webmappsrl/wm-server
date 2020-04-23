@@ -89,6 +89,7 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 $p->addProperty('action','add');
                 $p->addProperty('fonteDati', array('Rielaborazione Webmapp'));
                 $p->addProperty('class','Ost');
+                //$p->addProperty('tematica','NON DEFINITA');
 
                 // Gestione tassonomie
                 $taxs = $p->getProperty('taxonomy');
@@ -109,14 +110,16 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                     case 374:
                         $p->addProperty('subclass','ost_waypoint');
                         $p->addProperty('tipologia','INTERSEZIONE');
-                        // $p->addProperty('tematica','');
+                        $p->addProperty('tematica','');
                         break;
 
+                    case 377:
                     case 375:
                         $p->addProperty('subclass','ost_servizi');
                         $p->addProperty('tipologia','STAZIONE/FERMATA FERROVIARIA');
                         $p->addProperty('tematica','TRASPORTI');
                         break;
+
                 }
 
                 // Mapping
@@ -157,6 +160,8 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 $t->addProperty('action','add');
                 $t->addProperty('fonteDati', array('Rielaborazione Webmapp'));
                 $t->addProperty('class','Ost');
+                $t->addProperty('tematica','NON DEFINITA');
+
 
                 // Gestione tassonomie
                 $taxs = $t->getProperty('taxonomy');
@@ -169,6 +174,10 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 if($term_id==372) {
                     $t->addProperty('subclass','ost_sentiero_percorso');
                     $t->addProperty('tipologia','Sentiero Escursionistico');
+                }
+                if($term_id==378) {
+                    $t->addProperty('subclass','ost_sentiero_percorso');
+                    $t->addProperty('tipologia','Trenino verde');
                 }
 
                 // Mapping
