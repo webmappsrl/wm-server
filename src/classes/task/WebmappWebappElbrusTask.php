@@ -3,6 +3,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 {
     private $path;
     private $zip_base_url;
+    private $zip_name;
 
     public function check()
     {
@@ -11,8 +12,13 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             $this->zip_base_url = $this->options['zip_base_url'];
         }
 
-        if (!file_exists($this->zip_base_url . '/core.zip')) {
-            throw new WebmappExceptionNoFile("ERROR: Missing file 'core.zip' in '{$this->zip_base_url}/'", 1);
+        $this->zip_name = 'core';
+        if (array_key_exists('zip_name', $this->options)) {
+            $this->zip_name = $this->options['zip_name'];
+        }
+
+        if (!file_exists($this->zip_base_url . "/{$this->zip_name}.zip")) {
+            throw new WebmappExceptionNoFile("ERROR: Missing file '{$this->zip_name}.zip' in '{$this->zip_base_url}/'", 1);
         }
 
         $cmd = "rm -Rf {$this->zip_base_url}/tmp";
@@ -21,22 +27,22 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         $cmd = "mkdir {$this->zip_base_url}/tmp";
         exec($cmd);
 
-        $cmd = "unzip {$this->zip_base_url}/core.zip -d {$this->zip_base_url}/tmp";
+        $cmd = "unzip {$this->zip_base_url}/{$this->zip_name}.zip -d {$this->zip_base_url}/tmp";
         exec($cmd);
 
         if (!file_exists("{$this->zip_base_url}/tmp/core/index.html")) {
             $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Missing file 'index.html' in {$this->zip_base_url}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Missing file 'index.html' in {$this->zip_base_url}/{$this->zip_name}.zip", 1);
         }
 
         if (!file_exists("{$this->zip_base_url}/tmp/core/assets")) {
             $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets' in {$this->zip_base_url}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets' in {$this->zip_base_url}/{$this->zip_name}.zip", 1);
         }
 
         if (!file_exists("{$this->zip_base_url}/tmp/core/assets/icon")) {
             $this->clearTemp();
-            throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets/icon' in {$this->zip_base_url}/core.zip", 1);
+            throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets/icon' in {$this->zip_base_url}/{$this->zip_name}.zip", 1);
         }
 
         $this->clearTemp();
@@ -54,6 +60,11 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             $this->zip_base_url = $this->options['zip_base_url'];
         }
 
+        $this->zip_name = 'core';
+        if (array_key_exists('zip_name', $this->options)) {
+            $this->zip_name = $this->options['zip_name'];
+        }
+
         echo "Updating core...  ";
 
         $cmd = "rm -Rf {$this->zip_base_url}/core";
@@ -62,10 +73,10 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         $cmd = "mkdir {$this->zip_base_url}/core";
         exec($cmd);
 
-        $cmd = "unzip {$this->zip_base_url}/core.zip -d {$this->zip_base_url}";
+        $cmd = "unzip {$this->zip_base_url}/{$this->zip_name}.zip -d {$this->zip_base_url}";
         exec($cmd);
 
-        echo "Extracted {$this->zip_base_url}/core.zip in {$this->zip_base_url}/\n";
+        echo "Extracted {$this->zip_base_url}/{$this->zip_name}.zip in {$this->zip_base_url}/\n";
 
         // For each instance copy the updated core, copy the icon, update the index.html and link config.json
         echo "\nUpdating webapp core...\n";
