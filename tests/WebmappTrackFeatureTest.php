@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WebmappTrackFeatureTests extends TestCase {
+class WebmappTrackFeatureTest extends TestCase {
 	public function testOk() {
 		$track = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
 		$json = $track->getJson();
@@ -443,46 +443,46 @@ class WebmappTrackFeatureTests extends TestCase {
             $c=$p['computed'];
 
             $this->assertTrue(isset($c['distance']));
-            $this->assertEqualsWithDelta($distance,$c['distance'],$delta_dist);
+            $this->WMAssertEqualsWithDelta($distance,$c['distance'],$delta_dist);
 
             $this->assertTrue(isset($c['ele:from']));
-            $this->assertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
 
             $this->assertTrue(isset($c['ele:to']));
-            $this->assertEqualsWithDelta($ele_to,$c['ele:to'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_to,$c['ele:to'],$delta_ele);
 
             $this->assertTrue(isset($c['ele:min']));
-            $this->assertEqualsWithDelta($ele_min,$c['ele:min'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_min,$c['ele:min'],$delta_ele);
 
             $this->assertTrue(isset($c['ele:max']));
-            $this->assertEqualsWithDelta($ele_max,$c['ele:max'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_max,$c['ele:max'],$delta_ele);
 
             $this->assertTrue(isset($c['ascent']));
-            $this->assertEqualsWithDelta($ascent,$c['ascent'],$delta_asc);
+            $this->WMAssertEqualsWithDelta($ascent,$c['ascent'],$delta_asc);
 
             $this->assertTrue(isset($c['descent']));
-            $this->assertEqualsWithDelta($descent,$c['descent'],$delta_asc);
+            $this->WMAssertEqualsWithDelta($descent,$c['descent'],$delta_asc);
 
             $this->assertTrue(isset($p['distance']));
-            $this->assertEqualsWithDelta($distance,$p['distance'],$delta_dist);
+            $this->WMAssertEqualsWithDelta($distance,$p['distance'],$delta_dist);
 
             $this->assertTrue(isset($p['ele:from']));
-            $this->assertEqualsWithDelta($ele_from,$p['ele:from'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_from,$p['ele:from'],$delta_ele);
 
             $this->assertTrue(isset($p['ele:to']));
-            $this->assertEqualsWithDelta($ele_to,$p['ele:to'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_to,$p['ele:to'],$delta_ele);
 
             $this->assertTrue(isset($p['ele:min']));
-            $this->assertEqualsWithDelta($ele_min,$p['ele:min'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_min,$p['ele:min'],$delta_ele);
 
             $this->assertTrue(isset($p['ele:max']));
-            $this->assertEqualsWithDelta($ele_max,$p['ele:max'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_max,$p['ele:max'],$delta_ele);
 
             $this->assertTrue(isset($p['ascent']));
-            $this->assertEqualsWithDelta($ascent,$p['ascent'],$delta_asc);
+            $this->WMAssertEqualsWithDelta($ascent,$p['ascent'],$delta_asc);
 
             $this->assertTrue(isset($p['descent']));
-            $this->assertEqualsWithDelta($descent,$p['descent'],$delta_asc);
+            $this->WMAssertEqualsWithDelta($descent,$p['descent'],$delta_asc);
         }
 
         public function testAscDescOverride() {
@@ -515,14 +515,14 @@ class WebmappTrackFeatureTests extends TestCase {
             $c=$p['computed'];
 
             $this->assertTrue(isset($c['distance']));
-            $this->assertEqualsWithDelta(5.8,$c['distance'],$delta_dist);
+            $this->WMAssertEqualsWithDelta(5.8,$c['distance'],$delta_dist);
 
             $this->assertTrue(isset($p['distance']));
-            $this->assertEqualsWithDelta(10.0,$p['distance'],$delta_dist);
+            $this->WMAssertEqualsWithDelta(10.0,$p['distance'],$delta_dist);
 
         }
 
-        private function assertEqualsWithDelta($expected,$actual,$delta) {
+        private function WMAssertEqualsWithDelta($expected, $actual, $delta) {
             $msg = "Expected: $expected Actual: $actual Delta: $delta";
             $this->assertTrue(abs($expected-$actual)<$delta,$msg);
         } 
@@ -618,10 +618,10 @@ class WebmappTrackFeatureTests extends TestCase {
             $ele_from = 1583;
 
             $this->assertTrue(isset($c['distance']));
-            $this->assertEqualsWithDelta($distance,$c['distance'],$delta_dist);
+            $this->WMAssertEqualsWithDelta($distance,$c['distance'],$delta_dist);
 
             $this->assertTrue(isset($c['ele:from']));
-            $this->assertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
+            $this->WMAssertEqualsWithDelta($ele_from,$c['ele:from'],$delta_ele);
         }
 
         public function testOSMColor() {
@@ -680,30 +680,40 @@ class WebmappTrackFeatureTests extends TestCase {
 
         }
 
-        public function testLineDash() {
-            // Test sulla track relativa alla relation https://www.openstreetmap.org/relation/9351675
-            // (SI V23B) Randazzo - Bivacco Forestale di Monte Scavo (9351675)
-            // ID WP: 1728
-            $id =1728;
-            $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/'.$id);
-            $j=json_decode($t->getJson(),true);
-            $this->assertTrue(isset($j['properties'])); $p=$j['properties'];
-            $this->assertTrue(isset($p['lineDash']));
-            $ld = $p['lineDash'];
+    public function testLineDash() {
+        // Test sulla track relativa alla relation https://www.openstreetmap.org/relation/9351675
+        // (SI V23B) Randazzo - Bivacco Forestale di Monte Scavo (9351675)
+        // ID WP: 1728
+        $id =1728;
+        $t = new WebmappTrackFeature('http://simap.be.webmapp.it/wp-json/wp/v2/track/'.$id);
+        $j=json_decode($t->getJson(),true);
+        $this->assertTrue(isset($j['properties'])); $p=$j['properties'];
+        $this->assertTrue(isset($p['lineDash']));
+        $ld = $p['lineDash'];
 
-            $this->assertEquals(2,count($ld));
-            $this->assertEquals(12,$ld[0]);
-            $this->assertEquals(8,$ld[1]);
+        $this->assertEquals(2,count($ld));
+        $this->assertEquals(12,$ld[0]);
+        $this->assertEquals(8,$ld[1]);
 
 
-        }
+    }
+    public function testSurface() {
+        $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+        $j=json_decode($t->getJson(),true);
+        $this->assertTrue(isset($j['properties']));
+        $p=$j['properties'];
+        $this->assertTrue(isset($p['surface']));
+        $s = $p['surface'];
 
-        // public function testXXXX() {
-        //     // Prepare TEST
-        //     // LOAD DATA
-        //     // PERFORM OPERATIONS
-        //     // TEST(S)
-        // }
+        $this->assertEquals(3,count($s));
+        $this->assertTrue(isset($s['asphalt']));
+        $this->assertTrue(isset($s['unpaved']));
+        $this->assertTrue(isset($s['paved']));
 
+        $this->assertEquals(0.3,$s['asphalt']);
+        $this->assertEquals(0.3,$s['unpaved']);
+        $this->assertEquals(0.4,$s['paved']);
+
+    }
 
 }

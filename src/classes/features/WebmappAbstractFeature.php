@@ -168,7 +168,7 @@ abstract class WebmappAbstractFeature {
         }
 
         // FILE AUDIO
-        if(isset($json_array['audio'])) {
+        if(isset($json_array['audio']) && is_array($json_array['audio'])) {
            $this->addProperty('audio',$json_array['audio']['url']); 
         }
 

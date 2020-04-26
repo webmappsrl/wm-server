@@ -73,6 +73,15 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             $this->addProperty('rb_track_section',$json_array['rb_track_section']);
         }
 
+        // SURFACE
+        if(isset($json_array['surface'])&&count($json_array['surface'])) {
+            $surface = array();
+            foreach($json_array['surface'] as $item) {
+                $surface[$item['surface_type']]=$item['surface_type_percentage']/100;
+            }
+            $this->addProperty('surface',$surface);
+        }
+
     }
 
     // Impostazione della geometry a partire da formato API WP
