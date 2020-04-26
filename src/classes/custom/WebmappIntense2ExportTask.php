@@ -46,6 +46,17 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
 
     private $wp;
 
+    private $surface_mapping = array(
+        'asphalt' => 'FONDO IN ASFALTO',
+        'compacted' => 'FONDO IN TERRA BATTUTA',
+        'ground' => 'FONDO NATURALE',
+        'concrete' => 'FONDO IN CEMENTO',
+        'sett' => 'FONDO LASTRICATO',
+        'sand' => 'FONDO IN GHIAIA FINE',
+        'grass' => 'FONDO ERBOSO',
+        'pebblestone' => 'FONDO CON GHIAIA GROSSOLANA'
+    ) ;
+
     public function check() {
         $this->wp = new WebmappWP('http://intense2.be.webmapp.it/');
         return TRUE;
@@ -185,7 +196,21 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 $t->addProperty('idExt',$id);
                 $t->addProperty('title',$t->getProperty('name'));
 
+                // Surface
+                if($t->hasProperty('surface')) {
+                    $s=$t->getProperty('surface');
+                    if(count($s)>0) {
+                        $tipologiaDelFondo = array();
+                        foreach ($s as $s_type => $s_perc) {
+                            echo "TIPOLOGIA: $s_type\n";
+                            $tipologiaDelFondo[]=array('percentuale'=>$s_perc,'tipologiaFondo'=>$this->surface_mapping[$s_type]);
+                        }
+                        $t->addProperty('tipologiaDelFondo',$tipologiaDelFondo);
+                    }
+                }
+
                 // Remove property
+                $t->removeProperty('surface');
                 $t->removeProperty('noDetails');
                 $t->removeProperty('noInteraction');
                 $t->removeProperty('accessibility');
