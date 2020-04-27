@@ -166,48 +166,73 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
             foreach ($tracks as $tid => $date) {
                 $t=new WebmappTrackFeature($this->wp->getBaseUrl().'/wp-json/wp/v2/track/'.$tid);
                 // Intense2 mod
-
-                // Meta fissi
+                // Meta fissi per le track
                 $t->addProperty('action','add');
                 $t->addProperty('fonteDati', array('Rielaborazione Webmapp'));
                 $t->addProperty('class','Ost');
                 $t->addProperty('tematica','NON DEFINITA');
-
-
                 // Gestione tassonomie
                 $taxs = $t->getProperty('taxonomy');
-                $term_id = (int) $taxs['activity']['0'];
-                echo "TERMID: $term_id \n";
-                if($term_id==373) {
-                    $t->addProperty('subclass','ost_sentiero_percorso');
-                    $t->addProperty('tipologia','Corsia ciclabile e/o ciclopedonale');
-                }
-                if($term_id==372) {
-                    $t->addProperty('subclass','ost_sentiero_percorso');
-                    $t->addProperty('tipologia','Sentiero Escursionistico');
-                }
-                if($term_id==378) {
-                    $t->addProperty('subclass','ost_sentiero_percorso');
-                    $t->addProperty('tipologia','Trenino verde');
-                }
+                $term_id = (int) $taxs['activity'][0];
+                $name = preg_replace('|&#8211;|','-', $t->getProperty('name'));
+                echo "TERMID:$term_id NAME:$name ";
 
-                // Mapping
-                $id = $t->getId();
-                $t->addProperty('idExt',$id);
-                $t->addProperty('title',$t->getProperty('name'));
 
                 // Surface
+                $is_mtb = FALSE;
                 if($t->hasProperty('surface')) {
                     $s=$t->getProperty('surface');
                     if(count($s)>0) {
+                        $tot_perc = 0;
                         $tipologiaDelFondo = array();
                         foreach ($s as $s_type => $s_perc) {
-                            echo "TIPOLOGIA: $s_type\n";
+                            //Se contiene almeno un tratto diverso da asfalto, assumiamo MTB
+                            if($this->surface_mapping[$s_type]!=='FONDO IN ASFALTO'){
+                                $is_mtb = TRUE;
+                            }
+                            $tot_perc += $s_perc;
+                            echo "$s_type ($s_perc)";
                             $tipologiaDelFondo[]=array('percentuale'=>$s_perc,'tipologiaFondo'=>$this->surface_mapping[$s_type]);
+                        }
+                        echo "TOT:$tot_perc ";
+                        if ($tot_perc<0.99) {
+                            $perc_unknown = 1-$tot_perc;
+                            $tipologiaDelFondo[]=array('percentuale'=>$perc_unknown,'tipologiaFondo'=>'DATO SUL FONDO NON PRESENTE');
+                            echo "DATO SUL FONDO NON PRESENTE ($perc_unknown) ";
                         }
                         $t->addProperty('tipologiaDelFondo',$tipologiaDelFondo);
                     }
                 }
+
+                echo "MTB:$is_mtb\n\n";
+
+
+                // 373 Bicicletta
+                if($term_id==373) {
+                    $t->addProperty('subclass','ost_sentiero_percorso');
+                    $t->addProperty('tipologia','Corsia ciclabile e/o ciclopedonale');
+                    if($is_mtb){
+                        $t->addProperty('fruizione','MOUNTAIN BIKING');
+                    }
+                    else {
+                        $t->addProperty('fruizione','BICICLETTA DA STRADA');
+                    }
+                }
+                // 372 Trekking
+                if($term_id==372) {
+                    $t->addProperty('subclass','ost_sentiero_percorso');
+                    $t->addProperty('tipologia','Sentiero Escursionistico');
+                    $t->addProperty('fruizione','TREKKING');
+                }
+                // 378 Trenino verde
+                if($term_id==378) {
+                    $t->addProperty('subclass','ost_sentiero_percorso');
+                    $t->addProperty('tipologia','Trenino verde');
+                }
+                // Mapping
+                $id = $t->getId();
+                $t->addProperty('idExt',$id);
+                $t->addProperty('title',$t->getProperty('name'));
 
                 // Remove property
                 $t->removeProperty('surface');
