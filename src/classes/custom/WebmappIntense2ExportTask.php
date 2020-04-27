@@ -232,7 +232,7 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 // Mapping
                 $id = $t->getId();
                 $t->addProperty('idExt',$id);
-                $t->addProperty('title',$t->getProperty('name'));
+                $t->addProperty('title',$name);
 
                 // Remove property
                 $t->removeProperty('surface');
