@@ -196,7 +196,7 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                         }
                         echo "TOT:$tot_perc ";
                         if ($tot_perc<0.99) {
-                            $perc_unknown = 1-$tot_perc;
+                            $perc_unknown = round(1-$tot_perc,1);
                             $tipologiaDelFondo[]=array('percentuale'=>$perc_unknown,'tipologiaFondo'=>'DATO SUL FONDO NON PRESENTE');
                             echo "DATO SUL FONDO NON PRESENTE ($perc_unknown) ";
                         }
