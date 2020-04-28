@@ -95,6 +95,8 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
             foreach ($pois as $pid => $date) {
                 $p=new WebmappPoiFeature($this->wp->getBaseUrl().'/wp-json/wp/v2/poi/'.$pid);
                 // Intense2 mod
+                $name = preg_replace('|&#8211;|','-', $p->getProperty('name'));
+                $name = preg_replace('|&#8217;|','\'',$name);
 
                 // Meta fissi
                 $p->addProperty('action','add');
@@ -136,7 +138,7 @@ class WebmappIntense2ExportTask extends WebmappAbstractTask {
                 // Mapping
                 $id = $p->getId();
                 $p->addProperty('idExt',$id);
-                $p->addProperty('title',$p->getProperty('name'));
+                $p->addProperty('title',$name);
 
                 // Remove property
                 $p->removeProperty('noDetails');
