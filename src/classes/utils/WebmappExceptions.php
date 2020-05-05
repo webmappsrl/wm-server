@@ -39,4 +39,10 @@ class WebmappExceptionGeoJsonBadGeomType extends WebmappException {}
 class WebmappExceptionFeatures extends WebmappException {}
 class WebmappExceptionFeaturesNoGeometry extends WebmappExceptionFeatures {}
 
+// TRACKS
+class WebmappExceptionsFeaturesTracks extends WebmappExceptionFeatures {}
+class WebmappExceptionsFeaturesTracksRelatedPoisBadWPURL extends WebmappExceptionsFeaturesTracks {}
+class WebmappExceptionsFeaturesTracksRelatedPoisBadSource extends WebmappExceptionsFeaturesTracks {}
+class WebmappExceptionsFeaturesTracksRelatedPoisNoWPNOSource extends WebmappExceptionsFeaturesTracks {}
+
 ?>

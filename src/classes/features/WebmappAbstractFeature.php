@@ -238,7 +238,7 @@ abstract class WebmappAbstractFeature {
                     if(isset($ja['rb_track_section'])) {
                         $val['rb_track_section']=$ja['rb_track_section'];
                     }
-                    if(isset($ja['audio'])) {
+                    if(isset($ja['audio']) && is_array($ja['audio'])) {
                         $val['audio']=$ja['audio']['url']; 
                     }
 
@@ -351,8 +351,13 @@ abstract class WebmappAbstractFeature {
             foreach ($gallery as $item ) {
                 // TODO: usare una grandezza standard
                 //$images[]=array('src'=>$item['url']);
+                if (isset($item['sizes']['medium_large'])) {
+                    $src = $item['sizes']['medium_large'];
+                } else if (isset($item['sizes']['medium'])) {
+                    $src = $item['sizes']['medium'];
+                }
                 $images[]=array(
-                     'src'=>$item['sizes']['medium_large'],
+                     'src'=>$src,
                      'id'=>$item['id'],
                      'caption'=>$item['caption']);
             }
@@ -374,6 +379,27 @@ abstract class WebmappAbstractFeature {
 
         // Restituisce un array di oggetti WebmappPoiFeature con i relatedPoi
     public function getRelatedPois() {
+
+        // Retrieve POIS URL
+        if(!empty($this->wp_url)) {
+            if(($parsed_url = parse_url($this->wp_url))!==NULL) {
+                $pois_url = $parsed_url['scheme'].'://'.$parsed_url['host'].'/wp-json/wp/v2/poi';
+            } else {
+                throw new WebmappExceptionsFeaturesTracksRelatedPoisBadWPURL("Bad WP URL {$this->wp_url} Feature_id: {$this->getId()}");
+            }
+        }
+        else if($this->hasProperty('source')) {
+                if(($parsed_url = parse_url($this->getProperty('source')))!==NULL) {
+                    $pois_url = $parsed_url['scheme'].'://'.$parsed_url['host'].'/wp-json/wp/v2/poi';
+                } else {
+                    throw new WebmappExceptionsFeaturesTracksRelatedPoisBadSource("Bad source URL {$this->getProperty('source')} Feature_id: {$this->getId()}");
+                }
+        } else {
+            throw new WebmappExceptionsFeaturesTracksRelatedPoisNoWPNOSource("NO WP_URL or source Feature_id: {$this->getId()}");
+        }
+
+        echo "\n\n\n$pois_url\n\n\n";
+
         $pois = array();
         if (isset($this->json_array['n7webmap_related_poi']) && 
             is_array($this->json_array['n7webmap_related_poi']) &&
@@ -382,9 +408,10 @@ abstract class WebmappAbstractFeature {
                 $guid = $poi['guid'];
                 $id = $poi['ID'];
                 // http://dev.be.webmapp.it/poi/bar-pasticceria-lilli/
-                $code = str_replace('http://', '', $guid);
-                $code = preg_replace('|\..*|', '', $code);
-                $poi_url = "http://$code.be.webmapp.it/wp-json/wp/v2/poi/$id";
+                // $code = str_replace('http://', '', $guid);
+                // $code = preg_replace('|\..*|', '', $code);
+                //$poi_url = "http://$code.be.webmapp.it/wp-json/wp/v2/poi/$id";
+                $poi_url = $pois_url."/$id";
                 $pois[] = new WebmappPoiFeature ($poi_url);
             }
         }
