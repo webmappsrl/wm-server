@@ -224,5 +224,15 @@ class WebmappRouteTest extends TestCase {
         $this->assertEquals('http://selfguided-toscana.it/route/mtb-in-alta-versilia/',$j['properties']['web']);
 	}
 
+	public function testEle() {
+        $r = new WebmappRoute('http://selfguided-toscana.it/wp-json/wp/v2/route/4586');
+        $ja=json_decode($r->getJson(),TRUE);
+        $this->assertTrue(isset($ja['features']));
+        $this->assertTrue(count($ja['features'])>0);
+        $this->assertTrue(isset($ja['features'][0]['geometry']['coordinates']));
+        $this->assertTrue(count($ja['features'][0]['geometry']['coordinates'])>0);
+    }
+
+
 
 }

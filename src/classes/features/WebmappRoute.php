@@ -84,7 +84,8 @@ class WebmappRoute {
 		}
 
 		// TODO: STAGES
-		if (isset($this->json_array['n7webmap_route_related_track']) && 
+		if (isset($this->json_array['n7webmap_route_related_track']) &&
+            is_array($this->json_array['n7webmap_route_related_track']) &&
 			count($this->json_array['n7webmap_route_related_track']) > 0 ) {
 			$this->loadTracks();
 		    $this->properties['stages']=count($this->json_array['n7webmap_route_related_track']);
@@ -180,6 +181,9 @@ private function loadTracks() {
 		count($this->json_array['n7webmap_route_related_track'])>0){
 		foreach ($this->json_array['n7webmap_route_related_track'] as $track ) {
 			$url = $this->base_url .'track/' . $track['ID'];
+			$t = new WebmappTrackFeature($url);
+			$t->writeToPostGis();
+			$t->addEle();
 			array_push($this->tracks, new WebmappTrackFeature($url));
 		}		
 	}
