@@ -184,7 +184,7 @@ private function loadTracks() {
 			$t = new WebmappTrackFeature($url);
 			$t->writeToPostGis();
 			$t->addEle();
-			array_push($this->tracks, new WebmappTrackFeature($url));
+			array_push($this->tracks, $t);
 		}		
 	}
 }
