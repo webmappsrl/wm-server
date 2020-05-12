@@ -465,6 +465,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         }
 
         public function writeGPX($path) {
+            if (!$this->hasGeometry()) {
+                echo "\n\n\n WARNING no geometry found track_id: {$this->getId()}\n\n\n";
+                return ;
+                // throw new WebmappExceptionFeaturesNoGeometry("No Geometry found");
+            }
         // TODO: check path
             $path = $path.'/'.$this->getId().'.gpx';
             $decoder = new Symm\Gisconverter\Decoders\GeoJSON();
