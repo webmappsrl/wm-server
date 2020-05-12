@@ -202,20 +202,25 @@ private function processTrack($id) {
     echo "postgis.";
     $t->writeToPostGis();
     echo "3d.";
-    $t->add3D();
-    echo "computedProps";
-    $t->setComputedProperties2();
-    echo "bbox.";
-    $t->addBBox();
-    echo "RBpois.";
-    $t->writeRBRelatedPoi($this->track_path);
-    echo "Images.";
-    $t->generateAllImages('',$this->track_path);
-    $t->generateLandscapeRBImages('',$this->track_path);
-    echo "GPX.";
-    $t->writeGPX($this->track_path);
-    echo "KML.";
-    $t->writeKML($this->track_path);
+    if ($t->hasGeometry()) {
+        $t->add3D();
+        echo "computedProps";
+        $t->setComputedProperties2();
+        echo "bbox.";
+        $t->addBBox();
+        echo "RBpois.";
+        $t->writeRBRelatedPoi($this->track_path);
+        echo "Images.";
+        $t->generateAllImages('',$this->track_path);
+        $t->generateLandscapeRBImages('',$this->track_path);
+        echo "GPX.";
+        $t->writeGPX($this->track_path);
+        echo "KML.";
+        $t->writeKML($this->track_path);
+    }
+    else {
+        echo "\n\n\nWARNING. Track with no geometry track id: {$t->getId()}\n\n\n";
+    }
     echo "write.";
     $j=json_decode($t->getJson(),TRUE);
     if (isset($j['properties']['taxonomy']))
