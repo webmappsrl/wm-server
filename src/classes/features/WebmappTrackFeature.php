@@ -271,7 +271,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     public function setComputedProperties2($instance_id='') {
 
             if(!$this->hasGeometry()) {
-                throw new WebmappExceptionFeaturesNoGeometry("No Geometry found");
+                echo "\n\n\n WARNING no geometry found track_id: {$this->getId()}\n\n\n";
+                return ;
+                // throw new WebmappExceptionFeaturesNoGeometry("No Geometry found");
             }
             if (!$this->has3D()) {
                 $this->add3D();
