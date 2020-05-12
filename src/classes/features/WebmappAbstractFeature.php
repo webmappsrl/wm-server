@@ -87,6 +87,21 @@ abstract class WebmappAbstractFeature {
     public function getGeometry() {
         return $this->geometry;
     }
+
+    public function getGeometryType() {
+	    if(!$this->hasGeometry()){
+	        return 'no-geometry';
+        }
+
+	    if(!isset($this->geometry['type'])) {
+	        return 'bad-geometry';
+        }
+	    if (empty($this->geometry)) {
+	        return 'empty-geomtrytype';
+        }
+	    return $this->geometry['type'];
+    }
+
     public function hasGeometry() {
         return !empty($this->geometry);
     }

@@ -724,4 +724,9 @@ class WebmappTrackFeatureTest extends TestCase {
 
     }
 
+    public function testGeometryType() {
+        $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+        $this->assertEquals('LineString',$t->getGeometryType());
+    }
+
 }

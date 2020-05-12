@@ -202,7 +202,7 @@ private function processTrack($id) {
     echo "postgis.";
     $t->writeToPostGis();
     echo "3d.";
-    if ($t->hasGeometry()) {
+    if ($t->getGeometryType() == 'LineString') {
         $t->add3D();
         echo "computedProps";
         $t->setComputedProperties2();
@@ -219,7 +219,7 @@ private function processTrack($id) {
         $t->writeKML($this->track_path);
     }
     else {
-        echo "\n\n\nWARNING. Track with no geometry track id: {$t->getId()}\n\n\n";
+        echo "\n\n\nWARNING. Track with invalid geometry track id: {$t->getId()} geometry type: {$t->getGeometryType()}\n\n\n";
     }
     echo "write.";
     $j=json_decode($t->getJson(),TRUE);

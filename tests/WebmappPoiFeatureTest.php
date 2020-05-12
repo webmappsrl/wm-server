@@ -292,6 +292,12 @@ class WebmappPoiFeatureTest extends TestCase {
 
         }
 
+        public function testGeometryType() {
+            $wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/poi/509';
+            $poi = new WebmappPoiFeature($wp_url);
+            $this->assertEquals('Point',$poi->getGeometryType());
+        }
+
 
 
 
