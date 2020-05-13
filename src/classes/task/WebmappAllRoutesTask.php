@@ -83,8 +83,8 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $features = $all_routes['features'];
             $new_features=array();
             foreach ($features as $feature) {
-                $id = $feature['properities']['id'];
-                if(in_array($id,$this->routes_id)) {
+                $id = $feature['properties']['id'];
+                if(in_array((int) $id,$this->routes_id)) {
                     $new_features[]=$feature;
                 }
             }
