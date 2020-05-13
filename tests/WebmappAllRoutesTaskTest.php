@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-class WebmappAllRoutesTaskTests extends TestCase
+class WebmappAllRoutesTaskTest extends TestCase
 {
 
     private $data=__DIR__.'/../data/tmp/';

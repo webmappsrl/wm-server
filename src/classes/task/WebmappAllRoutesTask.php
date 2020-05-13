@@ -6,12 +6,22 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
     private $url;
     private $endpoint;
 
+    private $process_route_index = false;
+    private $routes_id = array();
+
     public function check()
     {
 
         // Controllo parametro code http://[code].be.webmapp.it
         if (!array_key_exists('url_or_code', $this->options)) {
             throw new WebmappExceptionConfTask("L'array options deve avere la chiave 'url_or_code'", 1);
+        }
+
+        if(array_key_exists('routes',$this->options)) {
+            $this->routes_id=$this->options['routes'];
+            if(is_array($this->routes_id) && count($this->routes_id)>0) {
+                $this->process_route_index=true;
+            }
         }
 
         $code = $this->options['url_or_code'];
@@ -55,10 +65,35 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
         // /routes/[route_id]/taxonomies/webmapp_category.json
         // deve avere solo la sezione "term_id":"items":"poi"
         // con la lista di tutti i POI di quel termine
-
         $this->processRoutes();
 
+        $this->processRouteIndex();
+
         return true;
+    }
+
+    private function processRouteIndex() {
+        if($this->process_route_index) {
+            // Load a/xxx/geojson/route_index.geojson
+            $a_route_index = $this->endpoint.'/geojson/route_index.geojson';
+            if(!file_exists($a_route_index)) {
+                throw new WebmappExceptionAllRoutesTaskNoRouteIndex();
+            }
+            $all_routes = json_decode(file_get_contents($a_route_index),TRUE);
+            $features = $all_routes['features'];
+            $new_features=array();
+            foreach ($features as $feature) {
+                $id = $feature['properities']['id'];
+                if(in_array($id,$this->routes_id)) {
+                    $new_features[]=$feature;
+                }
+            }
+            $j = array();
+            $j['type']='FeatureCollection';
+            $j['features']=$new_features;
+            $out = $this->getRoot().'/routes/index.geojson';
+            file_put_contents($out,json_encode($j));
+        }
     }
 
     private function processSymLinks()
@@ -178,6 +213,12 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
     private function processRoute($id)
     {
+
+        // SKIP IF is not in routes_id (only if parameter is set)
+        if($this->process_route_index && !in_array($id,$this->routes_id)) {
+            echo "\n\nProcess_route_index TRUE, ROUTEID($id) not in routes_id (routes parameter in /server/config.json)... SKIPPING \n\n";
+            return;
+        }
         $route_path = $this->getRoot() . '/routes/' . $id;
         $route_tax_path = $this->getRoot() . '/routes/' . $id . '/taxonomies';
         if (!file_exists($route_path)) {

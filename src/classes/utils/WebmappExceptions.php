@@ -13,6 +13,7 @@ class WebmappExceptionConfTask extends WebmappException {}
 class WebmappExceptionTask extends WebmappException {}
 class WebmappExceptionAllRoutesTask extends WebmappExceptionTask {}
 class WebmappExceptionAllRoutesTaskNoEndpoint extends WebmappExceptionAllRoutesTask {}
+class WebmappExceptionAllRoutesTaskNoRouteIndex extends WebmappExceptionAllRoutesTask {}
 
   // WebmappException Eccezioni usate da tutte le classi
 class WebmappExceptionNoFile extends WebmappException {}
