@@ -12,6 +12,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         "sentieri_lunga_percorrenza.geojson",
         // "sentieri_lp.geojson",
     );
+    private $endpoint;
 
     public function check()
     {
@@ -24,6 +25,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
 
             echo "...";
         }
+
+        $this->endpoint = $wm_config['endpoint']['a'] . '/trentino';
 
         echo "Check OK\n";
 
@@ -294,11 +297,19 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     public function mapFromAndTo($file)
     {
         foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("start", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["from"] = $file["features"][$key]["properties"]["start"];
+                unset($file["features"][$key]["properties"]["start"]);
+            }
             if (array_key_exists("START", $file["features"][$key]["properties"])) {
                 $file["features"][$key]["properties"]["from"] = $file["features"][$key]["properties"]["START"];
                 unset($file["features"][$key]["properties"]["START"]);
             }
 
+            if (array_key_exists("end", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["to"] = $file["features"][$key]["properties"]["end"];
+                unset($file["features"][$key]["properties"]["end"]);
+            }
             if (array_key_exists("END", $file["features"][$key]["properties"])) {
                 $file["features"][$key]["properties"]["to"] = $file["features"][$key]["properties"]["END"];
                 unset($file["features"][$key]["properties"]["END"]);
