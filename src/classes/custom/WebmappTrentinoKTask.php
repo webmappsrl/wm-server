@@ -52,9 +52,11 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 }
                 if ($filename == "sentieri_tratte.geojson") {
                     $file = $this->mapImageGalleryUrl($file);
+                    $file = $this->mapFromAndTo($file);
                 }
                 if ($filename == "sentieri_lunga_percorrenza.geojson") {
                     $file = $this->mapWebsiteToRelatedUrl($file);
+                    $file = $this->mapFromAndTo($file);
                 }
 
                 file_put_contents($this->project_structure->getRoot() . "/geojson/" . $filename, json_encode($file));
@@ -283,6 +285,23 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
             if (array_key_exists("image_gallery", $file["features"][$key]["properties"])) {
                 $file["features"][$key]["properties"]["imageGalleryUrl"] = $file["features"][$key]["properties"]["image_gallery"];
                 unset($file["features"][$key]["properties"]["image_gallery"]);
+            }
+        }
+
+        return $file;
+    }
+
+    public function mapFromAndTo($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            if (array_key_exists("START", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["from"] = $file["features"][$key]["properties"]["START"];
+                unset($file["features"][$key]["properties"]["START"]);
+            }
+
+            if (array_key_exists("END", $file["features"][$key]["properties"])) {
+                $file["features"][$key]["properties"]["to"] = $file["features"][$key]["properties"]["END"];
+                unset($file["features"][$key]["properties"]["END"]);
             }
         }
 
