@@ -270,6 +270,8 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
 }
     public function setComputedProperties2($instance_id='') {
 
+            echo "\n\nStarting algorithm setComputedProperties2\n\n";
+
             if(!$this->hasGeometry()) {
                 echo "\n\n\n WARNING no geometry found track_id: {$this->getId()}\n\n\n";
                 return ;
