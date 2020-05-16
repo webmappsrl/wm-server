@@ -233,6 +233,15 @@ class WebmappRouteTest extends TestCase {
         $this->assertTrue(count($ja['features'][0]['geometry']['coordinates'])>0);
     }
 
+    public function testTaxonomyRoute() {
+	    $r = new WebmappRoute('https://cyclando.com/wp-json/wp/v2/route/80296');
+	    $ja = json_decode($r->getJson(),true);
+	    print_r($ja['features'][0]['properties']);
+        $this->assertTrue(isset($ja['features'][0]['properties']['taxonomy']));
+        $this->assertTrue(isset($ja['features'][0]['properties']['taxonomy']['activity']));
+        $this->assertTrue(isset($ja['features'][0]['properties']['taxonomy']['activity'][84]));
+    }
+
 
 
 }
