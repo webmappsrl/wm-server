@@ -234,12 +234,18 @@ class WebmappRouteTest extends TestCase {
     }
 
     public function testTaxonomyRoute() {
-	    $r = new WebmappRoute('https://cyclando.com/wp-json/wp/v2/route/80296');
-	    $ja = json_decode($r->getJson(),true);
-	    print_r($ja['features'][0]['properties']);
+        $r = new WebmappRoute('https://cyclando.com/wp-json/wp/v2/route/80296');
+        $ja = json_decode($r->getJson(),true);
         $this->assertTrue(isset($ja['features'][0]['properties']['taxonomy']));
         $this->assertTrue(isset($ja['features'][0]['properties']['taxonomy']['activity']));
-        $this->assertTrue(isset($ja['features'][0]['properties']['taxonomy']['activity'][84]));
+        $this->assertEquals(84,isset($ja['features'][0]['properties']['taxonomy']['activity'][0]));
+    }
+
+    public function testAscent() {
+        $r = new WebmappRoute('https://cyclando.com/wp-json/wp/v2/route/80394');
+        $ja = json_decode($r->getJson(),true);
+        $this->assertTrue(isset($ja['features'][0]['properties']['ascent']));
+        $this->assertEquals(465,$ja['features'][0]['properties']['ascent']);
     }
 
 

@@ -183,7 +183,8 @@ private function loadTracks() {
 			$url = $this->base_url .'track/' . $track['ID'];
 			$t = new WebmappTrackFeature($url);
 			$t->writeToPostGis();
-			$t->addEle();
+			$t->add3D();
+			$t->setComputedProperties2();
 			array_push($this->tracks, $t);
 		}		
 	}
