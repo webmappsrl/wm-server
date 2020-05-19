@@ -87,6 +87,8 @@ class WebmappItemListTask extends WebmappAbstractTask
                             $translations[$key] = $currentTranslation;
                         }
                     }
+
+                    $feature['translations'] = $translations;
                 }
 
                 $feature = array();
