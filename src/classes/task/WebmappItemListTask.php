@@ -69,7 +69,7 @@ class WebmappItemListTask extends WebmappAbstractTask
                 if (array_key_exists('wpml_translations', $item)) {
                     $translations = array();
 
-                    foreach ($items['wpml_translations'] as $language) {
+                    foreach ($item['wpml_translations'] as $language) {
                         $key = $language['locale'];
                         if ($key) {
                             $currentTranslation = array();
