@@ -63,7 +63,7 @@ class WebmappMptravelWebmappCategoryKTask extends WebmappAbstractTask
             $resultJson[$wc['id']] = $newWc;
         }
 
-        file_put_contents($this->__kBaseUrl . $this->__webmappCategoryEndpoint, json_encode($file));
+        file_put_contents($this->__kBaseUrl . $this->__webmappCategoryEndpoint, json_encode($resultJson));
 
         return true;
     }
