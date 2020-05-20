@@ -86,6 +86,7 @@ require 'classes/custom/WebmappCovidTask.php';
 require 'classes/custom/WebmappCovidRTTask.php';
 require 'classes/custom/WebmappCovidPisaTask.php';
 require 'classes/custom/WebmappIntense2ExportTask.php';
+require 'classes/custom/WebmappMptravelWebmappCategoryKTask.php';
 
 // SIMAP
 require 'classes/simap/WebmappSIMapCheckTask.php';
