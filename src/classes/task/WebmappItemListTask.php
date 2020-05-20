@@ -40,7 +40,7 @@ class WebmappItemListTask extends WebmappAbstractTask
                 $image = '';
                 $image_id = $item['featured_media'];
                 if (!empty($image_id)) {
-                    $j = WebmappUtils::getJsonFromApi($his->otptions['endpoint'] . '/media/' . $image_id);
+                    $j = WebmappUtils::getJsonFromApi($this->otptions['endpoint'] . '/media/' . $image_id);
                     if (isset($j['media_details']['sizes']['medium']['source_url'])) {
                         $image = $j['media_details']['sizes']['medium']['source_url'];
                     }
