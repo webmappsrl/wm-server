@@ -40,7 +40,7 @@ class WebmappItemListTask extends WebmappAbstractTask
                 $image = '';
                 $image_id = $item['featured_media'];
                 if (!empty($image_id)) {
-                    $j = WebmappUtils::getJsonFromApi($this->options['endpoint'] . '/media/' . $image_id);
+                    $j = WebmappUtils::getJsonFromApi($his->otptions['endpoint'] . '/media/' . $image_id);
                     if (isset($j['media_details']['sizes']['medium']['source_url'])) {
                         $image = $j['media_details']['sizes']['medium']['source_url'];
                     }
@@ -71,18 +71,17 @@ class WebmappItemListTask extends WebmappAbstractTask
 
                     foreach ($item['wpml_translations'] as $language) {
                         $key = $language['locale'];
-                        if ($key) {
-                            $currentTranslation = array();
+                        $id = $language['id'];
+                        if ($key && $id) {
                             $key = substr($key, 0, 2);
-                            if (array_key_exists('post_title', $language)) {
-                                $currentTranslation['name'] = $language['post_title'];
-                            }
-                            if (array_key_exists('href', $language)) {
-                                $currentTranslation['web'] = $language['href'];
-                            }
-                            if (array_key_exists('id', $language)) {
-                                $currentTranslation['id'] = $language['id'];
-                            }
+                            $currentTranslation = array();
+
+                            $jsonTranslated = WebmappUtils::getJsonFromApi($this->options['endpoint'] . '/' . $this->options['name'] . '/' . $id);
+
+                            $currentTranslation['name'] = $jsonTranslated['title']['rendered'];
+                            $currentTranslation['web'] = $jsonTranslated['link'];
+                            $currentTranslation['excerpt'] = $jsonTranslated['excerpt']['rendered'];
+                            $currentTranslation['id'] = $id;
 
                             $translations[$key] = $currentTranslation;
                         }
