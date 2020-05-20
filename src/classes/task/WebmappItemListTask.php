@@ -80,7 +80,10 @@ class WebmappItemListTask extends WebmappAbstractTask
 
                             $currentTranslation['name'] = $jsonTranslated['title']['rendered'];
                             $currentTranslation['web'] = $jsonTranslated['link'];
-                            $currentTranslation['excerpt'] = $jsonTranslated['excerpt']['rendered'];
+                            $translatedExcerpt = $jsonTranslated['excerpt']['rendered'];
+                            $translatedExcerpt = preg_replace('|\[|', '<', $translatedExcerpt);
+                            $translatedExcerpt = preg_replace('|\]|', '>', $translatedExcerpt);
+                            $currentTranslation['excerpt'] = strip_tags($translatedExcerpt);
                             $currentTranslation['id'] = $id;
 
                             $translations[$key] = $currentTranslation;
