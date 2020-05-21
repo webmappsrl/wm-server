@@ -57,6 +57,7 @@ class WebmappMptravelWebmappCategoryKTask extends WebmappAbstractTask
             $translation = array();
             $translation['name'] = $translated['name'];
             $translation['title'] = $translated['title'];
+            $translation['description'] = $translated['description'];
             $newWc = $wc;
             $newWc['translations'] = array();
             $newWc['translations']['en'] = $translation;
