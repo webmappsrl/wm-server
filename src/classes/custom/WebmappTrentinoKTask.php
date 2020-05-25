@@ -18,7 +18,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     {
         echo "Checking file presence...";
 
-        foreach ($this->baseFileNames as $filename) {
+        foreach ($this->__baseFileNames as $filename) {
             if (!file_exists($this->__aBaseUrl . "geojson/" . $filename)) {
                 throw new WebmappExceptionNoFile("ERROR: Missing file " . $this->__aBaseUrl . $filename, 1);
             }
@@ -54,6 +54,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
 
                     $mappedFile = $this->mapRifugiUrl($file);
                     file_put_contents($this->project_structure->getRoot() . "/geojson/" . "rifugi_webapp.geojson", json_encode($mappedFile));
+                    $this->saveSingleGeojsons($file);
 
                     $file = $this->mapWebsiteToRelatedUrl($file);
                 }
@@ -369,5 +370,13 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         }
 
         return $file;
+    }
+
+    public function saveSingleGeojsons($file)
+    {
+        foreach ($file["features"] as $key => $feature) {
+            $id = $file["features"][$key]["properties"]['id'];
+            file_put_contents($this->project_structure->getRoot() . "/geojson/poi/" . $id . ".geojson", json_encode($feature));
+        }
     }
 }
