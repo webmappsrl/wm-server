@@ -19,14 +19,14 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         echo "Checking file presence...";
 
         foreach ($this->baseFileNames as $filename) {
-            if (!file_exists($this->aBaseUrl . "geojson/" . $filename)) {
-                throw new WebmappExceptionNoFile("ERROR: Missing file " . $this->aBaseUrl . $filename, 1);
+            if (!file_exists($this->__aBaseUrl . "geojson/" . $filename)) {
+                throw new WebmappExceptionNoFile("ERROR: Missing file " . $this->__aBaseUrl . $filename, 1);
             }
 
             echo "...";
         }
 
-        $this->endpoint = $wm_config['endpoint']['a'] . '/trentino';
+        $this->__endpoint = $wm_config['endpoint']['a'] . '/trentino';
 
         echo "Check OK\n";
 
@@ -37,9 +37,9 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     {
         $this->generateTaxonomies();
 
-        foreach ($this->baseFileNames as $filename) {
+        foreach ($this->__baseFileNames as $filename) {
             echo "\nProcessing $filename... \n";
-            $file = json_decode(file_get_contents($this->aBaseUrl . "geojson/" . $filename), true);
+            $file = json_decode(file_get_contents($this->__aBaseUrl . "geojson/" . $filename), true);
 
             try {
                 $file = $this->addId($file);
@@ -74,7 +74,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         }
 
         $src = $this->getRoot();
-        $trg = $this->endpoint;
+        $trg = $this->__endpoint;
         $cmd = "rm -Rf {$src}/track";
         system($cmd);
         if (file_exists($trg . '/track')) {
