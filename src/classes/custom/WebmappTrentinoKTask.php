@@ -54,7 +54,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
 
                     $mappedFile = $this->mapRifugiUrl($file);
                     file_put_contents($this->project_structure->getRoot() . "/geojson/" . "rifugi_webapp.geojson", json_encode($mappedFile));
-                    $this->saveSingleGeojsons($file);
+                    $this->saveSingleGeojsons($mappedFile);
 
                     $file = $this->mapWebsiteToRelatedUrl($file);
                 }
