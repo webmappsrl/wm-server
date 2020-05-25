@@ -363,7 +363,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         );
 
         foreach ($file["features"] as $key => $feature) {
-            $id = $file["features"][$key]["properties"][$id];
+            $id = $file["features"][$key]["properties"]['id'];
             $file["features"][$key]["properties"]["related_url"] = array($mapping[$id]);
             $file["features"][$key]["properties"]["web"] = $mapping[$id];
         }
