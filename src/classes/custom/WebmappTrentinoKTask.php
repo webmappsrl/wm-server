@@ -23,11 +23,11 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         131 => "http://www.sitestage.it/new/forcella-grande-bivacco-m-rigatti/",
         137 => "http://www.sitestage.it/new/pra-castron-bivacco-c-costanzi/",
         138 => "http://www.sitestage.it/new/presanella-bivacco-v-roberti/",
+        149 => "http://www.sitestage.it/new/vigolana-bivacco-g-b-giacomelli/",
         150 => "http://www.sitestage.it/new/cima-presanella-bivacco-orbica/",
+        156 => "http://www.sitestage.it/new/sinel-bivacco-g-pedrinolla/",
         300 => "http://www.sitestage.it/new/cima-dasta-capanna-g-cavinato/",
         "boh" => "http://www.sitestage.it/new/crozzon-bivacco-e-castiglioni/",
-        "145/156" => "http://www.sitestage.it/new/sinel-bivacco-g-pedrinolla/",
-        "71/149" => "http://www.sitestage.it/new/vigolana-bivacco-g-b-giacomelli/",
     );
 
     private $__mappingRifugi = array(
@@ -384,7 +384,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         foreach ($file["features"] as $key => $feature) {
             $id = $file["features"][$key]["properties"]['id'];
             $file["features"][$key]["properties"]["related_url"] = array($mapping[$id]);
-            $file["features"][$key]["properties"]["web"] = $mapping[$id];
+            // $file["features"][$key]["properties"]["web"] = $mapping[$id];
         }
 
         return $file;
