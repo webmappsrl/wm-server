@@ -14,6 +14,59 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     );
     private $__endpoint;
 
+    private $__mappingBivacchi = array(
+        77 => "http://www.sitestage.it/new/passo-delle-vacche-bivacco-e-segalla/",
+        79 => "http://www.sitestage.it/new/cima-sassara-bivacco-fratelli-bonvecchio/",
+        80 => "http://www.sitestage.it/new/bivacco-cunella/",
+        82 => "http://www.sitestage.it/new/vallaccia-bivacco-d-zeni/",
+        98 => "http://www.sitestage.it/new/latemar-bivacco-a-sieff/",
+        131 => "http://www.sitestage.it/new/forcella-grande-bivacco-m-rigatti/",
+        137 => "http://www.sitestage.it/new/pra-castron-bivacco-c-costanzi/",
+        138 => "http://www.sitestage.it/new/presanella-bivacco-v-roberti/",
+        150 => "http://www.sitestage.it/new/cima-presanella-bivacco-orbica/",
+        300 => "http://www.sitestage.it/new/cima-dasta-capanna-g-cavinato/",
+        "boh" => "http://www.sitestage.it/new/crozzon-bivacco-e-castiglioni/",
+        "145/156" => "http://www.sitestage.it/new/sinel-bivacco-g-pedrinolla/",
+        "71/149" => "http://www.sitestage.it/new/vigolana-bivacco-g-b-giacomelli/",
+    );
+
+    private $__mappingRifugi = array(
+        1 => "http://www.sitestage.it/new/val-dambiez-rifugio-silvio-agostini/",
+        2 => "http://www.sitestage.it/new/altissimo-rifugio-damiano-chiesa/",
+        3 => "http://www.sitestage.it/new/rifugio-antermoia/",
+        4 => "http://www.sitestage.it/new/bindesi-rifugio-pino-prati/",
+        5 => "http://www.sitestage.it/new/col-turond-rifugio-boe/",
+        6 => "http://www.sitestage.it/new/cima-dasta-capanna-g-cavinato/",
+        7 => "http://www.sitestage.it/new/care-alto-rifugio-dante-ongari/",
+        8 => "http://www.sitestage.it/new/l-ciola-rifugio-casarota/",
+        9 => "http://www.sitestage.it/new/rifugio-ciampedie/",
+        10 => "http://www.sitestage.it/new/rifugio-stavel-francesco-denza/",
+        11 => "http://www.sitestage.it/new/saent-rifugio-silvio-dorigoni/",
+        12 => "http://www.sitestage.it/new/finonchio-rifugio-f-lli-filzi/",
+        13 => "http://www.sitestage.it/new/groste-rifugio-graffer/",
+        14 => "http://www.sitestage.it/new/alpe-pozza-rifugio-v-lancia/",
+        15 => "http://www.sitestage.it/new/cevedale-rifugio-guido-larcher/",
+        16 => "http://www.sitestage.it/new/rifugio-mandron-citta-di-trento/",
+        17 => "http://www.sitestage.it/new/rifugio-paludei/",
+        18 => "http://www.sitestage.it/new/rifugio-peller/",
+        19 => "http://www.sitestage.it/new/bocca-di-trat-rifugio-nino-pernici/",
+        20 => "http://www.sitestage.it/new/catinaccio-rifugio-roda-di-vael/",
+        21 => "http://www.sitestage.it/new/rifugio-rosetta-g-pedrotti/",
+        22 => "http://www.sitestage.it/new/monte-calino-rifugio-san-pietro/",
+        23 => "http://www.sitestage.it/new/val-damola-rifugio-giovanni-segantini/",
+        24 => "http://www.sitestage.it/new/gruppo-lagorai-rifugio-sette-selle/",
+        25 => "http://www.sitestage.it/new/stivo-rifugio-prospero-marchetti/",
+        26 => "http://www.sitestage.it/new/monzoni-rifugio-t-taramelli/",
+        27 => "http://www.sitestage.it/new/spruggio-g-tonini/",
+        28 => "http://www.sitestage.it/new/rifugio-tosa-e-tommaso-pedrotti/",
+        29 => "http://www.sitestage.it/new/rifugio-f-f-tuckett-e-quintino-sella/",
+        30 => "http://www.sitestage.it/new/vajolet/",
+        31 => "http://www.sitestage.it/new/rifugio-val-di-fumo/",
+        33 => "http://www.sitestage.it/new/vioz-rifugio-mantova/",
+        32 => "http://www.sitestage.it/new/rifugio-velo-della-madonna/",
+        34 => "http://www.sitestage.it/new/xii-apostoli-rifugio-fratelli-garbari/",
+    );
+
     public function check()
     {
         echo "Checking file presence...";
@@ -48,13 +101,15 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                     $file = $this->mapDrinkingWater($file);
                     $file = $this->mapCapacity($file);
                     $file = $this->mapLocalityToAddress($file);
+
+                    $this->saveBivacchi($file);
                 }
                 if ($filename == "rifugi.geojson") {
                     $file = $this->mapPictureUrlToImage($file);
 
-                    $mappedFile = $this->mapRifugiUrl($file);
+                    $mappedFile = $this->mapUrlFromMapping($file, $this->__mappingRifugi);
                     file_put_contents($this->project_structure->getRoot() . "/geojson/" . "rifugi_webapp.geojson", json_encode($mappedFile));
-                    $this->saveSingleGeojsons($mappedFile);
+                    $this->saveSingleGeojsons($mappedFile, "rifugi");
 
                     $file = $this->mapWebsiteToRelatedUrl($file);
                 }
@@ -324,45 +379,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         return $file;
     }
 
-    public function mapRifugiUrl($file)
+    public function mapUrlFromMapping($file, $mapping)
     {
-        $mapping = array(
-            1 => "http://www.sitestage.it/new/val-dambiez-rifugio-silvio-agostini/",
-            2 => "http://www.sitestage.it/new/altissimo-rifugio-damiano-chiesa/",
-            3 => "http://www.sitestage.it/new/rifugio-antermoia/",
-            4 => "http://www.sitestage.it/new/bindesi-rifugio-pino-prati/",
-            5 => "http://www.sitestage.it/new/col-turond-rifugio-boe/",
-            6 => "http://www.sitestage.it/new/cima-dasta-capanna-g-cavinato/",
-            7 => "http://www.sitestage.it/new/care-alto-rifugio-dante-ongari/",
-            8 => "http://www.sitestage.it/new/l-ciola-rifugio-casarota/",
-            9 => "http://www.sitestage.it/new/rifugio-ciampedie/",
-            10 => "http://www.sitestage.it/new/rifugio-stavel-francesco-denza/",
-            11 => "http://www.sitestage.it/new/saent-rifugio-silvio-dorigoni/",
-            12 => "http://www.sitestage.it/new/finonchio-rifugio-f-lli-filzi/",
-            13 => "http://www.sitestage.it/new/groste-rifugio-graffer/",
-            14 => "http://www.sitestage.it/new/alpe-pozza-rifugio-v-lancia/",
-            15 => "http://www.sitestage.it/new/cevedale-rifugio-guido-larcher/",
-            16 => "http://www.sitestage.it/new/rifugio-mandron-citta-di-trento/",
-            17 => "http://www.sitestage.it/new/rifugio-paludei/",
-            18 => "http://www.sitestage.it/new/rifugio-peller/",
-            19 => "http://www.sitestage.it/new/bocca-di-trat-rifugio-nino-pernici/",
-            20 => "http://www.sitestage.it/new/catinaccio-rifugio-roda-di-vael/",
-            21 => "http://www.sitestage.it/new/rifugio-rosetta-g-pedrotti/",
-            22 => "http://www.sitestage.it/new/monte-calino-rifugio-san-pietro/",
-            23 => "http://www.sitestage.it/new/val-damola-rifugio-giovanni-segantini/",
-            24 => "http://www.sitestage.it/new/gruppo-lagorai-rifugio-sette-selle/",
-            25 => "http://www.sitestage.it/new/stivo-rifugio-prospero-marchetti/",
-            26 => "http://www.sitestage.it/new/monzoni-rifugio-t-taramelli/",
-            27 => "http://www.sitestage.it/new/spruggio-g-tonini/",
-            28 => "http://www.sitestage.it/new/rifugio-tosa-e-tommaso-pedrotti/",
-            29 => "http://www.sitestage.it/new/rifugio-f-f-tuckett-e-quintino-sella/",
-            30 => "http://www.sitestage.it/new/vajolet/",
-            31 => "http://www.sitestage.it/new/rifugio-val-di-fumo/",
-            33 => "http://www.sitestage.it/new/vioz-rifugio-mantova/",
-            32 => "http://www.sitestage.it/new/rifugio-velo-della-madonna/",
-            34 => "http://www.sitestage.it/new/xii-apostoli-rifugio-fratelli-garbari/",
-        );
-
         foreach ($file["features"] as $key => $feature) {
             $id = $file["features"][$key]["properties"]['id'];
             $file["features"][$key]["properties"]["related_url"] = array($mapping[$id]);
@@ -372,11 +390,32 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
         return $file;
     }
 
-    public function saveSingleGeojsons($file)
+    public function saveSingleGeojsons($file, $prefix)
     {
         foreach ($file["features"] as $key => $feature) {
             $id = $file["features"][$key]["properties"]['id'];
-            file_put_contents($this->project_structure->getRoot() . "/geojson/poi/" . $id . ".geojson", json_encode($feature));
+            file_put_contents($this->project_structure->getRoot() . "/geojson/poi/" . $prefix . "_" . $id . ".geojson", json_encode($feature));
         }
+    }
+
+    public function saveBivacchi($file)
+    {
+        $mapping = $this->__mappingBivacchi;
+        $filteredFile = array();
+        $filteredFile["type"] = "FeatureCollection";
+        $filteredFile["features"] = array();
+
+        // Filter file
+        foreach ($file["features"] as $feature) {
+            if (array_key_exists($feature['properties']['id'], $mapping)) {
+                $filteredFile["features"][] = $feature;
+            }
+        }
+
+        $filteredFile = $this->mapUrlFromMapping($filteredFile, $mapping);
+
+        // Save
+        file_put_contents($this->project_structure->getRoot() . "/geojson/" . "bivacchi_webapp.geojson", json_encode($filteredFile));
+        $this->saveSingleGeojsons($filteredFile, "bivacchi");
     }
 }
