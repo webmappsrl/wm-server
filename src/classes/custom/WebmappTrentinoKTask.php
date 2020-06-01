@@ -90,6 +90,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     {
         $this->generateTaxonomies();
 
+        ini_set('serialize_precision', 6);
+
         foreach ($this->__baseFileNames as $filename) {
             echo "\nProcessing $filename... \n";
             $file = json_decode(file_get_contents($this->__aBaseUrl . "geojson/" . $filename), true);
@@ -128,6 +130,8 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
                 echo "\n$filename WARNING: " . $e;
             }
         }
+
+        ini_restore('serialize_precision');
 
         $src = $this->getRoot();
         $trg = $this->__endpoint;
