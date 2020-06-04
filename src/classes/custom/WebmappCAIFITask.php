@@ -31,8 +31,15 @@ class WebmappCAIFITask extends WebmappAbstractTask {
         foreach ($items as $osmid) {
             echo "Processing track $osmid ... ";
             $relation = new WebmappOSMRelation($osmid);
-            $track = $relation->getTrack();
-            $track->write($this->getRoot().'/geojson');
+            $t = $relation->getTrack();
+            echo "-> PostGis "; $t->writeToPostGis();
+            echo "3D."; $t->add3D();
+            echo "computedProps."; $t->setComputedProperties2();
+            echo "bbox."; $t->addBBox();
+            $track_path = $this->getRoot().'/track';
+            echo "GPX."; $t->writeGPX($track_path);
+            echo "KML."; $t->writeKML($track_path);
+            echo "Writing."; $t->write($this->getRoot().'/geojson');
             echo "DONE!\n";
         }
     }
