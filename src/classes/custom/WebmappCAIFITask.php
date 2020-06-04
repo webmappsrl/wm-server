@@ -31,8 +31,12 @@ class WebmappCAIFITask extends WebmappAbstractTask {
         foreach ($items as $osmid) {
             echo "Processing track $osmid ... ";
             $relation = new WebmappOSMRelation($osmid);
+            $name = 'Percorso '.$relation->getTag('ref');
             $t = $relation->getTrack();
+            // FORCE TAXONOMY
             $t->addProperty('taxonomy',array('activity'=>array(1)));
+            // FORCE NAME
+            $t->addProperty('name',$name);
             echo "-> PostGis "; $t->writeToPostGis();
             echo "3D."; $t->add3D();
             echo "computedProps."; $t->setComputedProperties2();
