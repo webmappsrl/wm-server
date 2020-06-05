@@ -728,5 +728,18 @@ class WebmappTrackFeatureTest extends TestCase {
         $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
         $this->assertEquals('LineString',$t->getGeometryType());
     }
+    public function testStrokeWidth() {
+        $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+        $ja = $t->getArrayJson();
+        $this->assertTrue(isset($ja['properties']['stroke_width']));
+        $this->assertEquals(2,$ja['properties']['stroke_width']);
+    }
+
+    public function testZindex() {
+        $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+        $ja = $t->getArrayJson();
+        $this->assertTrue(isset($ja['properties']['zindex']));
+        $this->assertEquals(2,$ja['properties']['zindex']);
+    }
 
 }

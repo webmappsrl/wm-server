@@ -30,6 +30,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         $this->setProperty('duration:forward',$json_array);
         $this->setProperty('duration:backward',$json_array);
         $this->setProperty('cai_scale',$json_array);
+        $this->setProperty('stroke_width',$json_array);
 
         // ADD START AND END POI        
         if(isset($json_array['n7webmap_start_poi']) && 
