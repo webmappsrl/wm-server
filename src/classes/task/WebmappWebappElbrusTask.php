@@ -163,7 +163,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         echo "Copying splash...                         ";
 
-        if (file_exists("{$this->__path}/.well-known")) {
+        if (file_exists("{$this->__path}/resources/splash.png")) {
             $cmd = "cp {$this->__path}/resources/splash.png {$this->__path}/core/assets/icon/splash.png";
             exec($cmd);
             echo self::fg_color('cyan', " OK\n");
