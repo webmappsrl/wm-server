@@ -7,6 +7,8 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
     public function check()
     {
+        $this->__path = $this->project_structure->getRoot();
+
         $this->__zip_base_url = '/root/wm-webapp-elbrus';
         if (array_key_exists('zip_base_url', $this->options)) {
             $this->__zip_base_url = $this->options['zip_base_url'];
@@ -58,8 +60,6 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
     public function process()
     {
-        $this->__path = $this->project_structure->getRoot();
-
         $this->__zip_base_url = '/root/wm-webapp-elbrus';
         if (array_key_exists('zip_base_url', $this->options)) {
             $this->__zip_base_url = $this->options['zip_base_url'];
