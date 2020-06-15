@@ -31,26 +31,26 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         exec($cmd);
 
         if (!file_exists("{$this->__zip_base_url}/tmp/core/index.html")) {
-            $this->clearTemp();
+            $this->__clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Missing file 'index.html' in {$this->__zip_base_url}/{$this->__zip_name}.zip", 1);
         }
 
         if (!file_exists("{$this->__zip_base_url}/tmp/core/assets")) {
-            $this->clearTemp();
+            $this->__clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets' in {$this->__zip_base_url}/{$this->__zip_name}.zip", 1);
         }
 
         if (!file_exists("{$this->__zip_base_url}/tmp/core/assets/icon")) {
-            $this->clearTemp();
+            $this->__clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Missing folder 'assets/icon' in {$this->__zip_base_url}/{$this->__zip_name}.zip", 1);
         }
 
         if (!file_exists("{$this->__path}/config.json")) {
-            $this->clearTemp();
+            $this->__clearTemp();
             throw new WebmappExceptionNoFile("ERROR: Missing file 'config.json' in {$this->__path}/config.json", 1);
         }
 
-        $this->clearTemp();
+        $this->__clearTemp();
         echo "Check OK - Ready to generate the webapp in " . $this->project_structure->getRoot() . "\n\n";
 
         return true;
