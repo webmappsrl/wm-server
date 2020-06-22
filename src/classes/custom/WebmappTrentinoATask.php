@@ -6,7 +6,7 @@
 class WebmappTrentinoATask extends WebmappAbstractTask
 {
 
-    private $tmp_path = '';
+    private $__tmp_path = '';
 
     public function check()
     {
@@ -141,28 +141,26 @@ EOS;
         $cmd = "ogr2ogr -f GeoJSON {$this->getRoot()}/geojson/punti_appoggio.geojson $options -sql \"$select\"";
         system($cmd);
 
-
 /// SENTIERI LUNGA PERCORRENZA
-// ogr2ogr -f GeoJSON sentieri_lunga_percorrenza.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Union(ST_Transform (ST_Simplify(wkb_geometry, 8), 4326)) as geom, concat(sentiero, ' - ', tappe) as ref, label from sentieri_lp group by ref, label order by ref"
-// CAMPI PRESENTI NELLA TABELLA sentieri_lp
-// codice
-// nome
-// label
-// lun_planim (intero, metri)
-// lun_inclin (intero, metri)
-// descrizione (vuota)
-// link (URL)
+        // ogr2ogr -f GeoJSON sentieri_lunga_percorrenza.geojson -nlt LINESTRING "PG:host=localhost dbname=sat user=pgadmin" -sql "SELECT ST_Union(ST_Transform (ST_Simplify(wkb_geometry, 8), 4326)) as geom, concat(sentiero, ' - ', tappe) as ref, label from sentieri_lp group by ref, label order by ref"
+        // CAMPI PRESENTI NELLA TABELLA sentieri_lp
+        // codice
+        // nome
+        // label
+        // lun_planim (intero, metri)
+        // lun_inclin (intero, metri)
+        // descrizione (vuota)
+        // link (URL)
 
-        
         echo "Generating sentieri lunga percorrenza\n";
 
         $select = <<<EOS
-SELECT ST_Transform (ST_Simplify(ST_LineMerge(wkb_geometry), 8), 4326) as geom, 
-       label as ref, 
+SELECT ST_Transform (ST_Simplify(ST_LineMerge(wkb_geometry), 8), 4326) as geom,
+       label as ref,
        nome as name,
        concat(lun_planim,' m') as distance,
        link as website
-FROM sentieri_lp 
+FROM sentieri_lp
 ORDER BY ref
 EOS;
         $cmd = "rm -f {$this->getRoot()}/geojson/sentieri_lunga_percorrenza.geojson";
@@ -265,6 +263,8 @@ EOS;
             $baseDir = $this->getRoot() . '/tiles';
             $mbtiles = $this->getRoot() . '/tiles/sentierisat.mbtiles';
             $utfgrid = $this->getRoot() . '/tiles/sentierisat_utfgrid';
+            $utfgrid_new = $this->getRoot() . '/tiles/sentierisat_new_utfgrid';
+            $utfgrid_old = $this->getRoot() . '/tiles/sentierisat_old_utfgrid';
             system("rm -f $mbtiles");
             $options = "--format=mbtiles --bbox=10.4576,45.6947,11.9586,46.5343 --minzoom=10 --maxzoom=16 --metatile=8 --scale=1 --quiet --verbose=off";
             echo $cmd = "$tileoven_cmd export sentierisat $mbtiles $options";
@@ -273,13 +273,19 @@ EOS;
             echo $cmd = "rm $baseDir/sentierisat.export-failed $baseDir/sentierisat.export";
             system($cmd);
 
-            echo $cmd = "rm -rf $baseDir/sentierisat_old_utfgrid";
+            echo $cmd = "rm -rf $utfgrid_old";
             system($cmd);
 
-            echo $cmd = "mv $utfgrid $baseDir/sentierisat_old_utfgrid";
+            echo $cmd = "mv $utfgrid $utfgrid_old";
             system($cmd);
 
-            echo $cmd = "$mbutil_cmd --grid_callback=\"\" $mbtiles $utfgrid";
+            echo $cmd = "$mbutil_cmd --grid_callback=\"\" $mbtiles $utfgrid_new";
+            system($cmd);
+
+            echo $cmd = "rm -rf $utfgrid";
+            system($cmd);
+
+            echo $cmd = "mv $utfgrid_new $utfgrid";
             system($cmd);
         }
 
