@@ -155,6 +155,8 @@ abstract class WebmappAbstractFeature {
         $this->setProperty('related_pois',$json_array);
         $this->setProperty('osmid',$json_array);
         $this->setProperty('zindex',$json_array);
+        $this->setProperty('adoption',$json_array);
+        $this->setProperty('adoption_date',$json_array);
 
     	// Gestione delle immagini
     	// TODO: migliorare la gestione unificando il nome per POI e track
