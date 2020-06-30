@@ -203,11 +203,21 @@ private function buildPropertiesAndFeatures() {
 	$this->properties['name']=$this->title;
 	$this->properties['description']=$this->description;
 	if(count($this->tracks) >0 ) {
+	    $dist=$asc=$desc=0;
 		$related=array();
 		foreach($this->tracks as $track) {
+		    if(!$track->has3D()){
+		        $track->setComputedProperties2();
+            }
+            $dist += $track->getProperty('distance');
+            $asc += $track->getProperty('ascent');
+            $desc += $track->getProperty('descent');
 			$this->features[]=json_decode($track->getJson(),TRUE);
 			$related[]=$track->getId();
 		}
+        $this->properties['descent']=$desc;
+        $this->properties['ascent']=$asc;
+        $this->properties['distance']=$dist;
 		$this->properties['related']['track']['related']=$related;
 	}
 

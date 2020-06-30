@@ -221,7 +221,7 @@ class WebmappRouteTest extends TestCase {
         $r = new WebmappRoute($wp_url);
         $j = json_decode($r->getJson(),TRUE);
         $this->assertTrue(isset($j['properties']['web']));
-        $this->assertEquals('http://selfguided-toscana.it/route/mtb-in-alta-versilia/',$j['properties']['web']);
+        $this->assertEquals('https://selfguided-toscana.it/route/mtb-in-alta-versilia/',$j['properties']['web']);
 	}
 
 	public function testEle() {
@@ -245,9 +245,37 @@ class WebmappRouteTest extends TestCase {
         $r = new WebmappRoute('https://cyclando.com/wp-json/wp/v2/route/80394');
         $ja = json_decode($r->getJson(),true);
         $this->assertTrue(isset($ja['features'][0]['properties']['ascent']));
-        $this->assertEquals(465,$ja['features'][0]['properties']['ascent']);
+        $this->assertEquals(451,$ja['features'][0]['properties']['ascent']);
     }
 
+
+    public function testDistAscentDescent()
+    {
+
+        // Route composta dalle seguenti TRACK:
+
+        // 835: https://a.webmapp.it/dev.be.webmapp.it/geojson/835.geojson
+        // Distance: 6.4
+        // D+: 699
+        // D-: 728
+
+        // https://a.webmapp.it/dev.be.webmapp.it/geojson/927.geojson
+        // Distance: 0.8
+        // D+: 0
+        // D-: 0
+
+        // DI conseguenza i valori attesi della route sono:
+        // Distance: 7.2
+        // D+: 699
+        // D-: 728
+
+        $r = new WebmappRoute("http://dev.be.webmapp.it/wp-json/wp/v2/route/992");
+        $ja = json_decode($r->getJson(),true);
+        $this->assertEquals(7.2,$ja['properties']['distance']);
+        $this->assertEquals(699,$ja['properties']['ascent']);
+        $this->assertEquals(728,$ja['properties']['descent']);
+
+    }
 
 
 }

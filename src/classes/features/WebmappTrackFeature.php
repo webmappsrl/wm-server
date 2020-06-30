@@ -75,7 +75,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
         }
 
         // SURFACE
-        if(isset($json_array['surface'])&&count($json_array['surface'])) {
+        if(isset($json_array['surface'])&& is_array($json_array['surface']) && count($json_array['surface'])) {
             $surface = array();
             foreach($json_array['surface'] as $item) {
                 $surface[$item['surface_type']]=$item['surface_type_percentage']/100;
