@@ -223,14 +223,15 @@ EOS;
 
         // UPDATING SENTIERI CHIUSI
         echo "\n\n\n UPDATING SENTIERI CHIUSI \n\n\n";
+        $csv = "/var/www/html/a.webmapp.it/trentino/geojson/sentieri_chiusi.csv";
         // curl -g "https://sentieri.sat.tn.it/download/sentieri_chiusi.csv" -o /root/api.webmapp.it/trentino/geojson/temp/sentieri_chiusi.csv
-        echo $cmd = "curl -g \"https://sentieri.sat.tn.it/download/sentieri_chiusi.csv\" -o /var/www/html/a.webmapp.it/trentino/geojson/temp/sentieri_chiusi.csv";
+        echo $cmd = "curl -g \"https://sentieri.sat.tn.it/download/sentieri_chiusi.csv\" -o $csv";
         system($cmd);
         // psql $psql_conn -c "DELETE FROM sentierichiusitemp;"
         echo $cmd = "psql $psql_conn -c \"DELETE FROM sentierichiusitemp;\"";
         system($cmd);
         // psql $psql_conn -c "\copy sentierichiusitemp from '/root/api.webmapp.it/trentino/geojson/temp/sentieri_chiusi.csv' delimiter ';' csv;"
-        echo $cmd = "psql $psql_conn -c \"\copy sentierichiusitemp from '/var/www/html/a.webmapp.it/trentino/geojson/temp/sentieri_chiusi.csv' delimiter ';' csv;\"";
+        echo $cmd = "psql $psql_conn -c \"\copy sentierichiusitemp from '$csv' delimiter ';' csv;\"";
         system($cmd);
 
         echo "\n\n\n CREATING GEOJSON \n\n\n";
