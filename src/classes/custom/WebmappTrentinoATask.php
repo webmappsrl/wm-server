@@ -218,7 +218,6 @@ EOS;
         }
 
         $in = preg_replace("/\"web\":([^,]*)/", "\"related_url\": [$1]", $in);
-
         file_put_contents($this->getRoot() . '/geojson/sentieri_tratte.geojson', $in);
 
         // UPDATING SENTIERI CHIUSI
