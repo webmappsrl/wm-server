@@ -363,7 +363,7 @@ class WebmappTrentinoKTask extends WebmappAbstractTask
     {
         foreach ($file["features"] as $key => $feature) {
             if (!array_key_exists("imageUrl", $file["features"][$key]["properties"]) && array_key_exists("imageGallery", $file["features"][$key]["properties"]) && array_key_exists(0, $file["features"][$key]["properties"]["imageGallery"]) && array_key_exists("src", $file["features"][$key]["properties"]["imageGallery"][0])) {
-                $file["features"][$key]["properties"]["imageUrl"] = $file["features"][$key]["properties"]["imageGallery"][0]["src"];
+                $file["features"][$key]["properties"]["image"] = $file["features"][$key]["properties"]["imageGallery"][0]["src"];
             }
         }
 
