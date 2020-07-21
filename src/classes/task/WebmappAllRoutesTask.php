@@ -357,6 +357,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
     private function reportMbtiles()
     {
         if (count($this->missing_mbtiles_route_ids) > 0 || count($this->update_mbtiles_route_ids) > 0) {
+            echo "Some routes need to be generated...\n";
             global $wm_config;
 
             $root_base_url = $this->getRoot();
@@ -373,10 +374,14 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             if (count($this->missing_mbtiles_route_ids) > 0) {
                 $imploded = implode(' ', $this->missing_mbtiles_route_ids);
                 $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles siano generate dato che attualmente non ci sono</p>";
+                echo "{$imploded} have no mbtiles. Generation needed\n";
+
             }
             if (count($this->update_mbtiles_route_ids) > 0) {
                 $imploded = implode(' ', $this->update_mbtiles_route_ids);
                 $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles vengano aggiornate (anche se al momento sono già presenti)</p>";
+                echo "{$imploded} mbtiles need to be updated.\n";
+
             }
 
             $mail = new PHPMailer;
