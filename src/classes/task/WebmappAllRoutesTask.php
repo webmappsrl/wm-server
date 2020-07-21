@@ -361,7 +361,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $root_base_url = $this->getRoot();
             $split = preg_split("/\//", $root_base_url);
             $instance = '';
-            if ($root_base_url[count($root_base_url) - 1] == '/') {
+            if ($root_base_url[strlen($root_base_url) - 1] == '/') {
                 $instance = $split[count($split) - 2];
             } else {
                 $instance = $split[count($split) - 1];
