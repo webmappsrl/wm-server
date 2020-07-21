@@ -321,16 +321,15 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $map['bbox'][3] = (float) $bb[3];
         }
 
-        // Writing file only if different
+        $needUpdate = false;
+
         if (file_exists($route_path . '/map.json')) {
             $currentMap = file_get_contents($route_path . '/map.json');
             $newMap = json_encode($map);
-            if ($currentMap != $newMap) {
-                file_put_contents($route_path . '/map.json', json_encode($map));
-                $this->mbtiles_route_ids[] = $id;
-                // $this->updateMbtiles($id);
-            }
-        } else {
+            $needUpdate = $currentMap != $newMap;
+        }
+
+        if ($needUpdate || !file_exists($route_path . '/map.mbtiles')) {
             file_put_contents($route_path . '/map.json', json_encode($map));
             $this->mbtiles_route_ids[] = $id;
             // $this->updateMbtiles($id);
