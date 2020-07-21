@@ -8,8 +8,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
     private $process_route_index = false;
     private $routes_id = array();
-    private $missing_mbtiles_route_ids = array();
-    private $update_mbtiles_route_ids = array();
+    private $mbtiles_route_ids = array();
 
     public function check()
     {
@@ -328,12 +327,12 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $newMap = json_encode($map);
             if ($currentMap != $newMap) {
                 file_put_contents($route_path . '/map.json', json_encode($map));
-                $this->update_mbtiles_route_ids[] = $id;
+                $this->mbtiles_route_ids[] = $id;
                 // $this->updateMbtiles($id);
             }
         } else {
             file_put_contents($route_path . '/map.json', json_encode($map));
-            $this->missing_mbtiles_route_ids[] = $id;
+            $this->mbtiles_route_ids[] = $id;
             // $this->updateMbtiles($id);
         }
     }
@@ -356,7 +355,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
     private function reportMbtiles()
     {
-        if (count($this->missing_mbtiles_route_ids) > 0 || count($this->update_mbtiles_route_ids) > 0) {
+        if (count($this->mbtiles_route_ids) > 0) {
             echo "Some routes need to be generated...\n";
             global $wm_config;
 
@@ -371,18 +370,9 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
             $content = "<p>Ci sono alcune route di {$instance} che hanno bisogno di attenzione</p>";
 
-            if (count($this->missing_mbtiles_route_ids) > 0) {
-                $imploded = implode(' ', $this->missing_mbtiles_route_ids);
-                $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles siano generate dato che attualmente non ci sono</p>";
-                echo "{$imploded} have no mbtiles. Generation needed\n";
-
-            }
-            if (count($this->update_mbtiles_route_ids) > 0) {
-                $imploded = implode(' ', $this->update_mbtiles_route_ids);
-                $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles vengano aggiornate (anche se al momento sono già presenti)</p>";
-                echo "{$imploded} mbtiles need to be updated.\n";
-
-            }
+            $imploded = implode(' ', $this->mbtiles_route_ids);
+            $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles siano generate</p>";
+            echo "{$imploded} have no mbtiles. Generation needed\n";
 
             $mail = new PHPMailer;
             $mail->isSMTP();
