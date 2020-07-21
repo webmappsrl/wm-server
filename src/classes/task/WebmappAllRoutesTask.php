@@ -8,6 +8,8 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
     private $process_route_index = false;
     private $routes_id = array();
+    private $missing_mbtiles_route_ids = array();
+    private $update_mbtiles_route_ids = array();
 
     public function check()
     {
@@ -17,10 +19,10 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             throw new WebmappExceptionConfTask("L'array options deve avere la chiave 'url_or_code'", 1);
         }
 
-        if(array_key_exists('routes',$this->options)) {
-            $this->routes_id=$this->options['routes'];
-            if(is_array($this->routes_id) && count($this->routes_id)>0) {
-                $this->process_route_index=true;
+        if (array_key_exists('routes', $this->options)) {
+            $this->routes_id = $this->options['routes'];
+            if (is_array($this->routes_id) && count($this->routes_id) > 0) {
+                $this->process_route_index = true;
             }
         }
 
@@ -69,30 +71,33 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
         $this->processRouteIndex();
 
+        $this->reportMbtiles();
+
         return true;
     }
 
-    private function processRouteIndex() {
-        if($this->process_route_index) {
+    private function processRouteIndex()
+    {
+        if ($this->process_route_index) {
             // Load a/xxx/geojson/route_index.geojson
-            $a_route_index = $this->endpoint.'/geojson/route_index.geojson';
-            if(!file_exists($a_route_index)) {
+            $a_route_index = $this->endpoint . '/geojson/route_index.geojson';
+            if (!file_exists($a_route_index)) {
                 throw new WebmappExceptionAllRoutesTaskNoRouteIndex();
             }
-            $all_routes = json_decode(file_get_contents($a_route_index),TRUE);
+            $all_routes = json_decode(file_get_contents($a_route_index), true);
             $features = $all_routes['features'];
-            $new_features=array();
+            $new_features = array();
             foreach ($features as $feature) {
                 $id = $feature['properties']['id'];
-                if(in_array((int) $id,$this->routes_id)) {
-                    $new_features[]=$feature;
+                if (in_array((int) $id, $this->routes_id)) {
+                    $new_features[] = $feature;
                 }
             }
             $j = array();
-            $j['type']='FeatureCollection';
-            $j['features']=$new_features;
-            $out = $this->getRoot().'/routes/index.geojson';
-            file_put_contents($out,json_encode($j));
+            $j['type'] = 'FeatureCollection';
+            $j['features'] = $new_features;
+            $out = $this->getRoot() . '/routes/index.geojson';
+            file_put_contents($out, json_encode($j));
         }
     }
 
@@ -215,7 +220,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
     {
 
         // SKIP IF is not in routes_id (only if parameter is set)
-        if($this->process_route_index && !in_array($id,$this->routes_id)) {
+        if ($this->process_route_index && !in_array($id, $this->routes_id)) {
             echo "\n\nProcess_route_index TRUE, ROUTEID($id) not in routes_id (routes parameter in /server/config.json)... SKIPPING \n\n";
             return;
         }
@@ -292,7 +297,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
                 $map['bbox'][3] = $bb['bounds']['northEast'][0];
             } else {
                 echo "Building map.json info from route bbox (NO ARRAY)\n";
-                $map['maxZoom'] = 17;
+                $map['maxZoom'] = 16;
                 $map['minZoom'] = 8;
                 $map['defZoom'] = 9;
                 $bb = explode(',', $ja['properties']['bbox']);
@@ -305,7 +310,7 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             }
         } else {
             echo "Building map.json info from route bbox\n";
-            $map['maxZoom'] = 17;
+            $map['maxZoom'] = 16;
             $map['minZoom'] = 8;
             $map['defZoom'] = 9;
             $bb = explode(',', $ja['properties']['bbox']);
@@ -316,8 +321,78 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $map['bbox'][2] = (float) $bb[2];
             $map['bbox'][3] = (float) $bb[3];
         }
-        // Writing file
-        file_put_contents($route_path . '/map.json', json_encode($map));
+
+        // Writing file only if different
+        if (file_exists($route_path . '/map.json')) {
+            $currentMap = file_get_contents($route_path . '/map.json');
+            $newMap = json_encode($map);
+            if ($currentMap != $newMap) {
+                file_put_contents($route_path . '/map.json', json_encode($map));
+                $this->update_mbtiles_route_ids[] = $id;
+                // $this->updateMbtiles($id);
+            }
+        } else {
+            file_put_contents($route_path . '/map.json', json_encode($map));
+            $this->missing_mbtiles_route_ids[] = $id;
+            // $this->updateMbtiles($id);
+        }
     }
 
+    private function updateMbtiles($id)
+    {
+        // echo "Checking mbtiles for route $id... ";
+        // $root_base_url = $this->getRoot();
+        // $split = preg_split("/\//", $baseUrl);
+        // $instance = '';
+
+        // if ($root_base_url[count($root_base_url) - 1] == '/') {
+        //     $instance = $split[count($split) - 2];
+        // } else {
+        //     $instance = $split[count($split) - 1];
+        // }
+
+        // if (file_exists($route_path))
+    }
+
+    private function reportMbtiles()
+    {
+        if (count($this->missing_mbtiles_route_ids) > 0 || count($this->update_mbtiles_route_ids) > 0) {
+            global $wm_config;
+
+            $root_base_url = $this->getRoot();
+            $split = preg_split("/\//", $root_base_url);
+            $instance = '';
+            if ($root_base_url[count($root_base_url) - 1] == '/') {
+                $instance = $split[count($split) - 2];
+            } else {
+                $instance = $split[count($split) - 1];
+            }
+
+            $content = "<p>Ci sono alcune route di {$instance} che hanno bisogno di attenzione</p>";
+
+            if (count($this->missing_mbtiles_route_ids) > 0) {
+                $imploded = implode(' ', $this->missing_mbtiles_route_ids);
+                $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles siano generate dato che attualmente non ci sono</p>";
+            }
+            if (count($this->update_mbtiles_route_ids) > 0) {
+                $imploded = implode(' ', $this->update_mbtiles_route_ids);
+                $content .= "<p>Le route {$imploded} hanno bisogno che le mbtiles vengano aggiornate (anche se al momento sono già presenti)</p>";
+            }
+
+            $mail = new PHPMailer;
+            $mail->isSMTP();
+            $mail->Host = $wm_config["email"]["host"];
+            $mail->Port = $wm_config["email"]["port"];
+            $mail->SMTPSecure = $wm_config["email"]["smtpSecure"];
+            $mail->SMTPAuth = true;
+            $mail->Username = $wm_config["email"]["username"];
+            $mail->Password = $wm_config["email"]["password"];
+            $mail->setFrom('noreply@webmapp.it', 'Server mbtiles');
+            $mail->addAddress('team@webmapp.it');
+            $mail->Subject = "MBTiles {$instance}";
+            $mail->msgHTML($content);
+
+            $mail->send();
+        }
+    }
 }
