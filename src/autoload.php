@@ -5,7 +5,7 @@ date_default_timezone_set('Etc/UTC');
 //require 'vendor/gisconverter/gisconverter.php';
 require 'vendor/GPXIngest/GPXIngest.php';
 require_once 'vendor/gisconverter/vendor/autoload.php';
-require 'PHPMailer-master/PHPMailerAutoload.php';
+require 'vendor/PHPMailer-master/PHPMailerAutoload.php';
 
 // Configuration file
 $conf = __DIR__ . '/config.json';
