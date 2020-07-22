@@ -327,6 +327,8 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $currentMap = file_get_contents($route_path . '/map.json');
             $newMap = json_encode($map);
             $needUpdate = $currentMap != $newMap;
+        } else {
+            $needUpdate = true;
         }
 
         if ($needUpdate || !file_exists($route_path . '/map.mbtiles')) {
