@@ -382,11 +382,12 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $mail->Username = $wm_config["email"]["username"];
             $mail->Password = $wm_config["email"]["password"];
             $mail->setFrom('noreply@webmapp.it', 'Server mbtiles');
-            $mail->addAddress('alessiopiccioli@webmapp.it');
-            $mail->addAddress('davidepizzato@webmapp.it');
-            $mail->addAddress('gianmarcogagliardi@webmapp.it@webmapp.it');
-            $mail->addAddress('marcobarbieri@webmapp.it');
-            $mail->addAddress('pedramkatanchi@webmapp.it');
+            // $mail->addAddress('alessiopiccioli@webmapp.it');
+            // $mail->addAddress('davidepizzato@webmapp.it');
+            // $mail->addAddress('gianmarcogagliardi@webmapp.it@webmapp.it');
+            // $mail->addAddress('marcobarbieri@webmapp.it');
+            // $mail->addAddress('pedramkatanchi@webmapp.it');
+            $mail->addAddress('team@webmapp.it');
             $mail->Subject = "MBTiles {$instance}";
             $mail->msgHTML($content);
 
