@@ -325,6 +325,8 @@ class WebmappATask extends WebmappAbstractTask
                             'geometry' => $trackGeometry,
                         );
                         $fullGeometryFeatures[] = $fullFeature;
+                    } else {
+                        $fullGeometryFeatures[] = $feature;
                     }
                 }
 
