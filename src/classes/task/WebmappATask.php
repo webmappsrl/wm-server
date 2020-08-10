@@ -307,7 +307,7 @@ class WebmappATask extends WebmappAbstractTask
                         $lat = $t['geometry']['coordinates'][0][1];
                         $feature['geometry']['type'] = 'Point';
                         $feature['geometry']['coordinates'] = array($lon, $lat);
-                        $trackGeometry = $t['geometry'];
+                        $trackGeometry = $this->simplifyGeometry($t['geometry']);
                     } else {
                         echo "Warning no GEOMETRY In first track $first_track_id ... SKIP!\n";
                         $skip = true;
@@ -354,6 +354,26 @@ class WebmappATask extends WebmappAbstractTask
             //     $this->pruneTax('where',$to_prune);
             // }
         }
+    }
+
+    private function simplifyGeometry($geom)
+    {
+        $interval = 5;
+        $pos = 0;
+        $newCoordinates = array();
+
+        if ($geometry["type"] === 'LineString') {
+            while ($pos < count($geometry['coordinates'])) {
+                $newCoordinates[] = array(
+                    round($geometry['coordinates'][$pos][0], 3),
+                    round($geometry['coordinates'][$pos][1], 3),
+                );
+
+                $pos += $interval;
+            }
+        }
+
+        $geometry['coordinates'] = $newCoordinates;
     }
 
     private function pruneTax($name, $to_prune)
