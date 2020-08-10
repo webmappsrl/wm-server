@@ -97,6 +97,24 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $j['features'] = $new_features;
             $out = $this->getRoot() . '/routes/index.geojson';
             file_put_contents($out, json_encode($j));
+
+            $a_route_index = $this->endpoint . '/geojson/full_geometry_route_index.geojson';
+            if (file_exists($a_route_index)) {
+                $all_routes = json_decode(file_get_contents($a_route_index), true);
+                $features = $all_routes['features'];
+                $new_features = array();
+                foreach ($features as $feature) {
+                    $id = $feature['properties']['id'];
+                    if (in_array((int) $id, $this->routes_id)) {
+                        $new_features[] = $feature;
+                    }
+                }
+                $j = array();
+                $j['type'] = 'FeatureCollection';
+                $j['features'] = $new_features;
+                $out = $this->getRoot() . '/routes/full_geometry_route_index.geojson';
+                file_put_contents($out, json_encode($j));
+            }
         }
     }
 
