@@ -364,10 +364,18 @@ class WebmappATask extends WebmappAbstractTask
 
         if ($geometry["type"] === 'LineString') {
             while ($pos < count($geometry['coordinates'])) {
-                $newCoordinates[] = array(
-                    round($geometry['coordinates'][$pos][0], 3),
-                    round($geometry['coordinates'][$pos][1], 3),
-                );
+                if (isset($geometry['coordinates'][$pos][1]) && !empty($geometry['coordinates'][$pos][1])) {
+                    $newCoordinates[] = array(
+                        round($geometry['coordinates'][$pos][0], 3),
+                        round($geometry['coordinates'][$pos][1], 3),
+                        round($geometry['coordinates'][$pos][2], 0),
+                    );
+                } else {
+                    $newCoordinates[] = array(
+                        round($geometry['coordinates'][$pos][0], 3),
+                        round($geometry['coordinates'][$pos][1], 3),
+                    );
+                }
 
                 $pos += $interval;
             }
