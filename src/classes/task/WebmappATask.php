@@ -368,6 +368,9 @@ class WebmappATask extends WebmappAbstractTask
                     round($geometry['coordinates'][$pos][0], 3),
                     round($geometry['coordinates'][$pos][1], 3),
                 );
+                if (isset($geometry['coordinates'][$pos][1]) && !empty($geometry['coordinates'][$pos][1])) {
+                    $newCoordinates[] = $geometry['coordinates'][$pos][1];
+                }
 
                 $pos += $interval;
             }
