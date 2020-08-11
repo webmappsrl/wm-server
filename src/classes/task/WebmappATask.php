@@ -16,6 +16,9 @@ class WebmappATask extends WebmappAbstractTask
 
     private $taxonomies = array();
 
+    private $encrypt = false;
+
+
     public function check()
     {
 
@@ -28,6 +31,13 @@ class WebmappATask extends WebmappAbstractTask
         if (array_key_exists('force_type', $this->options)) {
             $this->force_type = $this->options['force_type'];
         }
+
+        // Controllo parametro code http://[code].be.webmapp.it
+        if (array_key_exists('encrypt', $this->options)) {
+            $this->encrypt = $this->options['encrypt'];
+        }
+
+
 
         $wp = new WebmappWP($this->options['url_or_code']);
         // Controlla esistenza della piattaforma
@@ -202,7 +212,7 @@ class WebmappATask extends WebmappAbstractTask
             $this->taxonomies['poi'][$id] = $j['properties']['taxonomy'];
         }
 
-        $poi->write($this->path);
+        $poi->write($this->path,$this->encrypt);
     }
     private function processTrack($id)
     {
@@ -236,7 +246,7 @@ class WebmappATask extends WebmappAbstractTask
             $this->taxonomies['track'][$id] = $j['properties']['taxonomy'];
         }
 
-        $t->write($this->path);
+        $t->write($this->path,$this->encrypt);
     }
 
     private function processRoute($id)
@@ -252,7 +262,7 @@ class WebmappATask extends WebmappAbstractTask
                 $this->taxonomies['route'][$id] = $j['properties']['taxonomy'];
             }
 
-            $r->write($this->path);
+            $r->write($this->path,$this->encrypt);
         } else {
             echo "NO TRACKS FOUND: skipping route\n";
         }
