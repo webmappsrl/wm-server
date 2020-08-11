@@ -25,6 +25,10 @@
 	},
 	"route_password" : {
 		"private_key" : "2K7TGxm98QBTga7DB6kDh4YSAv39rYN5"
+	},
+	"crypt" : {
+		"method" : "aes-128-ecb",
+		"key" : "XXXX"
 	}
 
 }

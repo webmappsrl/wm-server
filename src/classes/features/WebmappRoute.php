@@ -257,8 +257,15 @@ public function addBBox($instance_id='') {
 	}
 }
 
-public function write($path) {
-	file_put_contents($path.'/'.$this->id.'.geojson', $this->getJson());
+public function write($path,$encrypt=false) {
+	    $out = $this->getJson();
+        if($encrypt) {
+            global $wm_config;
+            $method = $wm_config['crypt']['method'];
+            $key = $wm_config['crypt']['key'];
+            $out = openssl_encrypt ($out, $method, $key);
+        }
+    	file_put_contents($path.'/'.$this->id.'.geojson', $out );
 }
 
 public function generateAllImages($instance_id='',$path='') {

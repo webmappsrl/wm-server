@@ -742,4 +742,20 @@ class WebmappTrackFeatureTest extends TestCase {
         $this->assertEquals(2,$ja['properties']['zindex']);
     }
 
+    public function testEncrypt() {
+        $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/882');
+        $t->write('/tmp',true);
+
+        global $wm_config;
+        $method = $wm_config['crypt']['method'];
+        $key = $wm_config['crypt']['key'];
+
+        $in = file_get_contents('/tmp/882.geojson');
+        $in = openssl_decrypt($in,$method,$key);
+        $ja = json_decode($in,true);
+
+        $this->assertTrue(isset($ja['properties']['zindex']));
+        $this->assertEquals(2,$ja['properties']['zindex']);
+    }
+
 }

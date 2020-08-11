@@ -276,6 +276,21 @@ class WebmappRouteTest extends TestCase {
         $this->assertEquals(728,$ja['properties']['descent']);
 
     }
+    public function testEncrypt()
+    {
 
+        $r = new WebmappRoute("http://dev.be.webmapp.it/wp-json/wp/v2/route/992");
+        $r->write('/tmp',true);
+
+        global $wm_config;
+        $method = $wm_config['crypt']['method'];
+        $key = $wm_config['crypt']['key'];
+
+        $in = file_get_contents('/tmp/992.geojson');
+        $in = openssl_decrypt($in,$method,$key);
+        $ja = json_decode($in,true);
+        $this->assertTrue(isset($ja['features'][0]['properties']['ascent']));
+        $this->assertEquals(699,$ja['features'][0]['properties']['ascent']);
+    }
 
 }

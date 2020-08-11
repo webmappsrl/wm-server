@@ -307,6 +307,24 @@ class WebmappPoiFeatureTest extends TestCase {
     }
 
 
+    public function testEncrypt() {
+        $wp_url = 'http://dev.be.webmapp.it/wp-json/wp/v2/poi/509';
+        $poi = new WebmappPoiFeature($wp_url);
+        $poi->write('/tmp',true);
+
+        global $wm_config;
+        $method = $wm_config['crypt']['method'];
+        $key = $wm_config['crypt']['key'];
+
+        $in = file_get_contents('/tmp/509.geojson');
+        $in = openssl_decrypt($in,$method,$key);
+        $ja = json_decode($in,true);
+        $this->assertTrue(isset($ja['properties']['zindex']));
+        $this->assertEquals(2,$ja['properties']['zindex']);
+
+    }
+
+
 
 
 }

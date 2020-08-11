@@ -496,14 +496,21 @@ abstract class WebmappAbstractFeature {
     	return json_encode($this->getArrayJson($lang));
     }
 
-    public function write($path) {
+    public function write($path,$encrypt=false) {
         $id = $this->properties['id'];
         $this->geojson_path = $path . "/$id.geojson";
         if(!file_exists($path)) {
             $cmd = "mkdir $path";
             system($cmd);
         }
-        file_put_contents($this->geojson_path,$this->getJson());
+        $out=$this->getJson();
+        if($encrypt) {
+            global $wm_config;
+            $method = $wm_config['crypt']['method'];
+            $key = $wm_config['crypt']['key'];
+            $out = openssl_encrypt ($out, $method, $key);
+        }
+        file_put_contents($this->geojson_path,$out);
     }
 
     abstract public function writeToPostGis($instance_id='');

@@ -8,6 +8,7 @@ class WebmappExceptionConf extends WebmappException {}
 class WebmappExceptionConfPostgis extends WebmappException {}
 class WebmappExceptionConfEndpoint extends WebmappException {}
 class WebmappExceptionConfTask extends WebmappException {}
+class WebmappExceptionConfCrypt extends WebmappException {}
 
 // TASK
 class WebmappExceptionTask extends WebmappException {}
