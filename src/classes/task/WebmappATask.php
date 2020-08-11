@@ -374,6 +374,8 @@ class WebmappATask extends WebmappAbstractTask
         }
 
         $geometry['coordinates'] = $newCoordinates;
+
+        return $geometry;
     }
 
     private function pruneTax($name, $to_prune)
