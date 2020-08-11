@@ -356,7 +356,7 @@ class WebmappATask extends WebmappAbstractTask
         }
     }
 
-    private function simplifyGeometry($geom)
+    private function simplifyGeometry($geometry)
     {
         $interval = 5;
         $pos = 0;
