@@ -243,7 +243,7 @@ class WebmappUtils
     }
 
     // Gestire la cache tramite SQLLITE
-    public static function getJsonFromApi($url)
+    public static function getJsonFromApi($url,$crypt=false)
     {
         global $wm_config;
         $debug = false;
@@ -271,6 +271,9 @@ class WebmappUtils
             }
         }
 
+
+        if($crypt==true) $webcache = false;
+
         if ($webcache) {
             // Try to retrieve from cache
             $q = "SELECT content from webcache where url='$url'";
@@ -281,11 +284,9 @@ class WebmappUtils
                 if ($debug) {
                     echo " cache.";
                 }
-
             }
         }
         if ($download) {
-
             // switch file / URL
             if (preg_match('/^http/', $url)) {
                 $ch = curl_init();
@@ -316,6 +317,12 @@ class WebmappUtils
         }
         if ($debug) {
             echo "\n";
+        }
+
+        if ($crypt==true) {
+            $method = $wm_config['crypt']['method'];
+            $key = $wm_config['crypt']['key'];
+            $output = openssl_decrypt($output,$method,$key);
         }
 
         return json_decode($output, true);

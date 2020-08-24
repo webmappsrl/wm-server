@@ -303,7 +303,7 @@ class WebmappATask extends WebmappAbstractTask
                 echo "\n\n\n Processing route $rid\n";
                 $feature = array();
                 $trackGeometry = null;
-                $r = WebmappUtils::getJsonFromAPI($this->path . '/' . $rid . '.geojson');
+                $r = WebmappUtils::getJsonFromAPI($this->path . '/' . $rid . '.geojson',$this->encrypt);
                 $feature['properties'] = $r['properties'];
                 // CAMBIA QUI il TYPE
                 $feature['type'] = 'Feature';
@@ -419,7 +419,7 @@ class WebmappATask extends WebmappAbstractTask
             foreach ($pois as $pid => $date) {
                 $skip = false;
                 echo "\n\n\n Processing POI $pid\n";
-                $p = WebmappUtils::getJsonFromAPI($this->path . '/' . $pid . '.geojson');
+                $p = WebmappUtils::getJsonFromAPI($this->path . '/' . $pid . '.geojson',$this->encrypt);
                 if (!isset($p['geometry'])) {
                     echo "Warning no GEOMETRY: SKIPPING POI\n";
                     $skip = true;

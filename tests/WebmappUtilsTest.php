@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WebmappUtilsTests extends TestCase {
+class WebmappUtilsTest extends TestCase {
 	private $delta_ele = 20;
 
 	public function test3D() {
@@ -228,9 +228,11 @@ class WebmappUtilsTests extends TestCase {
 		$features=$j['features'];
 		$values=array(
 			'772'=>array(10.396649837494,43.716170598881),
-			'686'=>array(6.86924,45.92367),
-			'346'=>array(10.396649837494,43.716170598881)
+			'686'=>array(10.40169,43.71554),
+			'346'=>array(10.396649837494,43.716170598881),
+            '992'=>array(10.3323411,44.0394793)
 			);
+
 		foreach($features as $f) {
 			$id = $f['properties']['id'];
 			$lon = $f['geometry']['coordinates'][0];
@@ -303,5 +305,21 @@ class WebmappUtilsTests extends TestCase {
 		$url = 'http://aaa.aaa.aaa/';
 		$this->assertFalse(WebmappUtils::urlExists($url));
 	}
+
+
+	public function testGetJsonFromApiCrypt() {
+	    // Build test
+        $a = array("test"=>"test");
+        global $wm_config;
+        $method = $wm_config['crypt']['method'];
+        $key = $wm_config['crypt']['key'];
+        $tmp = tempnam('/tmp','testGetJsonFromApiCrypt_');
+        file_put_contents($tmp,openssl_encrypt (json_encode($a), $method, $key));
+
+        $a = WebmappUtils::getJsonFromApi($tmp,true);
+
+        $this->assertTrue(isset($a['test']));
+        $this->assertEquals('test',$a['test']);
+    }
 
 }
