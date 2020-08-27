@@ -160,7 +160,7 @@ class WebmappATask extends WebmappAbstractTask
                     echo "NO Geojson ";
                     $to_process = true;
                 } else {
-                    $j = WebmappUtils::getJsonFromAPI($geojson);
+                    $j = WebmappUtils::getJsonFromAPI($geojson, $this->encrypt);
                     if (in_array($type, $this->force_type)) {
                         $to_process = true;
                     } else if (isset($j['properties']['modified'])) {
