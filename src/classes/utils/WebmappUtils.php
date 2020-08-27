@@ -129,8 +129,8 @@ class WebmappUtils
         $xml = simplexml_load_string(file_get_contents($in));
         $points = array();
         foreach ($xml->trk->trkseg->trkpt as $pt) {
-            $lat = (float)$pt->attributes()->lat->__toString();
-            $lon = (float)$pt->attributes()->lon->__toString();
+            $lat = (float) $pt->attributes()->lat->__toString();
+            $lon = (float) $pt->attributes()->lon->__toString();
             $points[] = array($lat, $lon);
         }
         $elevations = self::getElevations($points);
@@ -243,7 +243,7 @@ class WebmappUtils
     }
 
     // Gestire la cache tramite SQLLITE
-    public static function getJsonFromApi($url,$crypt=false)
+    public static function getJsonFromApi($url, $crypt = false)
     {
         global $wm_config;
         $debug = false;
@@ -271,8 +271,9 @@ class WebmappUtils
             }
         }
 
-
-        if($crypt==true) $webcache = false;
+        if ($crypt == true) {
+            $webcache = false;
+        }
 
         if ($webcache) {
             // Try to retrieve from cache
@@ -319,10 +320,10 @@ class WebmappUtils
             echo "\n";
         }
 
-        if ($crypt==true) {
+        if ($crypt == true) {
             $method = $wm_config['crypt']['method'];
             $key = $wm_config['crypt']['key'];
-            $output = openssl_decrypt($output,$method,$key);
+            $output = openssl_decrypt($output, $method, $key);
         }
 
         return json_decode($output, true);
@@ -726,7 +727,7 @@ class WebmappUtils
 
         $now = time();
 
-        $perc = (double)($done / $total);
+        $perc = (double) ($done / $total);
 
         $bar = floor($perc * $size);
 

@@ -18,7 +18,6 @@ class WebmappATask extends WebmappAbstractTask
 
     private $encrypt = false;
 
-
     public function check()
     {
 
@@ -36,8 +35,6 @@ class WebmappATask extends WebmappAbstractTask
         if (array_key_exists('encrypt', $this->options)) {
             $this->encrypt = $this->options['encrypt'];
         }
-
-
 
         $wp = new WebmappWP($this->options['url_or_code']);
         // Controlla esistenza della piattaforma
@@ -212,7 +209,7 @@ class WebmappATask extends WebmappAbstractTask
             $this->taxonomies['poi'][$id] = $j['properties']['taxonomy'];
         }
 
-        $poi->write($this->path,$this->encrypt);
+        $poi->write($this->path, $this->encrypt);
     }
     private function processTrack($id)
     {
@@ -246,7 +243,7 @@ class WebmappATask extends WebmappAbstractTask
             $this->taxonomies['track'][$id] = $j['properties']['taxonomy'];
         }
 
-        $t->write($this->path,$this->encrypt);
+        $t->write($this->path, $this->encrypt);
     }
 
     private function processRoute($id)
@@ -262,7 +259,7 @@ class WebmappATask extends WebmappAbstractTask
                 $this->taxonomies['route'][$id] = $j['properties']['taxonomy'];
             }
 
-            $r->write($this->path,$this->encrypt);
+            $r->write($this->path, $this->encrypt);
         } else {
             echo "NO TRACKS FOUND: skipping route\n";
         }
@@ -303,7 +300,7 @@ class WebmappATask extends WebmappAbstractTask
                 echo "\n\n\n Processing route $rid\n";
                 $feature = array();
                 $trackGeometry = null;
-                $r = WebmappUtils::getJsonFromAPI($this->path . '/' . $rid . '.geojson',$this->encrypt);
+                $r = WebmappUtils::getJsonFromAPI($this->path . '/' . $rid . '.geojson', $this->encrypt);
                 $feature['properties'] = $r['properties'];
                 // CAMBIA QUI il TYPE
                 $feature['type'] = 'Feature';
@@ -311,7 +308,7 @@ class WebmappATask extends WebmappAbstractTask
                 if (isset($r['properties']['related']['track']['related']) &&
                     count($r['properties']['related']['track']['related']) > 0) {
                     $first_track_id = $r['properties']['related']['track']['related'][0];
-                    $t = WebmappUtils::getJsonFromAPI($this->path . '/' . $first_track_id . '.geojson');
+                    $t = WebmappUtils::getJsonFromAPI($this->path . '/' . $first_track_id . '.geojson', $this->encrypt);
                     if (isset($t['geometry']['coordinates'])) {
                         $lon = $t['geometry']['coordinates'][0][0];
                         $lat = $t['geometry']['coordinates'][0][1];
@@ -348,12 +345,28 @@ class WebmappATask extends WebmappAbstractTask
             $j = array();
             $j['type'] = 'FeatureCollection';
             $j['features'] = $features;
-            file_put_contents($this->path . '/route_index.geojson', json_encode($j));
+            $j = json_encode($j);
+            if ($this->encrypt) {
+                global $wm_config;
+                $method = $wm_config['crypt']['method'];
+                $key = $wm_config['crypt']['key'];
+                $j = openssl_encrypt($j, $method, $key);
+            }
+
+            file_put_contents($this->path . '/route_index.geojson', $j);
 
             $j = array();
             $j['type'] = 'FeatureCollection';
             $j['features'] = $fullGeometryFeatures;
-            file_put_contents($this->path . '/full_geometry_route_index.geojson', json_encode($j));
+            $j = json_encode($j);
+            if ($this->encrypt) {
+                global $wm_config;
+                $method = $wm_config['crypt']['method'];
+                $key = $wm_config['crypt']['key'];
+                $j = openssl_encrypt($j, $method, $key);
+            }
+
+            file_put_contents($this->path . '/full_geometry_route_index.geojson', $j);
 
             // // PRUNE taxonomies items
             // if(count($to_prune)>0){
@@ -419,7 +432,7 @@ class WebmappATask extends WebmappAbstractTask
             foreach ($pois as $pid => $date) {
                 $skip = false;
                 echo "\n\n\n Processing POI $pid\n";
-                $p = WebmappUtils::getJsonFromAPI($this->path . '/' . $pid . '.geojson',$this->encrypt);
+                $p = WebmappUtils::getJsonFromAPI($this->path . '/' . $pid . '.geojson', $this->encrypt);
                 if (!isset($p['geometry'])) {
                     echo "Warning no GEOMETRY: SKIPPING POI\n";
                     $skip = true;
@@ -432,7 +445,15 @@ class WebmappATask extends WebmappAbstractTask
             $j = array();
             $j['type'] = 'FeatureCollection';
             $j['features'] = $features;
-            file_put_contents($this->path . '/poi_index.geojson', json_encode($j));
+            $j = json_encode($j);
+            if ($this->encrypt) {
+                global $wm_config;
+                $method = $wm_config['crypt']['method'];
+                $key = $wm_config['crypt']['key'];
+                $j = openssl_encrypt($j, $method, $key);
+            }
+
+            file_put_contents($this->path . '/poi_index.geojson', $j);
         }
     }
 
