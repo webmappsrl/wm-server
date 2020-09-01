@@ -3,8 +3,8 @@
 namespace Symm\Gisconverter\Geometry;
 
 use Symm\Gisconverter\Exceptions\InvalidFeature;
-use Symm\Gisconverter\Exceptions\OutOfRangeLon;
 use Symm\Gisconverter\Exceptions\OutOfRangeLat;
+use Symm\Gisconverter\Exceptions\OutOfRangeLon;
 use Symm\Gisconverter\Exceptions\UnimplementedMethod;
 
 class Point extends Geometry
@@ -13,6 +13,7 @@ class Point extends Geometry
 
     private $lon;
     private $lat;
+    private $ele;
 
     public function __construct($coords)
     {
@@ -33,6 +34,9 @@ class Point extends Geometry
 
         $this->lon = (float) $lon;
         $this->lat = (float) $lat;
+        if (array_key_exists(2, $coords) && is_numeric($coords[2])) {
+            $this->ele = (float) $coords[2];
+        }
     }
 
     public function __get($property)
@@ -41,6 +45,8 @@ class Point extends Geometry
             return $this->lon;
         } elseif ($property == "lat") {
             return $this->lat;
+        } elseif ($property == "ele") {
+            return $this->ele;
         } else {
             throw new \Exception("Undefined property");
         }
@@ -53,7 +59,13 @@ class Point extends Geometry
 
     public function toKML()
     {
-        return "<" . static::name . "><coordinates>{$this->lon},{$this->lat}</coordinates></" . static::name . ">";
+        $result = "<" . static::name . "><coordinates>{$this->lon},{$this->lat}";
+        if (is_numeric($comp->ele)) {
+            $result .= ",{$comp->ele}";
+        }
+        $result .= "</coordinates></" . static::name . ">";
+
+        return $result;
     }
 
     public function toGPX($mode = null)
@@ -66,12 +78,18 @@ class Point extends Geometry
             throw new UnimplementedMethod(__FUNCTION__, get_called_class());
         }
 
+        $result = "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\"></wpt>";
+        if (is_numeric($this->ele)) {
+            $res .= "<ele>{$this->ele}</ele>";
+        }
+        $result .= "</wpt>";
+
         return "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\"></wpt>";
     }
 
     public function toGeoArray()
     {
-        return array ('type' => static::name, 'coordinates' => array($this->lon, $this->lat));
+        return array('type' => static::name, 'coordinates' => array($this->lon, $this->lat));
     }
 
     public function toGeoJSON()

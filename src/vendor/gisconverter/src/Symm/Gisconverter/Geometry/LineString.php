@@ -26,7 +26,11 @@ class LineString extends MultiPoint
             " ",
             array_map(
                 function ($comp) {
-                    return "{$comp->lon},{$comp->lat}";
+                    $result = "{$comp->lon},{$comp->lat}";
+                    if (is_numeric($comp->ele)) {
+                        $result .= ",{$comp->ele}";
+                    }
+                    return $result;
                 },
                 $this->components
             )
@@ -51,24 +55,34 @@ class LineString extends MultiPoint
                 "",
                 array_map(
                     function ($comp) {
-                        return "<trkpt lon=\"{$comp->lon}\" lat=\"{$comp->lat}\"></trkpt>";
+                        $res = "<trkpt lon=\"{$comp->lon}\" lat=\"{$comp->lat}\">";
+                        if (is_numeric($comp->ele)) {
+                            $res .= "<ele>{$comp->ele}</ele>";
+                        }
+                        $res .= "</trkpt>";
+                        return $res;
                     },
                     $this->components
                 )
             ) .
-            "</trkseg>";
+                "</trkseg>";
         } else {
             return '<rte>' .
             implode(
                 "",
                 array_map(
                     function ($comp) {
-                        return "<rtept lon=\"{$comp->lon}\" lat=\"{$comp->lat}\"></rtept>";
+                        $res = "<rtept lon=\"{$comp->lon}\" lat=\"{$comp->lat}\">";
+                        if (is_numeric($comp->ele)) {
+                            $res .= "<ele>{$comp->ele}</ele>";
+                        }
+                        $res .= "</rtept>";
+                        return $res;
                     },
                     $this->components
                 )
-            ).
-            "</rte>";
+            ) .
+                "</rte>";
         }
     }
 }
