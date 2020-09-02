@@ -54,7 +54,7 @@ echo "OK\n";
  */
 echo "Using {$route_geojson_url} file\n";
 $geojson = file_get_contents($route_geojson_url);
-json_decode($string);
+json_decode($geojson);
 
 if (json_last_error() != JSON_ERROR_NONE) {
     $dest = "{$geojson_path}/{$route_id}_temp.geojson";
@@ -67,7 +67,7 @@ if (json_last_error() != JSON_ERROR_NONE) {
     $wm_config = json_decode(file_get_contents($conf), true);
     $method = $wm_config['crypt']['method'];
     $key = $wm_config['crypt']['key'];
-    $output = openssl_decrypt($input, $method, $key);
+    $output = openssl_decrypt($geojson, $method, $key);
     file_put_contents($dest, $output);
 
     echo "OK\n";
