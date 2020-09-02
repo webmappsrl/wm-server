@@ -782,6 +782,7 @@ class WebmappUtils
      */
     public static function decrypt($input)
     {
+        global $wm_config;
         $method = $wm_config['crypt']['method'];
         $key = $wm_config['crypt']['key'];
         $output = openssl_decrypt($input, $method, $key);
