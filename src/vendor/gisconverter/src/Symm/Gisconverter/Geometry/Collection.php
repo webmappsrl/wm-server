@@ -19,9 +19,13 @@ abstract class Collection extends Geometry
     {
         $recursiveWKT = function ($geom) use (&$recursiveWKT) {
             if ($geom instanceof Point) {
-                return "{$geom->lon} {$geom->lat}";
+                $result = "{$geom->lon} {$geom->lat}";
+                if (isset($geom->ele) && is_numeric($geom->ele)) {
+                    $result .= " {$geom->ele}";
+                }
+                return $result;
             } else {
-                return "(" . implode(',', array_map($recursiveWKT, $geom->components)). ")";
+                return "(" . implode(',', array_map($recursiveWKT, $geom->components)) . ")";
             }
         };
 
@@ -33,7 +37,11 @@ abstract class Collection extends Geometry
         $recurviseJSON = function ($geom) use (&$recurviseJSON) {
 
             if ($geom instanceof Point) {
-                return array($geom->lon, $geom->lat);
+                $result = array($geom->lon, $geom->lat);
+                if (isset($geom->ele) && is_numeric($geom->ele)) {
+                    $result[] = $geom->ele;
+                }
+                return $result;
             } else {
                 return array_map($recurviseJSON, $geom->components);
             }
@@ -59,6 +67,6 @@ abstract class Collection extends Geometry
                 $this->components
             )
         )
-        . '</MultiGeometry>';
+            . '</MultiGeometry>';
     }
 }
