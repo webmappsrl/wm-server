@@ -10,6 +10,8 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
     private $routes_id = array();
     private $mbtiles_route_ids = array();
 
+    private $encrypt = false;
+
     public function check()
     {
 
@@ -41,6 +43,10 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
         if (!file_exists($this->endpoint)) {
             throw new WebmappExceptionAllRoutesTaskNoEndpoint("Directory {$this->endpoint} does not exists", 1);
+        }
+
+        if (array_key_exists('encrypt', $this->options)) {
+            $this->encrypt = $this->options['encrypt'];
         }
 
         return true;
@@ -83,7 +89,12 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             if (!file_exists($a_route_index)) {
                 throw new WebmappExceptionAllRoutesTaskNoRouteIndex();
             }
-            $all_routes = json_decode(file_get_contents($a_route_index), true);
+
+            $all_routes = file_get_contents($a_route_index);
+            if ($this->encrypt) {
+                $all_routes = WebmappUtils::decrypt($all_routes);
+            }
+            $all_routes = json_decode($all_routes, true);
             $features = $all_routes['features'];
             $new_features = array();
             foreach ($features as $feature) {
@@ -96,11 +107,19 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             $j['type'] = 'FeatureCollection';
             $j['features'] = $new_features;
             $out = $this->getRoot() . '/routes/index.geojson';
-            file_put_contents($out, json_encode($j));
+            $j = json_encode($j);
+            if ($this->encrypt) {
+                $j = WebmappUtils::encrypt($j);
+            }
+            file_put_contents($out, $j);
 
             $a_route_index = $this->endpoint . '/geojson/full_geometry_route_index.geojson';
             if (file_exists($a_route_index)) {
-                $all_routes = json_decode(file_get_contents($a_route_index), true);
+                $all_routes = file_get_contents($a_route_index);
+                if ($this->encrypt) {
+                    $all_routes = WebmappUtils::decrypt($all_routes);
+                }
+                $all_routes = json_decode($all_routes, true);
                 $features = $all_routes['features'];
                 $new_features = array();
                 foreach ($features as $feature) {
@@ -113,7 +132,11 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
                 $j['type'] = 'FeatureCollection';
                 $j['features'] = $new_features;
                 $out = $this->getRoot() . '/routes/full_geometry_route_index.geojson';
-                file_put_contents($out, json_encode($j));
+                $j = json_encode($j);
+                if ($this->encrypt) {
+                    $j = WebmappUtils::encrypt($j);
+                }
+                file_put_contents($out, $j);
             }
         }
     }
@@ -151,9 +174,10 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
 
         $src = $this->getRoot() . '/media/route_images';
         $trg = $this->endpoint . '/route';
-        $cmd = "ln -s $trg $src";
-        system($cmd);
-
+        if (!file_exists($src) && file_exists($trg)) {
+            $cmd = "ln -s $trg $src";
+            system($cmd);
+        }
     }
 
     private function processMainTaxonomies()
@@ -224,7 +248,11 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
             system($cmd);
         }
         if (file_exists($route_index)) {
-            $ja = json_decode(file_get_contents($this->endpoint . '/geojson/route_index.geojson'), true);
+            $ja = file_get_contents($this->endpoint . '/geojson/route_index.geojson');
+            if ($this->encrypt) {
+                $ja = WebmappUtils::decrypt($ja);
+            }
+            $ja = json_decode($ja, true);
             if (isset($ja['features']) && count($ja['features']) > 0) {
                 foreach ($ja['features'] as $route) {
                     $this->processRoute($route['properties']['id']);
@@ -253,7 +281,11 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
         }
 
         // LOAD ROUTE FILE
-        $ja = json_decode(file_get_contents($this->endpoint . '/geojson/' . $id . '.geojson'), true);
+        $ja = file_get_contents($this->endpoint . '/geojson/' . $id . '.geojson');
+        if ($this->encrypt) {
+            $ja = WebmappUtils::decrypt($ja);
+        }
+        $ja = json_decode($ja, true);
 
         // LOOP ON RELATED TRACK
         $activities = array();
@@ -272,7 +304,11 @@ class WebmappAllRoutesTask extends WebmappAbstractTask
                     isset($track['properties']['related']['poi']['related']) &&
                     count($track['properties']['related']['poi']['related']) > 0) {
                     foreach ($track['properties']['related']['poi']['related'] as $pid) {
-                        $poi = json_decode(file_get_contents($this->endpoint . '/geojson/' . $pid . '.geojson'), true);
+                        $poi = file_get_contents($this->endpoint . '/geojson/' . $pid . '.geojson');
+                        if ($this->encrypt) {
+                            $poi = WebmappUtils::decrypt($poi);
+                        }
+                        $poi = json_decode($poi, true);
                         if (isset($poi['properties']['taxonomy']) &&
                             isset($poi['properties']['taxonomy']['webmapp_category']) &&
                             count($poi['properties']['taxonomy']['webmapp_category']) > 0) {
