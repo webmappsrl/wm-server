@@ -321,9 +321,7 @@ class WebmappUtils
         }
 
         if ($crypt == true) {
-            $method = $wm_config['crypt']['method'];
-            $key = $wm_config['crypt']['key'];
-            $output = openssl_decrypt($output, $method, $key);
+            $output = WebmappUtils::decrypt($output);
         }
 
         return json_decode($output, true);
@@ -763,4 +761,31 @@ class WebmappUtils
 
     }
 
+    /**
+     * Encrypt the input string using the config method/key
+     *
+     * @return string the encrypted string
+     */
+    public static function encrypt($input)
+    {
+        global $wm_config;
+        $method = $wm_config['crypt']['method'];
+        $key = $wm_config['crypt']['key'];
+        $out = openssl_encrypt($input, $method, $key);
+        return $out;
+    }
+
+    /**
+     * Decrypt the input string using the config method/key
+     *
+     * @return string the decrypted string
+     */
+    public static function decrypt($input)
+    {
+        global $wm_config;
+        $method = $wm_config['crypt']['method'];
+        $key = $wm_config['crypt']['key'];
+        $output = openssl_decrypt($input, $method, $key);
+        return $output;
+    }
 }

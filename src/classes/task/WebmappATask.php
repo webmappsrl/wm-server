@@ -347,10 +347,7 @@ class WebmappATask extends WebmappAbstractTask
             $j['features'] = $features;
             $j = json_encode($j);
             if ($this->encrypt) {
-                global $wm_config;
-                $method = $wm_config['crypt']['method'];
-                $key = $wm_config['crypt']['key'];
-                $j = openssl_encrypt($j, $method, $key);
+                $j = WebmappUtils::encrypt($j);
             }
 
             file_put_contents($this->path . '/route_index.geojson', $j);
@@ -360,10 +357,7 @@ class WebmappATask extends WebmappAbstractTask
             $j['features'] = $fullGeometryFeatures;
             $j = json_encode($j);
             if ($this->encrypt) {
-                global $wm_config;
-                $method = $wm_config['crypt']['method'];
-                $key = $wm_config['crypt']['key'];
-                $j = openssl_encrypt($j, $method, $key);
+                $j = WebmappUtils::encrypt($j);
             }
 
             file_put_contents($this->path . '/full_geometry_route_index.geojson', $j);
@@ -447,10 +441,7 @@ class WebmappATask extends WebmappAbstractTask
             $j['features'] = $features;
             $j = json_encode($j);
             if ($this->encrypt) {
-                global $wm_config;
-                $method = $wm_config['crypt']['method'];
-                $key = $wm_config['crypt']['key'];
-                $j = openssl_encrypt($j, $method, $key);
+                $j = WebmappUtils::encrypt($j);
             }
 
             file_put_contents($this->path . '/poi_index.geojson', $j);
