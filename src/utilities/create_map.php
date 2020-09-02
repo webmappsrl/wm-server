@@ -1,6 +1,6 @@
 <?php
 if (count($argv) < 5) {
-    die("Usage: php create_map.php [instance_name] [route_id] [max_zoom] [min_zoom]");
+    die("Usage: php create_map.php [instance_name] [route_id] [max_zoom] [min_zoom]\n");
 }
 
 $instance = $argv[1];
@@ -11,12 +11,12 @@ $tiles_path = "/root/k.webmapp.it/{$instance}/routes/{$route_id}";
 $geojson_path = "/root/k.webmapp.it/{$argv[1]}/geojson";
 $route_geojson_url = "{$geojson_path}/{$route_id}.geojson";
 
-echo "Generating map.mbtiles for {$instance}";
-echo " Route ID    : $route_id\n";
-echo " Min zoom    : $min_zoom\n";
-echo " Max zoom    : $max_zoom\n";
-echo " Tiles path  : $tiles_path\n";
-echo " Geojson path: $geojson_path\n\n";
+echo "Generating map.mbtiles for {$instance}\n";
+echo " - Route ID    : $route_id\n";
+echo " - Min zoom    : $min_zoom\n";
+echo " - Max zoom    : $max_zoom\n";
+echo " - Tiles path  : $tiles_path\n";
+echo " - Geojson path: $geojson_path\n\n";
 
 echo "Cleaning temporary tables... ";
 $cmd = 'psql -U webmapp -d offline -h localhost -c "DROP TABLE tmp0;" > /dev/null 2>&1';
@@ -52,7 +52,26 @@ echo "OK\n";
 /**
  * Find if the geojson is crypted. If it is extract it use it and delete it
  */
-echo "Using {$route_geojson_url} file";
+echo "Using {$route_geojson_url} file\n";
+$geojson = file_get_contents($route_geojson_url);
+json_decode($string);
+
+if (json_last_error() != JSON_ERROR_NONE) {
+    $dest = "{$geojson_path}/{$route_id}_temp.geojson";
+    echo "Decrypting {$route_geojson_url} into {$dest}... ";
+
+    $conf = __DIR__ . '/config.json';
+    if (!file_exists($conf)) {
+        die("Missing configuration file {$conf}: abort");
+    }
+    $wm_config = json_decode(file_get_contents($conf), true);
+    $method = $wm_config['crypt']['method'];
+    $key = $wm_config['crypt']['key'];
+    $output = openssl_decrypt($input, $method, $key);
+    file_put_contents($dest, $output);
+
+    echo "OK\n";
+}
 
 // echo "IMPORT TRACKS $i to POSTGRES";
 // ogr2ogr -f "PostgreSQL" PG:"host=localhost dbname=offline user=webmapp" "$geojson_path/${2}.geojson" -nln tmptracks -t_srs EPSG:3857 -append
