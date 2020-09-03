@@ -20,8 +20,9 @@ abstract class Collection extends Geometry
         $recursiveWKT = function ($geom) use (&$recursiveWKT) {
             if ($geom instanceof Point) {
                 $result = "{$geom->lon} {$geom->lat}";
-                if (isset($geom->ele) && is_numeric($geom->ele)) {
-                    $result .= " {$geom->ele}";
+                $ele = $geom->ele;
+                if (isset($ele) && is_numeric($ele)) {
+                    $result .= " {$ele}";
                 }
                 return $result;
             } else {
@@ -38,8 +39,9 @@ abstract class Collection extends Geometry
 
             if ($geom instanceof Point) {
                 $result = array($geom->lon, $geom->lat);
-                if (isset($geom->ele) && is_numeric($geom->ele)) {
-                    $result[] = $geom->ele;
+                $ele = $geom->ele;
+                if (isset($ele) && is_numeric($ele)) {
+                    $result[] = $ele;
                 }
                 return $result;
             } else {

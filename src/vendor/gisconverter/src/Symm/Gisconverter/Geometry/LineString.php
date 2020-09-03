@@ -29,7 +29,7 @@ class LineString extends MultiPoint
                     $result = "{$comp->lon},{$comp->lat}";
                     $ele = $comp->ele;
                     if (isset($ele) && is_numeric($ele)) {
-                        $result .= ",{$comp->ele}";
+                        $result .= ",{$ele}";
                     }
                     return $result;
                 },
