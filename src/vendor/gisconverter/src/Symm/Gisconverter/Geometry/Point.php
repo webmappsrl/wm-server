@@ -55,8 +55,9 @@ class Point extends Geometry
     public function toWKT()
     {
         $result = "{$this->lon} {$this->lat}";
-        if (isset($this->ele) && is_numeric($this->ele)) {
-            $result .= " {$this->ele}";
+        $ele = $this->ele;
+        if (isset($ele) && is_numeric($ele)) {
+            $result .= " {$ele}";
         }
         return strtoupper(static::name) . "({$result})";
     }
@@ -64,8 +65,9 @@ class Point extends Geometry
     public function toKML()
     {
         $result = "<" . static::name . "><coordinates>{$this->lon},{$this->lat}";
-        if (isset($comp->ele) && is_numeric($comp->ele)) {
-            $result .= ",{$comp->ele}";
+        $ele = $this->ele;
+        if (isset($ele) && is_numeric($ele)) {
+            $result .= ",{$ele}";
         }
         $result .= "</coordinates></" . static::name . ">";
 
@@ -82,13 +84,14 @@ class Point extends Geometry
             throw new UnimplementedMethod(__FUNCTION__, get_called_class());
         }
 
-        $result = "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\"></wpt>";
-        if (isset($this->ele) && is_numeric($this->ele)) {
-            $res .= "<ele>{$this->ele}</ele>";
+        $result = "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\">";
+        $ele = $this->ele;
+        if (isset($ele) && is_numeric($ele)) {
+            $res .= "<ele>{$ele}</ele>";
         }
         $result .= "</wpt>";
 
-        return "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\"></wpt>";
+        return $result;
     }
 
     public function toGeoArray()
@@ -97,8 +100,9 @@ class Point extends Geometry
             $this->lon,
             $this->lat,
         );
-        if (isset($ele) && is_numeric($this->ele)) {
-            $coordinates[] = $this->ele;
+        $ele = $this->ele;
+        if (isset($ele) && is_numeric($ele)) {
+            $coordinates[] = $ele;
         }
         return array('type' => static::name, 'coordinates' => $coordinates);
     }
