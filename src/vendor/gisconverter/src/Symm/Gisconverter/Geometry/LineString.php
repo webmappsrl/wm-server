@@ -27,7 +27,8 @@ class LineString extends MultiPoint
             array_map(
                 function ($comp) {
                     $result = "{$comp->lon},{$comp->lat}";
-                    if (isset($comp->ele) && is_numeric($comp->ele)) {
+                    $ele = $comp->ele;
+                    if (isset($ele) && is_numeric($ele)) {
                         $result .= ",{$comp->ele}";
                     }
                     return $result;
@@ -56,8 +57,9 @@ class LineString extends MultiPoint
                 array_map(
                     function ($comp) {
                         $res = "<trkpt lon=\"{$comp->lon}\" lat=\"{$comp->lat}\">";
-                        if (isset($comp->ele) && is_numeric($comp->ele)) {
-                            $res .= "<ele>{$comp->ele}</ele>";
+                        $ele = $comp->ele;
+                        if (isset($ele) && is_numeric($ele)) {
+                            $res .= "<ele>{$ele}</ele>";
                         }
                         $res .= "</trkpt>";
                         return $res;
@@ -73,8 +75,9 @@ class LineString extends MultiPoint
                 array_map(
                     function ($comp) {
                         $res = "<rtept lon=\"{$comp->lon}\" lat=\"{$comp->lat}\">";
-                        if (isset($comp->ele) && is_numeric($comp->ele)) {
-                            $res .= "<ele>{$comp->ele}</ele>";
+                        $ele = $comp->ele;
+                        if (isset($ele) && is_numeric($ele)) {
+                            $res .= "<ele>{$ele}</ele>";
                         }
                         $res .= "</rtept>";
                         return $res;

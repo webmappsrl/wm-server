@@ -82,13 +82,13 @@ class Point extends Geometry
             throw new UnimplementedMethod(__FUNCTION__, get_called_class());
         }
 
-        $result = "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\"></wpt>";
+        $result = "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\">";
         if (isset($this->ele) && is_numeric($this->ele)) {
             $res .= "<ele>{$this->ele}</ele>";
         }
         $result .= "</wpt>";
 
-        return "<wpt lon=\"{$this->lon}\" lat=\"{$this->lat}\"></wpt>";
+        return $result;
     }
 
     public function toGeoArray()
