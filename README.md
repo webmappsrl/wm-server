@@ -1,5 +1,6 @@
-WEBMAPP SERVER
-==============
+# WEBMAPP SERVER v0.1.2
+
+## 1 WMCLI
 
 Script e classi per il server di WEBMAPP
 
@@ -7,7 +8,7 @@ Tutto il server si riduce alla chiamata di un unico script:
 
 php src/webmapp-server.php CONFFILE.conf
 
-CHe legge le informazioni dal file di configurazione ed esegue di conseguenza le operazioni necessarie. Il File di configurazione è un file json. Un esempio 
+Che legge le informazioni dal file di configurazione ed esegue di conseguenza le operazioni necessarie. Il File di configurazione è un file json. Un esempio
 utilizzato per i test si trova della directory data.
 
 Per gli sviluppatori:
@@ -23,20 +24,27 @@ Con Code covrage e HTML output
 phpunit --color=always --bootstrap src/autoload.php --coverage-text --coverage-html test-log --whitelist src tests/
 
 URL UTILI DEL MANUALE DI PHPUNIT
- * https://phpunit.de/manual/current/en/appendixes.assertions.html#appendixes.assertions.assertRegExp
- * https://phpunit.de/manual/current/en/textui.html
 
+- https://phpunit.de/manual/current/en/appendixes.assertions.html#appendixes.assertions.assertRegExp
+- https://phpunit.de/manual/current/en/textui.html
 
 REMOVE THIS:
 Paragraphs are separated by a blank line.
 
-2nd paragraph. *Italic*, **bold**, and `monospace`. Itemized lists
+2nd paragraph. _Italic_, **bold**, and `monospace`. Itemized lists
 look like:
 
-  * this one
-  * that one
-  * the other one
+- this one
+- that one
+- the other one
 
 > Block quotes example
-> use this 
+> use this
 
+## 2 Utilities
+
+All'interno del progetto ci sono anche una serie di utilities scollegate all'utilizzo del wmcli. Le utilities rappresentano script che possono essere eseguiti singolarmente senza dipendenze esterne.
+
+Nel progetto sono presenti le seguenti utilities:
+
+- `create_map.php`: script che genera l'mbtiles di una mappa relativa ad una route
