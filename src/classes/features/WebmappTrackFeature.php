@@ -112,7 +112,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                     $relation->getTag('source') == 'survey:CAI') {
                     $color = '#A63FD1';
                     if ($relation->hasTag('osmc:symbol') &&
-                        preg_match($red_match, $track->getProperty('osmc:symbol'))) {
+                        preg_match($red_match, $relation->getTag('osmc:symbol'))) {
                         $color = '#E35234';
                     }
                 }
