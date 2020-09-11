@@ -106,16 +106,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 $pg = WebmappPostGisOsm::Instance();
                 $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
                 $relation = new WebmappOSMRelation($osmid);
-                $red_symbols = array(
-                    'red:red:white_stripe:SI:black',
-                    'red:red:white_stripe:AV:black',
-                );
+                $red_match = '/red:red:white_stripe:[^:]+:black/';
                 $color = '#636363';
                 if ($relation->hasTag('source') &&
                     $relation->getTag('source') == 'survey:CAI') {
                     $color = '#A63FD1';
                     if ($relation->hasTag('osmc:symbol') &&
-                        in_array($relation->getTag('osmc:symbol'), $red_symbols)) {
+                        preg_match($red_match, $track->getProperty('osmc:symbol'))) {
                         $color = '#E35234';
                     }
                 }
