@@ -86,7 +86,7 @@ abstract class WebmappAbstractFeature
 
     public function hasProperty($k)
     {
-        return array_key_exists($k, $this->properties);
+        return array_key_exists($k, $this->properties) && isset($this->properties[$k]) && !empty($this->properties[$k]);
     }
 
     public function getProperty($k)
