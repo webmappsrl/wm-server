@@ -19,42 +19,6 @@ class WebmappOSMFeatureTest extends TestCase {
 		}
 	} 
 
-  	// RELATION (R): https://www.openstreetmap.org/api/0.6/relation/7454121 , https://www.openstreetmap.org/api/0.6/relation/7454121/full
-	// <relation id="7454121" visible="true" version="5" changeset="61232947" timestamp="2018-07-31T15:10:03Z" user="Gianfranco2014" uid="1928626">
-	public function testRelation() {
-		$feature = new WebmappOSMRelation(7454121);
-		$url = 'https://www.openstreetmap.org/api/0.6/relation/7454121';
-		$properties = array (
-			"id"=>"7454121",
-			"visible"=>"true",
-			"version"=>"5",
-			"changeset"=>"61232947",
-			"timestamp"=>"2018-07-31T15:10:03Z",
-			"user"=>"Gianfranco2014",
-			"uid"=>"1928626"
-			);
-		$tags=array(
-			"ascent"=>"999",
-			"descent"=>"909",
-			"duration:backward"=>"08:01",
-			"duration:forward"=>"08:10",
-			"ele:from"=>"949",
-			"ele:max"=>"1392",
-			"ele:min"=>"836",
-			"ele:to"=>"1039",
-			"from"=>"Conca di Monte Alago",
-			"name"=>"Sentiero Italia - Tappa N07",
-			"network"=>"lwn",
-			"osmc:symbol"=>"red:red:white_stripe:SI:black",
-			"ref"=>"SI",
-			"route"=>"hiking",
-			"symbol"=>"red:red:white_stripe:SI:black",
-			"to"=>"Valsorda - Rifugio Monte Maggio",
-			"type"=>"route"
-			);
-		$this->process($url,$feature,$properties,$tags);
-	}
-
 	// SUPERRELATION (SR): https://www.openstreetmap.org/api/0.6/relation/1021025
 	// <relation id="1021025" visible="true" version="57" changeset="61232947" timestamp="2018-07-31T14:58:22Z" user="Gianfranco2014" uid="1928626">
 	public function testSuperRelation() {
@@ -96,5 +60,14 @@ class WebmappOSMFeatureTest extends TestCase {
 		$this->expectException(WebmappExceptionNoOSMFeature::class);
 		$r = new WebmappOSMRelation("xxx");
 	}
+
+	public function testTrackMeta() {
+	    $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/1007');
+	    $ja = json_decode($t->getJson(),true);
+        $this->assertEquals('E',$ja['properties']['cai_scale']);
+        $this->assertEquals('Percorso 825',$ja['properties']['from']);
+        $this->assertEquals('Passo della Tabella',$ja['properties']['to']);
+        $this->assertEquals('Percorso 825 - Monte Pelpi - Passo di Monte Vacca\' - Tasola - Monte Orocco - Passo della Tabella',$ja['properties']['name']);
+    }
 
 }
