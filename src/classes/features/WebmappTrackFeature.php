@@ -123,7 +123,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                     $this->addProperty('lineDash', array(12, 8));
                 }
 
-                // TODO: ADD cai_scale
+                // TODO: Move this code to a mapping specific/mapping standard
+                $mapProperties = array("cai_scale", "name", "from", "to");
+                foreach ($mapProperties as $property) {
+                    if (!$this->hasProperty($property) && $relation->hasTag($property)) {
+                        $this->setProperty($property, $relation->getTag($property));
+                    }
+                }
 
             } catch (Exception $e) {
                 echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
