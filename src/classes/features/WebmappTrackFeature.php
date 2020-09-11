@@ -106,16 +106,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 $pg = WebmappPostGisOsm::Instance();
                 $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
                 $relation = new WebmappOSMRelation($osmid);
-                $red_symbols = array(
-                    'red:red:white_stripe:SI:black',
-                    'red:red:white_stripe:AV:black',
-                );
+                $red_match = '/red:red:white_stripe:[^:]+:black/';
                 $color = '#636363';
                 if ($relation->hasTag('source') &&
                     $relation->getTag('source') == 'survey:CAI') {
                     $color = '#A63FD1';
                     if ($relation->hasTag('osmc:symbol') &&
-                        in_array($relation->getTag('osmc:symbol'), $red_symbols)) {
+                        preg_match($red_match, $relation->getTag('osmc:symbol'))) {
                         $color = '#E35234';
                     }
                 }
@@ -126,7 +123,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                     $this->addProperty('lineDash', array(12, 8));
                 }
 
-                // TODO: ADD cai_scale
+                // TODO: Move this code to a mapping specific/mapping standard
+                $mapProperties = array("cai_scale", "name", "from", "to");
+                foreach ($mapProperties as $property) {
+                    if (!$this->hasProperty($property) && $relation->hasTag($property)) {
+                        $this->addProperty($property, $relation->getTag($property));
+                    }
+                }
 
             } catch (Exception $e) {
                 echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
