@@ -127,7 +127,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 $mapProperties = array("cai_scale", "name", "from", "to");
                 foreach ($mapProperties as $property) {
                     if (!$this->hasProperty($property) && $relation->hasTag($property)) {
-                        $this->setProperty($property, $relation->getTag($property));
+                        $this->addProperty($property, $relation->getTag($property));
                     }
                 }
 
