@@ -116,7 +116,9 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                         $color = '#E35234';
                     }
                 }
-                $this->addProperty('color', $color);
+                if (!$this->hasProperty("color") && $color) {
+                    $this->addProperty("color", $color);
+                }
 
                 // ADD lineDash for alternate
                 if ($relation->hasTag('state') && $relation->getTag('state') == 'alternate') {
@@ -124,7 +126,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 }
 
                 // TODO: Move this code to a mapping specific/mapping standard
-                $mapProperties = array("cai_scale", "name", "from", "to");
+                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash");
                 foreach ($mapProperties as $property) {
                     if (!$this->hasProperty($property) && $relation->hasTag($property)) {
                         $this->addProperty($property, $relation->getTag($property));
