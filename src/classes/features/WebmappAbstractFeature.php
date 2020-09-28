@@ -393,12 +393,18 @@ abstract class WebmappAbstractFeature
 
     protected function customSetProperty($key, $json_array, $key_map = '')
     {
-        if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+        $val = null;
+        if (isset($json_array["acf"]) && isset($json_array["acf"][$key]) && !is_null($json_array["acf"][$key])) {
+            $val = $json_array['acf'][$key];
+        } else if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+            $val = $json_array[$key];
+        }
+
+        if (!is_null($val)) {
             if ($key_map == '') {
                 $key_map = $key;
             }
 
-            $val = $json_array[$key];
             if ($val === true || $val === 'true') {
                 $val = true;
             } else if ($val === false || $val === 'false') {
