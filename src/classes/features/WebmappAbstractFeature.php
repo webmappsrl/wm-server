@@ -1,4 +1,5 @@
 <?php
+
 abstract class WebmappAbstractFeature
 {
 
@@ -143,6 +144,7 @@ abstract class WebmappAbstractFeature
         }
         return '';
     }
+
     public function getColor()
     {
         if (isset($this->properties['color'])) {
@@ -299,6 +301,13 @@ abstract class WebmappAbstractFeature
 
     }
 
+    public function mapCustomProperties($custom_array)
+    {
+        foreach ($custom_array as $key => $property) {
+            $this->customSetProperty(is_numeric($key) ? $property : $key, $this->json_array, $property);
+        }
+    }
+
     public function addImageToGallery($src, $caption = '', $id = '')
     {
         $this->properties['imageGallery'][] = array('src' => $src, 'caption' => $caption, 'id' => $id);
@@ -382,10 +391,29 @@ abstract class WebmappAbstractFeature
         $this->properties[$key_map] = $val;
     }
 
+    protected function customSetProperty($key, $json_array, $key_map = '')
+    {
+        if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+            if ($key_map == '') {
+                $key_map = $key;
+            }
+
+            $val = $json_array[$key];
+            if ($val === true || $val === 'true') {
+                $val = true;
+            } else if ($val === false || $val === 'false') {
+                $val = false;
+            }
+
+            $this->properties[$key_map] = $val;
+        }
+    }
+
     public function addProperty($key, $val)
     {
         $this->properties[$key] = $val;
     }
+
     public function removeProperty($key)
     {
         unset($this->properties[$key]);
@@ -503,8 +531,11 @@ abstract class WebmappAbstractFeature
 
     // Lat e Lng Max  e MIN (usate per il BB)
     abstract public function getLatMax();
+
     abstract public function getLatMin();
+
     abstract public function getLngMax();
+
     abstract public function getLngMin();
 
     // ARRAY pronto per essere convertito in json
@@ -544,6 +575,7 @@ abstract class WebmappAbstractFeature
         $json['geometry'] = $this->geometry;
         return $json;
     }
+
     public function getJson($lang = '')
     {
         return json_encode($this->getArrayJson($lang));
@@ -565,8 +597,11 @@ abstract class WebmappAbstractFeature
     }
 
     abstract public function writeToPostGis($instance_id = '');
+
     abstract public function addRelated($distance = 5000, $limit = 100);
+
     abstract public function addEle();
+
     // La query POSTGIS deve essere costruita in modo tale da avere i parametri ID del POI e distance POI / OGGETTO
     protected function addRelatedPoi($q)
     {
@@ -664,6 +699,7 @@ abstract class WebmappAbstractFeature
         $this->writeRelatedSpecific($path, 'route', 'related');
         $this->writeRelatedSpecific($path, 'route', 'neighbors');
     }
+
     private function writeRelatedSpecific($path, $ftype, $rtype)
     {
         if (isset($this->properties['related'][$ftype][$rtype])) {
@@ -687,8 +723,8 @@ abstract class WebmappAbstractFeature
 }
 
 /** Esempio di classe concreta che estende la classe astratta
-class WebmappPoiFeature extends WebmappAbstractFeature {
-protected function mappingSpecific($json_array) {}
-protected function mappingGeometry($json_array) {}
-}
+ * class WebmappPoiFeature extends WebmappAbstractFeature {
+ * protected function mappingSpecific($json_array) {}
+ * protected function mappingGeometry($json_array) {}
+ * }
  **/

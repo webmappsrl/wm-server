@@ -21,7 +21,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     //
     protected function mappingSpecific($json_array)
     {
-
         $this->setProperty('n7webmapp_track_color', $json_array, 'color');
         $this->setProperty('n7webmap_start', $json_array, 'from');
         $this->setProperty('n7webmap_end', $json_array, 'to');
@@ -139,8 +138,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             }
         }
     }
+
     public function setGeometry($geometry)
-    {$this->geometry = $geometry;}
+    {
+        $this->geometry = $geometry;
+    }
 
     public function getFirst()
     {
@@ -209,25 +211,33 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     }
 
     public function getLatMax()
-    {if (!$this->bb_computed) {
-        $this->computeBB();
+    {
+        if (!$this->bb_computed) {
+            $this->computeBB();
+        }
+        return $this->latMax;
     }
-        return $this->latMax;}
     public function getLatMin()
-    {if (!$this->bb_computed) {
-        $this->computeBB();
+    {
+        if (!$this->bb_computed) {
+            $this->computeBB();
+        }
+        return $this->latMin;
     }
-        return $this->latMin;}
     public function getLngMax()
-    {if (!$this->bb_computed) {
-        $this->computeBB();
+    {
+        if (!$this->bb_computed) {
+            $this->computeBB();
+        }
+        return $this->lngMax;
     }
-        return $this->lngMax;}
     public function getLngMin()
-    {if (!$this->bb_computed) {
-        $this->computeBB();
+    {
+        if (!$this->bb_computed) {
+            $this->computeBB();
+        }
+        return $this->lngMin;
     }
-        return $this->lngMin;}
 
     public function writeToPostGis($instance_id = '')
     {

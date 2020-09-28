@@ -1,4 +1,5 @@
 <?php
+
 class WebmappATask extends WebmappAbstractTask
 {
 
@@ -211,6 +212,7 @@ class WebmappATask extends WebmappAbstractTask
 
         $poi->write($this->path, $this->encrypt);
     }
+
     private function processTrack($id)
     {
         $t = new WebmappTrackFeature($this->wp->getApiTrack($id));
@@ -218,11 +220,16 @@ class WebmappATask extends WebmappAbstractTask
         $t->addRelated($this->distance, $this->limit);
         echo "postgis.";
         $t->writeToPostGis();
-        echo "3d.";
         if ($t->getGeometryType() == 'LineString') {
+            echo "3d.";
             $t->add3D();
             echo "computedProps";
             $t->setComputedProperties2();
+            $track_properties = $this->getCustomProperties("track");
+            if (isset($track_properties) && is_array($track_properties)) {
+                echo "CustomProperties.";
+                $t->mapCustomProperties($track_properties);
+            }
             echo "bbox.";
             $t->addBBox();
             echo "RBpois.";
@@ -230,6 +237,7 @@ class WebmappATask extends WebmappAbstractTask
             echo "Images.";
             $t->generateAllImages('', $this->track_path);
             $t->generateLandscapeRBImages('', $this->track_path);
+
             echo "GPX.";
             $t->writeGPX($this->track_path);
             echo "KML.";
@@ -448,4 +456,43 @@ class WebmappATask extends WebmappAbstractTask
         }
     }
 
+    /**
+     * Return an associative array with the key as the property in the json and the value the property to map it in
+     *
+     * @param $type the geometry type
+     * @return null | array with the property mapping
+     */
+    private function getCustomProperties($type)
+    {
+        if (($type !== 'poi' && $type !== 'track' && $type !== 'route') || !array_key_exists('custom_mapping', $this->options)) {
+            return null;
+        }
+
+        $properties = array();
+        $custom_mapping = $this->options["custom_mapping"];
+
+        // Map the global properties
+        foreach ($custom_mapping as $key => $property) {
+            if ($key !== 'poi' && $key !== 'track' && $key !== 'route') {
+                if (is_numeric($key)) {
+                    $properties[$property] = $property;
+                } else {
+                    $properties[$key] = $property;
+                }
+            }
+        }
+
+        // Map the properties specific for the geometry type
+        if (array_key_exists($type, $custom_mapping)) {
+            foreach ($custom_mapping[$type] as $key => $property) {
+                if (is_numeric($key)) {
+                    $properties[$property] = $property;
+                } else {
+                    $properties[$key] = $property;
+                }
+            }
+        }
+
+        return $properties;
+    }
 }
