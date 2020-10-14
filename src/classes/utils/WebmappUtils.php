@@ -2,28 +2,33 @@
 
 // CUSTOM Exceptions
 class ExceptionWebmappUtilsGPXAddEleMultipleSegments extends Exception
-{}
+{
+}
+
 class ExceptionWebmappUtilsGPXAddEleMultipleTracks extends Exception
-{}
+{
+}
+
 class WebmappUtilsExceptionsGPXNoEle extends Exception
-{}
+{
+}
 
 class WebmappUtils
 {
     /**
-    returns an has array with stats info
-    $info['tracks'] Number of tracks
-    $info['trackpoints'] Number of trackpoints
-    $info['distance'] Overall distance
-    $info['has_ele'] Has elevation info (true/false)
-    $info['ele_max']) Elevation max
-    $info['ele_min']) Elevation min
-    $info['ele_start']) Elevation @ start point
-    $info['ele_end']) Elevation @ end point
-    $info['ele_gain_positive']) D+ (from start to stop)
-    $info['ele_gain_negative']) D- (from start to stop)
-    $info['duration_forward']) Durata (solo se disponibile ELE, calcolato con sforzo equivalente)
-    $info['duration_backward']) Durata (solo se disponibile ELE, calcolato con sforzo equivalente)
+     * returns an has array with stats info
+     * $info['tracks'] Number of tracks
+     * $info['trackpoints'] Number of trackpoints
+     * $info['distance'] Overall distance
+     * $info['has_ele'] Has elevation info (true/false)
+     * $info['ele_max']) Elevation max
+     * $info['ele_min']) Elevation min
+     * $info['ele_start']) Elevation @ start point
+     * $info['ele_end']) Elevation @ end point
+     * $info['ele_gain_positive']) D+ (from start to stop)
+     * $info['ele_gain_negative']) D- (from start to stop)
+     * $info['duration_forward']) Durata (solo se disponibile ELE, calcolato con sforzo equivalente)
+     * $info['duration_backward']) Durata (solo se disponibile ELE, calcolato con sforzo equivalente)
      **/
     public static function GPXAnalyze($file)
     {
@@ -93,11 +98,11 @@ class WebmappUtils
     }
 
     /**
-    Add elevation info on GPX with no Elevation:
-    IN <trkpt lat="46.0820515873" lon="11.1021300999" />
-    OUT <trkpt lat="46.0820515873" lon="11.1021300999"><ele>194.0</ele></trkpt>
-    $in = GPX file input (no ele)
-    $out = GPX file output (with)
+     * Add elevation info on GPX with no Elevation:
+     * IN <trkpt lat="46.0820515873" lon="11.1021300999" />
+     * OUT <trkpt lat="46.0820515873" lon="11.1021300999"><ele>194.0</ele></trkpt>
+     * $in = GPX file input (no ele)
+     * $out = GPX file output (with)
      **/
     public static function GPXAddEle($in, $out)
     {
@@ -129,8 +134,8 @@ class WebmappUtils
         $xml = simplexml_load_string(file_get_contents($in));
         $points = array();
         foreach ($xml->trk->trkseg->trkpt as $pt) {
-            $lat = (float) $pt->attributes()->lat->__toString();
-            $lon = (float) $pt->attributes()->lon->__toString();
+            $lat = (float)$pt->attributes()->lat->__toString();
+            $lon = (float)$pt->attributes()->lon->__toString();
             $points[] = array($lat, $lon);
         }
         $elevations = self::getElevations($points);
@@ -182,12 +187,12 @@ class WebmappUtils
     }
 
     /**
-    $points = array (
-    array(lat1,lng1),
-    array(lat2,lng2),
-    ...
-    array(latN,lngN)
-    )
+     * $points = array (
+     * array(lat1,lng1),
+     * array(lat2,lng2),
+     * ...
+     * array(latN,lngN)
+     * )
      **/
     public static function getBingElevations($points)
     {
@@ -213,12 +218,12 @@ class WebmappUtils
 
     }
     /**
-    $points = array (
-    array(lat1,lng1),
-    array(lat2,lng2),
-    ...
-    array(latN,lngN)
-    )
+     * $points = array (
+     * array(lat1,lng1),
+     * array(lat2,lng2),
+     * ...
+     * array(latN,lngN)
+     * )
      **/
     // ATTENZIONE INPUT $points ha lat lon invertiti!
     public static function getElevations($points)
@@ -236,6 +241,7 @@ class WebmappUtils
         return $elevations;
 
     }
+
     public static function getBingElevation($lat, $lng)
     {
         $ele = self::getBingElevations(array(array($lat, $lng)));
@@ -296,6 +302,10 @@ class WebmappUtils
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
                 $output = curl_exec($ch);
+                if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+                    throw new WebmappExceptionHttpRequest(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+                    return;
+                }
                 curl_close($ch);
             } else {
                 $output = file_get_contents($url);
@@ -375,6 +385,7 @@ class WebmappUtils
         }
         return $r;
     }
+
     // Gestire la cache tramite SQLLITE
     public static function getXMLFromUrl($url)
     {
@@ -499,6 +510,7 @@ class WebmappUtils
         }
         return $text;
     }
+
     public static function getSettoriByOSMID($osmid)
     {
         $settori = '';
@@ -510,6 +522,7 @@ class WebmappUtils
         }
         return $settori;
     }
+
     public static function getSettoriIDByOSMID($osmid)
     {
         $ids = '';
@@ -530,6 +543,7 @@ class WebmappUtils
         $cmd = "psql -h 46.101.124.52 -U webmapp webmapptest -c \"DELETE FROM track_tmp\"";
         system($cmd);
     }
+
     // Crea un layer di POI generato a partire dalle ROUTE
     public static function createRouteIndexLayer($api_url)
     {
@@ -595,7 +609,8 @@ class WebmappUtils
     // Returns distance in KM (haversineGreatCircleDistance)
     // REF: https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php
     public static function distance(
-        $longitudeFrom, $latitudeFrom, $longitudeTo, $latitudeTo, $earthRadius = 6371) {
+        $longitudeFrom, $latitudeFrom, $longitudeTo, $latitudeTo, $earthRadius = 6371)
+    {
         // convert from degrees to radians
         $latFrom = deg2rad($latitudeFrom);
         $lonFrom = deg2rad($longitudeFrom);
@@ -606,7 +621,7 @@ class WebmappUtils
         $lonDelta = $lonTo - $lonFrom;
 
         $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
-            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+                cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
         return $angle * $earthRadius;
     }
 
@@ -702,9 +717,9 @@ class WebmappUtils
      * }
      * </code>
      *
-     * @param   int     $done   how many items are completed
-     * @param   int     $total  how many items are to be done total
-     * @param   int     $size   optional size of the status bar
+     * @param int $done how many items are completed
+     * @param int $total how many items are to be done total
+     * @param int $size optional size of the status bar
      * @return  void
      *
      */
@@ -725,7 +740,7 @@ class WebmappUtils
 
         $now = time();
 
-        $perc = (double) ($done / $total);
+        $perc = (double)($done / $total);
 
         $bar = floor($perc * $size);
 
