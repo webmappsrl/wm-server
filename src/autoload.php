@@ -99,3 +99,9 @@ require 'classes/simap/WebmappSIMapCSVTask.php';
 // to remove (once simap2 is concluded)
 require 'classes/custom/WebmappSIMapTask.php';
 require 'classes/custom/WebmappSIMapStatsTask.php';
+
+// HOQU
+require 'classes/hoqu/WebmappHoquServer.php';
+// Jobs
+require 'classes/jobs/WebmappAbstractJob.php';
+require 'classes/jobs/WebmappUpdatePoiJob.php';

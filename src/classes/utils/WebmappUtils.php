@@ -257,7 +257,7 @@ class WebmappUtils
             $debug = true;
         }
         if ($debug) {
-            echo "Fetching data from $url ... ";
+            WebmappUtils::verbose("Fetching data from $url...");
         }
 
         $download = true;
@@ -273,7 +273,7 @@ class WebmappUtils
                 $webcache = true;
                 $db = new SQLite3($db_file);
             } else {
-                echo "WARN: webcache db not created. Use CLI to create it.";
+                WebmappUtils::warning("WARN: webcache db not created. Use CLI to create it.");
             }
         }
 
@@ -292,6 +292,9 @@ class WebmappUtils
                     echo " cache.";
                 }
             }
+            if ($debug) {
+                echo "\n";
+            }
         }
         if ($download) {
             // switch file / URL
@@ -303,16 +306,15 @@ class WebmappUtils
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
                 $output = curl_exec($ch);
                 if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
-                    throw new WebmappExceptionHttpRequest(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+                    throw new WebmappExceptionHttpRequest("Error calling $url: " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " - " . curl_error($ch));
                     return;
                 }
                 curl_close($ch);
             } else {
                 $output = file_get_contents($url);
                 if ($debug) {
-                    echo " direct download.";
+                    WebmappUtils::verbose("Direct download.");
                 }
-
             }
 
             if ($webcache) {
@@ -325,9 +327,6 @@ class WebmappUtils
                 $s->bindParam(':time', $time);
                 $s->execute();
             }
-        }
-        if ($debug) {
-            echo "\n";
         }
 
         if ($crypt == true) {
@@ -802,5 +801,79 @@ class WebmappUtils
         $key = $wm_config['crypt']['key'];
         $output = openssl_decrypt($input, $method, $key);
         return $output;
+    }
+
+    public static $foreground = array(
+        'black' => '0;30',
+        'dark_gray' => '1;30',
+        'red' => '0;31',
+        'bold_red' => '1;31',
+        'green' => '0;32',
+        'bold_green' => '1;32',
+        'brown' => '0;33',
+        'yellow' => '1;33',
+        'blue' => '0;34',
+        'bold_blue' => '1;34',
+        'purple' => '0;35',
+        'bold_purple' => '1;35',
+        'cyan' => '0;36',
+        'bold_cyan' => '1;36',
+        'white' => '1;37',
+        'bold_gray' => '0;37',
+    );
+    public static $background = array(
+        'black' => '40',
+        'red' => '41',
+        'magenta' => '45',
+        'yellow' => '43',
+        'green' => '42',
+        'blue' => '44',
+        'cyan' => '46',
+        'light_gray' => '47',
+    );
+
+    /**
+     * Return the given string in the given color
+     *
+     * @param $string the string to color
+     * @param string $fgColor the foreground color
+     * @return string a string that if printed will appear with the given colors
+     */
+    private static function colorText($string, $fgColor = "white")
+    {
+        if (!isset(self::$foreground[$fgColor])) {
+            $fgColor = "white";
+        }
+        return "\033[" . self::$foreground[$fgColor] . 'm' . $string . "\033[0m";
+    }
+
+    public static function title($message)
+    {
+        echo WebmappUtils::colorText($message, "cyan") . "\n";
+    }
+
+    public static function success($message)
+    {
+        echo WebmappUtils::colorText($message, "green") . "\n";
+    }
+
+    public static function message($message)
+    {
+        echo "$message\n";
+    }
+
+    public static function warning($message)
+    {
+        echo WebmappUtils::colorText($message, "yellow") . "\n";
+    }
+
+    public static function error($message)
+    {
+        echo WebmappUtils::colorText($message, "red") . "\n";
+    }
+
+    public static function verbose($message)
+    {
+        echo WebmappUtils::colorText("[VERBOSE]", "bold_gray") . " $message\n";
     }
 }
