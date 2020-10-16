@@ -78,7 +78,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                 if (is_array($mappingArray)) {
                                     foreach ($mappingArray as $item) {
                                         if (is_string($item) && substr($item, 0, 1) === "$") {
-                                            if ($feature["properties"][substr($item, 1)]) {
+                                            if (array_key_exists(substr($item, 1), $feature["properties"])) {
                                                 $value .= strval($feature["properties"][substr($item, 1)]);
                                             }
                                         } else {
