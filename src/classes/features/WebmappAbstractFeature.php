@@ -26,7 +26,7 @@ abstract class WebmappAbstractFeature
 
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
-    public function __construct($array_or_url, $skip_geometry = false, $mapping)
+    public function __construct($array_or_url, $skip_geometry = false, $mapping = null)
     {
         if (!is_array($array_or_url)) {
             // E' Un URL quindi leggo API WP e converto in array
