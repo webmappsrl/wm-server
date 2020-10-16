@@ -19,7 +19,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     // Mapping dei meta specifici delle tracks
     //
-    protected function mappingSpecific($json_array)
+    protected function mappingSpecific($json_array, $mapping = null)
     {
         $this->setProperty('n7webmapp_track_color', $json_array, 'color');
         $this->setProperty('n7webmap_start', $json_array, 'from');
@@ -85,6 +85,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     }
 
     // Impostazione della geometry a partire da formato API WP
+
     /**
      * SERIALIZED: a:2:{s:4:"type";s:10:"LineString";s:11:"coordinates";a:42:{i:0;a:2:{i:0;d:5.0802517309784996;i:1;d:52.019237307
      *   JSON: { "type" : "LineString" ,
@@ -92,7 +93,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
      *                  [ 11.238753551237847, 43.55744054805567],
      *         }
      **/
-    protected function mappingGeometry($json_array)
+    protected function mappingGeometry($json_array, $mapping = null)
     {
         // TODO: controllo esistenza coordinate
 
@@ -131,7 +132,25 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                         $this->addProperty($property, $relation->getTag($property));
                     }
                 }
+                
+                if (array_key_exists("osm", $mapping) && is_array($mapping["osm"])) {
+                    foreach ($mapping["osm"] as $key => $mappingArray) {
+                        $value = "";
+                        if (is_array($mappingArray)) {
+                            foreach ($mappingArray as $item) {
+                                if (is_string($item) && substr($item, 0, 1) === "$") {
+                                    if ($relation->hasTag(substr($item, 1))) {
+                                        $value .= strval($relation->getTag(substr($item, 1)));
+                                    }
+                                } else {
+                                    $value .= strval($item);
+                                }
+                            }
+                        } else $value = strval($mappingArray);
 
+                        $this->addProperty($key, $value);
+                    }
+                }
             } catch (Exception $e) {
                 echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
                 echo "Geometry not set\n\n\n";
@@ -159,6 +178,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             $this->geometry = json_decode($pg->addEle(json_encode($this->geometry)), true);
         }
     }
+
     public function has3D()
     {
         if (empty($this->geometry)) {
@@ -217,6 +237,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
         return $this->latMax;
     }
+
     public function getLatMin()
     {
         if (!$this->bb_computed) {
@@ -224,6 +245,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
         return $this->latMin;
     }
+
     public function getLngMax()
     {
         if (!$this->bb_computed) {
@@ -231,6 +253,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
         return $this->lngMax;
     }
+
     public function getLngMin()
     {
         if (!$this->bb_computed) {
@@ -325,6 +348,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             $this->addProperty('computed', $computed);
         }
     }
+
     public function setComputedProperties2($instance_id = '')
     {
 

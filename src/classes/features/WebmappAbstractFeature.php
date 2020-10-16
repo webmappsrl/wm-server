@@ -26,7 +26,7 @@ abstract class WebmappAbstractFeature
 
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
-    public function __construct($array_or_url, $skip_geometry = false)
+    public function __construct($array_or_url, $skip_geometry = false, $mapping)
     {
         if (!is_array($array_or_url)) {
             // E' Un URL quindi leggo API WP e converto in array
@@ -61,10 +61,10 @@ abstract class WebmappAbstractFeature
         $this->json_array = $json_array;
 
         // TODO: non passare $json_array ma usare la proprietà
-        $this->mappingStandard($json_array);
-        $this->mappingSpecific($json_array);
+        $this->mappingStandard($json_array, $mapping);
+        $this->mappingSpecific($json_array, $mapping);
         if (!$skip_geometry) {
-            $this->mappingGeometry($json_array);
+            $this->mappingGeometry($json_array, $mapping);
         }
     }
 
@@ -162,7 +162,7 @@ abstract class WebmappAbstractFeature
     }
 
     // Costruisce la parte di array $properties comune a tutte le features (name, description, id)
-    private function mappingStandard($json_array)
+    private function mappingStandard($json_array, $mapping = null)
     {
         $this->setProperty('id', $json_array);
         if (isset($json_array['title'])) {
@@ -470,10 +470,10 @@ abstract class WebmappAbstractFeature
     }
 
     // Mapping delle proprietà specifiche di una feature esclusa la geometria
-    abstract protected function mappingSpecific($json_array);
+    abstract protected function mappingSpecific($json_array, $mapping = null);
 
     // Mapping della
-    abstract protected function mappingGeometry($json_array);
+    abstract protected function mappingGeometry($json_array, $mapping = null);
 
     // Force $geometry with geoJson geometry (string)
     public function setGeometryGeoJSON($geom)

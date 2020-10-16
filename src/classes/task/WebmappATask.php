@@ -19,6 +19,8 @@ class WebmappATask extends WebmappAbstractTask
 
     private $encrypt = false;
 
+    private $mapping;
+
     public function check()
     {
 
@@ -35,6 +37,10 @@ class WebmappATask extends WebmappAbstractTask
         // Controllo parametro code http://[code].be.webmapp.it
         if (array_key_exists('encrypt', $this->options)) {
             $this->encrypt = $this->options['encrypt'];
+        }
+
+        if (array_key_exists('mapping', $this->options) && is_array($this->options["mapping"])) {
+            $this->mapping = $this->options['mapping'];
         }
 
         $wp = new WebmappWP($this->options['url_or_code']);
@@ -215,7 +221,7 @@ class WebmappATask extends WebmappAbstractTask
 
     private function processTrack($id)
     {
-        $t = new WebmappTrackFeature($this->wp->getApiTrack($id));
+        $t = new WebmappTrackFeature($this->wp->getApiTrack($id), false, $this->mapping);
         echo "related.";
         $t->addRelated($this->distance, $this->limit);
         echo "postgis.";
