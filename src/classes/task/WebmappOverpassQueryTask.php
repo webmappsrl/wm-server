@@ -87,7 +87,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                     }
                                 } else $value = strval($mappingArray);
 
-                                $this->addProperty($key, $value);
+                                $feature["properties"][$key] = $value;
                             }
                         }
 
