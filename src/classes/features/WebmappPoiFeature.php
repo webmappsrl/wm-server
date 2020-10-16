@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
 // Esempio di MAPPING per la creazione di un POI
@@ -37,57 +37,60 @@ $j['n7webmap_coord']['lat']=$ja[''];
 $poi = new WebmappPoiFeature($j);
 */
 
-class WebmappPoiFeature extends WebmappAbstractFeature {
+class WebmappPoiFeature extends WebmappAbstractFeature
+{
 
-	// Mapping dei meta specifici dei punti
-	// http://dev.be.webmapp.local/wp-json/wp/v2/poi/38
-	protected function mappingSpecific($json_array) {
-		$this->setProperty('addr:street',$json_array);
-		$this->setProperty('addr:housenumber',$json_array);
-		$this->setProperty('addr:postcode',$json_array);
-		$this->setProperty('addr:city',$json_array);
-	    $this->setProperty('contact:phone',$json_array);
-	    $this->setProperty('contact:email',$json_array);
-	    $this->setProperty('opening_hours',$json_array);
-	    $this->setProperty('capacity',$json_array);
+    // Mapping dei meta specifici dei punti
+    // http://dev.be.webmapp.local/wp-json/wp/v2/poi/38
+    protected function mappingSpecific($json_array, $mapping = null)
+    {
+        $this->setProperty('addr:street', $json_array);
+        $this->setProperty('addr:housenumber', $json_array);
+        $this->setProperty('addr:postcode', $json_array);
+        $this->setProperty('addr:city', $json_array);
+        $this->setProperty('contact:phone', $json_array);
+        $this->setProperty('contact:email', $json_array);
+        $this->setProperty('opening_hours', $json_array);
+        $this->setProperty('capacity', $json_array);
         // Gestione dell'address
         if (isset($json_array['address'])) {
-            $this->setProperty('address',$json_array);
-        }
-        else if ((isset($json_array['addr:street']) && (!empty($json_array['addr:street'])))
-               &&(isset($json_array['addr:city']) && (!empty($json_array['addr:city']))) ) {
+            $this->setProperty('address', $json_array);
+        } else if ((isset($json_array['addr:street']) && (!empty($json_array['addr:street'])))
+            && (isset($json_array['addr:city']) && (!empty($json_array['addr:city'])))) {
             $num = '';
             if (isset($json_array['addr:housenumber'])) {
                 $num = $json_array['addr:housenumber'];
             }
-          $address = $json_array['addr:street'].', '.$num.' '.$json_array['addr:city'];
-          $this->properties['address'] = $address;
+            $address = $json_array['addr:street'] . ', ' . $num . ' ' . $json_array['addr:city'];
+            $this->properties['address'] = $address;
         }
-	}
+    }
 
     // Impostazione della geometry a partire da formato API WP
-    /**
-     {
-        "coordinates": [
-            10.441684,
-            43.762954999999998
-        ],
-        "type": "Point"
-    } 
-    **/
 
-	protected function mappingGeometry($json_array) {
+    /**
+     * {
+     * "coordinates": [
+     * 10.441684,
+     * 43.762954999999998
+     * ],
+     * "type": "Point"
+     * }
+     **/
+
+    protected function mappingGeometry($json_array, $mapping = null)
+    {
 
         $id = $json_array['id'];
 
-        $lat=$lng='';
+        $lat = $lng = '';
 
         // CASO n7webmap_coord
         if (isset($json_array['n7webmap_coord']) &&
             isset($json_array['n7webmap_coord']['lat']) &&
             isset($json_array['n7webmap_coord']['lng']) &&
             !empty($json_array['n7webmap_coord']['lat']) &&
-            !empty($json_array['n7webmap_coord']['lng']) ) {
+            !empty($json_array['n7webmap_coord']['lng'])) {
             $lng = $json_array['n7webmap_coord']['lng'];
             $lat = $json_array['n7webmap_coord']['lat'];
         } else if (isset($json_array['coordinates']) &&
@@ -95,41 +98,64 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
             isset($json_array['coordinates']['center_lng']) &&
             !empty($json_array['coordinates']['center_lat']) &&
             !empty($json_array['coordinates']['center_lng'])
-            ) {
+        ) {
             $lng = $json_array['coordinates']['center_lng'];
             $lat = $json_array['coordinates']['center_lat'];
         } else {
             throw new WebmappExceptionPOINoCoodinates("INVALID POI no id:$id", 1);
         }
 
-        $this->geometry['type'] = 'Point' ;
-        $this->geometry['coordinates']=array((float) $lng, (float) $lat);
-	}
-
-    public function setGeometry($lng,$lat) {
-        $this->geometry['type'] = 'Point' ;
-        $this->geometry['coordinates']=array((float) $lng, (float) $lat);        
+        $this->geometry['type'] = 'Point';
+        $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
     }
 
-    public function getLat(){
-       return $this->geometry['coordinates'][1]; 
+    public function setGeometry($lng, $lat)
+    {
+        $this->geometry['type'] = 'Point';
+        $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
     }
-    public function getLng(){
-       return $this->geometry['coordinates'][0]; 
+
+    public function getLat()
+    {
+        return $this->geometry['coordinates'][1];
     }
-    public function getLon(){
-       return $this->getLng(); 
+
+    public function getLng()
+    {
+        return $this->geometry['coordinates'][0];
     }
-    public function getLatMax(){return $this->getLat();}
-    public function getLatMin(){return $this->getLat();}
-    public function getLngMax(){return $this->getLng();}
-    public function getLngMin(){return $this->getLng();}
+
+    public function getLon()
+    {
+        return $this->getLng();
+    }
+
+    public function getLatMax()
+    {
+        return $this->getLat();
+    }
+
+    public function getLatMin()
+    {
+        return $this->getLat();
+    }
+
+    public function getLngMax()
+    {
+        return $this->getLng();
+    }
+
+    public function getLngMin()
+    {
+        return $this->getLng();
+    }
 
 
-    public function writeToPostGis($instance_id='') {
+    public function writeToPostGis($instance_id = '')
+    {
 
         // Gestione della ISTANCE ID
-        if(empty($instance_id)) {
+        if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
         }
         $id = $this->properties['id'];
@@ -137,15 +163,16 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         $lat = $this->geometry['coordinates'][1];
 
         $pg = WebmappPostGis::Instance();
-        $pg->insertPoi($instance_id,$id,$lon,$lat);
+        $pg->insertPoi($instance_id, $id, $lon, $lat);
 
     }
 
-    public function addRelated($distance=5000,$limit=100) {
-        if($limit>0) {
+    public function addRelated($distance = 5000, $limit = 100)
+    {
+        if ($limit > 0) {
             $limit = " LIMIT $limit";
         } else {
-            $limit='';
+            $limit = '';
         }
         $id = $this->properties['id'];
         $q = "SELECT poi_b.id as id, ST_Distance(poi_a.wkb_geometry, poi_b.wkb_geometry) as distance
@@ -158,9 +185,10 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
 
     // Restituisce gli id dei POI all'interno del cerchio centrato in 
     // lon lat di raggio distance
-    public function getNeighborsByLonLat($distance, $lon, $lat, $instance_id='') {
+    public function getNeighborsByLonLat($distance, $lon, $lat, $instance_id = '')
+    {
         // Gestione della ISTANCE ID
-        if(empty($instance_id)) {
+        if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
         }
         // Contruzione della query
@@ -173,30 +201,30 @@ class WebmappPoiFeature extends WebmappAbstractFeature {
         $pg = WebmappPostGis::Instance();
         $res = $pg->select($q);
         $ret = array();
-        if(is_array($res) && count($res)>0) {
+        if (is_array($res) && count($res) > 0) {
             foreach ($res as $item) {
-                $ret[]=$item['poi_id'];
+                $ret[] = $item['poi_id'];
             }
         }
         return $ret;
 
     }
 
-    public function addEle() {
-            if(isset($this->geometry['coordinates']) &&
-                count($this->geometry['coordinates'])==2) {
-                $geom = json_encode($this->geometry);
-                $pg = WebmappPostGis::Instance();
-                $geom_3d = $pg->addEle($geom);
-                $this->geometry=json_decode($geom_3d,TRUE);
+    public function addEle()
+    {
+        if (isset($this->geometry['coordinates']) &&
+            count($this->geometry['coordinates']) == 2) {
+            $geom = json_encode($this->geometry);
+            $pg = WebmappPostGis::Instance();
+            $geom_3d = $pg->addEle($geom);
+            $this->geometry = json_decode($geom_3d, TRUE);
         }
     }
 
-    public function generateImage($width,$height,$instance_id='',$path='') {
+    public function generateImage($width, $height, $instance_id = '', $path = '')
+    {
         echo "\n\nNOT YET IMPLEMENTED!\n\n";
     }
-
-
 
 
 }
