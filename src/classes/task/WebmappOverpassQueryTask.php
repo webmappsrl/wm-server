@@ -5,14 +5,11 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
     private $_path;
     private $_query;
     private $_layerName;
+    private $_mapping;
 
     public function check()
     {
         // Controllo parametro code http://[code].be.webmapp.it
-        if (!array_key_exists('url_or_code', $this->options)) {
-            throw new WebmappExceptionParameterMandatory("Missing mandatory parameter: 'url_or_code'", 1);
-        }
-
         if (!array_key_exists('query', $this->options)) {
             throw new WebmappExceptionParameterMandatory("Missing mandatory parameter: 'query'", 1);
         }
@@ -21,9 +18,14 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             throw new WebmappExceptionParameterMandatory("Missing mandatory parameter: 'layer_name'", 1);
         }
 
+
         $this->_query = $this->options["query"];
         $this->_layerName = $this->options["layer_name"];
         $this->_path = $this->project_structure->getRoot();
+
+        if (array_key_exists('mapping', $this->options) && is_array($this->options["mapping"])) {
+            $this->_mapping = $this->options["mapping"];
+        }
 
         return true;
     }
@@ -31,7 +33,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
     public function process()
     {
         try {
-            $json = $this->getOverpassJson($this->_query);
+            $json = $this->getOverpassJson();
 
             $geojson = [
                 "type" => "FeatureCollection",
@@ -70,6 +72,25 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             }
                         }
 
+                        if (is_array($this->_mapping)) {
+                            foreach ($this->_mapping as $key => $mappingArray) {
+                                $value = "";
+                                if (is_array($mappingArray)) {
+                                    foreach ($mappingArray as $item) {
+                                        if (is_string($item) && substr($item, 0, 1) === "$") {
+                                            if ($feature["properties"][$item]) {
+                                                $value .= strval($feature["properties"][$item]);
+                                            }
+                                        } else {
+                                            $value .= strval($item);
+                                        }
+                                    }
+                                } else $value = strval($mappingArray);
+
+                                $this->addProperty($key, $value);
+                            }
+                        }
+
                         $geojson["features"][] = $feature;
 
                         $id++;
@@ -91,11 +112,10 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
     /**
      * Execute the given overpass query
      *
-     * @param $query string the query
      * @return array
      * @throws WebmappException if any error occurs during the request
      */
-    private function getOverpassJson($query)
+    private function getOverpassJson()
     {
         $url = "https://overpass-api.de/api/interpreter";
         $headers = [
@@ -103,7 +123,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         ];
 
         $payload = [
-            "data" => $query
+            "data" => $this->_query
         ];
 
         $payloadString = "";
