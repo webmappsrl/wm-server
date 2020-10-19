@@ -103,7 +103,7 @@ class WebmappHoquServer
             "task_available" => JOBS_ABAILABLE,
         ];
 
-        // TODO: Make it a daemon
+        // TODO: Make it a daemon using a cuncurrency parameter
         while (true) {
             WebmappUtils::message("---------------------------------");
             $ch = $this->_getPutCurl($pullUrl, $payload);

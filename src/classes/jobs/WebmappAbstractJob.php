@@ -8,6 +8,7 @@ abstract class WebmappAbstractJob
     protected $instanceName; // Instance name
     protected $verbose; // Verbose option
     protected $wp; // WordPress backend
+    protected $aProject; // Project root
 
     public function __construct($name, $instanceUrl, $params, $verbose)
     {
@@ -21,6 +22,13 @@ abstract class WebmappAbstractJob
             $this->instanceUrl = "http://" . $instanceUrl;
             $this->instanceName = $instanceUrl;
         }
+
+        global $wm_config;
+
+        $this->aProject = new WebmappProjectStructure(
+            isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["a"])
+                ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
+                : "/var/www/html/a.webmapp.it/{$this->instanceName}");
 
         try {
             $this->params = json_decode($params, TRUE);

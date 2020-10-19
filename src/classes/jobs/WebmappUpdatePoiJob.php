@@ -19,7 +19,7 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
             WebmappUtils::verbose("Running process...");
         }
 
-        $aBase = "/var/www/html/a.webmapp.it/{$this->instanceName}";
+        $aBase = "{$this->aProject->getRoot()}";
         $id = intval($this->params['id']);
 
         try {
