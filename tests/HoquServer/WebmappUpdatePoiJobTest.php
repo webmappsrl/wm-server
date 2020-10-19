@@ -12,20 +12,12 @@ class WebmappUpdatePoiJobTest extends TestCase
             "k" => $k
         ];
 
-        if (!file_exists("{$a}")) {
-            $cmd = "mkdir {$a}";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}")) {
-            $cmd = "mkdir {$a}/{$instanceName}";
-            system($cmd);
-        }
         if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir {$a}/{$instanceName}/geojson";
+            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
             system($cmd);
         }
         if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir {$a}/{$instanceName}/taxonomies";
+            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
             system($cmd);
         }
     }
