@@ -85,6 +85,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     }
 
     // Impostazione della geometry a partire da formato API WP
+
     /**
      * SERIALIZED: a:2:{s:4:"type";s:10:"LineString";s:11:"coordinates";a:42:{i:0;a:2:{i:0;d:5.0802517309784996;i:1;d:52.019237307
      *   JSON: { "type" : "LineString" ,
@@ -157,8 +158,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         if ($this->hasGeometry()) {
             $pg = WebmappPostGis::Instance();
             $this->geometry = json_decode($pg->addEle(json_encode($this->geometry)), true);
+        } else {
+            throw new WebmappExceptionFeaturesNoGeometry("Track {$this->getId()} is missing the geometry");
         }
     }
+
     public function has3D()
     {
         if (empty($this->geometry)) {
@@ -217,6 +221,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
         return $this->latMax;
     }
+
     public function getLatMin()
     {
         if (!$this->bb_computed) {
@@ -224,6 +229,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
         return $this->latMin;
     }
+
     public function getLngMax()
     {
         if (!$this->bb_computed) {
@@ -231,6 +237,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
         return $this->lngMax;
     }
+
     public function getLngMin()
     {
         if (!$this->bb_computed) {
@@ -325,15 +332,12 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             $this->addProperty('computed', $computed);
         }
     }
+
     public function setComputedProperties2($instance_id = '')
     {
-
-        echo "\n\nStarting algorithm setComputedProperties2\n\n";
-
         if (!$this->hasGeometry()) {
-            echo "\n\n\n WARNING no geometry found track_id: {$this->getId()}\n\n\n";
+            throw new WebmappExceptionFeaturesNoGeometry("Track {$this->getId()} is missing the geometry");
             return;
-            // throw new WebmappExceptionFeaturesNoGeometry("No Geometry found");
         }
         if (!$this->has3D()) {
             $this->add3D();

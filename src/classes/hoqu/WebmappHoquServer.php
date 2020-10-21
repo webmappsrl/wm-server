@@ -1,7 +1,7 @@
 <?php
 
 define("SLEEP_TIME", 5);
-define("JOBS_ABAILABLE", ["update_poi", "update_track_metadata"]);
+define("JOBS_AVAILABLE", ["update_poi", "update_track_metadata", "update_track_geometry"]);
 define("PULL_ENDPOINT", "/api/pull");
 define("UPDATE_DONE_ENDPOINT", "/api/updateDone");
 define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
