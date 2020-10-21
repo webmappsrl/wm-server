@@ -105,3 +105,4 @@ require 'classes/hoqu/WebmappHoquServer.php';
 // Jobs
 require 'classes/jobs/WebmappAbstractJob.php';
 require 'classes/jobs/WebmappUpdatePoiJob.php';
+require 'classes/jobs/WebmappUpdateTrackMetadataJob.php';

@@ -67,10 +67,11 @@ final class WebmappPostGis
         }
         return $a;
     }
+
     // TODO: inserire anche ele
     public function insertPoi($instance_id, $poi_id, $lon, $lat)
     {
-        $poi_id = (int) $poi_id;
+        $poi_id = (int)$poi_id;
         $q = "
 		INSERT INTO poi(instance_id,poi_id, geom)
 		VALUES('$instance_id','$poi_id', ST_GeomFromText('POINT($lon $lat )', 4326))
@@ -271,7 +272,7 @@ WHERE
 EOFQUERY;
         $a = $this->select($q);
         if (count($a) > 0) {
-            return (float) $a[0]['zeta'];
+            return (float)$a[0]['zeta'];
         }
         return -1;
     }
@@ -288,15 +289,15 @@ EOFQUERY;
 
         switch ($type) {
             case 'LineString':
-                echo "Computing ele progres:     ";
+                echo "Computing ele progress:     ";
                 $tot = count($coord);
-                $count = 0 ;
+                $count = 0;
                 foreach ($coord as $l) {
                     // Progress %
-                    $perc = floor($count/$tot*100);
+                    $perc = floor($count / $tot * 100);
                     echo "\033[5D";
-                    echo str_pad($perc,3,' ',STR_PAD_LEFT)."%";
-                    $count ++;
+                    echo str_pad($perc, 3, ' ', STR_PAD_LEFT) . "%";
+                    $count++;
 
                     // CALC
                     $new_coord[] = array($l[0], $l[1], self::getEle($l[0], $l[1]));
