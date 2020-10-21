@@ -249,6 +249,13 @@ class WebmappUtils
     }
 
     // Gestire la cache tramite SQLLITE
+
+    /**
+     * @param $url
+     * @param false $crypt
+     * @return mixed|void
+     * @throws WebmappExceptionHttpRequest
+     */
     public static function getJsonFromApi($url, $crypt = false)
     {
         global $wm_config;

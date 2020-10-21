@@ -26,6 +26,12 @@ abstract class WebmappAbstractFeature
 
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
+    /**
+     * WebmappAbstractFeature constructor.
+     * @param $array_or_url
+     * @param false $skip_geometry
+     * @throws WebmappExceptionHttpRequest
+     */
     public function __construct($array_or_url, $skip_geometry = false)
     {
         if (!is_array($array_or_url)) {
@@ -472,7 +478,7 @@ abstract class WebmappAbstractFeature
     // Mapping delle proprietà specifiche di una feature esclusa la geometria
     abstract protected function mappingSpecific($json_array);
 
-    // Mapping della
+    // Mapping della geometria
     abstract protected function mappingGeometry($json_array);
 
     // Force $geometry with geoJson geometry (string)

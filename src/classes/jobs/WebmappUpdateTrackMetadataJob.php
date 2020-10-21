@@ -1,6 +1,6 @@
 <?php
 
-class WebmappUpdateTrackMetadataJob extends WebmappAbstractJob
+class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
 {
     /**
      * WebmappUpdateTrackMetadataJob constructor.
@@ -10,15 +10,11 @@ class WebmappUpdateTrackMetadataJob extends WebmappAbstractJob
      */
     public function __construct($instanceUrl, $params, $verbose = false)
     {
-        parent::__construct("update_track_metadata", $instanceUrl, $params, $verbose);
+        parent::__construct($instanceUrl, $params, $verbose, "update_track_metadata");
     }
 
     protected function process()
     {
-        if ($this->verbose) {
-            WebmappUtils::verbose("Running process...");
-        }
-
         $id = intval($this->params['id']);
 
         try {
@@ -27,13 +23,9 @@ class WebmappUpdateTrackMetadataJob extends WebmappAbstractJob
                 WebmappUtils::verbose("Loading track from {$this->instanceUrl}/wp-json/wp/v2/track/{$id}...");
             }
             $track = new WebmappTrackFeature("$this->instanceUrl/wp-json/wp/v2/track/{$id}");
-            $metadataJson = json_decode($track->getJson(), true)["properties"];
-            $geometryMetadataProperties = ['computed', 'distance', 'ascent', 'descent', 'ele:from', 'ele:to', 'ele:min', 'ele:max', 'bbox', 'bbox_metric'];
-            foreach ($geometryMetadataProperties as $property) {
-                if (isset($metadataJson[$property])) {
-                    unset($metadataJson[$property]);
-                }
-            }
+            $track = $this->_addMetadataToTrack($track);
+
+            $metadataJson = $track->getProperties();
 
             $json = null;
             // Merge current geometry computed properties
@@ -45,7 +37,7 @@ class WebmappUpdateTrackMetadataJob extends WebmappAbstractJob
                 if (isset($currentGeojson["properties"])) {
                     $currentMetadata = $currentGeojson["properties"];
 
-                    foreach ($geometryMetadataProperties as $key) {
+                    foreach (GEOMETRY_METADATA_PROPERTIES as $key) {
                         if (array_key_exists($key, $currentMetadata)) {
                             $metadataJson[$key] = $currentMetadata[$key];
                         }
@@ -65,19 +57,13 @@ class WebmappUpdateTrackMetadataJob extends WebmappAbstractJob
                 WebmappUtils::verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson...");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", json_encode($json));
-            
+
             $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
             $this->_setTaxonomies($id, $taxonomies, "track");
-        } catch (WebmappExceptionPOINoCoodinates $e) {
-            throw new WebmappExceptionPOINoCoodinates("The poi with id {$id} is missing the coordinates");
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the poi with id {$id} does not exists");
         } catch (Exception $e) {
             throw new WebmappException("An unknown error occurred: " . json_encode($e));
-        }
-
-        if ($this->verbose) {
-            WebmappUtils::verbose("Process completed");
         }
     }
 }

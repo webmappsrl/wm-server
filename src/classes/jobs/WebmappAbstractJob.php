@@ -74,7 +74,6 @@ abstract class WebmappAbstractJob
      * @param $id number the post id
      * @param $taxonomies array the taxonomies array
      * @param $postType string the post type for the id
-     * @throws WebmappExceptionHttpRequest
      */
     protected function _setTaxonomies($id, $taxonomies, $postType = "poi")
     {

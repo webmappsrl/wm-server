@@ -15,10 +15,6 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
 
     protected function process()
     {
-        if ($this->verbose) {
-            WebmappUtils::verbose("Running process...");
-        }
-
         $id = intval($this->params['id']);
 
         try {
@@ -43,10 +39,6 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the poi with id {$id} does not exists");
         } catch (Exception $e) {
             throw new WebmappException("An unknown error occurred: " . json_encode($e));
-        }
-
-        if ($this->verbose) {
-            WebmappUtils::verbose("Process completed");
         }
     }
 }

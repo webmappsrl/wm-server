@@ -1,7 +1,7 @@
 <?php
 
 define("SLEEP_TIME", 5);
-define("JOBS_AVAILABLE", ["update_poi", "update_track_metadata", "update_track_geometry"]);
+define("JOBS_AVAILABLE", ["update_poi", "update_track", "update_track_metadata", "update_track_geometry"]);
 define("PULL_ENDPOINT", "/api/pull");
 define("UPDATE_DONE_ENDPOINT", "/api/updateDone");
 define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
@@ -100,7 +100,7 @@ class WebmappHoquServer
 
         $payload = [
             "id_server" => $this->serverId,
-            "task_available" => JOBS_ABAILABLE,
+            "task_available" => JOBS_AVAILABLE,
         ];
 
         // TODO: Make it a daemon using a cuncurrency parameter
@@ -134,17 +134,23 @@ class WebmappHoquServer
                             $startTime = round(microtime(true) * 1000);
                             WebmappUtils::title("Starting new {$jobType} job");
                             $a = new $jobClass($job['instance'], $job['parameters'], $this->verbose);
+                            if ($this->verbose) {
+                                WebmappUtils::verbose("Running process...");
+                            }
                             $a->run();
+                            if ($this->verbose) {
+                                WebmappUtils::verbose("Process completed");
+                            }
                             $this->_jobCompleted(true, $job['id']);
                             $endTime = round(microtime(true) * 1000);
                             $duration = ($endTime - $startTime) / 1000;
                             WebmappUtils::success("Job {$job['id']} completed in {$duration}");
                         } catch (Exception $e) {
-                            WebmappUtils::error("Job error: {$job['id']} - {$e->getMessage()}");
+                            WebmappUtils::error("Error executing job {$job['id']}: {$e->getMessage()}");
                             $this->_jobCompleted(false, $job['id'], $e->getMessage());
                         }
                     } else {
-                        WebmappUtils::error("Job error: {$job['id']} - Job not supported");
+                        WebmappUtils::error("Error executing job {$job['id']} - Job not supported");
                         $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
                     }
                 } else {

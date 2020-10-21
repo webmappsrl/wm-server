@@ -337,6 +337,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     /**
      * @param string $instance_id
      * @throws WebmappExceptionFeaturesNoGeometry
+     * @throws WebmappExceptionGeoJsonBadGeomType
      */
     public function setComputedProperties2($instance_id = '')
     {

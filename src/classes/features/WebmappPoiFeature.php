@@ -77,6 +77,10 @@ class WebmappPoiFeature extends WebmappAbstractFeature
      * }
      **/
 
+    /**
+     * @param $json_array
+     * @throws WebmappExceptionPOINoCoodinates
+     */
     protected function mappingGeometry($json_array)
     {
 
