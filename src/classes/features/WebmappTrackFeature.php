@@ -153,13 +153,14 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         return array();
     }
 
+    /**
+     * @throws WebmappExceptionGeoJsonBadGeomType
+     */
     public function add3D()
     {
         if ($this->hasGeometry()) {
             $pg = WebmappPostGis::Instance();
             $this->geometry = json_decode($pg->addEle(json_encode($this->geometry)), true);
-        } else {
-            throw new WebmappExceptionFeaturesNoGeometry("Track {$this->getId()} is missing the geometry");
         }
     }
 
@@ -333,6 +334,10 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
     }
 
+    /**
+     * @param string $instance_id
+     * @throws WebmappExceptionFeaturesNoGeometry
+     */
     public function setComputedProperties2($instance_id = '')
     {
         if (!$this->hasGeometry()) {

@@ -276,9 +276,12 @@ EOFQUERY;
         }
         return -1;
     }
-
-    // $geom = stringa della geometria geojson SENZA altezza
-    // RETURN = stringa arricchita con altezza
+    
+    /**
+     * @param string $geom string containing the encoded geometry without 3D
+     * @return false|string containing the geometry with 3D
+     * @throws WebmappExceptionGeoJsonBadGeomType
+     */
     public function addEle($geom)
     {
         // TODO check $geom

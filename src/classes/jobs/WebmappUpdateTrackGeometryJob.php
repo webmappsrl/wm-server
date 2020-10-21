@@ -34,10 +34,6 @@ class WebmappUpdateTrackGeometryJob extends WebmappAbstractJob
             $track->writeToPostGis();
             if ($track->getGeometryType() == 'LineString') {
                 try {
-//                if ($this->verbose) {
-//                    WebmappUtils::verbose("Adding 3D");
-//                }
-//                $track->add3D();
                     if ($this->verbose) {
                         WebmappUtils::verbose("Adding 3D and computed properties");
                     }
