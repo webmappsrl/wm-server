@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WebmappUpdateTrackGeometryJobTest extends TestCase
+class WebmappUpdateTrackMetadataJobTest extends TestCase
 {
     private function _createProjectStructure($a, $k, $instanceName)
     {
@@ -38,7 +38,7 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
-        $job = new WebmappUpdateTrackGeometryJob($instanceUrl, $params, false);
+        $job = new WebmappUpdateTrackMetadataJob($instanceUrl, $params, false);
         try {
             $job->run();
         } catch (Exception $e) {
@@ -58,10 +58,6 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertArrayHasKey("coordinates", $file["geometry"]);
         $this->assertIsArray($file["geometry"]["coordinates"]);
         $this->assertTrue(count($file["geometry"]["coordinates"]) > 0);
-        foreach ($file["geometry"]["coordinates"] as $coordinate) {
-            $this->assertIsArray($coordinate);
-            $this->assertTrue(count($coordinate) == 3);
-        }
         $this->assertArrayHasKey("properties", $file);
         $this->assertIsArray($file["properties"]);
         $this->assertArrayHasKey("id", $file["properties"]);
@@ -73,7 +69,6 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"), true);
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
-
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
         $this->assertIsArray($file);
@@ -109,20 +104,20 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $instanceUrl = "http://elm.be.webmapp.it";
         $instanceName = "elm.be.webmapp.it";
         $id = 2036;
-        $testName = "Test track OSMID - Test";
-        $testAscent = 0;
-        $testFirstCoordinates = [];
-        $testGeometryType = '';
+        $testName = '';
+        $testAscent = 100000;
+        $testFirstCoordinates = [0, 0, 0];
+        $testGeometryType = 'MultiLineString';
 
         $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
-        $job = new WebmappUpdateTrackGeometryJob($instanceUrl, $params, false);
+        $job = new WebmappUpdateTrackMetadataJob($instanceUrl, $params, false);
         try {
             $job->run();
 
-            // Simulate a change of taxonomies - this task should not overwrite
-            // the taxonomies but only generate them if absent
+            // Simulate a change of taxonomies - this task should overwrite
+            // the taxonomies
             $file = [
                 100 => [
                     "items" => [
@@ -135,15 +130,13 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
             file_put_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json", json_encode($file));
 
             // Simulate a wrong set of data - name, ascent, first coordinates and geometry type
-            // this job should change everything back except from the name
+            // this job should change back only the name
             $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
-            $file["properties"]["name"] = $testName;
-            $testAscent = $file["properties"]["ascent"];
-            $file["properties"]["ascent"] = 100000;
-            $testFirstCoordinates = $file["geometry"]["coordinates"][0];
-            $file["geometry"]["coordinates"][0] = [0, 0];
-            $testGeometryType = $file["geometry"]["type"];
-            $file["geometry"]["type"] = "Point";
+            $testName = $file["properties"]["name"];
+            $file["properties"]["name"] = "Test track OSMID - Test";
+            $file["properties"]["ascent"] = $testAscent;
+            $file["geometry"]["coordinates"][0] = $testFirstCoordinates;
+            $file["geometry"]["type"] = $testGeometryType;
             file_put_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson", json_encode($file));
 
             // Run this twice to force the files overwrite
@@ -171,9 +164,9 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertArrayHasKey("id", $file["properties"]);
         $this->assertSame($file["properties"]["id"], $id);
         $this->assertArrayHasKey("name", $file["properties"]);
-        $this->assertSame($file["properties"]["name"], $testName); // Has not changed since the manual change
+        $this->assertSame($file["properties"]["name"], $testName); // Has changed back since the manual change
         $this->assertArrayHasKey("ascent", $file["properties"]);
-        $this->assertSame($file["properties"]["ascent"], $testAscent); // Has changed back since the manual change
+        $this->assertSame($file["properties"]["ascent"], $testAscent); // Has not changed since the manual change
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
@@ -188,7 +181,7 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"), true);
         $this->assertIsArray($file);
-        $this->assertTrue(count($file) == 1); // The fake taxonomy should still be here
+        $this->assertSame(count($file), 0); // The fake taxonomy should have been removed
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/when.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/when.json"), true);
         $this->assertIsArray($file);
