@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WebmappUpdatePoiJobTest extends TestCase
+class WebmappUpdateTrackGeometryJobTest extends TestCase
 {
     private function _createProjectStructure($a, $k, $instanceName)
     {
@@ -33,12 +33,12 @@ class WebmappUpdatePoiJobTest extends TestCase
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
         $instanceName = "elm.be.webmapp.it";
-        $id = 1459;
+        $id = 2036;
 
         $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
-        $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
+        $job = new WebmappUpdateTrackGeometryJob($instanceUrl, $params, false);
         try {
             $job->run();
         } catch (Exception $e) {
@@ -54,32 +54,36 @@ class WebmappUpdatePoiJobTest extends TestCase
         $this->assertArrayHasKey("geometry", $file);
         $this->assertIsArray($file["geometry"]);
         $this->assertArrayHasKey("type", $file["geometry"]);
-        $this->assertSame($file["geometry"]["type"], "Point");
+        $this->assertSame($file["geometry"]["type"], "LineString");
         $this->assertArrayHasKey("coordinates", $file["geometry"]);
         $this->assertIsArray($file["geometry"]["coordinates"]);
         $this->assertTrue(count($file["geometry"]["coordinates"]) >= 2);
+        foreach ($file["geometry"]["coordinates"] as $coordinate) {
+            $this->assertIsArray($coordinate);
+            $this->assertTrue(count($coordinate) == 3);
+        }
         $this->assertArrayHasKey("properties", $file);
         $this->assertIsArray($file["properties"]);
         $this->assertArrayHasKey("id", $file["properties"]);
         $this->assertSame($file["properties"]["id"], $id);
         $this->assertArrayHasKey("name", $file["properties"]);
-        $this->assertSame($file["properties"]["name"], "Sveti martin church");
+        $this->assertSame($file["properties"]["name"], "Test track OSMID");
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"), true);
         $this->assertIsArray($file);
-        $this->assertArrayHasKey(161, $file);
-        $this->assertIsArray($file[161]);
-        $this->assertArrayHasKey("items", $file[161]);
-        $this->assertIsArray($file[161]["items"]);
-        $this->assertArrayHasKey("poi", $file[161]["items"]);
-        $this->assertIsArray($file[161]["items"]["poi"]);
-        $this->assertContains($id, $file[161]["items"]["poi"]);
+        $this->assertSame(count($file), 0);
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
         $this->assertIsArray($file);
-        $this->assertSame(count($file), 0);
+        $this->assertArrayHasKey(127, $file);
+        $this->assertIsArray($file[127]);
+        $this->assertArrayHasKey("items", $file[127]);
+        $this->assertIsArray($file[127]["items"]);
+        $this->assertArrayHasKey("track", $file[127]["items"]);
+        $this->assertIsArray($file[127]["items"]["track"]);
+        $this->assertContains($id, $file[127]["items"]["track"]);
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"), true);
         $this->assertIsArray($file);
@@ -104,26 +108,43 @@ class WebmappUpdatePoiJobTest extends TestCase
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
         $instanceName = "elm.be.webmapp.it";
-        $id = 1459;
+        $id = 2036;
+        $testName = "Test track OSMID - Test";
+        $ascent = 0;
+        $firstCoordinates = [];
+        $geometryType = '';
 
         $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
-        $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
+        $job = new WebmappUpdateTrackGeometryJob($instanceUrl, $params, false);
         try {
             $job->run();
 
-            // Simulate a change of taxonomies
+            // Simulate a change of taxonomies - this task should not overwrite
+            // the taxonomies but only generate them if absent
             $file = [
                 100 => [
                     "items" => [
-                        "poi" => [
+                        "track" => [
                             $id
                         ]
                     ]
                 ]
             ];
             file_put_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json", json_encode($file));
+
+            // Simulate a wrong set of data - name, ascent, first coordinates and geometry type
+            // this job should change everything back except from the name
+            $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+            $file["properties"]["name"] = $testName;
+            $ascent = $file["properties"]["ascent"];
+            $file["properties"]["ascent"] = 100000;
+            $firstCoordinates = $file["geometry"]["coordinates"][0];
+            $file["geometry"]["coordinates"][0] = [0, 0];
+            $geometryType = $file["geometry"]["type"];
+            $file["geometry"]["type"] = "Point";
+            file_put_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson", json_encode($file));
 
             // Run this twice to force the files overwrite
             $job->run();
@@ -140,36 +161,34 @@ class WebmappUpdatePoiJobTest extends TestCase
         $this->assertArrayHasKey("geometry", $file);
         $this->assertIsArray($file["geometry"]);
         $this->assertArrayHasKey("type", $file["geometry"]);
-        $this->assertSame($file["geometry"]["type"], "Point");
+        $this->assertSame($file["geometry"]["type"], $geometryType);
         $this->assertArrayHasKey("coordinates", $file["geometry"]);
         $this->assertIsArray($file["geometry"]["coordinates"]);
-        $this->assertTrue(count($file["geometry"]["coordinates"]) >= 2);
+        $this->assertTrue(count($file["geometry"]["coordinates"]) > 1);
+        $this->assertTrue(json_encode($file["geometry"]["coordinates"][0]) == json_encode($firstCoordinates));
         $this->assertArrayHasKey("properties", $file);
         $this->assertIsArray($file["properties"]);
         $this->assertArrayHasKey("id", $file["properties"]);
         $this->assertSame($file["properties"]["id"], $id);
         $this->assertArrayHasKey("name", $file["properties"]);
-        $this->assertSame($file["properties"]["name"], "Sveti martin church");
-
-        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"));
-        $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"), true);
-        $this->assertIsArray($file);
-        $this->assertArrayHasKey(161, $file);
-        $this->assertIsArray($file[161]);
-        $this->assertArrayHasKey("items", $file[161]);
-        $this->assertIsArray($file[161]["items"]);
-        $this->assertArrayHasKey("poi", $file[161]["items"]);
-        $this->assertIsArray($file[161]["items"]["poi"]);
-        $this->assertContains($id, $file[161]["items"]["poi"]);
+        $this->assertSame($file["properties"]["name"], $testName); // Has not changed since the manual change
+        $this->assertArrayHasKey("ascent", $file["properties"]);
+        $this->assertSame($file["properties"]["ascent"], $ascent); // Has not changed since the manual change
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
         $this->assertIsArray($file);
-        $this->assertSame(count($file), 0);
+        $this->assertArrayHasKey(127, $file);
+        $this->assertIsArray($file[127]);
+        $this->assertArrayHasKey("items", $file[127]);
+        $this->assertIsArray($file[127]["items"]);
+        $this->assertArrayHasKey("track", $file[127]["items"]);
+        $this->assertIsArray($file[127]["items"]["track"]);
+        $this->assertContains($id, $file[127]["items"]["track"]);
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"), true);
         $this->assertIsArray($file);
-        $this->assertSame(count($file), 0);
+        $this->assertTrue(count($file) == 1); // The fake taxonomy should still be here
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/when.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/when.json"), true);
         $this->assertIsArray($file);
