@@ -108,3 +108,4 @@ require 'classes/jobs/WebmappUpdatePoiJob.php';
 require 'classes/jobs/WebmappUpdateTrackJob.php';
 require 'classes/jobs/WebmappUpdateTrackMetadataJob.php';
 require 'classes/jobs/WebmappUpdateTrackGeometryJob.php';
+require 'classes/jobs/WebmappUpdateRouteJob.php';

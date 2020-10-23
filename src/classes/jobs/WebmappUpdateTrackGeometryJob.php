@@ -20,9 +20,9 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
         try {
             // Load track from be
             if ($this->verbose) {
-                WebmappUtils::verbose("Loading track from {$this->instanceUrl}/wp-json/wp/v2/track/{$id}");
+                WebmappUtils::verbose("Loading track from {$this->wp->getApiTrack($id)}");
             }
-            $track = new WebmappTrackFeature("$this->instanceUrl/wp-json/wp/v2/track/{$id}");
+            $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
             $track = $this->_addGeometryToTrack($track);
             $json = json_decode($track->getJson(), true);
 
@@ -63,7 +63,7 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
         } catch (WebmappExceptionGeoJsonBadGeomType $e) {
             throw new WebmappExceptionHttpRequest("The track {$id} Has a wrong geometry type: " . $e->getMessage());
         } catch (WebmappExceptionHttpRequest $e) {
-            throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the poi with id {$id} does not exists");
+            throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists");
         } catch (Exception $e) {
             throw new WebmappException("An unknown error occurred: " . json_encode($e));
         }

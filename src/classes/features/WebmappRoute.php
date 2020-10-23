@@ -16,7 +16,14 @@ class WebmappRoute
     // Array con le lingue presenti
     private $languages = array();
 
-    public function __construct($array_or_url, $base_url = '')
+    /**t
+     * WebmappRoute constructor.
+     * @param $array_or_url
+     * @param string $base_url
+     * @param false $skip_tracks
+     * @throws WebmappExceptionHttpRequest
+     */
+    public function __construct($array_or_url, $base_url = '', $skip_tracks = false)
     {
         if (is_array($array_or_url)) {
             $this->json_array = $array_or_url;
@@ -84,10 +91,10 @@ class WebmappRoute
         }
 
         // TODO: STAGES
-        if (isset($this->json_array['n7webmap_route_related_track']) &&
+        if (!$skip_tracks && isset($this->json_array['n7webmap_route_related_track']) &&
             is_array($this->json_array['n7webmap_route_related_track']) &&
             count($this->json_array['n7webmap_route_related_track']) > 0) {
-            $this->loadTracks();
+            $this->_loadTracks();
             $this->properties['stages'] = count($this->json_array['n7webmap_route_related_track']);
         } else {
             $this->properties['stages'] = 0;
@@ -178,7 +185,12 @@ class WebmappRoute
         return array();
     }
 
-    private function loadTracks()
+    public function getApiTracks()
+    {
+        return $this->json_array['n7webmap_route_related_track'];
+    }
+
+    private function _loadTracks()
     {
         if (isset($this->json_array['n7webmap_route_related_track']) &&
             is_array($this->json_array['n7webmap_route_related_track']) &&
@@ -200,6 +212,28 @@ class WebmappRoute
             is_array($this->json_array[$name]) &&
             count($this->json_array[$name]) > 0) {
             $this->properties['taxonomy'][$name] = array_values(array_unique($this->json_array[$name]));
+        }
+    }
+
+    public function buildPropertiesAndFeaturesFromTracksGeojson($tracks)
+    {
+        $this->properties['id'] = $this->id;
+        $this->properties['name'] = $this->title;
+        $this->properties['description'] = $this->description;
+        if (count($tracks) > 0) {
+            $dist = $asc = $desc = 0;
+            $related = array();
+            foreach ($tracks as $track) {
+                $dist += $track["properties"]["distance"];
+                $asc += $track["properties"]["ascent"];
+                $desc += $track["properties"]["descent"];
+                $this->features[] = $track;
+                $related[] = $track["properties"]["id"];
+            }
+            $this->properties['descent'] = $desc;
+            $this->properties['ascent'] = $asc;
+            $this->properties['distance'] = $dist;
+            $this->properties['related']['track']['related'] = $related;
         }
     }
 
@@ -235,6 +269,62 @@ class WebmappRoute
         $json['type'] = 'FeatureCollection';
         $json['properties'] = $this->properties;
         $json['features'] = $this->features;
+        return json_encode($json);
+    }
+
+    public function getPoiJson()
+    {
+        $json = array();
+        $json['type'] = 'Feature';
+        $json['properties'] = $this->properties;
+        $json['geometry'] = [
+            "type" => "Point",
+            "coordinates" => []
+        ];
+
+        if (count($this->features) > 0) {
+            foreach ($this->features as $feature) {
+                if (isset($feature["geometry"]) && isset($feature["geometry"]["coordinates"]) && isset($feature["geometry"]["coordinates"][0]) && is_array($feature["geometry"]["coordinates"][0])) {
+                    $json["geometry"]["coordinates"] = $feature["geometry"]["coordinates"][0];
+                    break;
+                }
+            }
+        }
+
+        return json_encode($json);
+    }
+
+    public function getTrackJson()
+    {
+        $json = array();
+        $json["type"] = "Feature";
+        $json["properties"] = $this->properties;
+        $json["geometry"] = [
+            "type" => "MultiLineString",
+            "coordinates" => []
+        ];
+
+        if (count($this->features) > 0) {
+            if (count($this->features) === 1) {
+                $json["geometry"]["type"] = "LineString";
+                if (isset($feature["geometry"]) &&
+                    isset($feature["geometry"]["coordinates"]) &&
+                    isset($feature["geometry"]["type"]) &&
+                    $feature["geometry"]["type"] === "LineString") {
+                    $json["geometry"]["coordinates"] = $feature["geometry"]["coordinates"];
+                }
+            } else {
+                foreach ($this->features as $feature) {
+                    if (isset($feature["geometry"]) &&
+                        isset($feature["geometry"]["coordinates"]) &&
+                        isset($feature["geometry"]["type"]) &&
+                        $feature["geometry"]["type"] === "LineString") {
+                        $json["geometry"]["coordinates"][] = $feature["geometry"]["coordinates"];
+                    }
+                }
+            }
+        }
+
         return json_encode($json);
     }
 
@@ -321,7 +411,7 @@ class WebmappRoute
     {
 
         if (count($this->tracks) == 0) {
-            $this->loadTracks();
+            $this->_loadTracks();
         }
 
         if (empty($instance_id)) {
