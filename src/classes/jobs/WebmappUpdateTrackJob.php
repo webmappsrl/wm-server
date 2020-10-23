@@ -36,6 +36,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 
             $taxonomies = $track->hasProperty("taxonomy") && is_array($track->getProperty("taxonomy")) ? $track->getProperty("taxonomy") : [];
             $this->_setTaxonomies($id, $taxonomies, "track");
+
+            $this->_updateKProjects("track", $id, $track->getJson());
         } catch (WebmappExceptionFeaturesNoGeometry $e) {
             throw new WebmappExceptionHttpRequest("The track {$id} is missing the geometry");
         } catch (WebmappExceptionGeoJsonBadGeomType $e) {

@@ -58,6 +58,8 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
                 WebmappUtils::verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", json_encode($json));
+
+            $this->_updateKProjects("track", $id, json_encode($json));
         } catch (WebmappExceptionFeaturesNoGeometry $e) {
             throw new WebmappExceptionHttpRequest("The track {$id} is missing the geometry");
         } catch (WebmappExceptionGeoJsonBadGeomType $e) {

@@ -6,9 +6,13 @@ abstract class WebmappAbstractJob
     protected $params; // Job params
     protected $instanceUrl; // Job instance url
     protected $instanceName; // Instance name
+    protected $instanceCode; // Instance code
     protected $verbose; // Verbose option
     protected $wp; // WordPress backend
     protected $aProject; // Project root
+    protected $kProjects; // Projects root of the various possible K
+    protected $storeToken; // Token to create other jobs
+    protected $hoquBaseUrl; // Token to create other jobs
 
     public function __construct($name, $instanceUrl, $params, $verbose)
     {
@@ -30,10 +34,27 @@ abstract class WebmappAbstractJob
                 ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
                 : "/var/www/html/a.webmapp.it/{$this->instanceName}");
 
+        $this->kProjects = [];
+        $kBaseUrl = isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["k"])
+            ? "{$wm_config["endpoint"]["k"]}"
+            : "/var/www/html/k.webmapp.it";
+        if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
+            foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
+                $this->kProjects[] = new WebmappProjectStructure("{$kBaseUrl}/$kName");
+            }
+        }
+
         try {
             $this->params = json_decode($params, TRUE);
         } catch (Exception $e) {
             $this->params = array();
+        }
+
+        if (isset($wm_config["hoqu"]["url"])) {
+            $this->hoquBaseUrl = $wm_config["hoqu"]["url"];
+        }
+        if (isset($wm_config["hoqu"]["store_token"])) {
+            $this->storeToken = $wm_config["hoqu"]["store_token"];
         }
 
         $this->wp = new WebmappWP($this->instanceUrl);
@@ -50,7 +71,11 @@ abstract class WebmappAbstractJob
     {
         $startTime = round(microtime(true) * 1000);
         if ($this->verbose) {
-            WebmappUtils::title("[{$this->name} JOB] Starting");
+            if (isset($this->params["id"])) {
+                WebmappUtils::title("[{$this->name} JOB] Starting generation of {$this->params['id']}");
+            } else {
+                WebmappUtils::title("[{$this->name} JOB] Starting");
+            }
         }
         if ($this->verbose) {
             WebmappUtils::verbose("start time: $startTime");
@@ -61,7 +86,9 @@ abstract class WebmappAbstractJob
         if ($this->verbose) {
             WebmappUtils::verbose("end time: $endTime");
         }
-        if ($this->verbose) {
+        if (isset($this->params["id"])) {
+            WebmappUtils::success("[{$this->name} JOB] Completed generation of {$this->params['id']} in {$duration} seconds");
+        } else {
             WebmappUtils::success("[{$this->name} JOB] Completed in {$duration} seconds");
         }
     }
@@ -157,5 +184,88 @@ abstract class WebmappAbstractJob
             }
             file_put_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($taxonomyJson));
         }
+    }
+
+    /**
+     * Write the file in the k projects if needed
+     *
+     * @param string $postType the post type
+     * @param int $id the post id
+     * @param string $json the content to write
+     */
+    protected function _updateKProjects(string $postType, int $id, string $json)
+    {
+        if (count($this->kProjects) > 0) {
+            if ($this->verbose) {
+                WebmappUtils::verbose("Updating k projects...");
+            }
+            if (in_array($postType, ["poi", "track"])) {
+                foreach ($this->kProjects as $kProject) {
+                    if ($this->verbose) {
+                        WebmappUtils::verbose("  {$kProject->getRoot()}");
+                    }
+                    if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
+                        $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
+                        if (isset($conf["multimap"]) && $conf["multimap"] === true) {
+                            file_put_contents("{$kProject->getRoot()}/geojson/{$id}.geojson", $json);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Perform a store operation to hoqu
+     *
+     * @param string $job the job name
+     * @param array $params the array of params
+     *
+     * @throws WebmappExceptionHoquRequest for any problem with HOQU (connection/missing params)
+     */
+    protected function _store(string $job, array $params)
+    {
+        if ($this->verbose) {
+            WebmappUtils::verbose("Performing new Store operation to HOQU");
+        }
+
+        if (!$this->hoquBaseUrl || !$this->storeToken) {
+            throw new WebmappExceptionHoquRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU url or a store token are missing in the configuration");
+        }
+        $headers = [
+            "Accept: application/json",
+            "Authorization: Bearer {$this->storeToken}",
+            "Content-Type:application/json"
+        ];
+
+        $payload = [
+            "instance" => $this->instanceUrl,
+            "job" => $job,
+            "parameters" => $params
+        ];
+
+        $url = "{$this->hoquBaseUrl}/api/store";
+
+        if ($this->verbose) {
+            WebmappUtils::verbose("Initializing POST curl using:");
+            WebmappUtils::verbose("  url: {$url}");
+            WebmappUtils::verbose("  payload: " . json_encode($payload));
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_exec($ch);
+
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201) {
+            curl_close($ch);
+            throw new WebmappExceptionHoquRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU url or a store token are missing in the configuration");
+        }
+        curl_close($ch);
     }
 }

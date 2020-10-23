@@ -60,6 +60,8 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
 
             $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
             $this->_setTaxonomies($id, $taxonomies, "track");
+
+            $this->_updateKProjects("track", $id, $track->getJson());
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists");
         } catch (Exception $e) {

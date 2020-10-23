@@ -48,6 +48,10 @@ class WebmappExceptionHttpRequest extends WebmappException
 {
 }
 
+class WebmappExceptionHoquRequest extends WebmappException
+{
+}
+
 class WebmappExceptionNoFile extends WebmappException
 {
 }

@@ -33,6 +33,8 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
 
             $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
             $this->_setTaxonomies($id, $taxonomies, "poi");
+
+            $this->_updateKProjects("poi", $id, $poi->getJson());
         } catch (WebmappExceptionPOINoCoodinates $e) {
             throw new WebmappExceptionPOINoCoodinates("The poi with id {$id} is missing the coordinates");
         } catch (WebmappExceptionHttpRequest $e) {

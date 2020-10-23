@@ -8,6 +8,7 @@ class WebmappRoute
     private $description;
     private $json_array = array();
     private $tracks = array();
+    private $geojsonTracks = array();
     private $base_url;
 
     private $properties = array();
@@ -190,6 +191,11 @@ class WebmappRoute
         return $this->json_array['n7webmap_route_related_track'];
     }
 
+    public function getGeojsonTracks()
+    {
+        return $this->geojsonTracks;
+    }
+
     private function _loadTracks()
     {
         if (isset($this->json_array['n7webmap_route_related_track']) &&
@@ -234,6 +240,8 @@ class WebmappRoute
             $this->properties['ascent'] = $asc;
             $this->properties['distance'] = $dist;
             $this->properties['related']['track']['related'] = $related;
+
+            $this->geojsonTracks = $tracks;
         }
     }
 
@@ -307,6 +315,8 @@ class WebmappRoute
         if (count($this->features) > 0) {
             if (count($this->features) === 1) {
                 $json["geometry"]["type"] = "LineString";
+
+                $feature = $this->features[0];
                 if (isset($feature["geometry"]) &&
                     isset($feature["geometry"]["coordinates"]) &&
                     isset($feature["geometry"]["type"]) &&
@@ -540,4 +550,8 @@ class WebmappRoute
         return $html;
     }
 
+    public function setProperty($name, $value)
+    {
+        $this->properties[$name] = $value;
+    }
 }
