@@ -61,9 +61,6 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $route->getJson());
             $json = json_decode($route->getPoiJson(), true);
 
-            $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-            $this->_setTaxonomies($id, $taxonomies, "route");
-
             // Route index handling
             $this->_updateRouteIndex(
                 "{$this->aProject->getRoot()}/geojson/route_index.geojson",
@@ -77,6 +74,9 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             );
 
             $this->_updateKRoots($id, $route);
+            $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
+            $this->_setTaxonomies($id, $taxonomies, "route");
+            $this->_setKTaxonomies($id, $taxonomies);
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the route with id {$id} does not exists");
         } catch (WebmappExceptionHoquRequest $e) {
@@ -135,6 +135,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      *
      * @param int $id the route id
      * @param WebmappRoute $route the route
+     * @throws WebmappExceptionHoquRequest
      */
     private function _updateKRoots(int $id, WebmappRoute $route)
     {
@@ -180,6 +181,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @param WebmappProjectStructure $kProject the k root project
      * @param int $id the route id
      * @param WebmappRoute $route the route
+     * @throws WebmappExceptionHoquRequest
      */
     private function _updateKRouteDirectory(WebmappProjectStructure $kProject, int $id, WebmappRoute $route)
     {
@@ -234,19 +236,16 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             $route->setProperty("bbox_metric", $bbox_metric);
 
             foreach ($poisIds as $poiId) {
-                WebmappUtils::warning($poiId);
                 if (file_exists("{$kProject->getRoot()}/geojson/{$poiId}.geojson")) {
                     $features[] = json_decode(file_get_contents("{$kProject->getRoot()}/geojson/{$poiId}.geojson"), true);
                 }
             }
 
             foreach ($features as $feature) {
-                WebmappUtils::warning($feature["properties"]["id"]);
                 if (isset($feature["properties"]["taxonomy"]["webmapp_category"]) &&
                     is_array($feature["properties"]["taxonomy"]["webmapp_category"]) &&
                     count($feature["properties"]["taxonomy"]["webmapp_category"]) > 0) {
                     foreach ($feature["properties"]["taxonomy"]["webmapp_category"] as $wcId) {
-                        WebmappUtils::warning($wcId);
                         if (!isset($webmapp_categories[$wcId])) {
                             $webmapp_categories[$wcId] = [
                                 "items" => []
@@ -301,6 +300,103 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 $this->_store("generate_mbtiles", [
                     "id" => $this->params["id"]
                 ]);
+            }
+        }
+    }
+
+    private function _setKTaxonomies(int $id, array $taxonomies)
+    {
+        $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
+        $postType = 'route';
+
+        if ($this->verbose) {
+            WebmappUtils::verbose("Checking K taxonomies...");
+        }
+        foreach ($this->kProjects as $kProject) {
+            if ($this->verbose) {
+                WebmappUtils::verbose("  {$kProject->getRoot()}");
+            }
+            if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
+                $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
+                if (isset($conf["multimap"]) && $conf["multimap"] === true) {
+                    foreach ($taxonomyTypes as $taxTypeId) {
+                        $taxonomyJson = null;
+                        if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
+                            $taxonomyJson = file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
+                        }
+                        if ($taxonomyJson) {
+                            $taxonomyJson = json_decode($taxonomyJson, true);
+                        }
+                        $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
+                        if (!$taxonomyJson) $taxonomyJson = [];
+                        // Add post to its taxonomies
+                        foreach ($taxArray as $taxId) {
+                            $taxonomy = null;
+                            $items = [
+                                $postType => [$id]
+                            ];
+                            if (isset($this->taxonomies[$taxId])) {
+                                $taxonomy = $this->taxonomies[$taxId];
+                            } else {
+                                try {
+                                    $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}");
+                                    $this->taxonomies[$taxId] = $taxonomy;
+                                } catch (WebmappExceptionHttpRequest $e) {
+                                    WebmappUtils::warning("Taxonomy {$taxId} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}. Skipping");
+                                }
+                            }
+
+                            // Enrich the current taxonomy array
+                            if (array_key_exists($taxId, $taxonomyJson)) {
+                                if (!isset($taxonomy)) {
+                                    $taxonomy = $taxonomyJson[$taxId];
+                                }
+                                $items = array_key_exists("items", $taxonomyJson[$taxId]) ? $taxonomyJson[$taxId]["items"] : [];
+                                $postTypeArray = array_key_exists($postType, $items) && is_array($items[$postType]) ? $items[$postType] : [];
+
+                                if (!in_array($id, $postTypeArray)) {
+                                    $postTypeArray[] = $id;
+                                }
+
+                                $items[$postType] = $postTypeArray;
+                            }
+
+                            if (isset($taxonomy)) {
+                                $taxonomy["items"] = $items;
+                                $taxonomyJson[$taxId] = $taxonomy;
+                            }
+                        }
+
+                        // Remove post from its not taxonomies
+                        foreach ($taxonomyJson as $taxId => $taxonomy) {
+                            if (
+                                !in_array($taxId, $taxArray) &&
+                                array_key_exists("items", $taxonomy) &&
+                                array_key_exists($postType, $taxonomy["items"]) &&
+                                is_array($taxonomy["items"][$postType]) &&
+                                in_array($id, $taxonomy["items"][$postType])
+                            ) {
+                                $keys = array_keys($taxonomy["items"][$postType], $id);
+                                foreach ($keys as $key) {
+                                    unset($taxonomy["items"][$postType][$key]);
+                                }
+                                if (count($taxonomy["items"][$postType]) == 0) {
+                                    unset($taxonomy["items"][$postType]);
+                                }
+                                if (count($taxonomy["items"]) == 0) {
+                                    unset($taxonomyJson[$taxId]);
+                                } else {
+                                    $taxonomyJson[$taxId] = $taxonomy;
+                                }
+                            }
+                        }
+
+                        if ($this->verbose) {
+                            WebmappUtils::verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
+                        }
+                        file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($taxonomyJson));
+                    }
+                }
             }
         }
     }

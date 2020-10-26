@@ -1,6 +1,6 @@
 <?php
 
-define("GEOMETRY_METADATA_PROPERTIES", ['computed', 'distance', 'ascent', 'descent', 'ele:from', 'ele:to', 'ele:min', 'ele:max', 'bbox', 'bbox_metric']);
+define("GEOMETRY_METADATA_PROPERTIES", ['osmid', 'computed', 'distance', 'ascent', 'descent', 'ele:from', 'ele:to', 'ele:min', 'ele:max', 'bbox', 'bbox_metric']);
 
 class WebmappUpdateTrackJob extends WebmappAbstractJob
 {
@@ -11,7 +11,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * @param false $verbose
      * @param string $type the type, default "update_track"
      */
-    public function __construct($instanceUrl, $params, $verbose = false, $type = "update_track")
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false, string $type = "update_track")
     {
         parent::__construct($type, $instanceUrl, $params, $verbose);
     }

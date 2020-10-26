@@ -13,8 +13,9 @@ abstract class WebmappAbstractJob
     protected $kProjects; // Projects root of the various possible K
     protected $storeToken; // Token to create other jobs
     protected $hoquBaseUrl; // Token to create other jobs
+    protected $taxonomies; // An array of already downloaded taxonomies
 
-    public function __construct($name, $instanceUrl, $params, $verbose)
+    public function __construct(string $name, string $instanceUrl, string $params, bool $verbose)
     {
         $this->verbose = $verbose;
         $this->name = $name;
@@ -65,6 +66,8 @@ abstract class WebmappAbstractJob
             WebmappUtils::verbose("  instanceUrl: $this->instanceUrl");
             WebmappUtils::verbose("  params: " . json_encode($this->params));
         }
+
+        $this->taxonomies = [];
     }
 
     public function run()
@@ -98,11 +101,11 @@ abstract class WebmappAbstractJob
     /**
      * Set the taxonomies for the post id
      *
-     * @param $id number the post id
-     * @param $taxonomies array the taxonomies array
-     * @param $postType string the post type for the id
+     * @param int $id the post id
+     * @param array $taxonomies the taxonomies array
+     * @param string $postType the post type for the id
      */
-    protected function _setTaxonomies($id, $taxonomies, $postType = "poi")
+    protected function _setTaxonomies(int $id, array $taxonomies, string $postType = "poi")
     {
         $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
 
@@ -123,13 +126,29 @@ abstract class WebmappAbstractJob
             }
             $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
             if (!$taxonomyJson) $taxonomyJson = [];
-            // Add poi to its taxonomies
+            // Add post to its taxonomies
             foreach ($taxArray as $taxId) {
                 $taxonomy = null;
-                // Taxonomy already exists - check if the poi id is present and eventually add it
+                $items = [
+                    $postType => [$id]
+                ];;
+                if (isset($this->taxonomies[$taxId])) {
+                    $taxonomy = $this->taxonomies[$taxId];
+                } else {
+                    try {
+                        $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}");
+                        $this->taxonomies[$taxId] = $taxonomy;
+                    } catch (WebmappExceptionHttpRequest $e) {
+                        WebmappUtils::warning("Taxonomy {$taxId} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}. Skipping");
+                    }
+                }
+
+                // Enrich the current taxonomy array
                 if (array_key_exists($taxId, $taxonomyJson)) {
-                    $taxonomy = $taxonomyJson[$taxId];
-                    $items = array_key_exists("items", $taxonomy) ? $taxonomy["items"] : [];
+                    if (!isset($taxonomy)) {
+                        $taxonomy = $taxonomyJson[$taxId];
+                    }
+                    $items = array_key_exists("items", $taxonomyJson[$taxId]) ? $taxonomyJson[$taxId]["items"] : [];
                     $postTypeArray = array_key_exists($postType, $items) && is_array($items[$postType]) ? $items[$postType] : [];
 
                     if (!in_array($id, $postTypeArray)) {
@@ -137,20 +156,10 @@ abstract class WebmappAbstractJob
                     }
 
                     $items[$postType] = $postTypeArray;
-                    $taxonomy["items"] = $items;
-                } // Taxonomy does not exists - download and add it
-                else {
-                    $taxonomy = null;
-                    try {
-                        $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}");
-                        $taxonomy["items"] = [
-                            $postType => [$id]
-                        ];
-                    } catch (WebmappExceptionHttpRequest $e) {
-                        WebmappUtils::warning("Taxonomy {$taxId} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}. Skipping");
-                    }
                 }
+
                 if (isset($taxonomy)) {
+                    $taxonomy["items"] = $items;
                     $taxonomyJson[$taxId] = $taxonomy;
                 }
             }
@@ -206,9 +215,9 @@ abstract class WebmappAbstractJob
                     }
                     if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
                         $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
-                        if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                            file_put_contents("{$kProject->getRoot()}/geojson/{$id}.geojson", $json);
-                        }
+//                        if (isset($conf["multimap"]) && $conf["multimap"] === true) {
+                        file_put_contents("{$kProject->getRoot()}/geojson/{$id}.geojson", $json);
+//                        }
                     }
                 }
             }
