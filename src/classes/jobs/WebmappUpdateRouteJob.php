@@ -33,26 +33,28 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         }
 
         // Make sure all the tracks are up to date
-        foreach ($apiTracks as $track) {
-            $currentDate = 1;
-            $generatedDate = 0;
-            if (file_exists("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson")) {
-                $currentDate = strtotime($track["post_modified"]);
-                $file = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
-                $generatedDate = strtotime($file["properties"]["modified"]);
-            }
-            if ($currentDate > $generatedDate) {
-                if ($this->verbose) {
-                    WebmappUtils::verbose("Updating track {$track['ID']}");
+        if (is_array($apiTracks) && count($apiTracks) > 0) {
+            foreach ($apiTracks as $track) {
+                $currentDate = 1;
+                $generatedDate = 0;
+                if (file_exists("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson")) {
+                    $currentDate = strtotime($track["post_modified"]);
+                    $file = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
+                    $generatedDate = strtotime($file["properties"]["modified"]);
                 }
-                $params = [
-                    "id" => $track["ID"]
-                ];
-                $job = new WebmappUpdateTrackJob($this->instanceUrl, json_encode($params), $this->verbose);
-                $job->run();
-            }
+                if ($currentDate > $generatedDate) {
+                    if ($this->verbose) {
+                        WebmappUtils::verbose("Updating track {$track['ID']}");
+                    }
+                    $params = [
+                        "id" => $track["ID"]
+                    ];
+                    $job = new WebmappUpdateTrackJob($this->instanceUrl, json_encode($params), $this->verbose);
+                    $job->run();
+                }
 
-            $tracks[] = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
+                $tracks[] = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
+            }
         }
 
         try {
