@@ -208,7 +208,7 @@ abstract class WebmappAbstractJob
             if ($this->verbose) {
                 WebmappUtils::verbose("Updating k projects...");
             }
-            if (in_array($postType, ["poi", "track"])) {
+            if (in_array($postType, ["poi", "track", "route"])) {
                 foreach ($this->kProjects as $kProject) {
                     if ($this->verbose) {
                         WebmappUtils::verbose("  {$kProject->getRoot()}");
