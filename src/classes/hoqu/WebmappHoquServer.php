@@ -19,12 +19,14 @@ class WebmappHoquServer
     private $hoquBaseUrl;
     private $pullToken;
     private $updateToken;
+    private $jobsAvailable;
     private $verbose;
 
     /**
      * WebmappHoquServer constructor.
      *
      * @param false $verbose
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct($verbose = false)
     {
@@ -32,19 +34,18 @@ class WebmappHoquServer
         global $wm_config;
         if (!isset($wm_config['hoqu'])) {
             throw new WebmappExceptionParameterMandatory("HOQU configuration missing. Aborting");
-            return;
         }
         if (!isset($wm_config['hoqu']['server_id'])) {
             throw new WebmappExceptionParameterMandatory("HOQU server id missing. Aborting");
-            return;
         }
         if (!isset($wm_config['hoqu']['url'])) {
             throw new WebmappExceptionParameterMandatory("HOQU url missing. Aborting");
-            return;
         }
         if (!isset($wm_config['hoqu']['pull_token'])) {
             throw new WebmappExceptionParameterMandatory("HOQU pull key missing. Aborting");
-            return;
+        }
+        if (!isset($wm_config['hoqu']['jobs'])) {
+            throw new WebmappExceptionParameterMandatory("HOQU jobs missing. Aborting");
         }
 
         $this->serverId = $wm_config['hoqu']['server_id'];
@@ -52,22 +53,29 @@ class WebmappHoquServer
         $this->pullToken = $wm_config['hoqu']['pull_token'];
         $this->updateToken = $wm_config['hoqu']['pull_token'];
 
-        $this->verbose = $verbose;
-    }
+        $this->jobsAvailable = [];
+        if (is_array($wm_config['hoqu']['jobs'])) {
+            foreach ($wm_config['hoqu']['jobs'] as $job) {
+                if (in_array($job, JOBS_AVAILABLE)) {
+                    $this->jobsAvailable[] = $job;
+                }
+            }
+        } else if (is_string($wm_config['hoqu']['jobs']) && in_array($wm_config['hoqu']['jobs'], JOBS_AVAILABLE)) {
+            $this->jobsAvailable = $wm_config['hoqu']['jobs'];
+        }
 
-    private function showHelp()
-    {
+        $this->verbose = $verbose;
     }
 
     /**
      * Prepare curl for a put request
      *
-     * @param $url string the request url
-     * @param $payload array the payload to pass
-     * @param $headers array the headers - optional
+     * @param string $url the request url
+     * @param array $payload the payload to pass
+     * @param array|null $headers the headers - optional
      * @return false|resource
      */
-    private function _getPutCurl($url, $payload, $headers = null)
+    private function _getPutCurl(string $url, array $payload, array $headers = null)
     {
         if (!isset($headers)) {
             $headers = [
@@ -107,10 +115,10 @@ class WebmappHoquServer
 
         $payload = [
             "id_server" => $this->serverId,
-            "task_available" => JOBS_AVAILABLE,
+            "task_available" => $this->jobsAvailable,
         ];
 
-        // TODO: Make it a daemon using a cuncurrency parameter
+        // TODO: Make it a daemon using a concurrency parameter
         while (true) {
             WebmappUtils::message("---------------------------------");
             $ch = $this->_getPutCurl($pullUrl, $payload);
@@ -171,11 +179,11 @@ class WebmappHoquServer
     /**
      * Notify HOQU about the completed job
      *
-     * @param $done boolean true if the process has completed successfully
-     * @param $jobId number the id of the job just completed
-     * @param $message string with a log
+     * @param bool $done true if the process has completed successfully
+     * @param int $jobId the id of the job just completed
+     * @param string|null $message with a log
      */
-    private function _jobCompleted($done, $jobId, $message = null)
+    private function _jobCompleted(bool $done, int $jobId, string $message = null)
     {
         $url = $this->hoquBaseUrl;
         if ($done) {
