@@ -17,15 +17,27 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
     {
         $id = intval($this->params['id']);
 
-        $this->_generateMbtiles($this->instanceName, $id);
+        $kCodes = [];
+        if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
+            foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
+                $this->kCodes[] = $kName;
+            }
+        }
+
+        foreach ($kCodes as $kCode) {
+            $this->_generateMbtiles($kCode, $id);
+        }
 
         WebmappUtils::success("MBTiles generated successfully");
     }
 
     private function _generateMbtiles(string $instanceName, int $id, int $maxZoom = 16, int $minZoom = 4)
     {
-        $mbtilesPath = "/root/k.webmapp.it/{$instanceName}/routes/{$id}";
-        $geojsonPath = "/root/k.webmapp.it/{$instanceName}/geojson";
+        $kBaseUrl = isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["k"])
+            ? "{$wm_config["endpoint"]["k"]}"
+            : "/var/www/html/k.webmapp.it";
+        $mbtilesPath = "{$kBaseUrl}/{$instanceName}/routes/{$id}";
+        $geojsonPath = "{$kBaseUrl}/{$instanceName}/geojson";
         $routeGeojsonUrl = "{$geojsonPath}/{$id}.geojson";
         $decrypted = false;
 
