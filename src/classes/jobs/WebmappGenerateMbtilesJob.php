@@ -18,9 +18,10 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         $id = intval($this->params['id']);
 
         $kCodes = [];
+        global $wm_config;
         if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
             foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
-                $this->kCodes[] = $kName;
+                $kCodes[] = $kName;
             }
         }
 
