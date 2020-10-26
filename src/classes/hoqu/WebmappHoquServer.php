@@ -1,10 +1,17 @@
 <?php
 
 define("SLEEP_TIME", 5);
-define("JOBS_AVAILABLE", ["update_poi", "update_track", "update_track_metadata", "update_track_geometry", "update_route"]);
 define("PULL_ENDPOINT", "/api/pull");
 define("UPDATE_DONE_ENDPOINT", "/api/updateDone");
 define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
+define("JOBS_AVAILABLE", [
+    "update_poi",
+    "update_track",
+    "update_track_metadata",
+    "update_track_geometry",
+    "update_route",
+    "generate_mbtiles"
+]);
 
 class WebmappHoquServer
 {
