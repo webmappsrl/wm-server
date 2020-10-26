@@ -206,7 +206,7 @@ abstract class WebmappAbstractJob
     {
         if (count($this->kProjects) > 0) {
             if ($this->verbose) {
-                WebmappUtils::verbose("Updating k projects...");
+                WebmappUtils::verbose("Adding geojson to K projects...");
             }
             if (in_array($postType, ["poi", "track", "route"])) {
                 foreach ($this->kProjects as $kProject) {

@@ -144,7 +144,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     {
         if (count($this->kProjects) > 0) {
             if ($this->verbose) {
-                WebmappUtils::verbose("Updating k projects...");
+                WebmappUtils::verbose("Updating K projects...");
             }
             foreach ($this->kProjects as $kProject) {
                 if ($this->verbose) {

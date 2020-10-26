@@ -11,6 +11,11 @@ class WebmappUpdateRouteJobTest extends TestCase
             "a" => $a,
             "k" => $k
         ];
+        $wm_config["a_k_instances"] = [
+            "elm.be.webmapp.it" => [
+                "elm"
+            ]
+        ];
 
         if (!file_exists("{$a}/{$instanceName}/geojson")) {
             $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
