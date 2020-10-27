@@ -211,6 +211,12 @@ class WebmappATask extends WebmappAbstractTask
     private function processPoi($id)
     {
         $poi = new WebmappPoiFeature($this->wp->getApiPoi($id));
+        $poi_properties = $this->getCustomProperties("poi");
+        if (isset($poi_properties) && is_array($poi_properties)) {
+            echo "CustomProperties.";
+            $poi->mapCustomProperties($poi_properties);
+        }
+
         $j = json_decode($poi->getJson(), true);
         if (isset($j['properties']['taxonomy'])) {
             $this->taxonomies['poi'][$id] = $j['properties']['taxonomy'];
@@ -268,6 +274,11 @@ class WebmappATask extends WebmappAbstractTask
             $r->writeToPostGis();
             $r->addBBox();
             $r->generateAllImages('', $this->route_path);
+            $route_properties = $this->getCustomProperties("route");
+            if (isset($route_properties) && is_array($route_properties)) {
+                echo "CustomProperties.";
+                $r->mapCustomProperties($route_properties);
+            }
             $j = json_decode($r->getJson(), true);
             if (isset($j['properties']['taxonomy'])) {
                 $this->taxonomies['route'][$id] = $j['properties']['taxonomy'];
