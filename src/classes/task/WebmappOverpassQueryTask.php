@@ -26,7 +26,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         }
 
         if (!preg_match("/^(\[out:json\])?\[timeout:[0-9]{1,3}\](\[out:json\])?;/", $this->_query)) {
-            $this->_query = "[out:json][timeout:25]" . $this->_query;
+            $this->_query = "[out:json][timeout:25];" . $this->_query;
         }
 
         if (!preg_match("/out body;(\n|\\n|\s)?>;(\n|\\n|\s)?out skel qt;(\n|\\n\s)?$/", $this->_query)) {
