@@ -12,6 +12,11 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
 
         $options = $this->_get_opts();
 
+        if (isset($options["configUrl"]) && !empty($options["configUrl"]) && is_string($options["configUrl"])) {
+            $newConfig = json_decode(file_get_contents($options["configUrl"]), true);
+            $wm_config = $newConfig;
+        }
+
         if (!isset($wm_config['hoqu'])) {
             throw new WebmappExceptionParameterMandatory("HOQU configuration missing. Aborting");
         }
