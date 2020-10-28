@@ -8,8 +8,10 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
     public function __construct($argv)
     {
         parent::__construct($argv);
-        
         global $wm_config;
+
+        $options = $this->_get_opts();
+
         if (!isset($wm_config['hoqu'])) {
             throw new WebmappExceptionParameterMandatory("HOQU configuration missing. Aborting");
         }
@@ -20,7 +22,6 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
             throw new WebmappExceptionParameterMandatory("HOQU pull key missing. Aborting");
         }
 
-        $options = $this->_get_opts();
         if (isset($options["serverId"]) && !empty($options["serverId"]) && intval($options["serverId"]) > 0) {
             $this->_serverId = intval($options["serverId"]);
         }
@@ -28,7 +29,7 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
             $wm_config["hoqu"]["server_id"] = $this->_serverId;
         }
 
-        if (isset($options["jobs"]) && !empty($options["jobs"])) {
+        if (isset($options["jobs"]) && !empty($options["jobs"]) && is_string($options["jobs"])) {
             $this->_jobs = explode(",", $options["jobs"]);
         }
         if (isset($this->_jobs)) {
