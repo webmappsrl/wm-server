@@ -146,8 +146,8 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadString);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+//        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100);
+//        curl_setopt($ch, CURLOPT_TIMEOUT, 100);
         $result = curl_exec($ch);
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
             throw new WebmappException("An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while calling {$url}: " . curl_error($ch));
