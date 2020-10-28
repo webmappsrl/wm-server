@@ -26,6 +26,27 @@ abstract class WebmappCliAbstractCommand
 
     abstract public function showHelp();
 
+    /**
+     * @return array with every options of argv mapped
+     */
+    protected function _get_opts()
+    {
+        $opts = array();
+        foreach ($_SERVER["argv"] as $k => $a) {
+            if (preg_match('@\-\-(.+)=(.+)@', $a, $m))
+                $opts[$m[1]] = $m[2];
+            elseif (preg_match('@\-\-(.+)@', $a, $m))
+                $opts[$m[1]] = true;
+            elseif (preg_match('@\-(.+)=(.+)@', $a, $m))
+                $opts[$m[1]] = $m[2];
+            elseif (preg_match('@\-(.+)@', $a, $m))
+                $opts[$m[1]] = true;
+            else
+                $opts[$k] = $a;
+        }
+        return $opts;
+    }
+
     public function execute()
     {
         if (count($this->options) > 0 && $this->options[0] == 'help') {
@@ -214,44 +235,6 @@ runtask [task_name] : Run a specific task\n";
 
     }
 }
-
-class WebmappCliServerCommand extends WebmappCliAbstractCommand
-{
-    public function specificConstruct()
-    {
-        return true;
-    }
-
-    public function getExcerpt()
-    {
-        $string = "Create a server instance that uses HOQU (start, stop, log)";
-        return $string;
-    }
-
-    public function showHelp()
-    {
-        $string = "\n 
-Usage: wmcli server [subcommands]
-Available subcommands:
-start (default) : Start a new server instance
-stop [pid]      : Stop the existing server instance with the specified pid
-log             : Log the active server instances\n";
-        echo $string;
-    }
-
-    public function executeNoHelp()
-    {
-        global $wm_config;
-        try {
-            WebmappUtils::title("Starting a HOQU Server...");
-            $server = new WebmappHoquServer($wm_config["debug"]);
-            $server->run();
-        } catch (WebmappExceptionParameterMandatory $e) {
-            WebmappUtils::error($e->getMessage());
-        }
-    }
-}
-
 
 // class WebmappCliXXXCommand extends WebmappCliAbstractCommand {
 //  public function specificConstruct() { return true; }

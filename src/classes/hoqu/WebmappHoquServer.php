@@ -25,28 +25,13 @@ class WebmappHoquServer
     /**
      * WebmappHoquServer constructor.
      *
-     * @param false $verbose
+     * @param bool $verbose
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct($verbose = false)
+    public function __construct(bool $verbose)
     {
         // TODO: add concurrency param to handle multiple server loops
         global $wm_config;
-        if (!isset($wm_config['hoqu'])) {
-            throw new WebmappExceptionParameterMandatory("HOQU configuration missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['server_id'])) {
-            throw new WebmappExceptionParameterMandatory("HOQU server id missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['url'])) {
-            throw new WebmappExceptionParameterMandatory("HOQU url missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['pull_token'])) {
-            throw new WebmappExceptionParameterMandatory("HOQU pull key missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['jobs'])) {
-            throw new WebmappExceptionParameterMandatory("HOQU jobs missing. Aborting");
-        }
 
         $this->serverId = $wm_config['hoqu']['server_id'];
         $this->hoquBaseUrl = $wm_config['hoqu']['url'];

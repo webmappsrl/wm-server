@@ -101,6 +101,7 @@ require 'classes/custom/WebmappSIMapTask.php';
 require 'classes/custom/WebmappSIMapStatsTask.php';
 
 // HOQU
+require 'classes/cli/WebmappCliServerCommand.php';
 require 'classes/hoqu/WebmappHoquServer.php';
 // Jobs
 require 'classes/jobs/WebmappAbstractJob.php';
