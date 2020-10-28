@@ -9,7 +9,6 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
 
     public function check()
     {
-        // Controllo parametro code http://[code].be.webmapp.it
         if (!array_key_exists('query', $this->options)) {
             throw new WebmappExceptionParameterMandatory("Missing mandatory parameter: 'query'", 1);
         }
@@ -18,13 +17,20 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             throw new WebmappExceptionParameterMandatory("Missing mandatory parameter: 'layer_name'", 1);
         }
 
-
         $this->_query = $this->options["query"];
         $this->_layerName = $this->options["layer_name"];
         $this->_path = $this->project_structure->getRoot();
 
         if (array_key_exists('mapping', $this->options) && is_array($this->options["mapping"])) {
             $this->_mapping = $this->options["mapping"];
+        }
+
+        if (!preg_match("/^(\[out:json\])?\[timeout:[0-9]{1,3}\](\[out:json\])?;/", $this->_query)) {
+            $this->_query = "[out:json][timeout:25]" . $this->_query;
+        }
+
+        if (!preg_match("/out body;(\n|\\n|\s)?>;(\n|\\n|\s)?out skel qt;(\n|\\n\s)?$/", $this->_query)) {
+            $this->_query = $this->_query . "out body; >; out skel qt;";
         }
 
         return true;
