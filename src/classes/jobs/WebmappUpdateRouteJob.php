@@ -5,11 +5,11 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     /**
      * WebmappUpdateRouteJob constructor.
      *
-     * @param $instanceUrl string containing the instance url
-     * @param $params string containing an encoded JSON with the poi ID
+     * @param string $instanceUrl containing the instance url
+     * @param string $params containing an encoded JSON with the poi ID
      * @param false $verbose
      */
-    public function __construct($instanceUrl, $params, $verbose = false)
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false)
     {
         parent::__construct("update_route", $instanceUrl, $params, $verbose);
     }
@@ -38,7 +38,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 $currentDate = 1;
                 $generatedDate = 0;
                 if (file_exists("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson")) {
-                    $currentDate = strtotime($track["post_modified"]);
+                    $currentDate = $this->_getTrackLastModified($track["ID"], strtotime($track["post_modified"]));
                     $file = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
                     $generatedDate = strtotime($file["properties"]["modified"]);
                 }
@@ -47,7 +47,8 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                         WebmappUtils::verbose("Updating track {$track['ID']}");
                     }
                     $params = [
-                        "id" => $track["ID"]
+                        "id" => $track["ID"],
+                        "skipRouteCheck" => true
                     ];
                     $job = new WebmappUpdateTrackJob($this->instanceUrl, json_encode($params), $this->verbose);
                     $job->run();
@@ -139,6 +140,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @param int $id the route id
      * @param WebmappRoute $route the route
      * @throws WebmappExceptionHoquRequest
+     * @throws WebmappExceptionHttpRequest
      */
     private function _updateKRoots(int $id, WebmappRoute $route)
     {
@@ -185,6 +187,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @param int $id the route id
      * @param WebmappRoute $route the route
      * @throws WebmappExceptionHoquRequest
+     * @throws WebmappExceptionHttpRequest
      */
     private function _updateKRouteDirectory(WebmappProjectStructure $kProject, int $id, WebmappRoute $route)
     {
@@ -402,5 +405,39 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 }
             }
         }
+    }
+
+    /**
+     * Return the last modified date for the given track
+     *
+     * @param int $id the track id
+     * @param int|null $defaultValue the default last modified value
+     * @return false|int|void
+     */
+    private function _getTrackLastModified(int $id, int $defaultValue = null)
+    {
+        $lastModified = isset($defaultValue) ? $defaultValue : strtotime("now");
+        $ch = $this->_getCurl("{$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id}");
+        $modified = null;
+        try {
+            $modified = curl_exec($ch);
+        } catch (Exception $e) {
+            WebmappUtils::warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
+            return;
+        }
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+            WebmappUtils::warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id} seems unreachable: " . curl_error($ch));
+            curl_close($ch);
+        } else {
+            curl_close($ch);
+
+            $modified = json_decode($modified, true);
+
+            if (isset($modified) && is_array($modified) && array_key_exists("last_modified", $modified) && is_string($modified["last_modified"])) {
+                $lastModified = strtotime($modified["last_modified"]);
+            }
+        }
+
+        return $lastModified;
     }
 }

@@ -4,6 +4,8 @@ define("GEOMETRY_METADATA_PROPERTIES", ['osmid', 'computed', 'distance', 'ascent
 
 class WebmappUpdateTrackJob extends WebmappAbstractJob
 {
+    protected $skipRouteCheck;
+
     /**
      * WebmappUpdateTrackJob constructor.
      * @param string $instanceUrl containing the instance url
@@ -14,6 +16,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
     public function __construct(string $instanceUrl, string $params, bool $verbose = false, string $type = "update_track")
     {
         parent::__construct($type, $instanceUrl, $params, $verbose);
+        $this->skipRouteCheck = array_key_exists("skipRouteCheck", $this->params) ? boolval($this->params["skipRouteCheck"]) : false;
     }
 
     protected function process()
@@ -38,6 +41,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             $this->_setTaxonomies($id, $taxonomies, "track");
 
             $this->_updateKProjects("track", $id, $track->getJson());
+
+            $this->_updateRelatedRoutes($id);
         } catch (WebmappExceptionFeaturesNoGeometry $e) {
             throw new WebmappExceptionHttpRequest("The track {$id} is missing the geometry");
         } catch (WebmappExceptionGeoJsonBadGeomType $e) {
@@ -90,7 +95,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 
         try {
             $this->_store("generate_elevation_chart_image", ["id" => $this->params["id"]]);
-        } catch (WebmappExceptionHoquRequest $e) {
+        } catch (WebmappExceptionHoquRequest|WebmappExceptionHttpRequest $e) {
             WebmappUtils::warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
         }
 
@@ -112,5 +117,46 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         }
 
         return $track;
+    }
+
+    /**
+     * Perform the store operation for all he related routes
+     *
+     * @param int $id the route id
+     */
+    protected function _updateRelatedRoutes(int $id)
+    {
+        if (!$this->skipRouteCheck) {
+            $ch = $this->_getCurl("{$this->instanceUrl}/wp-json/webmapp/v1/track/related_routes/{$id}");
+            $routes = null;
+            try {
+                $routes = curl_exec($ch);
+            } catch (Exception $e) {
+                WebmappUtils::warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
+                return;
+            }
+            if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+                WebmappUtils::warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/track/related_routes/{$id} seems unreachable: " . curl_error($ch));
+                curl_close($ch);
+            } else {
+                try {
+                    curl_close($ch);
+
+                    $routes = json_decode($routes, true);
+
+                    if (isset($routes) && is_array($routes) && array_key_exists("related_routes", $routes)) {
+                        foreach ($routes["related_routes"] as $routeId) {
+                            try {
+                                $this->_store("update_route", ["id" => $routeId]);
+                            } catch (WebmappExceptionHttpRequest $e) {
+                                WebmappUtils::warning($e->getMessage());
+                            }
+                        }
+                    }
+                } catch (WebmappExceptionHoquRequest $e) {
+                    WebmappUtils::warning($e->getMessage());
+                }
+            }
+        }
     }
 }

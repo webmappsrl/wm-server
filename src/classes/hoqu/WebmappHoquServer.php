@@ -110,7 +110,7 @@ class WebmappHoquServer
      */
     public function run()
     {
-        WebmappUtils::message("Starting new hoqu server...");
+        WebmappUtils::success("New HOQU server started. Press CTRL + C to stop");
 
         $pullUrl = $this->hoquBaseUrl . PULL_ENDPOINT;
 
@@ -126,7 +126,7 @@ class WebmappHoquServer
             $job = curl_exec($ch);
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
                 if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 204) {
-                    WebmappUtils::message("No tasks currently available");
+                    WebmappUtils::message("No tasks currently available. Retrying in " . SLEEP_TIME . " seconds");
                 } else if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 0) {
                     WebmappUtils::warning("HOQU appears slow: " . curl_error($ch));
                 } else {
@@ -170,8 +170,8 @@ class WebmappHoquServer
                         $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
                     }
                 } else {
-                    echo "No tasks available\n";
-                    sleep(5);
+                    WebmappUtils::message("No tasks currently available. Retrying in " . SLEEP_TIME . " seconds");
+                    sleep(SLEEP_TIME);
                 }
             }
         }

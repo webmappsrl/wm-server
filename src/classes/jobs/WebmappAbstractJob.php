@@ -32,13 +32,13 @@ abstract class WebmappAbstractJob
 
         $this->aProject = new WebmappProjectStructure(
             isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["a"])
-            ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
-            : "/var/www/html/a.webmapp.it/{$this->instanceName}");
+                ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
+                : "/var/www/html/a.webmapp.it/{$this->instanceName}");
 
         $this->kProjects = [];
         $kBaseUrl = isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["k"])
-        ? "{$wm_config["endpoint"]["k"]}"
-        : "/var/www/html/k.webmapp.it";
+            ? "{$wm_config["endpoint"]["k"]}"
+            : "/var/www/html/k.webmapp.it";
         if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
             foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
                 $this->kProjects[] = new WebmappProjectStructure("{$kBaseUrl}/$kName");
@@ -231,7 +231,8 @@ abstract class WebmappAbstractJob
      * @param string $job the job name
      * @param array $params the array of params
      *
-     * @throws WebmappExceptionHoquRequest for any problem with HOQU (connection/missing params)
+     * @throws WebmappExceptionHoquRequest for any problem with HOQU (missing params)
+     * @throws WebmappExceptionHttpRequest for any problem with connection
      */
     protected function _store(string $job, array $params)
     {
@@ -274,8 +275,36 @@ abstract class WebmappAbstractJob
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201) {
             curl_close($ch);
-            throw new WebmappExceptionHoquRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU url or a store token are missing in the configuration");
+            throw new WebmappExceptionHttpRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU url or a store token are missing in the configuration");
         }
         curl_close($ch);
+    }
+
+    /**
+     * Prepare curl for a put request
+     *
+     * @param string $url the request url
+     * @param array|null $headers the headers - optional
+     * @return false|resource
+     */
+    protected function _getCurl(string $url, array $headers = null)
+    {
+        if (!isset($headers)) {
+            $headers = [];
+        }
+
+        if ($this->verbose) {
+            WebmappUtils::verbose("Initializing GET curl using:");
+            WebmappUtils::verbose("  url: {$url}");
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        return $ch;
     }
 }

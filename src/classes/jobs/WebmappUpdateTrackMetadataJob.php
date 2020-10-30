@@ -62,6 +62,8 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
             $this->_setTaxonomies($id, $taxonomies, "track");
 
             $this->_updateKProjects("track", $id, $track->getJson());
+            
+            $this->_updateRelatedRoutes($id);
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists");
         } catch (Exception $e) {

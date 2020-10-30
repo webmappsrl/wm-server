@@ -75,7 +75,7 @@ Available subcommands:
     {
         global $wm_config;
         try {
-            WebmappUtils::title("Starting a HOQU Server...");
+            WebmappUtils::title("Starting a new HOQU Server...");
             $server = new WebmappHoquServer($wm_config["debug"]);
             $server->run();
         } catch (WebmappExceptionParameterMandatory $e) {
