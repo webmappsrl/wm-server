@@ -135,7 +135,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 WebmappUtils::warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
                 return;
             }
-            if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+            if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
                 WebmappUtils::warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/track/related_routes/{$id} seems unreachable: " . curl_error($ch));
                 curl_close($ch);
             } else {
