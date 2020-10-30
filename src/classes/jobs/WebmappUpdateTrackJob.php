@@ -88,6 +88,12 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             throw new WebmappExceptionFeaturesNoGeometry("Track {$track->getId()} is missing the geometry");
         }
 
+        try {
+            $this->_store("generate_elevation_chart_image", ["id" => $this->params["id"]]);
+        } catch (WebmappExceptionHoquRequest $e) {
+            WebmappUtils::warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
+        }
+
         return $track;
     }
 

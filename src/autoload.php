@@ -111,3 +111,4 @@ require 'classes/jobs/WebmappUpdateTrackMetadataJob.php';
 require 'classes/jobs/WebmappUpdateTrackGeometryJob.php';
 require 'classes/jobs/WebmappUpdateRouteJob.php';
 require 'classes/jobs/WebmappGenerateMbtilesJob.php';
+require 'classes/jobs/WebmappGenerateElevationChartImageJob.php';

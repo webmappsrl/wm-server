@@ -32,13 +32,13 @@ abstract class WebmappAbstractJob
 
         $this->aProject = new WebmappProjectStructure(
             isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["a"])
-                ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
-                : "/var/www/html/a.webmapp.it/{$this->instanceName}");
+            ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
+            : "/var/www/html/a.webmapp.it/{$this->instanceName}");
 
         $this->kProjects = [];
         $kBaseUrl = isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["k"])
-            ? "{$wm_config["endpoint"]["k"]}"
-            : "/var/www/html/k.webmapp.it";
+        ? "{$wm_config["endpoint"]["k"]}"
+        : "/var/www/html/k.webmapp.it";
         if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
             foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
                 $this->kProjects[] = new WebmappProjectStructure("{$kBaseUrl}/$kName");
@@ -46,7 +46,7 @@ abstract class WebmappAbstractJob
         }
 
         try {
-            $this->params = json_decode($params, TRUE);
+            $this->params = json_decode($params, true);
         } catch (Exception $e) {
             $this->params = array();
         }
@@ -73,12 +73,10 @@ abstract class WebmappAbstractJob
     public function run()
     {
         $startTime = round(microtime(true) * 1000);
-        if ($this->verbose) {
-            if (isset($this->params["id"])) {
-                WebmappUtils::title("[{$this->name} JOB] Starting generation of {$this->params['id']}");
-            } else {
-                WebmappUtils::title("[{$this->name} JOB] Starting");
-            }
+        if (isset($this->params["id"])) {
+            WebmappUtils::title("[{$this->name} JOB] Starting generation of {$this->params['id']}");
+        } else {
+            WebmappUtils::title("[{$this->name} JOB] Starting");
         }
         if ($this->verbose) {
             WebmappUtils::verbose("start time: $startTime");
@@ -125,13 +123,16 @@ abstract class WebmappAbstractJob
                 $taxonomyJson = json_decode($taxonomyJson, true);
             }
             $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
-            if (!$taxonomyJson) $taxonomyJson = [];
+            if (!$taxonomyJson) {
+                $taxonomyJson = [];
+            }
+
             // Add post to its taxonomies
             foreach ($taxArray as $taxId) {
                 $taxonomy = null;
                 $items = [
-                    $postType => [$id]
-                ];;
+                    $postType => [$id],
+                ];
                 if (isset($this->taxonomies[$taxId])) {
                     $taxonomy = $this->taxonomies[$taxId];
                 } else {
@@ -244,13 +245,13 @@ abstract class WebmappAbstractJob
         $headers = [
             "Accept: application/json",
             "Authorization: Bearer {$this->storeToken}",
-            "Content-Type:application/json"
+            "Content-Type:application/json",
         ];
 
         $payload = [
             "instance" => $this->instanceUrl,
             "job" => $job,
-            "parameters" => $params
+            "parameters" => $params,
         ];
 
         $url = "{$this->hoquBaseUrl}/api/store";

@@ -10,7 +10,8 @@ define("JOBS_AVAILABLE", [
     "update_track_metadata",
     "update_track_geometry",
     "update_route",
-    "generate_mbtiles"
+    "generate_mbtiles",
+    "generate_elevation_chart_image"
 ]);
 
 class WebmappHoquServer

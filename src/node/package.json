@@ -1,0 +1,17 @@
+{
+  "name": "wm-server-node",
+  "version": "1.0.0",
+  "description": "Contains a series of script that need to run in js environment",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "2.6.1",
+    "chart.js": "2.8.0",
+    "chartjs-node": "^1.7.1",
+    "jsdom": "^16.4.0"
+  }
+}
