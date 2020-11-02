@@ -119,6 +119,14 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 if (!$added && !is_null($json)) {
                     $file["features"][] = $json;
                 }
+
+                $features = [];
+
+                foreach ($file["features"] as $key => $value) {
+                    $features[] = $value;
+                }
+
+                $file["features"] = $features;
             }
         }
 
