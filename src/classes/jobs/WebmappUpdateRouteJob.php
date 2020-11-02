@@ -262,11 +262,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                     foreach ($feature["properties"]["taxonomy"]["webmapp_category"] as $wcId) {
                         if (!isset($webmapp_categories[$wcId])) {
                             $webmapp_categories[$wcId] = [
-                                "items" => []
+                                "items" => [
+                                    "poi" => []
+                                ]
                             ];
                         }
 
-                        $webmapp_categories[$wcId]["items"][] = $feature["properties"]["id"];
+                        $webmapp_categories[$wcId]["items"]["poi"][] = $feature["properties"]["id"];
                     }
                 }
                 if (isset($feature["properties"]["taxonomy"]["activity"]) &&
@@ -275,11 +277,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                     foreach ($feature["properties"]["taxonomy"]["activity"] as $wcId) {
                         if (!isset($activities[$wcId])) {
                             $activities[$wcId] = [
-                                "items" => []
+                                "items" => [
+                                    "track" => []
+                                ]
                             ];
                         }
 
-                        $activities[$wcId]["items"][] = $feature["properties"]["id"];
+                        $activities[$wcId]["items"]["track"][] = $feature["properties"]["id"];
                     }
                 }
             }
