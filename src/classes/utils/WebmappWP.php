@@ -73,7 +73,9 @@ class WebmappWP
         if (is_array($res) && count($res) > 0) {
             foreach ($res as $item) {
                 if (isset($item['featured_image']) && is_array($item['featured_image'])) {
-                    if (isset($item['featured_image']['sizes']['medium_large'])) {
+                    if (isset($item['featured_image']['sizes']['large'])) {
+                        $item['image'] = ($item['featured_image']['sizes']['large']);
+                    } else if (isset($item['featured_image']['sizes']['medium_large'])) {
                         $item['image'] = ($item['featured_image']['sizes']['medium_large']);
                     } else if (isset($item['featured_image']['sizes']['medium'])) {
                         $item['image'] = ($item['featured_image']['sizes']['medium']);

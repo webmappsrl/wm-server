@@ -212,7 +212,9 @@ abstract class WebmappAbstractFeature
             $json_array['featured_media'] != 0
         ) {
             $jm = WebmappUtils::getJsonFromApi($json_array['_links']['wp:featuredmedia'][0]['href']);
-            if (isset($jm['media_details']['sizes']['medium_large'])) {
+            if (isset($jm['media_details']['sizes']['large'])) {
+                $this->setImage($jm['media_details']['sizes']['large']['source_url']);
+            } else if (isset($jm['media_details']['sizes']['medium_large'])) {
                 $this->setImage($jm['media_details']['sizes']['medium_large']['source_url']);
             } else if (isset($jm['media_details']['sizes']['medium'])) {
                 $this->setImage($jm['media_details']['sizes']['medium']['source_url']);
@@ -460,7 +462,9 @@ abstract class WebmappAbstractFeature
             foreach ($gallery as $item) {
                 // TODO: usare una grandezza standard
                 //$images[]=array('src'=>$item['url']);
-                if (isset($item['sizes']['medium_large'])) {
+                if (isset($item['sizes']['large'])) {
+                    $src = $item['sizes']['large'];
+                } else if (isset($item['sizes']['medium_large'])) {
                     $src = $item['sizes']['medium_large'];
                 } else if (isset($item['sizes']['medium'])) {
                     $src = $item['sizes']['medium'];
