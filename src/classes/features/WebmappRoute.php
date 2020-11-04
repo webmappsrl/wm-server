@@ -148,7 +148,7 @@ class WebmappRoute
                         }
                         $tp[$locale] = $val;
                     } catch (WebmappExceptionHttpRequest $e) {
-                        WebmappUtils::warning("The route {$lang} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
+                        WebmappUtils::warning("The route {$locale} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
                     }
                 }
                 $this->properties['translations'] = $tp;

@@ -288,18 +288,22 @@ abstract class WebmappAbstractFeature
                     $val['name'] = $item['post_title'];
                     $val['web'] = $item['href'];
                     $val['source'] = preg_replace('|/[0-9]*$|', '/' . $val['id'], $this->properties['source']);
-                    $ja = WebmappUtils::getJsonFromApi($val['source']);
-                    if (isset($ja['content'])) {
-                        $val['description'] = $ja['content']['rendered'];
-                    }
-                    if (isset($ja['rb_track_section'])) {
-                        $val['rb_track_section'] = $ja['rb_track_section'];
-                    }
-                    if (isset($ja['audio']) && is_array($ja['audio'])) {
-                        $val['audio'] = $ja['audio']['url'];
-                    }
+                    try {
+                        $ja = WebmappUtils::getJsonFromApi($val['source']);
+                        if (isset($ja['content'])) {
+                            $val['description'] = $ja['content']['rendered'];
+                        }
+                        if (isset($ja['rb_track_section'])) {
+                            $val['rb_track_section'] = $ja['rb_track_section'];
+                        }
+                        if (isset($ja['audio']) && is_array($ja['audio'])) {
+                            $val['audio'] = $ja['audio']['url'];
+                        }
 
-                    $tp[$locale] = $val;
+                        $tp[$locale] = $val;
+                    } catch (WebmappExceptionHttpRequest $e) {
+                        WebmappUtils::warning("The feature {$locale} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
+                    }
                 }
                 $this->addProperty('translations', $tp);
             }
