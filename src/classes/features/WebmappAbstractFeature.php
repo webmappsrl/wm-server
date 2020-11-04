@@ -52,16 +52,19 @@ abstract class WebmappAbstractFeature
                 $lang = preg_replace('|_.*$|', '', $lang);
                 $id = $t['id'];
                 $lang_url = preg_replace('|\d+$|', $id, $url);
-                $json_t = WebmappUtils::getJsonFromApi($lang_url);
-                // TODO: estendere oltre a name e description (variabile globale?)
-                if (isset($json_t['title']['rendered'])) {
-                    $this->translate($lang, 'name', $json_t['title']['rendered']);
-                }
+                try {
+                    $json_t = WebmappUtils::getJsonFromApi($lang_url);
+                    // TODO: estendere oltre a name e description (variabile globale?)
+                    if (isset($json_t['title']['rendered'])) {
+                        $this->translate($lang, 'name', $json_t['title']['rendered']);
+                    }
 
-                if (isset($json_t['content']['rendered'])) {
-                    $this->translate($lang, 'description', $json_t['content']['rendered']);
+                    if (isset($json_t['content']['rendered'])) {
+                        $this->translate($lang, 'description', $json_t['content']['rendered']);
+                    }
+                } catch (WebmappExceptionHttpRequest $e) {
+                    WebmappUtils::warning("The {$lang} language is not available at the url {$lang_url}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
                 }
-
             }
         }
         $this->json_array = $json_array;
