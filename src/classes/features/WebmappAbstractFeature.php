@@ -63,7 +63,7 @@ abstract class WebmappAbstractFeature
                         $this->translate($lang, 'description', $json_t['content']['rendered']);
                     }
                 } catch (WebmappExceptionHttpRequest $e) {
-                    WebmappUtils::warning("The {$lang} language is not available at the url {$lang_url}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
+                    WebmappUtils::warning("The feature {$lang} language is not available at the url {$lang_url}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
                 }
             }
         }

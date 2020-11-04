@@ -141,11 +141,15 @@ class WebmappRoute
                     $val['name'] = $item['post_title'];
                     $val['web'] = $item['href'];
                     $val['source'] = preg_replace('|/[0-9]*$|', '/' . $val['id'], $this->properties['source']);
-                    $ja = WebmappUtils::getJsonFromApi($val['source']);
-                    if (isset($ja['content'])) {
-                        $val['description'] = $ja['content']['rendered'];
+                    try {
+                        $ja = WebmappUtils::getJsonFromApi($val['source']);
+                        if (isset($ja['content'])) {
+                            $val['description'] = $ja['content']['rendered'];
+                        }
+                        $tp[$locale] = $val;
+                    } catch (WebmappExceptionHttpRequest $e) {
+                        WebmappUtils::warning("The route {$lang} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
                     }
-                    $tp[$locale] = $val;
                 }
                 $this->properties['translations'] = $tp;
             }
