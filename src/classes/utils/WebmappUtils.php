@@ -312,7 +312,7 @@ class WebmappUtils
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
                 $output = curl_exec($ch);
-                if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+                if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
                     throw new WebmappExceptionHttpRequest("Error calling $url: " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " - " . curl_error($ch));
                     return;
                 }
