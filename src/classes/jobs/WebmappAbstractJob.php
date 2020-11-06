@@ -186,7 +186,7 @@ abstract class WebmappAbstractJob
                 }
 
                 foreach ($taxonomy as $key => $value) {
-                    if (is_null($value) || empty($value) || $key === '_links') {
+                    if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
                         unset($taxonomy[$key]);
                     }
                 }
