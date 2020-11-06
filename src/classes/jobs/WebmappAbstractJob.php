@@ -185,9 +185,21 @@ abstract class WebmappAbstractJob
                     }
                 }
 
+                $floatProperties = ["min_size", "max_size", "icon_size", "min_visible_zoom", "min_size_zoom", "icon_zoom"];
+                $intProperties = [];
+                $stringProperties = [];
+
                 foreach ($taxonomy as $key => $value) {
                     if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
                         unset($taxonomy[$key]);
+                    } else {
+                        if (in_array($key, $floatProperties)) {
+                            $taxonomy[$key] = floatval($taxonomy[$key]);
+                        } else if (in_array($key, $intProperties)) {
+                            $taxonomy[$key] = intval($taxonomy[$key]);
+                        } else if (in_array($key, $stringProperties)) {
+                            $taxonomy[$key] = strval($taxonomy[$key]);
+                        }
                     }
                 }
                 $taxonomyJson[$taxId] = $taxonomy;
