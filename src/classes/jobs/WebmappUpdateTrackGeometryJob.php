@@ -65,7 +65,7 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
         } catch (WebmappExceptionFeaturesNoGeometry $e) {
             throw new WebmappExceptionHttpRequest("The track {$id} is missing the geometry");
         } catch (WebmappExceptionGeoJsonBadGeomType $e) {
-            throw new WebmappExceptionHttpRequest("The track {$id} Has a wrong geometry type: " . $e->getMessage());
+            throw new WebmappExceptionHttpRequest("The track {$id} has an invalid geometry type: " . $e->getMessage());
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists");
         } catch (Exception $e) {

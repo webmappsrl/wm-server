@@ -46,7 +46,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         } catch (WebmappExceptionFeaturesNoGeometry $e) {
             throw new WebmappExceptionHttpRequest("The track {$id} is missing the geometry");
         } catch (WebmappExceptionGeoJsonBadGeomType $e) {
-            throw new WebmappExceptionHttpRequest("The track {$id} Has a wrong geometry type: " . $e->getMessage());
+            throw new WebmappExceptionHttpRequest("The track {$id} has an invalid geometry type: " . $e->getMessage());
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists");
         } catch (Exception $e) {
@@ -69,7 +69,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         }
         if ($track->hasGeometry()) {
             $track->writeToPostGis();
-            if ($track->getGeometryType() == 'LineString') {
+            if ($track->getGeometryType() === 'LineString') {
                 if ($this->verbose) {
                     WebmappUtils::verbose("Adding 3D and computed properties");
                 }
@@ -88,13 +88,19 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 //                    WebmappUtils::verbose("Generating track images");
 //                }
 //                $track->generateAllImages('', $this->track_path);
+            } else if ($track->getGeometryType() !== 'MultiLineString') {
+                throw new WebmappExceptionGeoJsonBadGeomType("{$track->getGeometryType()} geometry type is not accepted");
             }
         } else {
             throw new WebmappExceptionFeaturesNoGeometry("Track {$track->getId()} is missing the geometry");
         }
 
         try {
-            $this->_store("generate_elevation_chart_image", ["id" => $this->params["id"]]);
+            if ($track->getGeometryType() === 'LineString') {
+                $this->_store("generate_elevation_chart_image", ["id" => $this->params["id"]]);
+            } else if ($track->getGeometryType() === 'MultiLineString') {
+                WebmappUtils::warning("The track is a MultiLineString. Elevation is not supported");
+            }
         } catch (WebmappExceptionHoquRequest|WebmappExceptionHttpRequest $e) {
             WebmappUtils::warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
         }

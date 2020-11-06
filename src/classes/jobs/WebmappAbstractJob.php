@@ -109,9 +109,6 @@ abstract class WebmappAbstractJob
 
         if ($this->verbose) {
             WebmappUtils::verbose("Taxonomies: " . json_encode($taxonomies));
-        }
-
-        if ($this->verbose) {
             WebmappUtils::verbose("Checking taxonomies...");
         }
         foreach ($taxonomyTypes as $taxTypeId) {
@@ -138,7 +135,7 @@ abstract class WebmappAbstractJob
                 } else {
                     try {
                         $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}");
-                        $this->taxonomies[$taxId] = $taxonomy;
+                        $this->taxonomies[$taxId] = $taxonomy; // Cache downloaded taxonomies
                     } catch (WebmappExceptionHttpRequest $e) {
                         WebmappUtils::warning("Taxonomy {$taxId} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}. Skipping");
                     }
@@ -165,7 +162,7 @@ abstract class WebmappAbstractJob
                 }
             }
 
-            // Remove poi from its not taxonomies
+            // Remove poi from its not taxonomies and clear empty values
             foreach ($taxonomyJson as $taxId => $taxonomy) {
                 if (
                     !in_array($taxId, $taxArray) &&
@@ -187,6 +184,13 @@ abstract class WebmappAbstractJob
                         $taxonomyJson[$taxId] = $taxonomy;
                     }
                 }
+
+                foreach ($taxonomy as $key => $value) {
+                    if (is_null($value) || empty($value) || $key === '_links') {
+                        unset($taxonomy[$key]);
+                    }
+                }
+                $taxonomyJson[$taxId] = $taxonomy;
             }
 
             if ($this->verbose) {

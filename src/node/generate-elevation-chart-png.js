@@ -65,8 +65,18 @@ try {
 
 function processGeojson(content, config) {
     try {
-        let geojson = JSON.parse(content),
-            chartNode = new ChartjsNode(config.width, config.height),
+        let geojson = JSON.parse(content);
+
+        if (!geojson || !geojson["geometry"] || !geojson["geometry"]["type"]) {
+            console.error("Geometry not defined");
+            return;
+        }
+        if (geojson["geometry"]["type"] !== "LineString") {
+            console.error("The geometry " + geojson["geometry"]["type"] + " is not supported to generate the elevation chart image");
+            return;
+        }
+
+        let chartNode = new ChartjsNode(config.width, config.height),
             chartJsOptions = getChartOptions(geojson, config);
 
         chartNode.on("beforeDraw", function (Chartjs) {
