@@ -2,3 +2,4 @@ test-log/
 data/
 src/config.json
 .idea
+src/node/node_modules
