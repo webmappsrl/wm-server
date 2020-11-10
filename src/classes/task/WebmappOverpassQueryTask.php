@@ -47,14 +47,13 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             ];
 
             if (array_key_exists("elements", $json) && is_array($json["elements"])) {
-                $id = 0;
+                $id = 1;
                 foreach ($json["elements"] as $item) {
                     if (is_array($item) &&
                         array_key_exists("lat", $item) &&
                         array_key_exists("lon", $item) &&
                         array_key_exists("tags", $item) &&
-                        is_array($item["tags"]) &&
-                        array_key_exists("name", $item["tags"])) {
+                        is_array($item["tags"])) {
                         $feature = [
                             "type" => "Feature",
                             "geometry" => [
@@ -66,9 +65,12 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             ],
                             "properties" => [
                                 "id" => $id,
-                                "name" => strval($item["tags"]["name"])
                             ]
                         ];
+
+                        if (isset($item["tags"]["name"])) {
+                            $feature["properties"]["name"] = strval($item["tags"]["name"]);
+                        }
 
                         $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
 
@@ -82,13 +84,13 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             foreach ($this->_mapping as $key => $mappingArray) {
                                 $value = "";
                                 if (is_array($mappingArray)) {
-                                    foreach ($mappingArray as $item) {
-                                        if (is_string($item) && substr($item, 0, 1) === "$") {
-                                            if (array_key_exists(substr($item, 1), $feature["properties"])) {
-                                                $value .= strval($feature["properties"][substr($item, 1)]);
+                                    foreach ($mappingArray as $val) {
+                                        if (is_string($val) && substr($val, 0, 1) === "$") {
+                                            if (array_key_exists(substr($val, 1), $feature["properties"])) {
+                                                $value .= strval($feature["properties"][substr($val, 1)]);
                                             }
                                         } else {
-                                            $value .= strval($item);
+                                            $value .= strval($val);
                                         }
                                     }
                                 } else $value = strval($mappingArray);
@@ -97,9 +99,58 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             }
                         }
 
-                        $geojson["features"][] = $feature;
+                        if (isset($item["tags"]["wikimedia_commons"])) {
+                            $filename = $item["tags"]["wikimedia_commons"];
+                            $url = null;
+                            try {
+                                echo "Fetching wikimedia img url from https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600...";
+                                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600"), true);
+                                if (isset($apiJson) &&
+                                    isset($apiJson["query"]) &&
+                                    isset($apiJson["query"]["pages"]) &&
+                                    is_array($apiJson["query"]["pages"]) &&
+                                    count($apiJson["query"]["pages"]) > 0
+                                ) {
+                                    $key = array_key_first($apiJson["query"]["pages"]);
+                                    if (isset($apiJson["query"]["pages"][$key]) &&
+                                        isset($apiJson["query"]["pages"][$key]["imageinfo"]) &&
+                                        is_array($apiJson["query"]["pages"][$key]["imageinfo"]) &&
+                                        count($apiJson["query"]["pages"][$key]["imageinfo"]) > 0) {
+                                        $imageKey = array_key_first($apiJson["query"]["pages"][$key]["imageinfo"]);
+                                        if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"])) {
+                                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"];
+                                        } else if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"])) {
+                                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"];
+                                        }
+                                    }
+                                }
+                                echo " OK\n";
+                            } catch (Exception $e) {
+                                echo "\nError getting wikimedia file: {$e->getMessage()}\n";
+                            }
 
-                        $id++;
+                            if (isset($url)) {
+                                if (!isset($feature["properties"]["image"])) {
+                                    $feature["properties"]["image"] = $url;
+                                } else {
+                                    if (!isset($feature["properties"]["imageGallery"])) {
+                                        $feature["properties"]["imageGallery"] = [];
+                                    }
+                                    $feature["properties"]["imageGallery"][] = [
+                                        "id" => $url,
+                                        "src" => $url,
+                                        "caption" => ""
+                                    ];
+                                }
+                            }
+                        }
+
+                        if (isset($feature["properties"]["name"])) {
+                            $geojson["features"][] = $feature;
+                            $id++;
+                        }
                     }
                 }
             }
@@ -146,8 +197,6 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadString);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100);
-//        curl_setopt($ch, CURLOPT_TIMEOUT, 100);
         $result = curl_exec($ch);
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
             throw new WebmappException("An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while calling {$url}: " . curl_error($ch));
