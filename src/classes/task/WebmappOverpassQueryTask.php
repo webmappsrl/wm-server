@@ -126,7 +126,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                         }
                                     }
                                 }
-                                echo " OK";
+                                echo " OK\n";
                             } catch (Exception $e) {
                                 echo "\nError getting wikimedia file: {$e->getMessage()}\n";
                             }
