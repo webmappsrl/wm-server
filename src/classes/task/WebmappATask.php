@@ -141,7 +141,7 @@ class WebmappATask extends WebmappAbstractTask
                 // Scrivi Layer
                 echo " ... writing ";
                 $l = array();
-                $l['type'] = 'featureCollection';
+                $l['type'] = 'FeatureCollection';
                 $l['features'] = $features;
                 file_put_contents($this->tax_path . '/' . $termid . '.geojson', json_encode($l));
                 echo " DONE!\n";

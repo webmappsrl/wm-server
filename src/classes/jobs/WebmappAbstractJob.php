@@ -158,6 +158,17 @@ abstract class WebmappAbstractJob
 
                 if (isset($taxonomy)) {
                     $taxonomy["items"] = $items;
+
+                    if (isset($taxonomy['featured_image']) && is_array($taxonomy['featured_image'])) {
+                        if (isset($taxonomy['featured_image']['sizes']['large'])) {
+                            $taxonomy['image'] = ($taxonomy['featured_image']['sizes']['large']);
+                        } else if (isset($taxonomy['featured_image']['sizes']['medium_large'])) {
+                            $taxonomy['image'] = ($taxonomy['featured_image']['sizes']['medium_large']);
+                        } else if (isset($item['featured_image']['sizes']['medium'])) {
+                            $taxonomy['image'] = ($taxonomy['featured_image']['sizes']['medium']);
+                        }
+                    }
+
                     $taxonomyJson[$taxId] = $taxonomy;
                 }
             }

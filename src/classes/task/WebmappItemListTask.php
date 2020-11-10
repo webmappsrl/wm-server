@@ -1,4 +1,5 @@
 <?php
+
 class WebmappItemListTask extends WebmappAbstractTask
 {
 
@@ -100,7 +101,7 @@ class WebmappItemListTask extends WebmappAbstractTask
         }
 
         // Write json file in resources
-        $json = array('type' => 'featureCollection', 'features' => $features);
+        $json = array('type' => 'FeatureCollection', 'features' => $features);
         file_put_contents($this->getRoot() . '/resources/' . $this->options['out'] . '.json', json_encode($json));
         return true;
     }
