@@ -47,7 +47,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             ];
 
             if (array_key_exists("elements", $json) && is_array($json["elements"])) {
-                $id = 0;
+                $id = 1;
                 foreach ($json["elements"] as $item) {
                     if (is_array($item) &&
                         array_key_exists("lat", $item) &&
@@ -94,6 +94,50 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                 } else $value = strval($mappingArray);
 
                                 $feature["properties"][$key] = $value;
+                            }
+                        }
+
+                        if (isset($item["tags"]["wikimedia_commons"])) {
+                            $filename = $item["tags"]["wikimedia_commons"];
+                            $url = null;
+                            try {
+                                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1"), true);
+                                if (isset($apiJson) &&
+                                    is_array($apiJson) &&
+                                    isset($apiJson["query"]) &&
+                                    isset($apiJson["query"]["pages"]) &&
+                                    is_array($apiJson["query"]["pages"]) &&
+                                    count($apiJson["query"]["pages"]) > 0
+                                ) {
+                                    $key = array_key_first($apiJson["query"]["pages"]);
+                                    if (isset($apiJson["query"]["pages"][$key]) &&
+                                        isset($apiJson["query"]["pages"][$key]["imageinfo"]) &&
+                                        is_array($apiJson["query"]["pages"][$key]["imageinfo"]) &&
+                                        count($apiJson["query"]["pages"][$key]["imageinfo"]) > 0) {
+                                        $imageKey = array_key_first($apiJson["query"]["pages"][$key]["imageinfo"]);
+                                        if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"])) {
+                                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"];
+                                        }
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                echo "Error getting wikimedia file: {$e->getMessage()}\n";
+                            }
+
+                            if (isset($url)) {
+                                if (!isset($feature["properties"]["image"])) {
+                                    $feature["properties"]["image"] = $url;
+                                } else {
+                                    if (!isset($feature["properties"]["imageGallery"])) {
+                                        $feature["properties"]["imageGallery"] = [];
+                                    }
+                                    $feature["properties"]["imageGallery"][] = [
+                                        "id" => $url,
+                                        "src" => $url,
+                                        "caption" => ""
+                                    ];
+                                }
                             }
                         }
 
@@ -146,8 +190,6 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadString);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100);
-//        curl_setopt($ch, CURLOPT_TIMEOUT, 100);
         $result = curl_exec($ch);
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
             throw new WebmappException("An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while calling {$url}: " . curl_error($ch));
