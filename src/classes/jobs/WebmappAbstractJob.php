@@ -161,19 +161,30 @@ abstract class WebmappAbstractJob
 
                     if (isset($taxonomy['featured_image']) && is_array($taxonomy['featured_image'])) {
                         if (isset($taxonomy['featured_image']['sizes']['large'])) {
-                            $taxonomy['image'] = ($taxonomy['featured_image']['sizes']['large']);
+                            $taxonomy['image'] = $taxonomy['featured_image']['sizes']['large'];
                         } else if (isset($taxonomy['featured_image']['sizes']['medium_large'])) {
-                            $taxonomy['image'] = ($taxonomy['featured_image']['sizes']['medium_large']);
-                        } else if (isset($item['featured_image']['sizes']['medium'])) {
-                            $taxonomy['image'] = ($taxonomy['featured_image']['sizes']['medium']);
+                            $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium_large'];
+                        } else if (isset($taxonomy['featured_image']['sizes']['medium'])) {
+                            $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium'];
+                        }
+                    } else if (isset($taxonomy["acf"]['featured_image']) && is_array($taxonomy["acf"]['featured_image'])) {
+                        if (isset($taxonomy["acf"]['featured_image']['sizes']['large'])) {
+                            $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['large'];
+                        } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium_large'])) {
+                            $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium_large'];
+                        } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium'])) {
+                            $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium'];
                         }
                     }
 
                     $count = 0;
-                    foreach ($taxonomies["items"] as $items) {
-                        $count += count($items);
+                    foreach ($taxonomies["items"] as $postTypeIds) {
+                        $count += count($postTypeIds);
                     }
                     $taxonomy["count"] = $count;
+
+                    unset($taxonomy["acf"]);
+                    unset($taxonomy["featured_image"]);
 
                     $taxonomyJson[$taxId] = $taxonomy;
                 }
