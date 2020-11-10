@@ -84,13 +84,13 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             foreach ($this->_mapping as $key => $mappingArray) {
                                 $value = "";
                                 if (is_array($mappingArray)) {
-                                    foreach ($mappingArray as $item) {
-                                        if (is_string($item) && substr($item, 0, 1) === "$") {
-                                            if (array_key_exists(substr($item, 1), $feature["properties"])) {
-                                                $value .= strval($feature["properties"][substr($item, 1)]);
+                                    foreach ($mappingArray as $val) {
+                                        if (is_string($val) && substr($val, 0, 1) === "$") {
+                                            if (array_key_exists(substr($val, 1), $feature["properties"])) {
+                                                $value .= strval($feature["properties"][substr($val, 1)]);
                                             }
                                         } else {
-                                            $value .= strval($item);
+                                            $value .= strval($val);
                                         }
                                     }
                                 } else $value = strval($mappingArray);
@@ -105,7 +105,6 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             try {
                                 $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1"), true);
                                 if (isset($apiJson) &&
-                                    is_array($apiJson) &&
                                     isset($apiJson["query"]) &&
                                     isset($apiJson["query"]["pages"]) &&
                                     is_array($apiJson["query"]["pages"]) &&
