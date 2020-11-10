@@ -103,7 +103,8 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             $filename = $item["tags"]["wikimedia_commons"];
                             $url = null;
                             try {
-                                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1"), true);
+                                echo "Fetching wikimedia img url from https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600...";
+                                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600"), true);
                                 if (isset($apiJson) &&
                                     isset($apiJson["query"]) &&
                                     isset($apiJson["query"]["pages"]) &&
@@ -117,13 +118,17 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                         count($apiJson["query"]["pages"][$key]["imageinfo"]) > 0) {
                                         $imageKey = array_key_first($apiJson["query"]["pages"][$key]["imageinfo"]);
                                         if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"])) {
+                                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"];
+                                        } else if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
                                             isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"])) {
                                             $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"];
                                         }
                                     }
                                 }
+                                echo " OK";
                             } catch (Exception $e) {
-                                echo "Error getting wikimedia file: {$e->getMessage()}\n";
+                                echo "\nError getting wikimedia file: {$e->getMessage()}\n";
                             }
 
                             if (isset($url)) {
