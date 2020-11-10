@@ -53,8 +53,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                         array_key_exists("lat", $item) &&
                         array_key_exists("lon", $item) &&
                         array_key_exists("tags", $item) &&
-                        is_array($item["tags"]) &&
-                        array_key_exists("name", $item["tags"])) {
+                        is_array($item["tags"])) {
                         $feature = [
                             "type" => "Feature",
                             "geometry" => [
@@ -66,9 +65,12 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             ],
                             "properties" => [
                                 "id" => $id,
-                                "name" => strval($item["tags"]["name"])
                             ]
                         ];
+
+                        if (isset($item["tags"]["name"])) {
+                            $feature["properties"]["name"] = strval($item["tags"]["name"]);
+                        }
 
                         $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
 
@@ -141,9 +143,10 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             }
                         }
 
-                        $geojson["features"][] = $feature;
-
-                        $id++;
+                        if (isset($feature["properties"]["name"])) {
+                            $geojson["features"][] = $feature;
+                            $id++;
+                        }
                     }
                 }
             }
