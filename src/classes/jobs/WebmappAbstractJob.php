@@ -169,6 +169,12 @@ abstract class WebmappAbstractJob
                         }
                     }
 
+                    $count = 0;
+                    foreach ($taxonomies["items"] as $items) {
+                        $count += count($items);
+                    }
+                    $taxonomy["count"] = $count;
+
                     $taxonomyJson[$taxId] = $taxonomy;
                 }
             }
