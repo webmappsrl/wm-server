@@ -13,7 +13,7 @@ abstract class WebmappAbstractJob
     protected $kProjects; // Projects root of the various possible K
     protected $storeToken; // Token to create other jobs
     protected $hoquBaseUrl; // Token to create other jobs
-    protected $taxonomies; // An array of already downloaded taxonomies
+    protected $cachedTaxonomies; // An array of already downloaded taxonomies
 
     public function __construct(string $name, string $instanceUrl, string $params, bool $verbose)
     {
@@ -67,7 +67,7 @@ abstract class WebmappAbstractJob
             WebmappUtils::verbose("  params: " . json_encode($this->params));
         }
 
-        $this->taxonomies = [];
+        $this->cachedTaxonomies = [];
     }
 
     public function run()
@@ -130,12 +130,12 @@ abstract class WebmappAbstractJob
                 $items = [
                     $postType => [$id],
                 ];
-                if (isset($this->taxonomies[$taxId])) {
-                    $taxonomy = $this->taxonomies[$taxId];
+                if (isset($this->cachedTaxonomies[$taxId])) {
+                    $taxonomy = $this->cachedTaxonomies[$taxId];
                 } else {
                     try {
                         $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}");
-                        $this->taxonomies[$taxId] = $taxonomy; // Cache downloaded taxonomies
+                        $this->cachedTaxonomies[$taxId] = $taxonomy; // Cache downloaded taxonomies
                     } catch (WebmappExceptionHttpRequest $e) {
                         WebmappUtils::warning("Taxonomy {$taxId} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}. Skipping");
                     }
