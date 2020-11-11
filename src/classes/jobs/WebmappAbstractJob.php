@@ -301,8 +301,10 @@ abstract class WebmappAbstractJob
         }
 
         $count = 0;
-        foreach ($taxonomy["items"] as $postTypeIds) {
-            $count += count($postTypeIds);
+        if (isset($taxonomy["items"])) {
+            foreach ($taxonomy["items"] as $postTypeIds) {
+                $count += count($postTypeIds);
+            }
         }
         $taxonomy["count"] = $count;
 
