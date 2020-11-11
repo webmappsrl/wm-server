@@ -58,11 +58,9 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", json_encode($json));
 
-            $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-            $this->_setTaxonomies($id, $taxonomies, "track");
-
+            $this->_setTaxonomies("track", $json);
             $this->_updateKProjects("track", $id, $track->getJson());
-            
+
             $this->_updateRelatedRoutes($id);
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists");

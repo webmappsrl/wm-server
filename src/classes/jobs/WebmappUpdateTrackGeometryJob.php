@@ -50,8 +50,7 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
                 if ($this->verbose) {
                     WebmappUtils::verbose("Generating taxonomies as it is the first geojson generation");
                 }
-                $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-                $this->_setTaxonomies($id, $taxonomies, "track");
+                $this->_setTaxonomies("track", $json);
             }
 
             if ($this->verbose) {

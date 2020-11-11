@@ -99,12 +99,16 @@ abstract class WebmappAbstractJob
     /**
      * Set the taxonomies for the post id
      *
-     * @param int $id the post id
-     * @param array $taxonomies the taxonomies array
      * @param string $postType the post type for the id
+     * @param array $json the json of the feature
      */
-    protected function _setTaxonomies(int $id, array $taxonomies, string $postType = "poi")
+    protected function _setTaxonomies(string $postType, array $json)
     {
+        $id = isset($json["properties"]) && isset($json["properties"]["id"]) ? $json["properties"]["id"] : null;
+        if (!isset($id)) {
+            return;
+        }
+        $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
         $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
 
         if ($this->verbose) {
@@ -149,9 +153,8 @@ abstract class WebmappAbstractJob
                     $items = array_key_exists("items", $taxonomyJson[$taxId]) ? $taxonomyJson[$taxId]["items"] : [];
                     $postTypeArray = array_key_exists($postType, $items) && is_array($items[$postType]) ? $items[$postType] : [];
 
-                    if (!in_array($id, $postTypeArray)) {
-                        $postTypeArray[] = $id;
-                    }
+                    $postTypeArray[] = $id;
+                    $postTypeArray = array_values(array_unique($postTypeArray));
 
                     $items[$postType] = $postTypeArray;
                 }
@@ -213,24 +216,27 @@ abstract class WebmappAbstractJob
                     }
                 }
 
-                $floatProperties = ["min_size", "max_size", "icon_size", "min_visible_zoom", "min_size_zoom", "icon_zoom"];
-                $intProperties = [];
-                $stringProperties = [];
+                if (isset($taxonomyJson[$taxId])) {
+                    $tax = $taxonomyJson[$taxId];
+                    $floatProperties = ["min_size", "max_size", "icon_size", "min_visible_zoom", "min_size_zoom", "icon_zoom"];
+                    $intProperties = [];
+                    $stringProperties = [];
 
-                foreach ($taxonomy as $key => $value) {
-                    if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
-                        unset($taxonomy[$key]);
-                    } else {
-                        if (in_array($key, $floatProperties)) {
-                            $taxonomy[$key] = floatval($taxonomy[$key]);
-                        } else if (in_array($key, $intProperties)) {
-                            $taxonomy[$key] = intval($taxonomy[$key]);
-                        } else if (in_array($key, $stringProperties)) {
-                            $taxonomy[$key] = strval($taxonomy[$key]);
+                    foreach ($tax as $key => $value) {
+                        if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
+                            unset($tax[$key]);
+                        } else {
+                            if (in_array($key, $floatProperties)) {
+                                $tax[$key] = floatval($tax[$key]);
+                            } else if (in_array($key, $intProperties)) {
+                                $tax[$key] = intval($tax[$key]);
+                            } else if (in_array($key, $stringProperties)) {
+                                $tax[$key] = strval($tax[$key]);
+                            }
                         }
                     }
+                    $taxonomyJson[$taxId] = $tax;
                 }
-                $taxonomyJson[$taxId] = $taxonomy;
             }
 
             if ($this->verbose) {

@@ -31,8 +31,7 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $poi->getJson());
 
-            $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-            $this->_setTaxonomies($id, $taxonomies, "poi");
+            $this->_setTaxonomies("poi", json_decode($poi->getJson(), true));
 
             $this->_updateKProjects("poi", $id, $poi->getJson());
         } catch (WebmappExceptionPOINoCoodinates $e) {

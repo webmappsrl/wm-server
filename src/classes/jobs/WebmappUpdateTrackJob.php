@@ -37,8 +37,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $track->getJson());
 
-            $taxonomies = $track->hasProperty("taxonomy") && is_array($track->getProperty("taxonomy")) ? $track->getProperty("taxonomy") : [];
-            $this->_setTaxonomies($id, $taxonomies, "track");
+            $this->_setTaxonomies("track", json_decode($track->getJson(), true));
 
             $this->_updateKProjects("track", $id, $track->getJson());
 

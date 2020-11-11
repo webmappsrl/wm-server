@@ -79,7 +79,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             $this->_updateKProjects('route', $id, $route->getJson());
             $this->_updateKRoots($id, $route);
             $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-            $this->_setTaxonomies($id, $taxonomies, "route");
+            $this->_setTaxonomies("route", $json);
             $this->_setKTaxonomies($id, $taxonomies);
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the route with id {$id} does not exists");
@@ -347,7 +347,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                             $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
                         }
 
-                        if (!$aJson) {
+                        if (!isset($aJson)) {
                             WebmappUtils::warning("The file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing and should exists. Skipping the k {$taxTypeId} generation");
 
                             if (!$kJson) {
@@ -371,7 +371,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                                         if (!isset($items[$postType])) {
                                             $items[$postType] = [];
                                         }
+                                        foreach ($items as $postTypeKey => $value) {
+                                            if ($postTypeKey !== $postType) {
+                                                unset($items[$postTypeKey]);
+                                            }
+                                        }
                                         $items[$postType][] = $id;
+                                        $items[$postType] = array_values(array_unique($items[$postType]));
                                     }
                                     $taxonomy["items"] = $items;
                                     $kJson[$taxId] = $taxonomy;
