@@ -162,38 +162,50 @@ abstract class WebmappAbstractJob
                 if (isset($taxonomy)) {
                     $taxonomy["items"] = $items;
 
-                    if (isset($taxonomy['featured_image']) && is_array($taxonomy['featured_image'])) {
-                        if (isset($taxonomy['featured_image']['sizes']['large'])) {
-                            $taxonomy['image'] = $taxonomy['featured_image']['sizes']['large'];
-                        } else if (isset($taxonomy['featured_image']['sizes']['medium_large'])) {
-                            $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium_large'];
-                        } else if (isset($taxonomy['featured_image']['sizes']['medium'])) {
-                            $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium'];
-                        }
-                    } else if (isset($taxonomy["acf"]['featured_image']) && is_array($taxonomy["acf"]['featured_image'])) {
-                        if (isset($taxonomy["acf"]['featured_image']['sizes']['large'])) {
-                            $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['large'];
-                        } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium_large'])) {
-                            $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium_large'];
-                        } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium'])) {
-                            $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium'];
-                        }
-                    }
-
-                    $count = 0;
-                    foreach ($taxonomy["items"] as $postTypeIds) {
-                        $count += count($postTypeIds);
-                    }
-                    $taxonomy["count"] = $count;
-
-                    unset($taxonomy["acf"]);
-                    unset($taxonomy["featured_image"]);
-
+                    $taxonomy = $this->_cleanTaxonomy($taxonomy);
                     $taxonomyJson[$taxId] = $taxonomy;
+
+                    if ($this->verbose) {
+                        WebmappUtils::verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
+                    }
+                    $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
+                    $taxonomyGeojson = [
+                        "type" => "FeatureCollection",
+                        "features" => [],
+                        "properties" => $taxonomy
+                    ];
+                    if (file_exists($geojsonUrl)) {
+                        $file = json_decode(file_get_contents($geojsonUrl), true);
+                        if (isset($file["features"]) && is_array($file["features"])) {
+                            $taxonomyGeojson["features"] = $file["features"];
+                        }
+                    }
+
+                    $found = false;
+                    $key = 0;
+
+                    while (!$found && $key < count($taxonomyGeojson["features"])) {
+                        if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id)) {
+                            $found = true;
+                        } else {
+                            $key++;
+                        }
+                    }
+
+                    if ($found) {
+                        $taxonomyGeojson["features"][$key] = $json;
+                    } else {
+                        $taxonomyGeojson["features"][] = $json;
+                    }
+
+                    if ($this->verbose) {
+                        WebmappUtils::verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
+                    }
+                    file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
                 }
             }
 
-            // Remove poi from its not taxonomies and clear empty values
+            // Remove post from its not taxonomies
             foreach ($taxonomyJson as $taxId => $taxonomy) {
                 if (
                     !in_array($taxId, $taxArray) &&
@@ -218,24 +230,39 @@ abstract class WebmappAbstractJob
 
                 if (isset($taxonomyJson[$taxId])) {
                     $tax = $taxonomyJson[$taxId];
-                    $floatProperties = ["min_size", "max_size", "icon_size", "min_visible_zoom", "min_size_zoom", "icon_zoom"];
-                    $intProperties = [];
-                    $stringProperties = [];
+                    $tax = $this->_cleanTaxonomy($tax);
+                    $taxonomyJson[$taxId] = $tax;
+                }
 
-                    foreach ($tax as $key => $value) {
-                        if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
-                            unset($tax[$key]);
-                        } else {
-                            if (in_array($key, $floatProperties)) {
-                                $tax[$key] = floatval($tax[$key]);
-                            } else if (in_array($key, $intProperties)) {
-                                $tax[$key] = intval($tax[$key]);
-                            } else if (in_array($key, $stringProperties)) {
-                                $tax[$key] = strval($tax[$key]);
+                if (!in_array($taxId, $taxArray)) {
+                    $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
+                    if (file_exists($geojsonUrl)) {
+                        if ($this->verbose) {
+                            WebmappUtils::verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
+                        }
+                        $taxonomyGeojson = json_decode(file_get_contents($geojsonUrl), true);
+                        $found = false;
+                        $key = 0;
+                        while (!$found && $key < count($taxonomyGeojson["features"])) {
+                            if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id)) {
+                                $found = true;
+                            } else {
+                                $key++;
+                            }
+                        }
+
+                        if ($found) {
+                            if ($this->verbose) {
+                                WebmappUtils::verbose("Cleaning {$taxTypeId} {$taxId} taxonomy term feature collection");
+                            }
+                            unset($taxonomyGeojson["features"][$key]);
+                            if (count($taxonomyGeojson["features"]) === 0) {
+                                unlink($geojsonUrl);
+                            } else {
+                                file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
                             }
                         }
                     }
-                    $taxonomyJson[$taxId] = $tax;
                 }
             }
 
@@ -244,6 +271,62 @@ abstract class WebmappAbstractJob
             }
             file_put_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($taxonomyJson));
         }
+    }
+
+    /**
+     * Clean the unneeded values of the given taxonomy
+     *
+     * @param array $taxonomy the taxonomy to clean
+     * @return array the resulted cleaned taxonomy
+     */
+    private function _cleanTaxonomy(array $taxonomy)
+    {
+        if (isset($taxonomy['featured_image']) && is_array($taxonomy['featured_image'])) {
+            if (isset($taxonomy['featured_image']['sizes']['large'])) {
+                $taxonomy['image'] = $taxonomy['featured_image']['sizes']['large'];
+            } else if (isset($taxonomy['featured_image']['sizes']['medium_large'])) {
+                $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium_large'];
+            } else if (isset($taxonomy['featured_image']['sizes']['medium'])) {
+                $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium'];
+            }
+        } else if (isset($taxonomy["acf"]['featured_image']) && is_array($taxonomy["acf"]['featured_image'])) {
+            if (isset($taxonomy["acf"]['featured_image']['sizes']['large'])) {
+                $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['large'];
+            } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium_large'])) {
+                $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium_large'];
+            } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium'])) {
+                $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium'];
+            }
+        }
+
+        $count = 0;
+        foreach ($taxonomy["items"] as $postTypeIds) {
+            $count += count($postTypeIds);
+        }
+        $taxonomy["count"] = $count;
+
+        unset($taxonomy["acf"]);
+        unset($taxonomy["featured_image"]);
+
+        $floatProperties = ["min_size", "max_size", "icon_size", "min_visible_zoom", "min_size_zoom", "icon_zoom"];
+        $intProperties = [];
+        $stringProperties = [];
+
+        foreach ($taxonomy as $key => $value) {
+            if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
+                unset($taxonomy[$key]);
+            } else {
+                if (in_array($key, $floatProperties)) {
+                    $taxonomy[$key] = floatval($taxonomy[$key]);
+                } else if (in_array($key, $intProperties)) {
+                    $taxonomy[$key] = intval($taxonomy[$key]);
+                } else if (in_array($key, $stringProperties)) {
+                    $taxonomy[$key] = strval($taxonomy[$key]);
+                }
+            }
+        }
+
+        return $taxonomy;
     }
 
     /**
