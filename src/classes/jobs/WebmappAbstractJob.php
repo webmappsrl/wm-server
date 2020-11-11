@@ -17,6 +17,7 @@ abstract class WebmappAbstractJob
 
     public function __construct(string $name, string $instanceUrl, string $params, bool $verbose)
     {
+        declare(ticks=1);
         $this->verbose = $verbose;
         $this->name = $name;
 

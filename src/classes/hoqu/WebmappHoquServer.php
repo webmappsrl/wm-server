@@ -22,6 +22,8 @@ class WebmappHoquServer
     private $updateToken;
     private $jobsAvailable;
     private $verbose;
+    private $interrupted;
+    private $running;
 
     /**
      * WebmappHoquServer constructor.
@@ -107,6 +109,29 @@ class WebmappHoquServer
     }
 
     /**
+     * Handle the command line signals
+     *
+     * @param int $signal the signal number
+     */
+    public function signal_handler(int $signal)
+    {
+        if ($this->running) {
+            WebmappUtils::warning("");
+        }
+        switch ($signal) {
+            case SIGINT:
+                if ($this->running) {
+                    WebmappUtils::warning("  [CTRL - C] Performing soft interruption. Terminating job before closing");
+                }
+                $this->interrupted = true;
+                break;
+        }
+        if ($this->running) {
+            WebmappUtils::warning("");
+        }
+    }
+
+    /**
      * Run the HOQU server
      */
     public function run()
@@ -120,12 +145,17 @@ class WebmappHoquServer
             "task_available" => $this->jobsAvailable,
         ];
 
+        declare(ticks=1);
+        pcntl_signal(SIGINT, array($this, "signal_handler"));
+
         // TODO: Make it a daemon using a concurrency parameter
-        while (true) {
+        while (!$this->interrupted) {
+            $this->running = true;
             WebmappUtils::message("---------------------------------");
             $ch = $this->_getPutCurl($pullUrl, $payload);
             $job = curl_exec($ch);
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+                $this->running = false;
                 if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 204) {
                     WebmappUtils::message("No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
                 } else if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 0) {
@@ -149,7 +179,7 @@ class WebmappHoquServer
                     if (class_exists("Webmapp{$jobType}Job")) {
                         try {
                             $startTime = round(microtime(true) * 1000);
-                            WebmappUtils::title("Starting new {$jobType} job");
+                            WebmappUtils::title("Starting {$jobType} job {$job['id']}");
                             $a = new $jobClass($job['instance'], $job['parameters'], $this->verbose);
                             if ($this->verbose) {
                                 WebmappUtils::verbose("Running process...");
@@ -170,12 +200,18 @@ class WebmappHoquServer
                         WebmappUtils::error("Error executing job {$job['id']} - Job not supported");
                         $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
                     }
+                    $this->running = false;
                 } else {
+                    $this->running = false;
                     WebmappUtils::message("No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
                     sleep(SLEEP_TIME);
                 }
             }
         }
+
+        WebmappUtils::success("");
+        WebmappUtils::success("  Server terminated successfully");
+        WebmappUtils::success("");
     }
 
     /**
