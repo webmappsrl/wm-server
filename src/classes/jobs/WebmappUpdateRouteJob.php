@@ -168,19 +168,29 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                         }
                         if (!isset($conf["routesFilter"]) || !is_array($conf["routesFilter"]) || in_array($id, $conf["routesFilter"])) {
                             $this->_updateRouteIndex(
-                                "{$kProject->getRoot()}/geojson/route_index.geojson",
+//                                "{$kProject->getRoot()}/geojson/route_index.geojson",
+                                "{$kProject->getRoot()}/routes/route_index.geojson",
                                 $id,
                                 json_decode($route->getPoiJson(), true)
                             );
                             $this->_updateRouteIndex(
-                                "{$kProject->getRoot()}/geojson/full_geometry_route_index.geojson",
+//                                "{$kProject->getRoot()}/geojson/full_geometry_route_index.geojson",
+                                "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
                                 $id,
                                 json_decode($route->getTrackJson(), true)
                             );
                             $this->_updateKRouteDirectory($kProject, $id, $route);
                         } else {
-                            $this->_updateRouteIndex("{$kProject->getRoot()}/geojson/route_index.geojson", $id);
-                            $this->_updateRouteIndex("{$kProject->getRoot()}/geojson/full_geometry_route_index.geojson", $id);
+                            $this->_updateRouteIndex(
+//                                "{$kProject->getRoot()}/geojson/route_index.geojson",
+                                "{$kProject->getRoot()}/routes/route_index.geojson",
+                                $id
+                            );
+                            $this->_updateRouteIndex(
+//                                "{$kProject->getRoot()}/geojson/full_geometry_route_index.geojson",
+                                "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
+                                $id
+                            );
                         }
                     }
                 }
@@ -322,6 +332,12 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         }
     }
 
+    /**
+     * Set the taxonomies in the k projects
+     *
+     * @param int $id the route id
+     * @param array $taxonomies the taxonomies array
+     */
     private function _setKTaxonomies(int $id, array $taxonomies)
     {
         $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
