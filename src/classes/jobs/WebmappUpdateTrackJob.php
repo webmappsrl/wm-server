@@ -83,10 +83,22 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     WebmappUtils::verbose("Adding bounding box");
                 }
                 $track->addBBox();
+                $trackPath = "{$this->aProject->getRoot()}/track";
+                if (!file_exists($trackPath)) {
+                    system("mkdir -p {$trackPath}");
+                }
 //                if ($this->verbose) {
 //                    WebmappUtils::verbose("Generating track images");
 //                }
-//                $track->generateAllImages('', $this->track_path);
+//                $track->generateAllImages('', $trackPath);
+                if ($this->verbose) {
+                    WebmappUtils::verbose("Generating gpx");
+                }
+                $track->writeGPX($trackPath);
+                if ($this->verbose) {
+                    WebmappUtils::verbose("Generating kml");
+                }
+                $track->writeKML($trackPath);
             } else if ($track->getGeometryType() !== 'MultiLineString') {
                 throw new WebmappExceptionGeoJsonBadGeomType("{$track->getGeometryType()} geometry type is not accepted");
             }

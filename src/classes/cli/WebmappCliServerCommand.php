@@ -27,8 +27,8 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
             throw new WebmappExceptionParameterMandatory("HOQU pull key missing. Aborting");
         }
 
-        if (isset($options["serverId"]) && !empty($options["serverId"]) && intval($options["serverId"]) > 0) {
-            $this->_serverId = intval($options["serverId"]);
+        if (isset($options["serverId"]) && !empty($options["serverId"]) && strval($options["serverId"]) > 0) {
+            $this->_serverId = strval($options["serverId"]);
         }
         if (isset($this->_serverId)) {
             $wm_config["hoqu"]["server_id"] = $this->_serverId;
@@ -62,12 +62,12 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
 
     public function showHelp()
     {
-        $string = "\n
-Usage: wmcli server [subcommands]
-Available subcommands:
-//start (default) : Start a new server instance
-//stop [pid]      : Stop the existing server instance with the specified pid
-//log             : Log the active server instances\n";
+        $string = "
+Usage: wmcli server [--serverId] [--jobs]
+  --serverId      string that represent the server id to use to communicate with HOQU during execution
+  --jobs          string that represent the list of jobs executable by this server. The jobs must be specified separated by commas. The available jobs are: " . implode(", ", JOBS_AVAILABLE) . "\n
+Example:
+  wmcli server --serverId=\"server_poi_update\" --jobs=\"update_poi\"\n\n";
         echo $string;
     }
 

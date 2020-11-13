@@ -99,6 +99,12 @@ class WebmappUpdateTrackJobTest extends TestCase
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/who.json"), true);
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
+
+        // Check gpx and kml creation
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.gpx"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.gpx") > 0);
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.kml"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
     }
 
     function testFileUpdate()
@@ -132,6 +138,10 @@ class WebmappUpdateTrackJobTest extends TestCase
                 ]
             ];
             file_put_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json", json_encode($file));
+
+            // Forge gpx and kml re-creation
+            unlink("{$aEndpoint}/{$instanceName}/track/{$id}.gpx");
+            unlink("{$aEndpoint}/{$instanceName}/track/{$id}.kml");
 
             // Simulate a wrong set of data - name, ascent, first coordinates and geometry type
             // this job should change back only the name
@@ -201,5 +211,11 @@ class WebmappUpdateTrackJobTest extends TestCase
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/who.json"), true);
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
+
+        // Check gpx and kml creation
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.gpx"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.gpx") > 0);
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.kml"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
     }
 }

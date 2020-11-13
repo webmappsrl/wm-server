@@ -100,6 +100,12 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/who.json"), true);
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
+
+        // Check gpx and kml creation
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.gpx"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.gpx") > 0);
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.kml"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
     }
 
     function testFileUpdate()
@@ -145,6 +151,10 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
             $testGeometryType = $file["geometry"]["type"];
             $file["geometry"]["type"] = "Point";
             file_put_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson", json_encode($file));
+
+            // Forge gpx and kml re-creation
+            unlink("{$aEndpoint}/{$instanceName}/track/{$id}.gpx");
+            unlink("{$aEndpoint}/{$instanceName}/track/{$id}.kml");
 
             // Run this twice to force the files overwrite
             $job->run();
@@ -201,5 +211,11 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/who.json"), true);
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
+
+        // Check gpx and kml creation
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.gpx"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.gpx") > 0);
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.kml"));
+        $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
     }
 }
