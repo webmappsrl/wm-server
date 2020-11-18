@@ -27,8 +27,8 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
             throw new WebmappExceptionParameterMandatory("HOQU pull key missing. Aborting");
         }
 
-        if (isset($options["serverId"]) && !empty($options["serverId"]) && strval($options["serverId"]) > 0) {
-            $this->_serverId = strval($options["serverId"]);
+        if (isset($options["serverId"]) && !empty($options["serverId"])) {
+            $this->_serverId = $options["serverId"];
         }
         if (isset($this->_serverId)) {
             $wm_config["hoqu"]["server_id"] = $this->_serverId;

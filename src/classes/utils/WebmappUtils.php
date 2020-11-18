@@ -879,8 +879,14 @@ class WebmappUtils
         echo WebmappUtils::colorText($message, "red") . "\n";
     }
 
-    public static function verbose($message)
+    /**
+     * Write a message in gray as verbose message log
+     *
+     * @param string $message the message
+     * @param string $customHeader a custom header to replace to the default VERBOSE
+     */
+    public static function verbose(string $message, string $customHeader = 'VERBOSE')
     {
-        echo WebmappUtils::colorText("[VERBOSE]", "bold_gray") . " $message\n";
+        echo WebmappUtils::colorText("[{$customHeader}]", "bold_gray") . " $message\n";
     }
 }

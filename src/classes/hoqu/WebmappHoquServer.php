@@ -132,6 +132,14 @@ class WebmappHoquServer
     }
 
     /**
+     * @return string
+     */
+    private function _logHeader()
+    {
+        return date("Y-m-d H:i:s") . " - {$this->serverId} | ";
+    }
+
+    /**
      * Run the HOQU server
      */
     public function run()
@@ -157,11 +165,11 @@ class WebmappHoquServer
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
                 $this->running = false;
                 if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 204) {
-                    WebmappUtils::message("No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
+                    WebmappUtils::message($this->_logHeader() . "No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
                 } else if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 0) {
-                    WebmappUtils::warning("HOQU appears slow: " . curl_error($ch));
+                    WebmappUtils::warning($this->_logHeader() . "HOQU appears slow: " . curl_error($ch));
                 } else {
-                    WebmappUtils::error("An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while getting a new job: " . curl_error($ch));
+                    WebmappUtils::error($this->_logHeader() . "An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while getting a new job: " . curl_error($ch));
                 }
                 curl_close($ch);
                 sleep(SLEEP_TIME);
@@ -179,38 +187,38 @@ class WebmappHoquServer
                     if (class_exists("Webmapp{$jobType}Job")) {
                         try {
                             $startTime = round(microtime(true) * 1000);
-                            WebmappUtils::title("Starting {$jobType} job {$job['id']}");
+                            WebmappUtils::title($this->_logHeader() . "Starting {$jobType} job {$job['id']}");
                             $a = new $jobClass($job['instance'], $job['parameters'], $this->verbose);
                             if ($this->verbose) {
-                                WebmappUtils::verbose("Running process...");
+                                WebmappUtils::verbose($this->_logHeader() . "Running process...");
                             }
                             $a->run();
                             if ($this->verbose) {
-                                WebmappUtils::verbose("Process completed");
+                                WebmappUtils::verbose($this->_logHeader() . "Process completed");
                             }
                             $this->_jobCompleted(true, $job['id']);
                             $endTime = round(microtime(true) * 1000);
                             $duration = ($endTime - $startTime) / 1000;
-                            WebmappUtils::success("Job {$job['id']} completed in {$duration}");
+                            WebmappUtils::success($this->_logHeader() . "Job {$job['id']} completed in {$duration}");
                         } catch (Exception $e) {
-                            WebmappUtils::error("Error executing job {$job['id']}: {$e->getMessage()}");
+                            WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']}: {$e->getMessage()}");
                             $this->_jobCompleted(false, $job['id'], $e->getMessage());
                         }
                     } else {
-                        WebmappUtils::error("Error executing job {$job['id']} - Job not supported");
+                        WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']} - Job not supported");
                         $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
                     }
                     $this->running = false;
                 } else {
                     $this->running = false;
-                    WebmappUtils::message("No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
+                    WebmappUtils::message($this->_logHeader() . "No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
                     sleep(SLEEP_TIME);
                 }
             }
         }
 
         WebmappUtils::success("");
-        WebmappUtils::success("  Server terminated successfully");
+        WebmappUtils::success("    Server {$this->serverId} terminated successfully");
         WebmappUtils::success("");
     }
 
@@ -239,7 +247,7 @@ class WebmappHoquServer
         $ch = $this->_getPutCurl($url, $payload);
         curl_exec($ch);
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
-            WebmappUtils::error("An error occurred while calling {$url}: " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " - " . curl_error($ch));
+            WebmappUtils::error($this->_logHeader() . "An error occurred while calling {$url}: " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " - " . curl_error($ch));
         }
         curl_close($ch);
     }

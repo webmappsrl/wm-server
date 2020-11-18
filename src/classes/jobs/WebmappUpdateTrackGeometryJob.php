@@ -20,7 +20,7 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
         try {
             // Load track from be
             if ($this->verbose) {
-                WebmappUtils::verbose("Loading track from {$this->wp->getApiTrack($id)}");
+                $this->verbose("Loading track from {$this->wp->getApiTrack($id)}");
             }
             $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
             $track = $this->_addGeometryToTrack($track);
@@ -28,7 +28,7 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
 
             if (file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson")) {
                 if ($this->verbose) {
-                    WebmappUtils::verbose("Using metadata from {$this->aProject->getRoot()}/geojson/{$id}.geojson");
+                    $this->verbose("Using metadata from {$this->aProject->getRoot()}/geojson/{$id}.geojson");
                 }
                 $currentMetadata = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson"), true)["properties"];
 
@@ -43,18 +43,18 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
                 $json["properties"] = $currentMetadata;
             } else {
                 if ($this->verbose) {
-                    WebmappUtils::verbose("Using default metadata");
+                    $this->verbose("Using default metadata");
                 }
                 $json = json_decode($track->getJson(), true);
             }
 
             if ($this->verbose) {
-                WebmappUtils::verbose("Updating taxonomies");
+                $this->verbose("Updating taxonomies");
             }
             $this->_setTaxonomies("track", $json);
 
             if ($this->verbose) {
-                WebmappUtils::verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
+                $this->verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", json_encode($json));
 

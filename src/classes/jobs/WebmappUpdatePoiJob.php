@@ -20,14 +20,14 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
         try {
             // Load poi from be
             if ($this->verbose) {
-                WebmappUtils::verbose("Loading poi from {$this->wp->getApiPoi($id)}");
+                $this->verbose("Loading poi from {$this->wp->getApiPoi($id)}");
             }
             $poi = new WebmappPoiFeature($this->wp->getApiPoi($id));
             $json = json_decode($poi->getJson(), true);
 
             // Write geojson
             if ($this->verbose) {
-                WebmappUtils::verbose("Writing poi to {$this->aProject->getRoot()}/geojson/{$id}.geojson...");
+                $this->verbose("Writing poi to {$this->aProject->getRoot()}/geojson/{$id}.geojson...");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $poi->getJson());
 
