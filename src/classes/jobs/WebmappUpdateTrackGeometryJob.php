@@ -46,12 +46,12 @@ class WebmappUpdateTrackGeometryJob extends WebmappUpdateTrackJob
                     WebmappUtils::verbose("Using default metadata");
                 }
                 $json = json_decode($track->getJson(), true);
-
-                if ($this->verbose) {
-                    WebmappUtils::verbose("Generating taxonomies as it is the first geojson generation");
-                }
-                $this->_setTaxonomies("track", $json);
             }
+
+            if ($this->verbose) {
+                WebmappUtils::verbose("Updating taxonomies");
+            }
+            $this->_setTaxonomies("track", $json);
 
             if ($this->verbose) {
                 WebmappUtils::verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
