@@ -198,7 +198,7 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/theme.json"), true);
         $this->assertIsArray($file);
-        $this->assertTrue(count($file) == 1); // The fake taxonomy should still be here
+        $this->assertSame(count($file), 0); // The fake taxonomy should be removed
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/when.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/when.json"), true);
         $this->assertIsArray($file);

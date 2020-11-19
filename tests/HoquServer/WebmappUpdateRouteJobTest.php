@@ -94,8 +94,8 @@ class WebmappUpdateRouteJobTest extends TestCase
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/who.json"));
 
         $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/geojson/{$id}.geojson"));
-        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/geojson/route_index.geojson"));
-        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/geojson/full_geometry_route_index.geojson"));
+//        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/geojson/route_index.geojson"));
+//        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/geojson/full_geometry_route_index.geojson"));
         $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/activity.json"));
         $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/theme.json"));
         $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/webmapp_category.json"));

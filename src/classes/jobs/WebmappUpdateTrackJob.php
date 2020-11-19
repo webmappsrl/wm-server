@@ -26,14 +26,14 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         try {
             // Load track from be
             if ($this->verbose) {
-                $this->verbose("Loading track from {$this->wp->getApiTrack($id)}");
+                $this->_verbose("Loading track from {$this->wp->getApiTrack($id)}");
             }
             $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
             $track = $this->_addMetadataToTrack($track);
             $track = $this->_addGeometryToTrack($track);
 
             if ($this->verbose) {
-                $this->verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
+                $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $track->getJson());
 
@@ -64,13 +64,13 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
     protected function _addGeometryToTrack(WebmappTrackFeature $track)
     {
         if ($this->verbose) {
-            $this->verbose("Writing to postgis");
+            $this->_verbose("Writing to postgis");
         }
         if ($track->hasGeometry()) {
             $track->writeToPostGis();
             if ($track->getGeometryType() === 'LineString') {
                 if ($this->verbose) {
-                    $this->verbose("Adding 3D and computed properties");
+                    $this->_verbose("Adding 3D and computed properties");
                 }
                 $track->setComputedProperties2();
 
@@ -80,7 +80,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 //                $track->mapCustomProperties($track_properties);
 //            }
                 if ($this->verbose) {
-                    $this->verbose("Adding bounding box");
+                    $this->_verbose("Adding bounding box");
                 }
                 $track->addBBox();
                 $trackPath = "{$this->aProject->getRoot()}/track";
@@ -88,15 +88,15 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     system("mkdir -p {$trackPath}");
                 }
 //                if ($this->verbose) {
-//                    $this->verbose("Generating track images");
+//                    $this->_verbose("Generating track images");
 //                }
 //                $track->generateAllImages('', $trackPath);
                 if ($this->verbose) {
-                    $this->verbose("Generating gpx");
+                    $this->_verbose("Generating gpx");
                 }
                 $track->writeGPX($trackPath);
                 if ($this->verbose) {
-                    $this->verbose("Generating kml");
+                    $this->_verbose("Generating kml");
                 }
                 $track->writeKML($trackPath);
             } else if ($track->getGeometryType() !== 'MultiLineString') {
@@ -110,10 +110,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             if ($track->getGeometryType() === 'LineString') {
                 $this->_store("generate_elevation_chart_image", ["id" => $this->params["id"]]);
             } else if ($track->getGeometryType() === 'MultiLineString') {
-                $this->warning("The track is a MultiLineString. Elevation is not supported");
+                $this->_warning("The track is a MultiLineString. Elevation is not supported");
             }
         } catch (WebmappExceptionHoquRequest|WebmappExceptionHttpRequest $e) {
-            $this->warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
+            $this->_warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
         }
 
         return $track;
@@ -149,11 +149,11 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             try {
                 $routes = curl_exec($ch);
             } catch (Exception $e) {
-                $this->warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
+                $this->_warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
                 return;
             }
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
-                $this->warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/track/related_routes/{$id} seems unreachable: " . curl_error($ch));
+                $this->_warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/track/related_routes/{$id} seems unreachable: " . curl_error($ch));
                 curl_close($ch);
             } else {
                 try {
@@ -166,12 +166,12 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                             try {
                                 $this->_store("update_route", ["id" => $routeId]);
                             } catch (WebmappExceptionHttpRequest $e) {
-                                $this->warning($e->getMessage());
+                                $this->_warning($e->getMessage());
                             }
                         }
                     }
                 } catch (WebmappExceptionHoquRequest $e) {
-                    $this->warning($e->getMessage());
+                    $this->_warning($e->getMessage());
                 }
             }
         }

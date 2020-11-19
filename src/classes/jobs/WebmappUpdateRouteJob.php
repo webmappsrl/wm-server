@@ -21,7 +21,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         try {
             // Load poi from be
             if ($this->verbose) {
-                $this->verbose("Loading route from {$this->wp->getApiRoute($id)}");
+                $this->_verbose("Loading route from {$this->wp->getApiRoute($id)}");
             }
             $route = new WebmappRoute("{$this->wp->getApiRoute($id)}", '', true);
             $apiTracks = $route->getApiTracks();
@@ -44,7 +44,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 }
                 if ($currentDate > $generatedDate) {
                     if ($this->verbose) {
-                        $this->verbose("Updating track {$track['ID']}");
+                        $this->_verbose("Updating track {$track['ID']}");
                     }
                     $params = [
                         "id" => $track["ID"],
@@ -154,17 +154,17 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     {
         if (count($this->kProjects) > 0) {
             if ($this->verbose) {
-                $this->verbose("Updating K projects...");
+                $this->_verbose("Updating K projects...");
             }
             foreach ($this->kProjects as $kProject) {
                 if ($this->verbose) {
-                    $this->verbose("  {$kProject->getRoot()}");
+                    $this->_verbose("  {$kProject->getRoot()}");
                 }
                 if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
                     $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
                     if (isset($conf["multimap"]) && $conf["multimap"] === true) {
                         if ($this->verbose) {
-                            $this->verbose("Updating route index files in single map k project");
+                            $this->_verbose("Updating route index files in single map k project");
                         }
                         if (!isset($conf["routesFilter"]) || !is_array($conf["routesFilter"]) || in_array($id, $conf["routesFilter"])) {
                             $this->_updateRouteIndex(
@@ -344,11 +344,11 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         $postType = 'route';
 
         if ($this->verbose) {
-            $this->verbose("Checking K taxonomies...");
+            $this->_verbose("Checking K taxonomies...");
         }
         foreach ($this->kProjects as $kProject) {
             if ($this->verbose) {
-                $this->verbose("  {$kProject->getRoot()}");
+                $this->_verbose("  {$kProject->getRoot()}");
             }
             if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
                 $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
@@ -364,7 +364,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                         }
 
                         if (!isset($aJson)) {
-                            $this->warning("The file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing and should exists. Skipping the k {$taxTypeId} generation");
+                            $this->_warning("The file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing and should exists. Skipping the k {$taxTypeId} generation");
 
                             if (!$kJson) {
                                 file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode([]));
@@ -379,7 +379,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                                     $postType => [$id]
                                 ];
                                 if (!isset($aJson[$taxId])) {
-                                    $this->warning("The taxonomy json file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing the {$taxId} taxonomy.");
+                                    $this->_warning("The taxonomy json file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing the {$taxId} taxonomy.");
                                 } else {
                                     $taxonomy = $aJson[$taxId];
                                     if (isset($kJson[$taxId]["items"])) {
@@ -423,7 +423,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                             }
 
                             if ($this->verbose) {
-                                $this->verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
+                                $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
                             }
                             file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
                         }
@@ -448,11 +448,11 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         try {
             $modified = curl_exec($ch);
         } catch (Exception $e) {
-            $this->warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
+            $this->_warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
             return;
         }
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
-            $this->warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id} seems unreachable: " . curl_error($ch));
+            $this->_warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id} seems unreachable: " . curl_error($ch));
             curl_close($ch);
         } else {
             curl_close($ch);

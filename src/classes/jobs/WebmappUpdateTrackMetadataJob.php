@@ -20,7 +20,7 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
         try {
             // Load track from be
             if ($this->verbose) {
-                $this->verbose("Loading track from {$this->wp->getApiTrack($id)}");
+                $this->_verbose("Loading track from {$this->wp->getApiTrack($id)}");
             }
             $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
             $track = $this->_addMetadataToTrack($track);
@@ -31,7 +31,7 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
             // Merge current geometry computed properties
             if (file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson")) {
                 if ($this->verbose) {
-                    $this->verbose("Using geometry from {$this->aProject->getRoot()}/geojson/{$id}.geojson");
+                    $this->_verbose("Using geometry from {$this->aProject->getRoot()}/geojson/{$id}.geojson");
                 }
                 $currentGeojson = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson"), true);
                 if (isset($currentGeojson["properties"])) {
@@ -48,13 +48,13 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
                 $json = $currentGeojson;
             } else {
                 if ($this->verbose) {
-                    $this->verbose("Using default geometry");
+                    $this->_verbose("Using default geometry");
                 }
                 $json = json_decode($track->getJson(), true);
             }
 
             if ($this->verbose) {
-                $this->verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson...");
+                $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson...");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", json_encode($json));
 
