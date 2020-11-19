@@ -36,7 +36,9 @@ abstract class WebmappAbstractJob
                 ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
                 : "/var/www/html/a.webmapp.it/{$this->instanceName}");
 
-        if (!file_exists("{$this->aProject->getRoot()}") || !file_exists("{$this->aProject->getRoot()}/geojson" || !file_exists("{$this->aProject->getRoot()}/taxonomies"))) {
+        if (!file_exists("{$this->aProject->getRoot()}") ||
+            !file_exists("{$this->aProject->getRoot()}/geojson") ||
+            !file_exists("{$this->aProject->getRoot()}/taxonomies")) {
             throw new WebmappExceptionNoDirectory("The a project for the instance {$this->instanceName} is missing or on a different server");
         }
 
@@ -452,7 +454,7 @@ abstract class WebmappAbstractJob
 
     private function _logHeader()
     {
-        return date("Y-m-d H:i:s") . " - {$this->serverId} | ";
+        return date("Y-m-d H:i:s") . " - {$this->name} | ";
     }
 
     protected function title($message)
