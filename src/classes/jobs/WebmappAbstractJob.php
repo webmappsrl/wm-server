@@ -205,6 +205,8 @@ abstract class WebmappAbstractJob
                         $taxonomyGeojson["features"][] = $json;
                     }
 
+                    $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
+
                     if ($this->verbose) {
                         $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
                     }
