@@ -858,4 +858,40 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
     }
 
+    public function orderRelatedPois(array $pois)
+    {
+        if (count($pois) > 0) {
+            $pg = WebmappPostGis::Instance();
+            $id = $this->getId();
+            $instanceId = WebmappProjectStructure::getInstanceId();
+            $poisIds = [];
+
+            foreach ($pois as $poi) {
+                if (isset($poi["properties"]) && isset($poi["properties"]["id"])) {
+                    $poisIds[] = $poi["properties"]["id"];
+                    $pg->insertPoi($instanceId, $poi["properties"]["id"], $poi["geometry"]["coordinates"][0], $poi["geometry"]["coordinates"][1]);
+                }
+            }
+
+            $queryInput = implode(',', $poisIds);
+            $q = "WITH
+            punti AS ( SELECT * FROM poi WHERE poi_id IN ($queryInput) AND instance_id =  '$instanceId' ),
+            traccia as ( SELECT * FROM track WHERE track_id = $id AND instance_id = '$instanceId' )
+          SELECT
+            punti.poi_id AS ID,
+            ST_Length(ST_LineSubstring(ST_Transform(traccia.geom,3857),
+                ST_LineLocatePoint(ST_Transform(traccia.geom,3857),ST_StartPoint(ST_Transform(traccia.geom,3857))),
+                ST_LineLocatePoint(ST_Transform(traccia.geom,3857),ST_ClosestPoint(ST_Transform(traccia.geom,3857),ST_Transform(punti.geom,3857))))) AS length
+          FROM traccia, punti
+          ORDER BY length;";
+            $res = $pg->select($q);
+            $ordered_ids = array();
+            foreach ($res as $item) {
+                $ordered_ids[] = intval($item['id']);
+            }
+
+            $this->properties['related']['poi']['related'] = $ordered_ids;
+            $this->properties['id_pois'] = $ordered_ids;
+        }
+    }
 }

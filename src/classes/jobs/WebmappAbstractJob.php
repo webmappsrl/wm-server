@@ -418,7 +418,7 @@ abstract class WebmappAbstractJob
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201) {
             curl_close($ch);
-            throw new WebmappExceptionHttpRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU url or a store token are missing in the configuration");
+            throw new WebmappExceptionHttpRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU is unreachable");
         }
         curl_close($ch);
     }

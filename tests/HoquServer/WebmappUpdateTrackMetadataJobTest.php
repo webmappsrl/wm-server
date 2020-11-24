@@ -195,4 +195,45 @@ class WebmappUpdateTrackMetadataJobTest extends TestCase
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
     }
+
+    function testRelatedPoiOrder()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $id = 2141;
+        $wrongOrder = [2144, 2145, 2150]; // right order: 2150, 2144, 2145
+
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdateTrackMetadataJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+            // Simulate a change on the related poi order taxonomies - this task should not overwrite the order
+            $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+            $file["properties"]["related"]["poi"]["related"] = $wrongOrder;
+            file_put_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson", json_encode($file));
+
+            // Run this twice to force the files overwrite
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"));
+        $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+
+        $this->assertArrayHasKey("related", $file["properties"]);
+        $this->assertIsArray($file["properties"]["related"]);
+        $this->assertArrayHasKey("poi", $file["properties"]["related"]);
+        $this->assertIsArray($file["properties"]["related"]["poi"]);
+        $this->assertArrayHasKey("related", $file["properties"]["related"]["poi"]);
+        $this->assertIsArray($file["properties"]["related"]["poi"]["related"]);
+        $this->assertSame(count($file["properties"]["related"]["poi"]["related"]), 3);
+        $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][0]), $wrongOrder[0]);
+        $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][1]), $wrongOrder[1]);
+        $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][2]), $wrongOrder[2]);
+    }
 }

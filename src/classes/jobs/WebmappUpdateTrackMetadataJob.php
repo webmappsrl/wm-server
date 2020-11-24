@@ -23,7 +23,7 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
                 $this->_verbose("Loading track from {$this->wp->getApiTrack($id)}");
             }
             $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
-            $track = $this->_addMetadataToTrack($track);
+            $track = $this->_removeGeometryMetadata($track);
 
             $metadataJson = $track->getProperties();
 

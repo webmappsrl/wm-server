@@ -18,19 +18,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     {
         $id = intval($this->params['id']);
 
-        try {
-            // Load poi from be
-            if ($this->verbose) {
-                $this->_verbose("Loading route from {$this->wp->getApiRoute($id)}");
-            }
-            $route = new WebmappRoute("{$this->wp->getApiRoute($id)}", '', true);
-            $apiTracks = $route->getApiTracks();
-            $tracks = [];
-        } catch (WebmappExceptionHttpRequest $e) {
-            throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the route with id {$id} does not exists");
-        } catch (Exception $e) {
-            throw new WebmappException("An unknown error occurred: " . json_encode($e));
+        // Load poi from be
+        if ($this->verbose) {
+            $this->_verbose("Loading route from {$this->wp->getApiRoute($id)}");
         }
+        $route = new WebmappRoute("{$this->wp->getApiRoute($id)}", '', true);
+        $apiTracks = $route->getApiTracks();
+        $tracks = [];
 
         // Make sure all the tracks are up to date
         if (is_array($apiTracks) && count($apiTracks) > 0) {
@@ -58,36 +52,28 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             }
         }
 
-        try {
-            $route->buildPropertiesAndFeaturesFromTracksGeojson($tracks);
+        $route->buildPropertiesAndFeaturesFromTracksGeojson($tracks);
 
-            file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $route->getJson());
-            $json = json_decode($route->getPoiJson(), true);
+        file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $route->getJson());
+        $json = json_decode($route->getPoiJson(), true);
 
-            // Route index handling
-            $this->_updateRouteIndex(
-                "{$this->aProject->getRoot()}/geojson/route_index.geojson",
-                $id,
-                $json
-            );
-            $this->_updateRouteIndex(
-                "{$this->aProject->getRoot()}/geojson/full_geometry_route_index.geojson",
-                $id,
-                json_decode($route->getTrackJson(), true)
-            );
+        // Route index handling
+        $this->_updateRouteIndex(
+            "{$this->aProject->getRoot()}/geojson/route_index.geojson",
+            $id,
+            $json
+        );
+        $this->_updateRouteIndex(
+            "{$this->aProject->getRoot()}/geojson/full_geometry_route_index.geojson",
+            $id,
+            json_decode($route->getTrackJson(), true)
+        );
 
-            $this->_updateKProjects('route', $id, $route->getJson());
-            $this->_updateKRoots($id, $route);
-            $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-            $this->_setTaxonomies("route", $json);
-            $this->_setKTaxonomies($id, $taxonomies);
-        } catch (WebmappExceptionHttpRequest $e) {
-            throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the route with id {$id} does not exists");
-        } catch (WebmappExceptionHoquRequest $e) {
-            throw new WebmappExceptionHttpRequest($e->getMessage());
-        } catch (Exception $e) {
-            throw new WebmappException("An unknown error occurred: " . json_encode($e));
-        }
+        $this->_updateKProjects('route', $id, $route->getJson());
+        $this->_updateKRoots($id, $route);
+        $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
+        $this->_setTaxonomies("route", $json);
+        $this->_setKTaxonomies($id, $taxonomies);
     }
 
     /**

@@ -72,7 +72,7 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"), true);
         $this->assertIsArray($file);
-        $this->assertSame(count($file), 0);
+//        $this->assertSame(count($file), 0); No more needed since it could generate pois also
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
@@ -217,5 +217,38 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.gpx") > 0);
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/track/{$id}.kml"));
         $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
+    }
+
+    function testRelatedPoiOrder()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $id = 2141;
+
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdateTrackGeometryJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"));
+        $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+
+        $this->assertArrayHasKey("related", $file["properties"]);
+        $this->assertIsArray($file["properties"]["related"]);
+        $this->assertArrayHasKey("poi", $file["properties"]["related"]);
+        $this->assertIsArray($file["properties"]["related"]["poi"]);
+        $this->assertArrayHasKey("related", $file["properties"]["related"]["poi"]);
+        $this->assertIsArray($file["properties"]["related"]["poi"]["related"]);
+        $this->assertSame(count($file["properties"]["related"]["poi"]["related"]), 3);
+        $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][0]), 2150);
+        $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][1]), 2144);
+        $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][2]), 2145);
     }
 }
