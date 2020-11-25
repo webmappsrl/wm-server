@@ -103,10 +103,10 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                 if (substr($key, 0, 9) === "default::") {
                                     $keyToCheck = substr($key, 9);
                                     if (!isset($feature["properties"][$keyToCheck]) || empty($feature["properties"][$keyToCheck])) {
-                                        $feature["properties"][$keyToCheck] = $value;
+                                        $feature["properties"][$keyToCheck] = trim($value);
                                     }
                                 } else {
-                                    $feature["properties"][$key] = $value;
+                                    $feature["properties"][$key] = trim($value);
                                 }
                             }
                         }
