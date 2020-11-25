@@ -236,4 +236,40 @@ class WebmappUpdateTrackMetadataJobTest extends TestCase
         $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][1]), $wrongOrder[1]);
         $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][2]), $wrongOrder[2]);
     }
+
+    function testDurations()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $id = 2161;
+        $fakeDuration = "1000:00";
+
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdateTrackMetadataJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+            // Simulate a change on the related poi order taxonomies - this task should not overwrite the order
+            $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+            $file["properties"]["duration:forward"] = $fakeDuration;
+            $file["properties"]["duration:backward"] = $fakeDuration;
+            file_put_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson", json_encode($file));
+
+            // Run this twice to force the files overwrite
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"));
+        $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+
+        $this->assertArrayHasKey("duration:forward", $file["properties"]);
+        $this->assertSame($file["properties"]["duration:forward"], $fakeDuration);
+        $this->assertArrayHasKey("duration:backward", $file["properties"]);
+        $this->assertSame($file["properties"]["duration:backward"], $fakeDuration);
+    }
 }

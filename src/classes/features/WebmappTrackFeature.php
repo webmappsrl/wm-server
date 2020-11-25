@@ -133,6 +133,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                     }
                 }
 
+                // TODO: Move this code to a mapping specific/mapping standard
+                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash", "duration:forward", "duration:backward");
+                foreach ($mapProperties as $property) {
+                    if (!$this->hasProperty($property) && $relation->hasTag($property) && !empty($relation->getTag($property))) {
+                        $this->addProperty($property, $relation->getTag($property));
+                    }
+                }
             } catch (Exception $e) {
                 echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
                 echo "Geometry not set\n\n\n";

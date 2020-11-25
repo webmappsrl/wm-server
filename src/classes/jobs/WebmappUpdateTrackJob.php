@@ -10,6 +10,8 @@ define("GEOMETRY_METADATA_PROPERTIES", [
     'ele:to',
     'ele:min',
     'ele:max',
+    'duration:forward',
+    'duration:backward',
     'bbox',
     'bbox_metric',
     'id_pois',

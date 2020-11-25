@@ -251,4 +251,31 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
         $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][1]), 2144);
         $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][2]), 2145);
     }
+
+    function testDurations()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $id = 2161;
+
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdateTrackGeometryJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"));
+        $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+
+        $this->assertArrayHasKey("duration:forward", $file["properties"]);
+        $this->assertSame($file["properties"]["duration:forward"], "03:00");
+        $this->assertArrayHasKey("duration:backward", $file["properties"]);
+        $this->assertSame($file["properties"]["duration:backward"], "03:00");
+    }
 }
