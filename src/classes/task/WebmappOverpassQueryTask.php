@@ -72,6 +72,11 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             $feature["properties"]["name"] = strval($item["tags"]["name"]);
                         }
 
+                        if (isset($item["tags"]["ele"])) {
+                            $feature["geometry"]["coordinates"][] = floatval($item["tags"]["ele"]);
+                            $feature["properties"]["ele"] = floatval($item["tags"]["ele"]);
+                        }
+
                         $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
 
                         foreach ($propertiesToMap as $key => $property) {
@@ -95,7 +100,14 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                     }
                                 } else $value = strval($mappingArray);
 
-                                $feature["properties"][$key] = $value;
+                                if (substr($key, 0, 9) === "default::") {
+                                    $keyToCheck = substr($key, 9);
+                                    if (!isset($feature["properties"][$keyToCheck]) || empty($feature["properties"][$keyToCheck])) {
+                                        $feature["properties"][$keyToCheck] = $value;
+                                    }
+                                } else {
+                                    $feature["properties"][$key] = $value;
+                                }
                             }
                         }
 
