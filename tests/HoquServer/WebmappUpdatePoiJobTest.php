@@ -4,8 +4,10 @@ use PHPUnit\Framework\TestCase;
 
 class WebmappUpdatePoiJobTest extends TestCase
 {
-    private function _createProjectStructure($a, $k, $instanceName)
+    private function _createProjectStructure($a, $k, $instanceName, array $conf = null)
     {
+        $this->setOutputCallback(function () {
+        });
         global $wm_config;
         $wm_config["endpoint"] = [
             "a" => $a,
@@ -25,6 +27,10 @@ class WebmappUpdatePoiJobTest extends TestCase
         system($cmd);
         $cmd = "rm {$a}/{$instanceName}/taxonomies/*";
         system($cmd);
+
+        if (!$conf) $conf = [];
+
+        file_put_contents("{$a}/{$instanceName}/server/server.conf", json_encode($conf));
     }
 
     function testFileCreation()
@@ -182,5 +188,40 @@ class WebmappUpdatePoiJobTest extends TestCase
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/who.json"), true);
         $this->assertIsArray($file);
         $this->assertSame(count($file), 0);
+    }
+
+    function testCustomMapping()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $id = 2167;
+        $conf = [
+            "custom_mapping" => [
+                "poi" => [
+                    "test_custom_field" => "test_custom_mapping"
+                ]
+            ]
+        ];
+
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName, $conf);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"));
+        $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson"), true);
+
+        $this->assertIsArray($file);
+        $this->assertArrayHasKey("properties", $file);
+        $this->assertIsArray($file["properties"]);
+        $this->assertArrayHasKey("test_custom_mapping", $file["properties"]);
+        $this->assertSame($file["properties"]["test_custom_mapping"], "test_value");
     }
 }

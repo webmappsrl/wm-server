@@ -65,6 +65,8 @@ class WebmappUpdateRouteJobTest extends TestCase
 
     function testFileCreation()
     {
+        $this->setOutputCallback(function () {
+        });
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";

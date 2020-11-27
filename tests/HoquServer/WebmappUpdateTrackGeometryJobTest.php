@@ -6,6 +6,8 @@ class WebmappUpdateTrackGeometryJobTest extends TestCase
 {
     private function _createProjectStructure($a, $k, $instanceName)
     {
+        $this->setOutputCallback(function () {
+        });
         global $wm_config;
         $wm_config["endpoint"] = [
             "a" => $a,

@@ -42,7 +42,7 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
     }
 
     /**
-     * Map the custom properties in the track
+     * Map the custom properties in the poi
      *
      * @param WebmappPoiFeature $poi
      * @return WebmappPoiFeature
@@ -52,9 +52,9 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
         if ($this->verbose) {
             $this->_verbose("Mapping custom properties");
         }
-        $track_properties = $this->_getCustomProperties("poi");
-        if (isset($track_properties) && is_array($track_properties)) {
-            $poi->mapCustomProperties($track_properties);
+        $properties = $this->_getCustomProperties("poi");
+        if (isset($properties) && is_array($properties)) {
+            $poi->mapCustomProperties($properties);
         }
 
         return $poi;
