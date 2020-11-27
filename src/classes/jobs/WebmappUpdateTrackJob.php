@@ -46,6 +46,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             }
             $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
             $track = $this->_addGeometryToTrack($track);
+            $track = $this->_setCustomProperties($track);
 
             if ($this->verbose) {
                 $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
@@ -90,10 +91,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $track->setComputedProperties2();
 
                 // TODO: From params
-//            $track_properties = $this->getCustomProperties("track");
-//            if (isset($track_properties) && is_array($track_properties)) {
-//                $track->mapCustomProperties($track_properties);
-//            }
                 if ($this->verbose) {
                     $this->_verbose("Adding bounding box");
                 }
@@ -184,6 +181,25 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 
                 $track->orderRelatedPois($pois);
             }
+        }
+
+        return $track;
+    }
+
+    /**
+     * Map the custom properties in the track
+     *
+     * @param WebmappTrackFeature $track
+     * @return WebmappTrackFeature
+     */
+    protected function _setCustomProperties(WebmappTrackFeature $track)
+    {
+        if ($this->verbose) {
+            $this->_verbose("Mapping custom properties");
+        }
+        $track_properties = $this->_getCustomProperties("track");
+        if (isset($track_properties) && is_array($track_properties)) {
+            $track->mapCustomProperties($track_properties);
         }
 
         return $track;

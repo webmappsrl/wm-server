@@ -24,7 +24,8 @@ class WebmappUpdateTrackMetadataJob extends WebmappUpdateTrackJob
             }
             $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
             $track = $this->_removeGeometryMetadata($track);
-
+            $track = $this->_setCustomProperties($track);
+            
             $metadataJson = $track->getProperties();
 
             $json = null;

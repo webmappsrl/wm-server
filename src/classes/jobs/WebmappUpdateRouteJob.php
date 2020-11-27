@@ -53,6 +53,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         }
 
         $route->buildPropertiesAndFeaturesFromTracksGeojson($tracks);
+        $route = $this->_setCustomProperties($route);
 
         file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $route->getJson());
         $json = json_decode($route->getPoiJson(), true);
@@ -126,6 +127,25 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         }
 
         file_put_contents($url, json_encode($file));
+    }
+
+    /**
+     * Map the custom properties in the route
+     *
+     * @param WebmappRoute $route
+     * @return WebmappRoute
+     */
+    protected function _setCustomProperties(WebmappRoute $route)
+    {
+        if ($this->verbose) {
+            $this->_verbose("Mapping custom properties");
+        }
+        $track_properties = $this->_getCustomProperties("track");
+        if (isset($track_properties) && is_array($track_properties)) {
+            $route->mapCustomProperties($track_properties);
+        }
+
+        return $route;
     }
 
     /**

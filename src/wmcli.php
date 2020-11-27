@@ -12,6 +12,7 @@ if (!file_exists(__DIR__ . "/node/node_modules")) {
 //    installDependencies();
 }
 
+declare(ticks=1);
 $c = new WebmappCli($argv);
 
 function installDependencies()

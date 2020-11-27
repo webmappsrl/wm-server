@@ -359,14 +359,62 @@ abstract class WebmappAbstractJob
                         $this->_verbose("  {$kProject->getRoot()}");
                     }
                     if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
-                        $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
-//                        if (isset($conf["multimap"]) && $conf["multimap"] === true) {
                         file_put_contents("{$kProject->getRoot()}/geojson/{$id}.geojson", $json);
-//                        }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Return an associative array with the key as the property in the json and the value the property to map it in
+     *
+     * @param string $type the geometry type
+     * @return null | array with the property mapping
+     */
+    protected function _getCustomProperties(string $type)
+    {
+        if ($type !== 'poi' && $type !== 'track' && $type !== 'route')
+            return null;
+
+        if (!file_exists("{$this->aProject->getRoot()}/server/server.conf"))
+            return null;
+
+
+        $config = json_decode(file_get_contents("{$this->aProject->getRoot()}/server/server.conf"), true);
+        if (!isset($config["custom_mapping"]))
+            return null;
+
+        $properties = array();
+        $custom_mapping = $config["custom_mapping"];
+
+        if ($this->verbose) {
+            $this->_verbose("  Custom mapping: " . json_encode($custom_mapping));
+        }
+
+        // Map the global properties
+        foreach ($custom_mapping as $key => $property) {
+            if ($key !== 'poi' && $key !== 'track' && $key !== 'route') {
+                if (is_numeric($key)) {
+                    $properties[$property] = $property;
+                } else {
+                    $properties[$key] = $property;
+                }
+            }
+        }
+
+        // Map the properties specific for the geometry type
+        if (array_key_exists($type, $custom_mapping)) {
+            foreach ($custom_mapping[$type] as $key => $property) {
+                if (is_numeric($key)) {
+                    $properties[$property] = $property;
+                } else {
+                    $properties[$key] = $property;
+                }
+            }
+        }
+
+        return $properties;
     }
 
     /**

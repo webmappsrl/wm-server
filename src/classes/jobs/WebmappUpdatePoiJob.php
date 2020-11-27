@@ -23,7 +23,7 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
                 $this->_verbose("Loading poi from {$this->wp->getApiPoi($id)}");
             }
             $poi = new WebmappPoiFeature($this->wp->getApiPoi($id));
-            $json = json_decode($poi->getJson(), true);
+            $poi = $this->_setCustomProperties($poi);
 
             // Write geojson
             if ($this->verbose) {
@@ -38,8 +38,25 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
             throw new WebmappExceptionPOINoCoodinates("The poi with id {$id} is missing the coordinates");
         } catch (WebmappExceptionHttpRequest $e) {
             throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the poi with id {$id} does not exists");
-        } catch (Exception $e) {
-            throw new WebmappException("An unknown error occurred: " . json_encode($e));
         }
+    }
+
+    /**
+     * Map the custom properties in the track
+     *
+     * @param WebmappPoiFeature $poi
+     * @return WebmappPoiFeature
+     */
+    protected function _setCustomProperties(WebmappPoiFeature $poi)
+    {
+        if ($this->verbose) {
+            $this->_verbose("Mapping custom properties");
+        }
+        $track_properties = $this->_getCustomProperties("poi");
+        if (isset($track_properties) && is_array($track_properties)) {
+            $poi->mapCustomProperties($track_properties);
+        }
+
+        return $poi;
     }
 }

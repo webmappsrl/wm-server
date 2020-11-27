@@ -199,7 +199,7 @@ class WebmappHoquServer
                             $this->_jobCompleted(true, $job['id']);
                             $endTime = round(microtime(true) * 1000);
                             $duration = ($endTime - $startTime) / 1000;
-                            WebmappUtils::success($this->_logHeader() . "Job {$job['id']} completed in {$duration}");
+                            WebmappUtils::success($this->_logHeader() . "Job {$job['id']} completed in {$duration} seconds");
                         } catch (Exception $e) {
                             WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']}: {$e->getMessage()}");
                             $this->_jobCompleted(false, $job['id'], $e->getMessage());

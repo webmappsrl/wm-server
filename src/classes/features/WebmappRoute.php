@@ -272,7 +272,49 @@ class WebmappRoute
             $this->properties['distance'] = $dist;
             $this->properties['related']['track']['related'] = $related;
         }
+    }
 
+    /**
+     * Map the custom properties from acf
+     *
+     * @param $custom_array
+     */
+    public function mapCustomProperties($custom_array)
+    {
+        foreach ($custom_array as $key => $property) {
+            $this->customSetProperty(is_numeric($key) ? $property : $key, $this->json_array, $property);
+        }
+    }
+
+    /**
+     * Set the property in the properties
+     *
+     * @param string $key the property to copy
+     * @param array $json_array the api value
+     * @param string $key_map the new key where to map the property
+     */
+    protected function customSetProperty(string $key, array $json_array, string $key_map = '')
+    {
+        $val = null;
+        if (isset($json_array["acf"]) && isset($json_array["acf"][$key]) && !is_null($json_array["acf"][$key])) {
+            $val = $json_array['acf'][$key];
+        } else if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+            $val = $json_array[$key];
+        }
+
+        if (!is_null($val)) {
+            if ($key_map == '') {
+                $key_map = $key;
+            }
+
+            if ($val === true || $val === 'true') {
+                $val = true;
+            } else if ($val === false || $val === 'false') {
+                $val = false;
+            }
+
+            $this->properties[$key_map] = $val;
+        }
     }
 
     public function getJson()
