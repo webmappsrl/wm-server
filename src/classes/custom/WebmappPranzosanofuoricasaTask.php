@@ -44,7 +44,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
         $total = 0;
         do {
             $page++;
-            $api = $this->url . '/' . $type . "?per_page=10&page=$page" . "&orderby=slug&order=asc";
+            $api = $this->url . '/' . $type . "?per_page=50&page=$page" . "&orderby=slug&order=asc";
             echo "Getting data form URL $api ... ";
             $items = WebmappUtils::getJsonFromApi($api);
             if (isset($items['data']['status']) && $items['data']['status'] == 400) {
@@ -150,6 +150,36 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
 
                     }
 
+                    if (isset($ja["acf"])) {
+                        foreach ($ja['acf'] as $acfKey => $acfValue) {
+                            $j[$acfKey] = $acfValue;
+                        }
+                    }
+
+                    if (isset($j['indirizzo'])) {
+                        if (isset($j['indirizzo']['lat']) && isset($j['indirizzo']['lng'])) {
+                            $j['n7webmap_coord'] = [
+                                'lat' => floatVal($j['indirizzo']['lat']),
+                                'lng' => floatVal($j['indirizzo']['lng'])
+                            ];
+                        }
+                        if (isset($j['indirizzo']['address'])) {
+                            $j["address"] = $j['indirizzo']['address'];
+                        }
+                    }
+
+                    if (isset($j['telefono'])) {
+                        $j['contact:phone'] = $j['telefono'];
+                    }
+
+                    if (isset($j['email'])) {
+                        $j['contact:email'] = $j['email'];
+                    }
+
+                    if (isset($j['sitoweb'])) {
+                        $j['related_url'] = [$j['sitoweb']];
+                    }
+
                     try {
                         $poi = new WebmappPoiFeature($j);
                         $provincia = '';
@@ -230,9 +260,14 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $tax['specialita'] = $tags;
                         $poi->addProperty('taxonomy', $tax);
 
+                        $properties = $poi->getProperties();
+                        foreach ($properties as $key => $value) {
+                            if (is_string($properties[$key]) && (empty($properties[$key]) || $properties[$key] === 'unknown'))
+                                $poi->removeProperty($key);
+                        }
+
                         //$poi->addProperty($key, $value);
                         $l->addFeature($poi);
-
                     } catch (WebmappExceptionPOINoCoodinates $e) {
                         echo "\nWARN: no coordinates ID:" . $j['id'] . "\n";
                     }
