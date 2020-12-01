@@ -71,7 +71,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         );
 
         $this->_updateKProjects('route', $id, $route->getJson());
-        $this->_updateKRoots($id, $route);
+        $this->_updateKRoutes($id, $route);
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
         $this->_setTaxonomies("route", $json);
         $this->_setKTaxonomies($id, $taxonomies);
@@ -89,7 +89,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         $file = null;
         if (file_exists($url)) {
             $file = json_decode(file_get_contents($url), true);
-            $added = false;
+            $done = false;
             if (isset($file["features"]) && is_array($file["features"])) {
                 foreach ($file["features"] as $key => $feature) {
                     if (strval($feature["properties"]["id"]) === strval($id)) {
@@ -98,31 +98,21 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                         } else {
                             unset($file["features"][$key]);
                         }
-                        $added = true;
+                        $done = true;
                         break;
                     }
                 }
 
-                if (!$added && !is_null($json)) {
+                if (!$done && !is_null($json)) {
                     $file["features"][] = $json;
                 }
 
-                $features = [];
-
-                foreach ($file["features"] as $key => $value) {
-                    $features[] = $value;
-                }
-
-                $file["features"] = $features;
+                $file["features"] = array_values($file["features"]);
             }
-        }
-
-        if (is_null($file) && !is_null($json)) {
+        } elseif (!is_null($json)) {
             $file = [
                 "type" => "FeatureCollection",
-                "features" => [
-                    $json
-                ]
+                "features" => array_values([$json])
             ];
         }
 
@@ -156,7 +146,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @throws WebmappExceptionHoquRequest
      * @throws WebmappExceptionHttpRequest
      */
-    private function _updateKRoots(int $id, WebmappRoute $route)
+    private function _updateKRoutes(int $id, WebmappRoute $route)
     {
         if (count($this->kProjects) > 0) {
             if ($this->verbose) {
@@ -174,13 +164,11 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                         }
                         if (!isset($conf["routesFilter"]) || !is_array($conf["routesFilter"]) || in_array($id, $conf["routesFilter"])) {
                             $this->_updateRouteIndex(
-//                                "{$kProject->getRoot()}/geojson/route_index.geojson",
                                 "{$kProject->getRoot()}/routes/route_index.geojson",
                                 $id,
                                 json_decode($route->getPoiJson(), true)
                             );
                             $this->_updateRouteIndex(
-//                                "{$kProject->getRoot()}/geojson/full_geometry_route_index.geojson",
                                 "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
                                 $id,
                                 json_decode($route->getTrackJson(), true)
@@ -188,12 +176,10 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                             $this->_updateKRouteDirectory($kProject, $id, $route);
                         } else {
                             $this->_updateRouteIndex(
-//                                "{$kProject->getRoot()}/geojson/route_index.geojson",
                                 "{$kProject->getRoot()}/routes/route_index.geojson",
                                 $id
                             );
                             $this->_updateRouteIndex(
-//                                "{$kProject->getRoot()}/geojson/full_geometry_route_index.geojson",
                                 "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
                                 $id
                             );
