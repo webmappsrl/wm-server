@@ -2,7 +2,6 @@
 
 class WebmappTrackFeature extends WebmappAbstractFeature
 {
-
     private $lngMin;
     private $lngMax;
     private $latMin;
@@ -17,140 +16,17 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     private $ele_max = -1;
     private $ele_min = -1;
 
+    private $relation;
+
     // Mapping dei meta specifici delle tracks
     //
-    protected function mappingSpecific($json_array)
-    {
-        $this->setProperty('n7webmapp_track_color', $json_array, 'color');
-        $this->setProperty('n7webmap_start', $json_array, 'from');
-        $this->setProperty('n7webmap_end', $json_array, 'to');
-        $this->setProperty('ref', $json_array);
-        $this->setProperty('ascent', $json_array);
-        $this->setProperty('descent', $json_array);
-        $this->setProperty('distance', $json_array);
-        $this->setProperty('duration:forward', $json_array);
-        $this->setProperty('duration:backward', $json_array);
-        $this->setProperty('cai_scale', $json_array);
-        $this->setProperty('stroke_width', $json_array);
-
-        // ADD START AND END POI
-        if (isset($json_array['n7webmap_start_poi']) &&
-            is_array($json_array['n7webmap_start_poi']) &&
-            count($json_array['n7webmap_start_poi']) > 0) {
-            $from_id = $json_array['n7webmap_start_poi'][0]['ID'];
-            $this->addProperty('from_poi', $from_id);
-        }
-        if (isset($json_array['n7webmap_end_poi']) &&
-            is_array($json_array['n7webmap_end_poi']) &&
-            count($json_array['n7webmap_end_poi']) > 0) {
-            $from_id = $json_array['n7webmap_end_poi'][0]['ID'];
-            $this->addProperty('to_poi', $from_id);
-        }
-
-        // PREV AND NEXT TRACK
-        if (isset($json_array['prev_track']) &&
-            is_array($json_array['prev_track']) &&
-            count($json_array['prev_track']) > 0) {
-            $this->addProperty('prev_track', $json_array['prev_track'][0]);
-        }
-
-        if (isset($json_array['next_track']) &&
-            is_array($json_array['next_track']) &&
-            count($json_array['next_track']) > 0) {
-            $this->addProperty('next_track', $json_array['next_track'][0]);
-        }
-
-        // ADD id_pois
-        $related_pois_id = $this->getRelatedPoisId();
-        $json_array['id_pois'] = $related_pois_id;
-        $this->setProperty('id_pois', $json_array);
-        if (count($related_pois_id) > 0) {
-            $this->properties['related']['poi']['related'] = $related_pois_id;
-        }
-
-        // ROADBOOK
-        if (isset($json_array['rb_track_section']) && !empty($json_array['rb_track_section'])) {
-            $this->addProperty('rb_track_section', $json_array['rb_track_section']);
-        }
-
-        // SURFACE
-        if (isset($json_array['surface']) && is_array($json_array['surface']) && count($json_array['surface'])) {
-            $surface = array();
-            foreach ($json_array['surface'] as $item) {
-                $surface[$item['surface_type']] = $item['surface_type_percentage'] / 100;
-            }
-            $this->addProperty('surface', $surface);
-        }
-
-    }
-
-    // Impostazione della geometry a partire da formato API WP
-
-    /**
-     * SERIALIZED: a:2:{s:4:"type";s:10:"LineString";s:11:"coordinates";a:42:{i:0;a:2:{i:0;d:5.0802517309784996;i:1;d:52.019237307
-     *   JSON: { "type" : "LineString" ,
-     *           "coordinates": [
-     *                  [ 11.238753551237847, 43.55744054805567],
-     *         }
-     **/
-    protected function mappingGeometry($json_array)
-    {
-        // TODO: controllo esistenza coordinate
-
-        if (isset($json_array['n7webmap_geojson']) && !empty($json_array['n7webmap_geojson'])) {
-            $this->geometry = unserialize($json_array['n7webmap_geojson']);
-        }
-        if ((!isset($this->geometry) || empty($this->geometry)) && $this->hasProperty('osmid')) {
-            try {
-                $osmid = $this->getProperty('osmid');
-                $pg = WebmappPostGisOsm::Instance();
-                $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
-                $relation = new WebmappOSMRelation($osmid);
-                $red_match = '/red:red:white_stripe:[^:]+:black/';
-                $color = '#636363';
-                if ($relation->hasTag('source') &&
-                    $relation->getTag('source') == 'survey:CAI') {
-                    $color = '#A63FD1';
-                    if ($relation->hasTag('osmc:symbol') &&
-                        preg_match($red_match, $relation->getTag('osmc:symbol'))) {
-                        $color = '#E35234';
-                    }
-                }
-                if (!$this->hasProperty("color") && $color) {
-                    $this->addProperty("color", $color);
-                }
-
-                // ADD lineDash for alternate
-                if ($relation->hasTag('state') && $relation->getTag('state') == 'alternate') {
-                    $this->addProperty('lineDash', array(12, 8));
-                }
-
-                // TODO: Move this code to a mapping specific/mapping standard
-                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash");
-                foreach ($mapProperties as $property) {
-                    if (!$this->hasProperty($property) && $relation->hasTag($property)) {
-                        $this->addProperty($property, $relation->getTag($property));
-                    }
-                }
-
-                // TODO: Move this code to a mapping specific/mapping standard
-                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash", "duration:forward", "duration:backward");
-                foreach ($mapProperties as $property) {
-                    if (!$this->hasProperty($property) && $relation->hasTag($property) && !empty($relation->getTag($property))) {
-                        $this->addProperty($property, $relation->getTag($property));
-                    }
-                }
-            } catch (Exception $e) {
-                echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
-                echo "Geometry not set\n\n\n";
-            }
-        }
-    }
 
     public function setGeometry($geometry)
     {
         $this->geometry = $geometry;
     }
+
+    // Impostazione della geometry a partire da formato API WP
 
     public function getFirst()
     {
@@ -160,31 +36,12 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         return array();
     }
 
-    /**
-     * @throws WebmappExceptionGeoJsonBadGeomType
-     */
-    public function add3D()
+    public function getLatMax()
     {
-        if ($this->hasGeometry()) {
-            $pg = WebmappPostGis::Instance();
-            $this->geometry = json_decode($pg->addEle(json_encode($this->geometry)), true);
+        if (!$this->bb_computed) {
+            $this->computeBB();
         }
-    }
-
-    public function has3D()
-    {
-        if (empty($this->geometry)) {
-            return false;
-        }
-        if (isset($this->geometry['coordinates']) &&
-            is_array($this->geometry['coordinates']) &&
-            count($this->geometry['coordinates']) > 0 &&
-            is_array($this->geometry['coordinates'][0]) &&
-            count($this->geometry['coordinates'][0]) >= 3) {
-            return true;
-        }
-        return false;
-
+        return $this->latMax;
     }
 
     private function computeBB()
@@ -222,14 +79,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         $this->bb_computed = true;
     }
 
-    public function getLatMax()
-    {
-        if (!$this->bb_computed) {
-            $this->computeBB();
-        }
-        return $this->latMax;
-    }
-
     public function getLatMin()
     {
         if (!$this->bb_computed) {
@@ -252,35 +101,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             $this->computeBB();
         }
         return $this->lngMin;
-    }
-
-    public function writeToPostGis($instance_id = '')
-    {
-
-        // Gestione della ISTANCE ID
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-        $pg = WebmappPostGis::Instance();
-        $pg->insertTrack($instance_id, $this->getId(), $this->geometry);
-
-    }
-
-    public function addBBox($instance_id = '')
-    {
-        // Gestione della ISTANCE ID
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-        $pg = WebmappPostGis::Instance();
-        $bb = $pg->getTrackBBox($instance_id, $this->getId());
-        if (empty($bb)) {
-            $this->writeToPostGis($instance_id);
-            $bb = $pg->getTrackBBox($instance_id, $this->getId());
-        }
-        $this->addProperty('bbox', $bb);
-        $bb = $pg->getTrackBBoxMetric($instance_id, $this->getId());
-        $this->addProperty('bbox_metric', $bb);
     }
 
     public function setComputedProperties()
@@ -401,12 +221,50 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         }
     }
 
-    private function setPropsFromComputed($props_name)
+    public function has3D()
     {
-        if (isset($this->properties['computed'][$props_name]) &&
-            (!isset($this->properties[$props_name]) || empty($this->properties[$props_name]))) {
-            $this->properties[$props_name] = $this->properties['computed'][$props_name];
+        if (empty($this->geometry)) {
+            return false;
         }
+        if (isset($this->geometry['coordinates']) &&
+            is_array($this->geometry['coordinates']) &&
+            count($this->geometry['coordinates']) > 0 &&
+            is_array($this->geometry['coordinates'][0]) &&
+            count($this->geometry['coordinates'][0]) >= 3) {
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
+     * @throws WebmappExceptionGeoJsonBadGeomType
+     */
+    public function add3D()
+    {
+        if ($this->hasGeometry()) {
+            $pg = WebmappPostGis::Instance();
+            $this->geometry = json_decode($pg->addEle(json_encode($this->geometry)), true);
+        }
+    }
+
+    public function computeDistanceSpheroid($instance_id = '')
+    {
+        //ST_Length(ST_Transform(geom,3857))
+        $l = 0;
+        if (empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $q = "SELECT ST_LengthSpheroid(geom,'SPHEROID[\"WGS_1984\",6378137,298.257223563]') as l
+                 FROM track
+                 WHERE track_id={$this->getId()} AND
+                       instance_id='$instance_id';";
+        $r = $pg->select($q);
+        if (count($r) > 0) {
+            $l = $r[0]['l'];
+        }
+        return $l;
     }
 
     private function computeAscDesc($instance_id = '')
@@ -488,7 +346,31 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     }
 
-    // COnvert geom to 3d geom (only if needed)
+    public function getRunningPoint($p, $coord_type, $instance_id = '')
+    {
+        // Gestione della ISTANCE ID
+        if (empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $id = $this->getId();
+        $q = "SELECT ST_X(ST_Transform(ST_Lineinterpolatepoint(geom,$p),$coord_type)) as x,
+                            ST_Y(ST_Transform(ST_Lineinterpolatepoint(geom,$p),$coord_type)) as y
+                 FROM track
+                 WHERE track_id=$id AND
+                  instance_id='$instance_id';";
+        $r = $pg->select($q);
+        return array($r[0]['x'], $r[0]['y']);
+    }
+
+    private function setPropsFromComputed($props_name)
+    {
+        if (isset($this->properties['computed'][$props_name]) &&
+            (!isset($this->properties[$props_name]) || empty($this->properties[$props_name]))) {
+            $this->properties[$props_name] = $this->properties['computed'][$props_name];
+        }
+    }
+
     public function addEle()
     {
         if (isset($this->geometry['coordinates']) &&
@@ -647,106 +529,40 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     }
 
+    public function addBBox($instance_id = '')
+    {
+        // Gestione della ISTANCE ID
+        if (empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $bb = $pg->getTrackBBox($instance_id, $this->getId());
+        if (empty($bb)) {
+            $this->writeToPostGis($instance_id);
+            $bb = $pg->getTrackBBox($instance_id, $this->getId());
+        }
+        $this->addProperty('bbox', $bb);
+        $bb = $pg->getTrackBBoxMetric($instance_id, $this->getId());
+        $this->addProperty('bbox_metric', $bb);
+    }
+
+    public function writeToPostGis($instance_id = '')
+    {
+
+        // Gestione della ISTANCE ID
+        if (empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $pg->insertTrack($instance_id, $this->getId(), $this->geometry);
+
+    }
+
     public function generatePortraitRBImages($instance_id = '', $path = '')
     {
         $this->generateRBImages(491, 624, 1300, $instance_id, $path);
     }
 
-    // Parameters:
-
-    public function generateLandscapeRBImages($instance_id = '', $path = '')
-    {
-        // BIKE
-        $this->generateRBImages(624, 491, 3300, $instance_id, $path);
-        // TREKKING
-        // $this->generateRBImages(624,491,1300,$instance_id,$path);
-    }
-
-    // TODO: gestire output coordinate
-    public function getRunningPoints($n, $instance_id = '')
-    {
-        // Gestione della ISTANCE ID
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-        $pg = WebmappPostGis::Instance();
-        $results = array();
-        for ($i = 0; $i <= $n; $i++) {
-            $p = $i / $n;
-            $id = $this->getId();
-            $q = "SELECT ST_X(ST_Transform(ST_Lineinterpolatepoint(geom,$p),3857)) as x,
-                            ST_Y(ST_Transform(ST_Lineinterpolatepoint(geom,$p),3857)) as y
-                     FROM track
-                     WHERE track_id=$id AND
-                     instance_id='$instance_id';";
-            $r = $pg->select($q);
-            $results[] = array($r[0]['x'], $r[0]['y']);
-        }
-        return $results;
-    }
-
-    // Returns array(lon,lat)
-    // $p must be 0<p<1 (TODO: check parameter)
-    // $coord_type = 3857 -> WEB MARCATOR
-    // $coord_type = 4326 -> Coordinate geografiche
-    public function getRunningPoint($p, $coord_type, $instance_id = '')
-    {
-        // Gestione della ISTANCE ID
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-        $pg = WebmappPostGis::Instance();
-        $id = $this->getId();
-        $q = "SELECT ST_X(ST_Transform(ST_Lineinterpolatepoint(geom,$p),$coord_type)) as x,
-                            ST_Y(ST_Transform(ST_Lineinterpolatepoint(geom,$p),$coord_type)) as y
-                 FROM track
-                 WHERE track_id=$id AND
-                  instance_id='$instance_id';";
-        $r = $pg->select($q);
-        return array($r[0]['x'], $r[0]['y']);
-    }
-
-    public function computeDistance3857($instance_id = '')
-    {
-        //ST_Length(ST_Transform(geom,3857))
-        $l = 0;
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-        $pg = WebmappPostGis::Instance();
-        $q = "SELECT ST_Length(ST_Transform(geom,3857)) as l
-                 FROM track
-                 WHERE track_id={$this->getId()} AND
-                       instance_id='$instance_id';";
-        $r = $pg->select($q);
-        if (count($r) > 0) {
-            $l = $r[0]['l'];
-        }
-        return $l;
-    }
-
-    public function computeDistanceSpheroid($instance_id = '')
-    {
-        //ST_Length(ST_Transform(geom,3857))
-        $l = 0;
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-        $pg = WebmappPostGis::Instance();
-        $q = "SELECT ST_LengthSpheroid(geom,'SPHEROID[\"WGS_1984\",6378137,298.257223563]') as l
-                 FROM track
-                 WHERE track_id={$this->getId()} AND
-                       instance_id='$instance_id';";
-        $r = $pg->select($q);
-        if (count($r) > 0) {
-            $l = $r[0]['l'];
-        }
-        return $l;
-    }
-
-    // W Width in pixel
-    // H Height in pixel
-    // BBOX_DX in m
     public function generateRBImages($width, $height, $bbox_dx, $instance_id = '', $path = '')
     {
 
@@ -805,6 +621,55 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             $this->addProperty('rb_images', $images);
         }
 
+    }
+
+    public function computeDistance3857($instance_id = '')
+    {
+        //ST_Length(ST_Transform(geom,3857))
+        $l = 0;
+        if (empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $q = "SELECT ST_Length(ST_Transform(geom,3857)) as l
+                 FROM track
+                 WHERE track_id={$this->getId()} AND
+                       instance_id='$instance_id';";
+        $r = $pg->select($q);
+        if (count($r) > 0) {
+            $l = $r[0]['l'];
+        }
+        return $l;
+    }
+
+    public function getRunningPoints($n, $instance_id = '')
+    {
+        // Gestione della ISTANCE ID
+        if (empty($instance_id)) {
+            $instance_id = WebmappProjectStructure::getInstanceId();
+        }
+        $pg = WebmappPostGis::Instance();
+        $results = array();
+        for ($i = 0; $i <= $n; $i++) {
+            $p = $i / $n;
+            $id = $this->getId();
+            $q = "SELECT ST_X(ST_Transform(ST_Lineinterpolatepoint(geom,$p),3857)) as x,
+                            ST_Y(ST_Transform(ST_Lineinterpolatepoint(geom,$p),3857)) as y
+                     FROM track
+                     WHERE track_id=$id AND
+                     instance_id='$instance_id';";
+            $r = $pg->select($q);
+            $results[] = array($r[0]['x'], $r[0]['y']);
+        }
+        return $results;
+    }
+
+    public function generateLandscapeRBImages($instance_id = '', $path = '')
+    {
+        // BIKE
+        $this->generateRBImages(624, 491, 3300, $instance_id, $path);
+        // TREKKING
+        // $this->generateRBImages(624,491,1300,$instance_id,$path);
     }
 
     public function writeRBRelatedPoi($path, $instance_id = '')
@@ -899,6 +764,127 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
             $this->properties['related']['poi']['related'] = $ordered_ids;
             $this->properties['id_pois'] = $ordered_ids;
+        }
+    }
+
+    protected function mappingSpecific($json_array)
+    {
+        $this->setProperty('n7webmapp_track_color', $json_array, 'color');
+        $this->setProperty('n7webmap_start', $json_array, 'from');
+        $this->setProperty('n7webmap_end', $json_array, 'to');
+        $this->setProperty('ref', $json_array);
+        $this->setProperty('ascent', $json_array);
+        $this->setProperty('descent', $json_array);
+        $this->setProperty('distance', $json_array);
+        $this->setProperty('duration:forward', $json_array);
+        $this->setProperty('duration:backward', $json_array);
+        $this->setProperty('cai_scale', $json_array);
+        $this->setProperty('stroke_width', $json_array);
+
+        // ADD START AND END POI
+        if (isset($json_array['n7webmap_start_poi']) &&
+            is_array($json_array['n7webmap_start_poi']) &&
+            count($json_array['n7webmap_start_poi']) > 0) {
+            $from_id = $json_array['n7webmap_start_poi'][0]['ID'];
+            $this->addProperty('from_poi', $from_id);
+        }
+        if (isset($json_array['n7webmap_end_poi']) &&
+            is_array($json_array['n7webmap_end_poi']) &&
+            count($json_array['n7webmap_end_poi']) > 0) {
+            $from_id = $json_array['n7webmap_end_poi'][0]['ID'];
+            $this->addProperty('to_poi', $from_id);
+        }
+
+        // PREV AND NEXT TRACK
+        if (isset($json_array['prev_track']) &&
+            is_array($json_array['prev_track']) &&
+            count($json_array['prev_track']) > 0) {
+            $this->addProperty('prev_track', $json_array['prev_track'][0]);
+        }
+
+        if (isset($json_array['next_track']) &&
+            is_array($json_array['next_track']) &&
+            count($json_array['next_track']) > 0) {
+            $this->addProperty('next_track', $json_array['next_track'][0]);
+        }
+
+        // ADD id_pois
+        $related_pois_id = $this->getRelatedPoisId();
+        $json_array['id_pois'] = $related_pois_id;
+        $this->setProperty('id_pois', $json_array);
+        if (count($related_pois_id) > 0) {
+            $this->properties['related']['poi']['related'] = $related_pois_id;
+        }
+
+        // ROADBOOK
+        if (isset($json_array['rb_track_section']) && !empty($json_array['rb_track_section'])) {
+            $this->addProperty('rb_track_section', $json_array['rb_track_section']);
+        }
+
+        // SURFACE
+        if (isset($json_array['surface']) && is_array($json_array['surface']) && count($json_array['surface'])) {
+            $surface = array();
+            foreach ($json_array['surface'] as $item) {
+                $surface[$item['surface_type']] = $item['surface_type_percentage'] / 100;
+            }
+            $this->addProperty('surface', $surface);
+        }
+
+    }
+
+    protected function mappingGeometry($json_array)
+    {
+        if (isset($json_array['n7webmap_geojson']) && !empty($json_array['n7webmap_geojson'])) {
+            $this->geometry = unserialize($json_array['n7webmap_geojson']);
+        }
+        if ((!isset($this->geometry) || empty($this->geometry)) && $this->hasProperty('osmid')) {
+            try {
+                $osmid = $this->getProperty('osmid');
+                if ($this->debug) {
+                    WebmappUtils::verbose("Generating track geometry using osmid {$osmid}");
+                }
+                $pg = WebmappPostGisOsm::Instance();
+                $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
+                $relation = new WebmappOSMRelation($osmid);
+                $this->relation = $relation;
+                $red_match = '/red:red:white_stripe:[^:]+:black/';
+                $color = '#636363';
+                if ($relation->hasTag('source') &&
+                    $relation->getTag('source') == 'survey:CAI') {
+                    $color = '#A63FD1';
+                    if ($relation->hasTag('osmc:symbol') &&
+                        preg_match($red_match, $relation->getTag('osmc:symbol'))) {
+                        $color = '#E35234';
+                    }
+                }
+                if (!$this->hasProperty("color") && $color) {
+                    $this->addProperty("color", $color);
+                }
+
+                // ADD lineDash for alternate
+                if ($relation->hasTag('state') && $relation->getTag('state') == 'alternate') {
+                    $this->addProperty('lineDash', array(12, 8));
+                }
+
+                // TODO: Move this code to a mapping specific/mapping standard
+                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash");
+                foreach ($mapProperties as $property) {
+                    if (!$this->hasProperty($property) && $relation->hasTag($property)) {
+                        $this->addProperty($property, $relation->getTag($property));
+                    }
+                }
+
+                // TODO: Move this code to a mapping specific/mapping standard
+                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash", "duration:forward", "duration:backward");
+                foreach ($mapProperties as $property) {
+                    if (!$this->hasProperty($property) && $relation->hasTag($property) && !empty($relation->getTag($property))) {
+                        $this->addProperty($property, $relation->getTag($property));
+                    }
+                }
+            } catch (Exception $e) {
+                echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
+                echo "Geometry not set\n\n\n";
+            }
         }
     }
 }

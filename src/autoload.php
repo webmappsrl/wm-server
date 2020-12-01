@@ -107,8 +107,6 @@ require 'classes/hoqu/WebmappHoquServer.php';
 require 'classes/jobs/WebmappAbstractJob.php';
 require 'classes/jobs/WebmappUpdatePoiJob.php';
 require 'classes/jobs/WebmappUpdateTrackJob.php';
-require 'classes/jobs/WebmappUpdateTrackMetadataJob.php';
-require 'classes/jobs/WebmappUpdateTrackGeometryJob.php';
 require 'classes/jobs/WebmappUpdateRouteJob.php';
 require 'classes/jobs/WebmappGenerateMbtilesJob.php';
 require 'classes/jobs/WebmappGenerateElevationChartImageJob.php';

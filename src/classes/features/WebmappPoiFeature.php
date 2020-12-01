@@ -41,28 +41,10 @@ class WebmappPoiFeature extends WebmappAbstractFeature
 {
     // Mapping dei meta specifici dei punti
     // http://dev.be.webmapp.local/wp-json/wp/v2/poi/38
-    protected function mappingSpecific($json_array)
+    public function setGeometry($lng, $lat)
     {
-        $this->setProperty('addr:street', $json_array);
-        $this->setProperty('addr:housenumber', $json_array);
-        $this->setProperty('addr:postcode', $json_array);
-        $this->setProperty('addr:city', $json_array);
-        $this->setProperty('contact:phone', $json_array);
-        $this->setProperty('contact:email', $json_array);
-        $this->setProperty('opening_hours', $json_array);
-        $this->setProperty('capacity', $json_array);
-        // Gestione dell'address
-        if (isset($json_array['address'])) {
-            $this->setProperty('address', $json_array);
-        } else if ((isset($json_array['addr:street']) && (!empty($json_array['addr:street'])))
-            && (isset($json_array['addr:city']) && (!empty($json_array['addr:city'])))) {
-            $num = '';
-            if (isset($json_array['addr:housenumber'])) {
-                $num = $json_array['addr:housenumber'];
-            }
-            $address = $json_array['addr:street'] . ', ' . $num . ' ' . $json_array['addr:city'];
-            $this->properties['address'] = $address;
-        }
+        $this->geometry['type'] = 'Point';
+        $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
     }
 
     // Impostazione della geometry a partire da formato API WP
@@ -77,50 +59,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature
      * }
      **/
 
-    /**
-     * @param $json_array
-     * @throws WebmappExceptionPOINoCoodinates
-     */
-    protected function mappingGeometry($json_array)
+    public function getLon()
     {
-
-        $id = $json_array['id'];
-
-        $lat = $lng = '';
-
-        // CASO n7webmap_coord
-        if (isset($json_array['n7webmap_coord']) &&
-            isset($json_array['n7webmap_coord']['lat']) &&
-            isset($json_array['n7webmap_coord']['lng']) &&
-            !empty($json_array['n7webmap_coord']['lat']) &&
-            !empty($json_array['n7webmap_coord']['lng'])) {
-            $lng = $json_array['n7webmap_coord']['lng'];
-            $lat = $json_array['n7webmap_coord']['lat'];
-        } else if (isset($json_array['coordinates']) &&
-            isset($json_array['coordinates']['center_lat']) &&
-            isset($json_array['coordinates']['center_lng']) &&
-            !empty($json_array['coordinates']['center_lat']) &&
-            !empty($json_array['coordinates']['center_lng'])
-        ) {
-            $lng = $json_array['coordinates']['center_lng'];
-            $lat = $json_array['coordinates']['center_lat'];
-        } else {
-            throw new WebmappExceptionPOINoCoodinates("INVALID POI no id:$id", 1);
-        }
-
-        $this->geometry['type'] = 'Point';
-        $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
-    }
-
-    public function setGeometry($lng, $lat)
-    {
-        $this->geometry['type'] = 'Point';
-        $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
-    }
-
-    public function getLat()
-    {
-        return $this->geometry['coordinates'][1];
+        return $this->getLng();
     }
 
     public function getLng()
@@ -128,14 +69,14 @@ class WebmappPoiFeature extends WebmappAbstractFeature
         return $this->geometry['coordinates'][0];
     }
 
-    public function getLon()
-    {
-        return $this->getLng();
-    }
-
     public function getLatMax()
     {
         return $this->getLat();
+    }
+
+    public function getLat()
+    {
+        return $this->geometry['coordinates'][1];
     }
 
     public function getLatMin()
@@ -185,8 +126,6 @@ class WebmappPoiFeature extends WebmappAbstractFeature
         $this->addRelatedPoi($q);
     }
 
-    // Restituisce gli id dei POI all'interno del cerchio centrato in 
-    // lon lat di raggio distance
     public function getNeighborsByLonLat($distance, $lon, $lat, $instance_id = '')
     {
         // Gestione della ISTANCE ID
@@ -223,8 +162,70 @@ class WebmappPoiFeature extends WebmappAbstractFeature
         }
     }
 
+    // Restituisce gli id dei POI all'interno del cerchio centrato in 
+    // lon lat di raggio distance
+
     public function generateImage($width, $height, $instance_id = '', $path = '')
     {
         echo "\n\nNOT YET IMPLEMENTED!\n\n";
+    }
+
+    protected function mappingSpecific($json_array)
+    {
+        $this->setProperty('addr:street', $json_array);
+        $this->setProperty('addr:housenumber', $json_array);
+        $this->setProperty('addr:postcode', $json_array);
+        $this->setProperty('addr:city', $json_array);
+        $this->setProperty('contact:phone', $json_array);
+        $this->setProperty('contact:email', $json_array);
+        $this->setProperty('opening_hours', $json_array);
+        $this->setProperty('capacity', $json_array);
+        // Gestione dell'address
+        if (isset($json_array['address'])) {
+            $this->setProperty('address', $json_array);
+        } else if ((isset($json_array['addr:street']) && (!empty($json_array['addr:street'])))
+            && (isset($json_array['addr:city']) && (!empty($json_array['addr:city'])))) {
+            $num = '';
+            if (isset($json_array['addr:housenumber'])) {
+                $num = $json_array['addr:housenumber'];
+            }
+            $address = $json_array['addr:street'] . ', ' . $num . ' ' . $json_array['addr:city'];
+            $this->properties['address'] = $address;
+        }
+    }
+
+    /**
+     * @param $json_array
+     * @throws WebmappExceptionPOINoCoodinates
+     */
+    protected function mappingGeometry($json_array)
+    {
+
+        $id = $json_array['id'];
+
+        $lat = $lng = '';
+
+        // CASO n7webmap_coord
+        if (isset($json_array['n7webmap_coord']) &&
+            isset($json_array['n7webmap_coord']['lat']) &&
+            isset($json_array['n7webmap_coord']['lng']) &&
+            !empty($json_array['n7webmap_coord']['lat']) &&
+            !empty($json_array['n7webmap_coord']['lng'])) {
+            $lng = $json_array['n7webmap_coord']['lng'];
+            $lat = $json_array['n7webmap_coord']['lat'];
+        } else if (isset($json_array['coordinates']) &&
+            isset($json_array['coordinates']['center_lat']) &&
+            isset($json_array['coordinates']['center_lng']) &&
+            !empty($json_array['coordinates']['center_lat']) &&
+            !empty($json_array['coordinates']['center_lng'])
+        ) {
+            $lng = $json_array['coordinates']['center_lng'];
+            $lat = $json_array['coordinates']['center_lat'];
+        } else {
+            throw new WebmappExceptionPOINoCoodinates("INVALID POI no id:$id", 1);
+        }
+
+        $this->geometry['type'] = 'Point';
+        $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
     }
 }

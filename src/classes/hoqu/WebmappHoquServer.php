@@ -7,8 +7,6 @@ define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
 define("JOBS_AVAILABLE", [
     "update_poi",
     "update_track",
-    "update_track_metadata",
-    "update_track_geometry",
     "update_route",
     "generate_mbtiles",
     "generate_elevation_chart_image"
@@ -187,7 +185,7 @@ class WebmappHoquServer
                     if (class_exists("Webmapp{$jobType}Job")) {
                         try {
                             $startTime = round(microtime(true) * 1000);
-                            WebmappUtils::title($this->_logHeader() . "Starting {$jobType} job {$job['id']}");
+                            WebmappUtils::title($this->_logHeader() . "Starting {$jobType} job {$job['id']} on instance {$job['instance']}");
                             $a = new $jobClass($job['instance'], $job['parameters'], $this->verbose);
                             if ($this->verbose) {
                                 WebmappUtils::verbose($this->_logHeader() . "Running process...");

@@ -351,15 +351,12 @@ abstract class WebmappAbstractJob
     {
         if (count($this->kProjects) > 0) {
             if ($this->verbose) {
-                $this->_verbose("Adding geojson to K projects...");
+                $this->_verbose("Updating k projects...");
             }
             if (in_array($postType, ["poi", "track", "route"])) {
                 foreach ($this->kProjects as $kProject) {
                     if ($this->verbose) {
                         $this->_verbose("  {$kProject->getRoot()}");
-                    }
-                    if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
-                        file_put_contents("{$kProject->getRoot()}/geojson/{$id}.geojson", $json);
                     }
                 }
             }
@@ -442,7 +439,7 @@ abstract class WebmappAbstractJob
         ];
 
         $payload = [
-            "instance" => $this->instanceUrl,
+            "instance" => $this->instanceName,
             "job" => $job,
             "parameters" => $params,
         ];

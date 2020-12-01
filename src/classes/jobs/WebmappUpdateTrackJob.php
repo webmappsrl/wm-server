@@ -38,15 +38,46 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
     protected function process()
     {
         $id = intval($this->params['id']);
+        $updateOsmGeometry = isset($this->params['update_geometry']) && $this->params['update_geometry'] === true;
 
         try {
             // Load track from be
             if ($this->verbose) {
                 $this->_verbose("Loading track from {$this->wp->getApiTrack($id)}");
             }
-            $track = new WebmappTrackFeature($this->wp->getApiTrack($id));
-            $track = $this->_addGeometryToTrack($track);
+            $track = new WebmappTrackFeature($this->wp->getApiTrack($id), false);
+            if ($track->hasGeometry() &&
+                ($updateOsmGeometry ||
+                    !$track->hasProperty('osmid') ||
+                    !file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson"))) {
+                $track = $this->_addGeometryToTrack($track);
+            } else {
+                if ($this->verbose && !$updateOsmGeometry && $track->hasProperty('osmid')) {
+                    $this->_verbose("Skipping geometry due to job parameters");
+                }
+            }
             $track = $this->_setCustomProperties($track);
+
+            if (!$updateOsmGeometry &&
+                $track->hasProperty('osmid') &&
+                file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson")) {
+                if ($this->verbose) {
+                    $this->_verbose("Skipping geometry generation. Using geometry from {$this->aProject->getRoot()}/geojson/{$id}.geojson");
+                }
+                $currentGeojson = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson"), true);
+                if (isset($currentGeojson["properties"])) {
+                    $currentMetadata = $currentGeojson["properties"];
+
+                    foreach (GEOMETRY_METADATA_PROPERTIES as $key) {
+                        if (array_key_exists($key, $currentMetadata)) {
+                            $track->setProperty($key, $currentMetadata, $key);
+                        }
+                    }
+                }
+                if (isset($currentGeojson["geometry"])) {
+                    $track->setGeometry($currentGeojson["geometry"]);
+                }
+            }
 
             if ($this->verbose) {
                 $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
@@ -99,10 +130,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 if (!file_exists($trackPath)) {
                     system("mkdir -p {$trackPath}");
                 }
-//                if ($this->verbose) {
-//                    $this->_verbose("Generating track images");
-//                }
-//                $track->generateAllImages('', $trackPath);
 
                 $track = $this->_orderRelatedPoi($track);
 
@@ -129,23 +156,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             }
         } catch (WebmappExceptionHoquRequest|WebmappExceptionHttpRequest $e) {
             $this->_warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
-        }
-
-        return $track;
-    }
-
-    /**
-     * Perform all the operations needed to generate all the track metadata
-     *
-     * @param WebmappTrackFeature $track
-     * @return WebmappTrackFeature
-     */
-    protected function _removeGeometryMetadata(WebmappTrackFeature $track)
-    {
-        foreach (GEOMETRY_METADATA_PROPERTIES as $property) {
-            if ($track->hasProperty($property)) {
-                $track->removeProperty($property);
-            }
         }
 
         return $track;
@@ -180,6 +190,23 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 }
 
                 $track->orderRelatedPois($pois);
+            }
+        }
+
+        return $track;
+    }
+
+    /**
+     * Perform all the operations needed to generate all the track metadata
+     *
+     * @param WebmappTrackFeature $track
+     * @return WebmappTrackFeature
+     */
+    protected function _removeGeometryMetadata(WebmappTrackFeature $track)
+    {
+        foreach (GEOMETRY_METADATA_PROPERTIES as $property) {
+            if ($track->hasProperty($property)) {
+                $track->removeProperty($property);
             }
         }
 
@@ -242,63 +269,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 } catch (WebmappExceptionHoquRequest $e) {
                     $this->_warning($e->getMessage());
                 }
-            }
-        }
-    }
-
-    private function writeRBRelatedPoi($path, $instance_id = '')
-    {
-        // Gestione della ISTANCE ID
-        if (empty($instance_id)) {
-            $instance_id = WebmappProjectStructure::getInstanceId();
-        }
-
-        $ids = array();
-        if (isset($this->properties['related']['poi']['related'])
-            && count($this->properties['related']['poi']['related']) > 0) {
-            $l = new WebmappLayer("{$this->getId()}_rb_related_poi");
-            foreach ($this->properties['related']['poi']['related'] as $pid) {
-                $poi_url = preg_replace('|track/[0-9]*|', '', $this->properties['source']) . 'poi/' . $pid;
-                try {
-                    $poi = new WebmappPoiFeature($poi_url);
-                    $noDetails = $poi->getProperty('noDetails');
-                    $noInteraction = $poi->getProperty('noInteraction');
-                    if (!$noDetails && !$noInteraction) {
-                        $l->addFeature($poi);
-                        $ids[] = $poi->getId();
-                    }
-                } catch (Exception $e) {
-                    echo "WARNING Exception thrown " . get_class($e) . "\n";
-                    echo $e->getMessage() . "\n";
-                }
-            }
-            if (count($ids) > 0) {
-                $l_ordered = new WebmappLayer("{$this->getId()}_rb_related_poi");
-                $q_in = implode(',', $ids);
-                $track_id = $this->getId();
-                $pg = WebmappPostGis::Instance();
-                $q = "WITH
-                            punti AS ( SELECT * FROM poi WHERE poi_id IN ($q_in) AND instance_id =  '$instance_id' ),
-                            traccia as ( SELECT * FROM track WHERE track_id = $track_id AND instance_id = '$instance_id' )
-                          SELECT
-                            punti.poi_id AS ID,
-                            ST_Length(ST_LineSubstring(ST_Transform(traccia.geom,3857),
-                                ST_LineLocatePoint(ST_Transform(traccia.geom,3857),ST_StartPoint(ST_Transform(traccia.geom,3857))),
-                                ST_LineLocatePoint(ST_Transform(traccia.geom,3857),ST_ClosestPoint(ST_Transform(traccia.geom,3857),ST_Transform(punti.geom,3857))))) AS length
-                          FROM traccia, punti
-                          ORDER BY length;";
-                $res = $pg->select($q);
-                $sequence = 1;
-                $ordered_ids = array();
-                foreach ($res as $item) {
-                    $poi = $l->getFeature($item['id']);
-                    $ordered_ids[] = $item['id'];
-                    $poi->addProperty('sequence', $sequence);
-                    $l_ordered->addFeature($poi);
-                    $sequence++;
-                }
-                $this->properties['related']['poi']['roadbook'] = $ordered_ids;
-                $l_ordered->write($path);
             }
         }
     }
