@@ -32,7 +32,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 $currentDate = 1;
                 $generatedDate = 0;
                 if (file_exists("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson")) {
-                    $currentDate = $this->_getTrackLastModified($track["ID"], strtotime($track["post_modified"]));
+                    $currentDate = $this->_getPostLastModified($track["ID"], strtotime($track["post_modified"]));
                     $file = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
                     $generatedDate = strtotime($file["properties"]["modified"]);
                 }
@@ -54,6 +54,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
 
         $route->buildPropertiesAndFeaturesFromTracksGeojson($tracks);
         $route = $this->_setCustomProperties($route);
+        $route->setProperty("modified", $this->_getPostLastModified($id, strtotime($route->getProperty("modified"))));
 
         file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $route->getJson());
         $json = json_decode($route->getPoiJson(), true);
@@ -423,39 +424,5 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 }
             }
         }
-    }
-
-    /**
-     * Return the last modified date for the given track
-     *
-     * @param int $id the track id
-     * @param int|null $defaultValue the default last modified value
-     * @return false|int|void
-     */
-    private function _getTrackLastModified(int $id, int $defaultValue = null)
-    {
-        $lastModified = isset($defaultValue) ? $defaultValue : strtotime("now");
-        $ch = $this->_getCurl("{$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id}");
-        $modified = null;
-        try {
-            $modified = curl_exec($ch);
-        } catch (Exception $e) {
-            $this->_warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
-            return;
-        }
-        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
-            $this->_warning("The api {$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id} seems unreachable: " . curl_error($ch));
-            curl_close($ch);
-        } else {
-            curl_close($ch);
-
-            $modified = json_decode($modified, true);
-
-            if (isset($modified) && is_array($modified) && array_key_exists("last_modified", $modified) && is_string($modified["last_modified"])) {
-                $lastModified = strtotime($modified["last_modified"]);
-            }
-        }
-
-        return $lastModified;
     }
 }

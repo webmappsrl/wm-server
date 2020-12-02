@@ -810,6 +810,16 @@ class WebmappUtils
         return $output;
     }
 
+    /**
+     * Format the given date to the Y-m-d\TH:i:s format
+     * @param $input
+     * @return false|string
+     */
+    public static function formatDate($input)
+    {
+        return date("Y-m-d\TH:i:s", $input);
+    }
+
     public static $foreground = array(
         'black' => '0;30',
         'dark_gray' => '1;30',

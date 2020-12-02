@@ -28,6 +28,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * @param string $params containing an encoded JSON with the track ID
      * @param false $verbose
      * @param string $type the type, default "update_track"
+     * @throws WebmappExceptionNoDirectory
      */
     public function __construct(string $instanceUrl, string $params, bool $verbose = false, string $type = "update_track")
     {
@@ -78,6 +79,9 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     $track->setGeometry($currentGeojson["geometry"]);
                 }
             }
+
+
+            $track->setProperty("modified", $this->_getPostLastModified($id, strtotime($track->getProperty("modified"))));
 
             if ($this->verbose) {
                 $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");

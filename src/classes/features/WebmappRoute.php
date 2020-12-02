@@ -600,4 +600,9 @@ class WebmappRoute
     {
         $this->properties[$name] = $value;
     }
+
+    public function getProperty($key)
+    {
+        return $this->properties[$key];
+    }
 }

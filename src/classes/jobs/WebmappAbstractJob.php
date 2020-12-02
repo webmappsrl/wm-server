@@ -415,6 +415,41 @@ abstract class WebmappAbstractJob
     }
 
     /**
+     * Return the last modified date for the given post
+     *
+     * @param int $id the post id
+     * @param int|null $defaultValue the default last modified value
+     * @return false|int|void
+     */
+    protected function _getPostLastModified(int $id, int $defaultValue = null)
+    {
+        $lastModified = isset($defaultValue) ? $defaultValue : strtotime("now");
+        $apiUrl = "{$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id}";
+        $ch = $this->_getCurl($apiUrl);
+        $modified = null;
+        try {
+            $modified = curl_exec($ch);
+        } catch (Exception $e) {
+            $this->_warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
+            return;
+        }
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+            $this->_warning("The api {$apiUrl} seems unreachable: " . curl_error($ch));
+            curl_close($ch);
+        } else {
+            curl_close($ch);
+
+            $modified = json_decode($modified, true);
+
+            if (isset($modified) && is_array($modified) && array_key_exists("last_modified", $modified) && is_string($modified["last_modified"])) {
+                $lastModified = strtotime($modified["last_modified"]);
+            }
+        }
+
+        return $lastModified;
+    }
+
+    /**
      * Perform a store operation to hoqu
      *
      * @param string $job the job name
