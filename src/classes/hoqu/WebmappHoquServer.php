@@ -8,6 +8,7 @@ define("JOBS_AVAILABLE", [
     "update_poi",
     "delete_poi",
     "update_track",
+    "delete_track",
     "update_route",
     "generate_mbtiles",
     "generate_elevation_chart_image"

@@ -79,8 +79,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     $track->setGeometry($currentGeojson["geometry"]);
                 }
             }
-
-
+            
             $track->setProperty("modified", $this->_getPostLastModified($id, strtotime($track->getProperty("modified"))));
 
             if ($this->verbose) {
