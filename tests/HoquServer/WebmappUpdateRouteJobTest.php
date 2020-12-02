@@ -51,15 +51,15 @@ class WebmappUpdateRouteJobTest extends TestCase
             file_put_contents("{$k}/{$instanceCode}/server/server.conf", json_encode($conf));
         }
 
-        $cmd = "rm {$a}/{$instanceName}/geojson/*";
+        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
         system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/*";
+        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
         system($cmd);
-        $cmd = "rm {$k}/{$instanceCode}/geojson/*";
+        $cmd = "rm {$k}/{$instanceCode}/geojson/* &>/dev/null";
         system($cmd);
-        $cmd = "rm {$k}/{$instanceCode}/taxonomies/*";
+        $cmd = "rm {$k}/{$instanceCode}/taxonomies/* &>/dev/null";
         system($cmd);
-        $cmd = "rm -r {$k}/{$instanceCode}/routes/*";
+        $cmd = "rm -r {$k}/{$instanceCode}/routes/* &>/dev/null";
         system($cmd);
     }
 

@@ -120,6 +120,10 @@ class WebmappExceptionFeaturesNoGeometry extends WebmappExceptionFeatures
 {
 }
 
+class WebmappExceptionFeatureStillExists extends WebmappException
+{
+}
+
 // TRACKS
 class WebmappExceptionsFeaturesTracks extends WebmappExceptionFeatures
 {

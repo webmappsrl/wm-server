@@ -23,9 +23,9 @@ class WebmappUpdatePoiJobTest extends TestCase
             system($cmd);
         }
 
-        $cmd = "rm {$a}/{$instanceName}/geojson/*";
+        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
         system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/*";
+        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
         system($cmd);
 
         if (!$conf) $conf = [];

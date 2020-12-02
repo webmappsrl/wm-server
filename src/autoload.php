@@ -106,6 +106,7 @@ require 'classes/hoqu/WebmappHoquServer.php';
 // Jobs
 require 'classes/jobs/WebmappAbstractJob.php';
 require 'classes/jobs/WebmappUpdatePoiJob.php';
+require 'classes/jobs/WebmappDeletePoiJob.php';
 require 'classes/jobs/WebmappUpdateTrackJob.php';
 require 'classes/jobs/WebmappUpdateRouteJob.php';
 require 'classes/jobs/WebmappGenerateMbtilesJob.php';
