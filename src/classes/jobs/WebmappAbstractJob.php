@@ -227,8 +227,11 @@ abstract class WebmappAbstractJob
                     foreach ($keys as $key) {
                         unset($taxonomy["items"][$postType][$key]);
                     }
+
                     if (count($taxonomy["items"][$postType]) == 0) {
                         unset($taxonomy["items"][$postType]);
+                    } else {
+                        $taxonomy["items"][$postType] = array_values($taxonomy["items"][$postType]);
                     }
                     if (count($taxonomy["items"]) == 0) {
                         unset($taxonomyJson[$taxId]);
@@ -265,6 +268,7 @@ abstract class WebmappAbstractJob
                                 $this->_verbose("Cleaning {$taxTypeId} {$taxId} taxonomy term feature collection");
                             }
                             unset($taxonomyGeojson["features"][$key]);
+                            $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
                             if (count($taxonomyGeojson["features"]) === 0) {
                                 unlink($geojsonUrl);
                             } else {

@@ -408,6 +408,8 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                                     }
                                     if (count($taxonomy["items"][$postType]) == 0) {
                                         unset($kJson[$taxId]["items"][$postType]);
+                                    } else {
+                                        $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
                                     }
                                     if (count($taxonomy["items"]) == 0) {
                                         unset($kJson[$taxId][$taxId]);
