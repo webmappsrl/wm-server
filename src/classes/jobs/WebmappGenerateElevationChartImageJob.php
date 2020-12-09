@@ -25,6 +25,10 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
     protected function process()
     {
         $id = $this->params["id"];
+        if (is_null($id)) {
+            throw new WebmappExceptionParameterError("The id must be set, null given");
+            return;
+        }
         $descriptorspec = array(
             0 => array("pipe", "r"),   // stdin is a pipe that the child will read from
             1 => array("pipe", "w"),   // stdout is a pipe that the child will write to

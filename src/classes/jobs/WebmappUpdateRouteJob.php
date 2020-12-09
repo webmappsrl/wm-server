@@ -17,7 +17,10 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     protected function process()
     {
         $id = intval($this->params['id']);
-
+        if (is_null($id)) {
+            throw new WebmappExceptionParameterError("The id must be set, null given");
+            return;
+        }
         // Load poi from be
         if ($this->verbose) {
             $this->_verbose("Loading route from {$this->wp->getApiRoute($id)}");

@@ -39,6 +39,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
     protected function process()
     {
         $id = intval($this->params['id']);
+        if (is_null($id)) {
+            throw new WebmappExceptionParameterError("The id must be set, null given");
+            return;
+        }
         $updateOsmGeometry = isset($this->params['update_geometry']) && $this->params['update_geometry'] === true;
 
         try {
@@ -79,7 +83,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     $track->setGeometry($currentGeojson["geometry"]);
                 }
             }
-            
+
             $track->setProperty("modified", $this->_getPostLastModified($id, strtotime($track->getProperty("modified"))));
 
             if ($this->verbose) {
@@ -157,7 +161,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             } else if ($track->getGeometryType() === 'MultiLineString') {
                 $this->_warning("The track is a MultiLineString. Elevation is not supported");
             }
-        } catch (WebmappExceptionHoquRequest|WebmappExceptionHttpRequest $e) {
+        } catch (WebmappExceptionHoquRequest | WebmappExceptionHttpRequest $e) {
             $this->_warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
         }
 

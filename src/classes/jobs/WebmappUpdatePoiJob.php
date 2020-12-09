@@ -16,7 +16,10 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
     protected function process()
     {
         $id = intval($this->params['id']);
-
+        if (is_null($id)) {
+            throw new WebmappExceptionParameterError("The id must be set, null given");
+            return;
+        }
         try {
             // Load poi from be
             if ($this->verbose) {

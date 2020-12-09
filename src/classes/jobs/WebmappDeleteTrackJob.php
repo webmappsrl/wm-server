@@ -17,6 +17,10 @@ class WebmappDeleteTrackJob extends WebmappAbstractJob
     protected function process()
     {
         $id = intval($this->params['id']);
+        if (is_null($id)) {
+            throw new WebmappExceptionParameterError("The id must be set, null given");
+            return;
+        }
         if ($this->verbose) {
             $this->_verbose("Checking if track is available from {$this->wp->getApiTrack($id)}");
         }

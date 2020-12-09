@@ -16,7 +16,10 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
     protected function process()
     {
         $id = intval($this->params['id']);
-
+        if (is_null($id)) {
+            throw new WebmappExceptionParameterError("The id must be set, null given");
+            return;
+        }
         $kCodes = [];
         global $wm_config;
         if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
