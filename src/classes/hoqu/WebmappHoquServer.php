@@ -5,13 +5,14 @@ define("PULL_ENDPOINT", "/api/pull");
 define("UPDATE_DONE_ENDPOINT", "/api/updateDone");
 define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
 define("JOBS_AVAILABLE", [
-    "update_poi",
     "delete_poi",
-    "update_track",
+    "delete_route",
     "delete_track",
-    "update_route",
+    "generate_elevation_chart_image",
     "generate_mbtiles",
-    "generate_elevation_chart_image"
+    "update_poi",
+    "update_route",
+    "update_track"
 ]);
 
 class WebmappHoquServer

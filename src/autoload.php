@@ -110,5 +110,6 @@ require 'classes/jobs/WebmappDeletePoiJob.php';
 require 'classes/jobs/WebmappUpdateTrackJob.php';
 require 'classes/jobs/WebmappDeleteTrackJob.php';
 require 'classes/jobs/WebmappUpdateRouteJob.php';
+require 'classes/jobs/WebmappDeleteRouteJob.php';
 require 'classes/jobs/WebmappGenerateMbtilesJob.php';
 require 'classes/jobs/WebmappGenerateElevationChartImageJob.php';

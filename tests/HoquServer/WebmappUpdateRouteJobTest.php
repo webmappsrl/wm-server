@@ -6,14 +6,16 @@ class WebmappUpdateRouteJobTest extends TestCase
 {
     private function _createProjectStructure($a, $k, $instanceName, $instanceCode)
     {
+        $this->setOutputCallback(function () {
+        });
         global $wm_config;
         $wm_config["endpoint"] = [
             "a" => $a,
             "k" => $k
         ];
         $wm_config["a_k_instances"] = [
-            "elm.be.webmapp.it" => [
-                "elm"
+            $instanceName => [
+                $instanceCode
             ]
         ];
 
@@ -65,8 +67,6 @@ class WebmappUpdateRouteJobTest extends TestCase
 
     function testFileCreation()
     {
-        $this->setOutputCallback(function () {
-        });
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";

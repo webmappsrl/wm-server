@@ -79,48 +79,6 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     }
 
     /**
-     * Add the given json feature in the specified file
-     *
-     * @param string $url the file url
-     * @param int $id the feature id
-     * @param array|null $json the feature array. If null the route will be deleted from the file
-     */
-    private function _updateRouteIndex(string $url, int $id, array $json = null)
-    {
-        $file = null;
-        if (file_exists($url)) {
-            $file = json_decode(file_get_contents($url), true);
-            $done = false;
-            if (isset($file["features"]) && is_array($file["features"])) {
-                foreach ($file["features"] as $key => $feature) {
-                    if (strval($feature["properties"]["id"]) === strval($id)) {
-                        if (!is_null($json)) {
-                            $file["features"][$key] = $json;
-                        } else {
-                            unset($file["features"][$key]);
-                        }
-                        $done = true;
-                        break;
-                    }
-                }
-
-                if (!$done && !is_null($json)) {
-                    $file["features"][] = $json;
-                }
-
-                $file["features"] = array_values($file["features"]);
-            }
-        } elseif (!is_null($json)) {
-            $file = [
-                "type" => "FeatureCollection",
-                "features" => array_values([$json])
-            ];
-        }
-
-        file_put_contents($url, json_encode($file));
-    }
-
-    /**
      * Map the custom properties in the route
      *
      * @param WebmappRoute $route
