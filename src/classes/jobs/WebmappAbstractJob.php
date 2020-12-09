@@ -29,6 +29,11 @@ abstract class WebmappAbstractJob
             $this->instanceName = $instanceUrl;
         }
 
+        if (strpos($this->instanceName, "/") >= 0) {
+            $this->instanceName = explode("/", $this->instanceName)[0];
+            $this->instanceUrl = str_replace("http(s)?://(.*)", "http$1://{$this->instanceName}", $this->instanceUrl);
+        }
+
         global $wm_config;
 
         $this->aProject = new WebmappProjectStructure(
