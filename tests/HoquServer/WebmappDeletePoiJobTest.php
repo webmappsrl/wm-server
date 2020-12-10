@@ -1,36 +1,16 @@
 <?php
 
+require_once 'helpers/WebmappTestHelpers.php';
+
 use PHPUnit\Framework\TestCase;
 
 class WebmappDeletePoiJobTest extends TestCase
 {
-    private function _createProjectStructure($a, $k, $instanceName, array $conf = null)
+    public function __construct()
     {
         $this->setOutputCallback(function () {
         });
-        global $wm_config;
-        $wm_config["endpoint"] = [
-            "a" => $a,
-            "k" => $k
-        ];
-
-        if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
-            system($cmd);
-        }
-
-        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
-        system($cmd);
-
-        if (!$conf) $conf = [];
-
-        file_put_contents("{$a}/{$instanceName}/server/server.conf", json_encode($conf));
+        parent::__construct();
     }
 
     function testDeletionStopWhenPoiPublic()
@@ -41,8 +21,7 @@ class WebmappDeletePoiJobTest extends TestCase
         $instanceName = "elm.be.webmapp.it";
         $id = 1459;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
-
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
         $params = "{\"id\":{$id}}";
         $job = new WebmappDeletePoiJob($instanceUrl, $params, false);
         try {
@@ -71,7 +50,8 @@ class WebmappDeletePoiJobTest extends TestCase
         $themeUrl = "{$aEndpoint}/{$instanceName}/taxonomies/theme.json";
         $themeCollectionUrl = "{$aEndpoint}/{$instanceName}/taxonomies/200.geojson";
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        $this->assertTrue(true);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappDeletePoiJob($instanceUrl, $params, false);

@@ -12,6 +12,7 @@ define("JOBS_AVAILABLE", [
     "generate_mbtiles",
     "update_poi",
     "update_route",
+    "update_taxonomy",
     "update_track"
 ]);
 

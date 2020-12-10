@@ -1,68 +1,21 @@
 <?php
 
+require_once 'helpers/WebmappTestHelpers.php';
+
 use PHPUnit\Framework\TestCase;
 
 class WebmappUpdateRouteJobTest extends TestCase
 {
-    private function _createProjectStructure($a, $k, $instanceName, $instanceCode)
+    public $kConf = [
+        "multimap" => true,
+        "routesFilter" => [2056]
+    ];
+
+    public function __construct()
     {
         $this->setOutputCallback(function () {
         });
-        global $wm_config;
-        $wm_config["endpoint"] = [
-            "a" => $a,
-            "k" => $k
-        ];
-        $wm_config["a_k_instances"] = [
-            $instanceName => [
-                $instanceCode
-            ]
-        ];
-
-        if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
-            system($cmd);
-        }
-
-        if (!file_exists("{$k}/{$instanceCode}/geojson")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/taxonomies")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/taxonomies";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/routes")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/routes";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/server")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/server";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/server/server.conf")) {
-            $conf = [
-                "multimap" => true,
-                "routesFilter" => [2056]
-            ];
-
-            file_put_contents("{$k}/{$instanceCode}/server/server.conf", json_encode($conf));
-        }
-
-        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm {$k}/{$instanceCode}/geojson/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm {$k}/{$instanceCode}/taxonomies/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm -r {$k}/{$instanceCode}/routes/* &>/dev/null";
-        system($cmd);
+        parent::__construct();
     }
 
     function testFileCreation()
@@ -74,7 +27,7 @@ class WebmappUpdateRouteJobTest extends TestCase
         $instanceCode = "elm";
         $id = 2056;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName, $instanceCode);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName, null, $instanceCode, $this->kConf);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdateRouteJob($instanceUrl, $params, false);

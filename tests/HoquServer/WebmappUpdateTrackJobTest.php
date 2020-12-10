@@ -1,32 +1,16 @@
 <?php
 
+require_once 'helpers/WebmappTestHelpers.php';
+
 use PHPUnit\Framework\TestCase;
 
 class WebmappUpdateTrackJobTest extends TestCase
 {
-    private function _createProjectStructure($a, $k, $instanceName)
+    public function __construct()
     {
         $this->setOutputCallback(function () {
         });
-        global $wm_config;
-        $wm_config["endpoint"] = [
-            "a" => $a,
-            "k" => $k
-        ];
-
-        if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
-            system($cmd);
-        }
-
-        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
-        system($cmd);
+        parent::__construct();
     }
 
     function testFileCreation()
@@ -37,7 +21,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $instanceName = "elm.be.webmapp.it";
         $id = 2036;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdateTrackJob($instanceUrl, $params, false);
@@ -121,7 +105,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $testFirstCoordinates = [];
         $testGeometryType = '';
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id},\"update_geometry\":true}";
         $job = new WebmappUpdateTrackJob($instanceUrl, $params, false);
@@ -233,7 +217,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $testFirstCoordinates = [0, 0, 0];
         $testGeometryType = 'MultiLineString';
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdateTrackJob($instanceUrl, $params, false);
@@ -328,7 +312,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $instanceName = "elm.be.webmapp.it";
         $id = 2141;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdateTrackJob($instanceUrl, $params, false);
@@ -361,7 +345,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $instanceName = "elm.be.webmapp.it";
         $id = 2161;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdateTrackJob($instanceUrl, $params, false);

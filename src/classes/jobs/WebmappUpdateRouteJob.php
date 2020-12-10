@@ -294,7 +294,6 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      */
     private function _setKTaxonomies(int $id, array $taxonomies)
     {
-        $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
         $postType = 'route';
 
         if ($this->verbose) {
@@ -307,7 +306,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
                 $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
                 if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                    foreach ($taxonomyTypes as $taxTypeId) {
+                    foreach (TAXONOMY_TYPES as $taxTypeId) {
                         $kJson = null;
                         $aJson = null;
                         if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {

@@ -1,36 +1,16 @@
 <?php
 
+require_once 'helpers/WebmappTestHelpers.php';
+
 use PHPUnit\Framework\TestCase;
 
 class WebmappUpdatePoiJobTest extends TestCase
 {
-    private function _createProjectStructure($a, $k, $instanceName, array $conf = null)
+    public function __construct()
     {
         $this->setOutputCallback(function () {
         });
-        global $wm_config;
-        $wm_config["endpoint"] = [
-            "a" => $a,
-            "k" => $k
-        ];
-
-        if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
-            system($cmd);
-        }
-
-        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
-        system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
-        system($cmd);
-
-        if (!$conf) $conf = [];
-
-        file_put_contents("{$a}/{$instanceName}/server/server.conf", json_encode($conf));
+        parent::__construct();
     }
 
     function testFileCreation()
@@ -41,7 +21,7 @@ class WebmappUpdatePoiJobTest extends TestCase
         $instanceName = "elm.be.webmapp.it";
         $id = 1459;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
@@ -112,7 +92,7 @@ class WebmappUpdatePoiJobTest extends TestCase
         $instanceName = "elm.be.webmapp.it";
         $id = 1459;
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
@@ -205,7 +185,7 @@ class WebmappUpdatePoiJobTest extends TestCase
             ]
         ];
 
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, $instanceName, $conf);
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName, $conf);
 
         $params = "{\"id\":{$id}}";
         $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);

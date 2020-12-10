@@ -125,7 +125,6 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
      */
     private function _removeKTaxonomies(WebmappProjectStructure $kProject, int $id)
     {
-        $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
         $postType = 'route';
 
         if ($this->verbose) {
@@ -134,7 +133,7 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
         if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
             $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
             if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                foreach ($taxonomyTypes as $taxTypeId) {
+                foreach (TAXONOMY_TYPES as $taxTypeId) {
                     $kJson = null;
                     if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
                         $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);

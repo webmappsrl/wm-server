@@ -1,5 +1,7 @@
 <?php
 
+define("TAXONOMY_TYPES", ["webmapp_category", "activity", "theme", "when", "where", "who"]);
+
 abstract class WebmappAbstractJob
 {
     protected $name; // Job name
@@ -109,6 +111,30 @@ abstract class WebmappAbstractJob
     abstract protected function process();
 
     /**
+     * Return the current API value of the given taxonomy
+     *
+     * @param string $taxonomyType
+     * @param string $id
+     * @return mixed|void|null
+     */
+    protected function _getTaxonomy(string $taxonomyType, string $id)
+    {
+        $taxonomy = null;
+        if (isset($this->cachedTaxonomies[$id])) {
+            $taxonomy = $this->cachedTaxonomies[$id];
+        } else {
+            try {
+                $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}");
+                $this->cachedTaxonomies[$id] = $taxonomy; // Cache downloaded taxonomies
+            } catch (WebmappExceptionHttpRequest $e) {
+                $this->_warning("Taxonomy {$id} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}. Skipping");
+            }
+        }
+
+        return $taxonomy;
+    }
+
+    /**
      * Set the taxonomies for the post id
      *
      * @param string $postType the post type for the id
@@ -121,13 +147,12 @@ abstract class WebmappAbstractJob
             return;
         }
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
-        $taxonomyTypes = ["webmapp_category", "activity", "theme", "when", "where", "who"];
 
         if ($this->verbose) {
             $this->_verbose("Taxonomies: " . json_encode($taxonomies));
             $this->_verbose("Checking taxonomies...");
         }
-        foreach ($taxonomyTypes as $taxTypeId) {
+        foreach (TAXONOMY_TYPES as $taxTypeId) {
             $taxonomyJson = null;
             if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
                 $taxonomyJson = file_get_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json");
@@ -146,16 +171,7 @@ abstract class WebmappAbstractJob
                 $items = [
                     $postType => [$id],
                 ];
-                if (isset($this->cachedTaxonomies[$taxId])) {
-                    $taxonomy = $this->cachedTaxonomies[$taxId];
-                } else {
-                    try {
-                        $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}");
-                        $this->cachedTaxonomies[$taxId] = $taxonomy; // Cache downloaded taxonomies
-                    } catch (WebmappExceptionHttpRequest $e) {
-                        $this->_warning("Taxonomy {$taxId} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxTypeId}/{$taxId}. Skipping");
-                    }
-                }
+                $taxonomy = $this->_getTaxonomy($taxTypeId, $taxId);
 
                 // Enrich the current taxonomy array
                 if (array_key_exists($taxId, $taxonomyJson)) {
@@ -297,7 +313,7 @@ abstract class WebmappAbstractJob
      * @param array $taxonomy the taxonomy to clean
      * @return array the resulted cleaned taxonomy
      */
-    private function _cleanTaxonomy(array $taxonomy)
+    protected function _cleanTaxonomy(array $taxonomy): array
     {
         if (isset($taxonomy['featured_image']) && is_array($taxonomy['featured_image'])) {
             if (isset($taxonomy['featured_image']['sizes']['large'])) {
