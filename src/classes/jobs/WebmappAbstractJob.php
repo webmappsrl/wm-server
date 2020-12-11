@@ -345,7 +345,7 @@ abstract class WebmappAbstractJob
         unset($taxonomy["featured_image"]);
 
         $floatProperties = ["min_size", "max_size", "icon_size", "min_visible_zoom", "min_size_zoom", "icon_zoom"];
-        $intProperties = [];
+        $intProperties = ["zindex"];
         $stringProperties = [];
 
         foreach ($taxonomy as $key => $value) {
