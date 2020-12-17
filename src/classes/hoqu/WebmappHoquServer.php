@@ -7,6 +7,7 @@ define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
 define("JOBS_AVAILABLE", [
     "delete_poi",
     "delete_route",
+    "delete_taxonomy",
     "delete_track",
     "generate_elevation_chart_image",
     "generate_mbtiles",

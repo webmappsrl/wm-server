@@ -124,6 +124,10 @@ class WebmappExceptionFeatureStillExists extends WebmappException
 {
 }
 
+class WebmappExceptionTaxonomyStillExists extends WebmappException
+{
+}
+
 // TRACKS
 class WebmappExceptionsFeaturesTracks extends WebmappExceptionFeatures
 {

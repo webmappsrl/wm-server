@@ -114,3 +114,4 @@ require 'classes/jobs/WebmappDeleteRouteJob.php';
 require 'classes/jobs/WebmappGenerateMbtilesJob.php';
 require 'classes/jobs/WebmappGenerateElevationChartImageJob.php';
 require 'classes/jobs/WebmappUpdateTaxonomyJob.php';
+require 'classes/jobs/WebmappDeleteTaxonomyJob.php';
