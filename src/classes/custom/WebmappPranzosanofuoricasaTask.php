@@ -42,10 +42,11 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
         $page = 0;
         $count = 0;
         $total = 0;
+        $perPage = 10;
         do {
             $page++;
-            $api = $this->url . '/' . $type . "?per_page=50&page=$page" . "&orderby=slug&order=asc";
-            echo "Getting data form URL $api ... ";
+            $api = "{$this->url}/{$type}?per_page={$perPage}&page={$page}&orderby=slug&order=asc";
+            echo "Getting data form URL $api ...\n";
             $items = WebmappUtils::getJsonFromApi($api);
             if (isset($items['data']['status']) && $items['data']['status'] == 400) {
                 $count = 0;
@@ -63,7 +64,6 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $j['content']['rendered'] = '';
 
                     if ($type == 'event') {
-
                         if (!empty($ja['meta-fields']['subtitle'][0])) {
                             $j['content']['rendered'] = "<h4 class=\"subtitle\">" . $ja['meta-fields']['subtitle'][0] . "</h4>";
                         }
@@ -180,97 +180,99 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $j['related_url'] = [$j['sitoweb']];
                     }
 
+                    echo "Creating the poi...\n";
                     try {
                         $poi = new WebmappPoiFeature($j);
-                        $provincia = '';
-                        if (!empty($ja['meta-fields']['vt_provincia'][0])) {
-                            $provincia = $ja['meta-fields']['vt_provincia'][0];
-                            $poi->addProperty('provincia', $provincia);
-                        }
-                        if (!empty($ja['meta-fields']['vt_carte'][0])) {
-                            $carte = $ja['meta-fields']['vt_carte'][0];
-                            $poi->addProperty('carte', $carte);
-                        }
-                        if (!empty($ja['meta-fields']['vt_facebook'][0])) {
-                            $fb = $ja['meta-fields']['vt_facebook'][0];
-                            $poi->addProperty('facebook', $fb);
-                        }
-                        if (!empty($ja['meta-fields']['vt_twitter'][0])) {
-                            $tw = $ja['meta-fields']['vt_twitter'][0];
-                            $poi->addProperty('twitter', $tw);
-                        }
-                        if (!empty($ja['meta-fields']['vt_googleplus'][0])) {
-                            $gp = $ja['meta-fields']['vt_googleplus'][0];
-                            $poi->addProperty('gplus', $gp);
-                        }
-
-                        if (!empty($ja['meta-fields']['vt_website'][0])) {
-                            $web = $ja['meta-fields']['vt_website'][0];
-                            $poi->addProperty('web', $web);
-                        }
-                        if (!empty($ja['meta-fields']['vt_antipasto'][0])) {
-                            $antipasto = $ja['meta-fields']['vt_antipasto'][0];
-                            $poi->addProperty('antipasto', $antipasto);
-                        }
-                        if (!empty($ja['meta-fields']['vt_primopiatto'][0])) {
-                            $primopiatto = $ja['meta-fields']['vt_primopiatto'][0];
-                            $poi->addProperty('primopiatto', $primopiatto);
-                        }
-                        if (!empty($ja['meta-fields']['vt_carnipesce'][0])) {
-                            $carnipesce = $ja['meta-fields']['vt_carnipesce'][0];
-                            $poi->addProperty('carnipesce', $carnipesce);
-                        }
-                        if (!empty($ja['meta-fields']['vt_contorno'][0])) {
-                            $contorno = $ja['meta-fields']['vt_contorno'][0];
-                            $poi->addProperty('contorno', $contorno);
-                        }
-                        if (!empty($ja['meta-fields']['vt_dessert'][0])) {
-                            $dessert = $ja['meta-fields']['vt_dessert'][0];
-                            $poi->addProperty('dessert', $dessert);
-                        }
-                        if (!empty($ja['meta-fields']['vt_cantina'][0])) {
-                            $cantina = $ja['meta-fields']['vt_cantina'][0];
-                            $poi->addProperty('cantina', $cantina);
-                        }
-                        if (!empty($ja['acf']['vt_menu'][0])) {
-                            $menu = $ja['acf']['vt_menu'];
-                            $poi->addProperty('menu', $menu);
-                        }
-
-                        if (!empty($ja['meta-fields']['vt_data_inizio'][0])) {
-                            $poi->addProperty('date_start', $ja['meta-fields']['vt_data_inizio'][0]);
-
-                        }
-                        if (!empty($ja['meta-fields']['vt_data_fine'][0])) {
-                            $poi->addProperty('date_stop', $ja['meta-fields']['vt_data_fine'][0]);
-                        }
-
-                        if (!empty($ja['vt_featured_image'])) {
-                            $poi->setImage($ja['vt_featured_image']);
-                        }
-
-                        // TASSONOMIA:
-                        $tax = array();
-                        $tax['tipo'] = array($type);
-                        $tax['localita'] = array($provincia);
-                        $tags = array();
-                        if (isset($ja['tags']) && is_array($ja['tags'])) {
-                            $tags = $ja['tags'];
-                        }
-                        $tax['specialita'] = $tags;
-                        $poi->addProperty('taxonomy', $tax);
-
-                        $properties = $poi->getProperties();
-                        foreach ($properties as $key => $value) {
-                            if (is_string($properties[$key]) && (empty($properties[$key]) || $properties[$key] === 'unknown'))
-                                $poi->removeProperty($key);
-                        }
-
-                        //$poi->addProperty($key, $value);
-                        $l->addFeature($poi);
                     } catch (WebmappExceptionPOINoCoodinates $e) {
-                        echo "\nWARN: no coordinates ID:" . $j['id'] . "\n";
+                        echo "WARN: skipping coordinates for poi with ID {$j['id']}\n";
+                        $poi = new WebmappPoiFeature($j, true);
                     }
+                    $provincia = '';
+                    if (!empty($ja['meta-fields']['vt_provincia'][0])) {
+                        $provincia = $ja['meta-fields']['vt_provincia'][0];
+                        $poi->addProperty('provincia', $provincia);
+                    }
+                    if (!empty($ja['meta-fields']['vt_carte'][0])) {
+                        $carte = $ja['meta-fields']['vt_carte'][0];
+                        $poi->addProperty('carte', $carte);
+                    }
+                    if (!empty($ja['meta-fields']['vt_facebook'][0])) {
+                        $fb = $ja['meta-fields']['vt_facebook'][0];
+                        $poi->addProperty('facebook', $fb);
+                    }
+                    if (!empty($ja['meta-fields']['vt_twitter'][0])) {
+                        $tw = $ja['meta-fields']['vt_twitter'][0];
+                        $poi->addProperty('twitter', $tw);
+                    }
+                    if (!empty($ja['meta-fields']['vt_googleplus'][0])) {
+                        $gp = $ja['meta-fields']['vt_googleplus'][0];
+                        $poi->addProperty('gplus', $gp);
+                    }
+
+                    if (!empty($ja['meta-fields']['vt_website'][0])) {
+                        $web = $ja['meta-fields']['vt_website'][0];
+                        $poi->addProperty('web', $web);
+                    }
+                    if (!empty($ja['meta-fields']['vt_antipasto'][0])) {
+                        $antipasto = $ja['meta-fields']['vt_antipasto'][0];
+                        $poi->addProperty('antipasto', $antipasto);
+                    }
+                    if (!empty($ja['meta-fields']['vt_primopiatto'][0])) {
+                        $primopiatto = $ja['meta-fields']['vt_primopiatto'][0];
+                        $poi->addProperty('primopiatto', $primopiatto);
+                    }
+                    if (!empty($ja['meta-fields']['vt_carnipesce'][0])) {
+                        $carnipesce = $ja['meta-fields']['vt_carnipesce'][0];
+                        $poi->addProperty('carnipesce', $carnipesce);
+                    }
+                    if (!empty($ja['meta-fields']['vt_contorno'][0])) {
+                        $contorno = $ja['meta-fields']['vt_contorno'][0];
+                        $poi->addProperty('contorno', $contorno);
+                    }
+                    if (!empty($ja['meta-fields']['vt_dessert'][0])) {
+                        $dessert = $ja['meta-fields']['vt_dessert'][0];
+                        $poi->addProperty('dessert', $dessert);
+                    }
+                    if (!empty($ja['meta-fields']['vt_cantina'][0])) {
+                        $cantina = $ja['meta-fields']['vt_cantina'][0];
+                        $poi->addProperty('cantina', $cantina);
+                    }
+                    if (!empty($ja['acf']['vt_menu'][0])) {
+                        $menu = $ja['acf']['vt_menu'];
+                        $poi->addProperty('menu', $menu);
+                    }
+
+                    if (!empty($ja['meta-fields']['vt_data_inizio'][0])) {
+                        $poi->addProperty('date_start', $ja['meta-fields']['vt_data_inizio'][0]);
+
+                    }
+                    if (!empty($ja['meta-fields']['vt_data_fine'][0])) {
+                        $poi->addProperty('date_stop', $ja['meta-fields']['vt_data_fine'][0]);
+                    }
+
+                    if (!empty($ja['vt_featured_image'])) {
+                        $poi->setImage($ja['vt_featured_image']);
+                    }
+
+                    // TASSONOMIA:
+                    $tax = array();
+                    $tax['tipo'] = array($type);
+                    $tax['localita'] = array($provincia);
+                    $tags = array();
+                    if (isset($ja['tags']) && is_array($ja['tags'])) {
+                        $tags = $ja['tags'];
+                    }
+                    $tax['specialita'] = $tags;
+                    $poi->addProperty('taxonomy', $tax);
+
+                    $properties = $poi->getProperties();
+                    foreach ($properties as $key => $value) {
+                        if (is_string($properties[$key]) && (empty($properties[$key]) || $properties[$key] === 'unknown'))
+                            $poi->removeProperty($key);
+                    }
+
+                    //$poi->addProperty($key, $value);
+                    $l->addFeature($poi);
                 }
             } else {
                 echo "No more items found.\n";
