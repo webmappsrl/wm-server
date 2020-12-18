@@ -193,8 +193,8 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $poi = new WebmappPoiFeature($j, true);
                     }
                     $provincia = '';
-                    if (!empty($ja['acf']['provincia'][0])) {
-                        $provincia = $ja['acf']['provincia'][0];
+                    if (!empty($ja['acf']['provincia'])) {
+                        $provincia = $ja['acf']['provincia'];
                         $poi->addProperty('provincia', $provincia);
                     }
                     if (!empty($ja['acf']['vt_carte'][0])) {
