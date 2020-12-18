@@ -5,6 +5,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
 
     private $url;
     private $max;
+    private $perPage;
     private $types = [];
 
     public function check()
@@ -22,6 +23,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
 
         $this->url = $this->options['url'];
         $this->max = $this->options['max'];
+        $this->perPage = isset($this->options['per_page']) && is_numeric($this->options['per_page']) ? $this->options['per_page'] : 10;
         $this->types = explode(',', $this->options['types']);
 
         return true;
@@ -42,7 +44,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
         $page = 0;
         $count = null;
         $total = 0;
-        $perPage = 10;
+        $perPage = $this->perPage;
         do {
             $page++;
             $api = "{$this->url}/{$type}?per_page={$perPage}&page={$page}&orderby=slug&order=asc";
