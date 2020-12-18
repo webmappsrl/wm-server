@@ -40,7 +40,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
         echo "\nProcessing Layer for $type\n";
         $l = new WebmappLayer($type);
         $page = 0;
-        $count = 0;
+        $count = null;
         $total = 0;
         $perPage = 10;
         do {
@@ -147,7 +147,6 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         if (!empty($ja['link'])) {
                             $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">vetrina.toscana.it</a></p>";
                         }
-
                     }
 
                     if (isset($ja["acf"])) {
@@ -165,6 +164,12 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         }
                         if (isset($j['indirizzo']['address'])) {
                             $j["address"] = $j['indirizzo']['address'];
+                            if (isset($j['indirizzo']['city']))
+                                $j["address"] .= ', ' . $j['indirizzo']['city'];
+                            if (isset($j['indirizzo']['post_code']))
+                                $j["address"] .= ' ' . $j['indirizzo']['post_code'];
+                            if (isset($j['indirizzo']['state_short']))
+                                $j["address"] .= ', ' . $j['indirizzo']['state_short'];
                         }
                     }
 
@@ -188,58 +193,30 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $poi = new WebmappPoiFeature($j, true);
                     }
                     $provincia = '';
-                    if (!empty($ja['meta-fields']['vt_provincia'][0])) {
-                        $provincia = $ja['meta-fields']['vt_provincia'][0];
+                    if (!empty($ja['acf']['provincia'][0])) {
+                        $provincia = $ja['acf']['provincia'][0];
                         $poi->addProperty('provincia', $provincia);
                     }
-                    if (!empty($ja['meta-fields']['vt_carte'][0])) {
+                    if (!empty($ja['acf']['vt_carte'][0])) {
                         $carte = $ja['meta-fields']['vt_carte'][0];
                         $poi->addProperty('carte', $carte);
                     }
-                    if (!empty($ja['meta-fields']['vt_facebook'][0])) {
-                        $fb = $ja['meta-fields']['vt_facebook'][0];
+                    if (!empty($ja['acf']['facebook'][0])) {
+                        $fb = $ja['acf']['facebook'][0];
                         $poi->addProperty('facebook', $fb);
                     }
-                    if (!empty($ja['meta-fields']['vt_twitter'][0])) {
-                        $tw = $ja['meta-fields']['vt_twitter'][0];
+                    if (!empty($ja['acf']['twitter'][0])) {
+                        $tw = $ja['acf']['twitter'][0];
                         $poi->addProperty('twitter', $tw);
                     }
-                    if (!empty($ja['meta-fields']['vt_googleplus'][0])) {
-                        $gp = $ja['meta-fields']['vt_googleplus'][0];
+                    if (!empty($ja['acf']['googleplus'][0])) {
+                        $gp = $ja['acf']['googleplus'][0];
                         $poi->addProperty('gplus', $gp);
                     }
 
-                    if (!empty($ja['meta-fields']['vt_website'][0])) {
-                        $web = $ja['meta-fields']['vt_website'][0];
+                    if (!empty($ja['acf']['sitoweb'][0])) {
+                        $web = $ja['acf']['sitoweb'][0];
                         $poi->addProperty('web', $web);
-                    }
-                    if (!empty($ja['meta-fields']['vt_antipasto'][0])) {
-                        $antipasto = $ja['meta-fields']['vt_antipasto'][0];
-                        $poi->addProperty('antipasto', $antipasto);
-                    }
-                    if (!empty($ja['meta-fields']['vt_primopiatto'][0])) {
-                        $primopiatto = $ja['meta-fields']['vt_primopiatto'][0];
-                        $poi->addProperty('primopiatto', $primopiatto);
-                    }
-                    if (!empty($ja['meta-fields']['vt_carnipesce'][0])) {
-                        $carnipesce = $ja['meta-fields']['vt_carnipesce'][0];
-                        $poi->addProperty('carnipesce', $carnipesce);
-                    }
-                    if (!empty($ja['meta-fields']['vt_contorno'][0])) {
-                        $contorno = $ja['meta-fields']['vt_contorno'][0];
-                        $poi->addProperty('contorno', $contorno);
-                    }
-                    if (!empty($ja['meta-fields']['vt_dessert'][0])) {
-                        $dessert = $ja['meta-fields']['vt_dessert'][0];
-                        $poi->addProperty('dessert', $dessert);
-                    }
-                    if (!empty($ja['meta-fields']['vt_cantina'][0])) {
-                        $cantina = $ja['meta-fields']['vt_cantina'][0];
-                        $poi->addProperty('cantina', $cantina);
-                    }
-                    if (!empty($ja['acf']['vt_menu'][0])) {
-                        $menu = $ja['acf']['vt_menu'];
-                        $poi->addProperty('menu', $menu);
                     }
 
                     if (!empty($ja['meta-fields']['vt_data_inizio'][0])) {
@@ -262,7 +239,12 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     if (isset($ja['tags']) && is_array($ja['tags'])) {
                         $tags = $ja['tags'];
                     }
-                    $tax['specialita'] = $tags;
+                    $tax['tags'] = $tags;
+                    $recipeCategories = array();
+                    if (isset($ja['categorie-ricette']) && is_array($ja['categorie-ricette'])) {
+                        $recipeCategories = $ja['categorie-ricette'];
+                    }
+                    $tax['categorie-ricette'] = $recipeCategories;
                     $poi->addProperty('taxonomy', $tax);
 
                     $properties = $poi->getProperties();
