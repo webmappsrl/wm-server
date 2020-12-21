@@ -65,20 +65,6 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $j['title']['rendered'] = $ja['title']['rendered'];
                     $j['content']['rendered'] = '';
 
-                    if (!empty($ja['acf']['giornochiusura'])) {
-                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'] . "</p>";
-                    }
-                    $j['content']['rendered'] .= $ja['content']['rendered'];
-                    if (!empty($ja['acf']['menu'])) {
-                        $j['content']['rendered'] .= $ja['acf']['menu'];
-                    }
-                    if (!empty($ja['acf']['ingredienti'])) {
-                        $j['content']['rendered'] .= $ja['acf']['ingredienti'];
-                    }
-                    if (!empty($ja['acf']['tempo_cottura'])) {
-                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tempo di cottura</span>: " . $ja['acf']['tempo_cottura'] . "</p>";
-                    }
-
                     if (!empty($ja["tipologie-azienda"]) && is_array($ja["tipologie-azienda"])) {
                         $types = [];
                         foreach ($ja["tipologie-azienda"] as $id) {
@@ -96,6 +82,19 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
 
                         if (count($types) > 0)
                             $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tipologia di azienda</span>: " . implode(", ", $types) . "</p>";
+                    }
+                    if (!empty($ja['acf']['giornochiusura'])) {
+                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'] . "</p>";
+                    }
+                    $j['content']['rendered'] .= $ja['content']['rendered'];
+                    if (!empty($ja['acf']['menu'])) {
+                        $j['content']['rendered'] .= $ja['acf']['menu'];
+                    }
+                    if (!empty($ja['acf']['ingredienti'])) {
+                        $j['content']['rendered'] .= $ja['acf']['ingredienti'];
+                    }
+                    if (!empty($ja['acf']['tempo_cottura'])) {
+                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tempo di cottura</span>: " . $ja['acf']['tempo_cottura'] . "</p>";
                     }
 
                     if (!empty($ja['acf']['gallery'])) {
@@ -169,33 +168,25 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $carte = $ja['meta-fields']['vt_carte'][0];
                         $poi->addProperty('carte', $carte);
                     }
-                    if (!empty($ja['acf']['facebook'][0])) {
-                        $fb = $ja['acf']['facebook'][0];
-                        $poi->addProperty('facebook', $fb);
-                    }
-                    if (!empty($ja['acf']['twitter'][0])) {
-                        $tw = $ja['acf']['twitter'][0];
-                        $poi->addProperty('twitter', $tw);
-                    }
-                    if (!empty($ja['acf']['googleplus'][0])) {
-                        $gp = $ja['acf']['googleplus'][0];
-                        $poi->addProperty('gplus', $gp);
-                    }
+                    if (!empty($ja['acf']['facebook']))
+                        $poi->addProperty('facebook', $ja['acf']['facebook']);
+                    if (!empty($ja['acf']['twitter']))
+                        $poi->addProperty('twitter', $ja['acf']['twitter']);
+                    if (!empty($ja['acf']['googleplus']))
+                        $poi->addProperty('gplus', $ja['acf']['googleplus']);
+                    if (!empty($ja['acf']['sitoweb']))
+                        $poi->addProperty('web', $ja['acf']['sitoweb']);
 
-                    if (!empty($ja['acf']['sitoweb'][0])) {
-                        $web = $ja['acf']['sitoweb'][0];
-                        $poi->addProperty('web', $web);
-                    }
-
-                    if (!empty($ja['meta-fields']['vt_data_inizio'][0])) {
-                        $poi->addProperty('date_start', $ja['meta-fields']['vt_data_inizio'][0]);
-                    }
-                    if (!empty($ja['meta-fields']['vt_data_fine'][0])) {
-                        $poi->addProperty('date_stop', $ja['meta-fields']['vt_data_fine'][0]);
-                    }
-
-                    if (!empty($ja['vt_featured_image'])) {
+                    if (!empty($ja['vt_featured_image']))
                         $poi->setImage($ja['vt_featured_image']);
+
+                    if (!empty($ja['acf']['ricette']) && is_array($ja['acf']['ricette']) && count($ja['acf']['ricette']) > 0) {
+                        $ids = [];
+                        foreach ($ja['acf']['ricette'] as $ricetta) {
+                            if (isset($ricetta["ID"]))
+                                $ids[] = $ricetta["ID"];
+                        }
+                        $poi->addProperty('ricette', $ids);
                     }
 
                     // TASSONOMIA:
