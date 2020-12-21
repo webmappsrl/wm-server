@@ -82,9 +82,13 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     if (!empty($ja["tipologie-azienda"]) && is_array($ja["tipologie-azienda"])) {
                         $types = [];
                         foreach ($ja["tipologie-azienda"] as $id) {
-                            if (isset($ja["_embedded"]["wp:term"]) && is_array($ja["_embedded"]["wp:term"]) && count($ja["_embedded"]["wp:term"]) > 0) {
-                                foreach ($ja["_embedded"]["wp:term"] as $term) {
-                                    if (strval($term["id"]) === strval($id))
+                            if (isset($ja["_embedded"]["wp:term"]) &&
+                                is_array($ja["_embedded"]["wp:term"]) &&
+                                count($ja["_embedded"]["wp:term"]) > 0 &&
+                                is_array($ja["_embedded"]["wp:term"][0]) &&
+                                count($ja["_embedded"]["wp:term"][0]) > 0) {
+                                foreach ($ja["_embedded"]["wp:term"][0] as $term) {
+                                    if (isset($term["id"]) && strval($term["id"]) === strval($id))
                                         $types[] = $term["name"];
                                 }
                             }
