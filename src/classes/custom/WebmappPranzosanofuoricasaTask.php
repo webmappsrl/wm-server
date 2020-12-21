@@ -85,8 +85,8 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     }
 
                     $j['opening_hours'] = "";
-                    if (!empty($ja['_links']["self"][0])) {
-                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['_links']["self"][0] . "\">pranzosanofuoricasa.it</a></p>";
+                    if (!empty($ja['_links']["self"][0]["href"])) {
+                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['_links']["self"][0]["href"] . "\">pranzosanofuoricasa.it</a></p>";
                     }
 
                     if (isset($ja["acf"])) {
