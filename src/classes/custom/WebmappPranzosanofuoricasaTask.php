@@ -65,90 +65,28 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $j['title']['rendered'] = $ja['title']['rendered'];
                     $j['content']['rendered'] = '';
 
-                    if ($type == 'event') {
-                        if (!empty($ja['meta-fields']['subtitle'][0])) {
-                            $j['content']['rendered'] = "<h4 class=\"subtitle\">" . $ja['meta-fields']['subtitle'][0] . "</h4>";
-                        }
+                    if (!empty($ja['acf']['giornochiusura'][0])) {
+                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'][0] . "</p>";
+                    }
+                    $j['content']['rendered'] .= $ja['content']['rendered'];
 
-                        if (!empty($ja['meta-fields']['orari'][0])) {
-                            $j['content']['rendered'] .= "<h5 class=\"event-date\">Orari " . $ja['meta-fields']['orari'][0] . "</h5>";
-                        }
-
-                        $j['content']['rendered'] .= $ja['content']['rendered'];
-
-                        if (!empty($ja['acf']['location']['address'])) {
-                            $j['address'] = $ja['acf']['location']['address'];
-                        }
-                        if (!empty($ja['acf']['location']['lng'])) {
-                            $j['n7webmap_coord']['lng'] = $ja['acf']['location']['lng'];
-                        }
-                        if (!empty($ja['acf']['location']['lat'])) {
-                            $j['n7webmap_coord']['lat'] = $ja['acf']['location']['lat'];
-                        }
-
-                    } else {
-                        if (!empty($ja['meta-fields']['vt_chiusura'][0])) {
-                            $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['meta-fields']['vt_chiusura'][0] . "</p>";
-                        }
-                        $j['content']['rendered'] .= $ja['content']['rendered'];
-
-                        if (!empty($ja['acf']['vt_google_map']['address'])) {
-                            $j['address'] = $ja['acf']['vt_google_map']['address'];
-                        }
-                        if (!empty($ja['acf']['vt_google_map']['lng'])) {
-                            $j['n7webmap_coord']['lng'] = $ja['acf']['vt_google_map']['lng'];
-                        } elseif (!empty($ja['meta-fields']['_tmp_lon'])) {
-                            $j['n7webmap_coord']['lng'] = $ja['meta-fields']['_tmp_lon'];
-                        }
-                        if (!empty($ja['acf']['vt_google_map']['lat'])) {
-                            $j['n7webmap_coord']['lat'] = $ja['acf']['vt_google_map']['lat'];
-                        } elseif (!empty($ja['meta-fields']['_tmp_lat'])) {
-                            $j['n7webmap_coord']['lat'] = $ja['meta-fields']['_tmp_lat'];
-                        }
+                    if (!empty($ja['acf']['gallery'])) {
+                        $j['n7webmap_media_gallery'] = $ja['acf']['gallery'];
                     }
 
-                    if (!empty($ja['acf']['vt_gallery'])) {
-                        $j['n7webmap_media_gallery'] = $ja['acf']['vt_gallery'];
+                    if (!empty($ja['acf']['telefono'])) {
+                        $j['contact:phone'] = $ja['acf']['telefono'];
                     }
-
-                    if (!empty($ja['meta-fields']['vt_telefono'][0])) {
-                        $j['contact:phone'] = $ja['meta-fields']['vt_telefono'][0];
-                    }
-                    if (!empty($ja['meta-fields']['vt_email'][0])) {
-                        $j['contact:email'] = $ja['meta-fields']['vt_email'][0];
+                    if (!empty($ja['acf']['email'])) {
+                        if (is_array($ja['acf']['email']) && count($ja['acf']['email']) > 0)
+                            $j['contact:email'] = $ja['acf']['email'][0];
+                        else if (is_string($ja['acf']['email']))
+                            $j['contact:email'] = $ja['acf']['email'];
                     }
 
                     $j['opening_hours'] = "";
-                    if ($type == 'restaurant' || $type == 'shop') {
-                        if (!empty($ja['meta-fields']['vt_dalleorepranzo'][0])) {
-                            $j['opening_hours'] .= "Dalle " . $ja['meta-fields']['vt_dalleorepranzo'][0] . " ";
-                        }
-                        if (!empty($ja['meta-fields']['vt_alleorepranzo'][0])) {
-                            $j['opening_hours'] .= "Alle " . $ja['meta-fields']['vt_alleorepranzo'][0] . " ";
-                        }
-                        if (!empty($ja['meta-fields']['vt_dalleorecena'][0])) {
-                            $j['opening_hours'] .= "Dalle " . $ja['meta-fields']['vt_dalleorecena'][0] . " ";
-                        }
-                        if (!empty($ja['meta-fields']['vt_alleorecena'][0])) {
-                            $j['opening_hours'] .= "Alle " . $ja['meta-fields']['vt_alleorecena'][0] . " - ";
-                        }
-                    } else if ($type == 'producer') {
-
-                        if (!empty($ja['meta-fields']['vt_aperturainizioda'][0])) {
-                            $j['opening_hours'] .= "Da " . $ja['meta-fields']['vt_aperturainizioda'][0] . " ";
-                        }
-                        if (!empty($ja['meta-fields']['vt_aperturainizioa'][0])) {
-                            $j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturainizioa'][0] . " ";
-                        }
-                        if (!empty($ja['meta-fields']['vt_aperturafineda'][0])) {
-                            $j['opening_hours'] .= "Da " . $ja['meta-fields']['vt_aperturafineda'][0] . " ";
-                        }
-                        if (!empty($ja['meta-fields']['vt_aperturafinea'][0])) {
-                            $j['opening_hours'] .= "A " . $ja['meta-fields']['vt_aperturafinea'][0] . " - ";
-                        }
-                        if (!empty($ja['link'])) {
-                            $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">vetrina.toscana.it</a></p>";
-                        }
+                    if (!empty($ja['_links']["self"][0])) {
+                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['_links']["self"][0] . "\">pranzosanofuoricasa.it</a></p>";
                     }
 
                     if (isset($ja["acf"])) {
@@ -223,7 +161,6 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
 
                     if (!empty($ja['meta-fields']['vt_data_inizio'][0])) {
                         $poi->addProperty('date_start', $ja['meta-fields']['vt_data_inizio'][0]);
-
                     }
                     if (!empty($ja['meta-fields']['vt_data_fine'][0])) {
                         $poi->addProperty('date_stop', $ja['meta-fields']['vt_data_fine'][0]);
@@ -236,7 +173,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     // TASSONOMIA:
                     $tax = array();
                     $tax['tipo'] = array($type);
-                    $tax['localita'] = array($provincia);
+                    $tax['localita'] = array(empty($provincia) ? null : $provincia);
                     $tags = array();
                     if (isset($ja['tags']) && is_array($ja['tags'])) {
                         $tags = $ja['tags'];
@@ -246,6 +183,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     if (isset($ja['categorie-ricette']) && is_array($ja['categorie-ricette'])) {
                         $recipeCategories = $ja['categorie-ricette'];
                     }
+                    echo json_encode($recipeCategories) . "\n\n";
                     $tax['categorie-ricette'] = $recipeCategories;
                     $poi->addProperty('taxonomy', $tax);
 
@@ -254,6 +192,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         if (is_string($properties[$key]) && (empty($properties[$key]) || $properties[$key] === 'unknown'))
                             $poi->removeProperty($key);
                     }
+
 
                     //$poi->addProperty($key, $value);
                     $l->addFeature($poi);
