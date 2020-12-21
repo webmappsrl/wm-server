@@ -79,9 +79,9 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tempo di cottura</span>: " . $ja['acf']['tempo_cottura'] . "</p>";
                     }
 
-                    if (!empty($ja["tipologia-azienda"]) && is_array($ja["tipologia-azienda"])) {
+                    if (!empty($ja["tipologie-azienda"]) && is_array($ja["tipologie-azienda"])) {
                         $types = [];
-                        foreach ($ja["tipologia_azienda"] as $id) {
+                        foreach ($ja["tipologie-azienda"] as $id) {
                             if (isset($ja["_embedded"]["wp:term"]) && is_array($ja["_embedded"]["wp:term"]) && count($ja["_embedded"]["wp:term"]) > 0) {
                                 foreach ($ja["_embedded"]["wp:term"] as $term) {
                                     if (strval($term["id"]) === strval($id))
