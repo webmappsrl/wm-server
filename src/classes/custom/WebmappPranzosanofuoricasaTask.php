@@ -47,7 +47,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
         $perPage = $this->perPage;
         do {
             $page++;
-            $api = "{$this->url}/{$type}?per_page={$perPage}&page={$page}&orderby=slug&order=asc";
+            $api = "{$this->url}/{$type}?per_page={$perPage}&page={$page}&orderby=slug&order=asc&_embed=1";
             echo "Getting data form URL $api ...\n";
             $items = WebmappUtils::getJsonFromApi($api);
             if (isset($items['data']['status']) && $items['data']['status'] == 400) {
@@ -65,10 +65,34 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $j['title']['rendered'] = $ja['title']['rendered'];
                     $j['content']['rendered'] = '';
 
-                    if (!empty($ja['acf']['giornochiusura'][0])) {
-                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'][0] . "</p>";
+                    if (!empty($ja['acf']['giornochiusura'])) {
+                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'] . "</p>";
                     }
                     $j['content']['rendered'] .= $ja['content']['rendered'];
+                    if (!empty($ja['acf']['menu'])) {
+                        $j['content']['rendered'] .= $ja['acf']['menu'];
+                    }
+                    if (!empty($ja['acf']['ingredienti'])) {
+                        $j['content']['rendered'] .= $ja['acf']['ingredienti'];
+                    }
+                    if (!empty($ja['acf']['tempo_cottura'])) {
+                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tempo di cottura</span>: " . $ja['acf']['tempo_cottura'] . "</p>";
+                    }
+
+                    if (!empty($ja["tipologia-azienda"]) && is_array($ja["tipologia-azienda"])) {
+                        $types = [];
+                        foreach ($ja["tipologia_azienda"] as $id) {
+                            if (isset($ja["_embedded"]["wp:term"]) && is_array($ja["_embedded"]["wp:term"]) && count($ja["_embedded"]["wp:term"]) > 0) {
+                                foreach ($ja["_embedded"]["wp:term"] as $term) {
+                                    if (strval($term["id"]) === strval($id))
+                                        $types[] = $term["name"];
+                                }
+                            }
+                        }
+
+                        if (count($types) > 0)
+                            $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tipologia di azienda</span>: " . implode(", ", $types) . "</p>";
+                    }
 
                     if (!empty($ja['acf']['gallery'])) {
                         $j['n7webmap_media_gallery'] = $ja['acf']['gallery'];
@@ -183,7 +207,6 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     if (isset($ja['categorie-ricette']) && is_array($ja['categorie-ricette'])) {
                         $recipeCategories = $ja['categorie-ricette'];
                     }
-                    echo json_encode($recipeCategories) . "\n\n";
                     $tax['categorie-ricette'] = $recipeCategories;
                     $poi->addProperty('taxonomy', $tax);
 
