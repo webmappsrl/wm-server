@@ -141,6 +141,16 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $track = $this->_orderRelatedPoi($track);
 
                 if ($this->verbose) {
+                    $this->_verbose("Writing related poi for roadbook");
+                }
+                $track->writeRBRelatedPoi($trackPath);
+                if ($this->verbose) {
+                    $this->_verbose("Writing roadbook images");
+                }
+                $track->generateAllImages('', $trackPath);
+                $track->generateLandscapeRBImages('', $trackPath);
+
+                if ($this->verbose) {
                     $this->_verbose("Generating gpx");
                 }
                 $track->writeGPX($trackPath);
