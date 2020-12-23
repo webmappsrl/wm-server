@@ -81,7 +81,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         }
 
                         if (count($types) > 0)
-                            $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tipologia di azienda</span>: " . implode(", ", $types) . "</p>";
+                            $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tipologia</span>: " . implode(", ", $types) . "</p>";
                     }
                     if (!empty($ja['acf']['giornochiusura'])) {
                         $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'] . "</p>";
