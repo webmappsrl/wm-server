@@ -16,7 +16,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     private $ele_max = -1;
     private $ele_min = -1;
 
-    private $relation;
+    private $_relation;
 
     // Mapping dei meta specifici delle tracks
     //
@@ -159,6 +159,22 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             );
             $this->addProperty('computed', $computed);
         }
+    }
+
+    public function hasRelation()
+    {
+        return isset($this->relation);
+    }
+
+    public function getRelation()
+    {
+        return $this->_relation;
+    }
+
+    public function setRelation($osmid)
+    {
+        $relation = new WebmappOSMRelation($osmid);
+        $this->_relation = $relation;
     }
 
     /**
@@ -845,15 +861,14 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 }
                 $pg = WebmappPostGisOsm::Instance();
                 $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
-                $relation = new WebmappOSMRelation($osmid);
-                $this->relation = $relation;
+                $this->setRelation($osmid);
                 $red_match = '/red:red:white_stripe:[^:]+:black/';
                 $color = '#636363';
-                if ($relation->hasTag('source') &&
-                    $relation->getTag('source') == 'survey:CAI') {
+                if ($this->_relation->hasTag('source') &&
+                    $this->_relation->getTag('source') == 'survey:CAI') {
                     $color = '#A63FD1';
-                    if ($relation->hasTag('osmc:symbol') &&
-                        preg_match($red_match, $relation->getTag('osmc:symbol'))) {
+                    if ($this->_relation->hasTag('osmc:symbol') &&
+                        preg_match($red_match, $this->_relation->getTag('osmc:symbol'))) {
                         $color = '#E35234';
                     }
                 }
@@ -862,23 +877,23 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 }
 
                 // ADD lineDash for alternate
-                if ($relation->hasTag('state') && $relation->getTag('state') == 'alternate') {
+                if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate') {
                     $this->addProperty('lineDash', array(12, 8));
                 }
 
                 // TODO: Move this code to a mapping specific/mapping standard
                 $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash");
                 foreach ($mapProperties as $property) {
-                    if (!$this->hasProperty($property) && $relation->hasTag($property)) {
-                        $this->addProperty($property, $relation->getTag($property));
+                    if (!$this->hasProperty($property) && $this->_relation->hasTag($property)) {
+                        $this->addProperty($property, $this->_relation->getTag($property));
                     }
                 }
 
                 // TODO: Move this code to a mapping specific/mapping standard
                 $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash", "duration:forward", "duration:backward");
                 foreach ($mapProperties as $property) {
-                    if (!$this->hasProperty($property) && $relation->hasTag($property) && !empty($relation->getTag($property))) {
-                        $this->addProperty($property, $relation->getTag($property));
+                    if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property))) {
+                        $this->addProperty($property, $this->_relation->getTag($property));
                     }
                 }
             } catch (Exception $e) {

@@ -87,6 +87,16 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             $track->setProperty("modified", $this->_getPostLastModified($id, strtotime($track->getProperty("modified"))));
 
             if ($this->verbose) {
+                $this->_verbose("Applying the mapping");
+            }
+            $this->_applyMapping($track, "track");
+            if ($track->hasProperty('osmid')) {
+                if (!$track->hasRelation())
+                    $track->setRelation($track->getProperty('osmid'));
+                $this->_applyMapping($track, "osm", $track->getRelation());
+            }
+
+            if ($this->verbose) {
                 $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
             }
             file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $track->getJson());

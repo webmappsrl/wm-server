@@ -402,7 +402,6 @@ abstract class WebmappAbstractJob
         if (!file_exists("{$this->aProject->getRoot()}/server/server.conf"))
             return null;
 
-
         $config = json_decode(file_get_contents("{$this->aProject->getRoot()}/server/server.conf"), true);
         if (!isset($config["custom_mapping"]))
             return null;
@@ -437,6 +436,59 @@ abstract class WebmappAbstractJob
         }
 
         return $properties;
+    }
+
+    /**
+     * Return an array with the mapping
+     *
+     * @return null | array with the property mapping
+     */
+    private function _getMapping(): ?array
+    {
+        if (!file_exists("{$this->aProject->getRoot()}/server/server.conf"))
+            return null;
+
+        $config = json_decode(file_get_contents("{$this->aProject->getRoot()}/server/server.conf"), true);
+        if (!isset($config["mapping"]))
+            return null;
+
+        $mapping = $config["mapping"];
+
+        if ($this->verbose) {
+            $this->_verbose("  Mapping: " . json_encode($mapping));
+        }
+
+        return $mapping;
+    }
+
+    /**
+     * Apply the mapping from the configuration file for the specified type
+     *
+     * @param WebmappAbstractFeature $feature
+     * @param string $mappingKey
+     * @param object|null $relation
+     */
+    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null)
+    {
+        $mapping = $this->_getMapping();
+        if (array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
+            foreach ($mapping[$mappingKey] as $key => $mappingArray) {
+                $value = "";
+                if (is_array($mappingArray)) {
+                    foreach ($mappingArray as $item) {
+                        if (is_string($item) && substr($item, 0, 1) === "$") {
+                            if ($mappingKey === "osm" && isset($relation) && $relation->hasTag(substr($item, 1)))
+                                $value .= strval($relation->getTag(substr($item, 1)));
+                            elseif ($feature->hasProperty(substr($item, 1)))
+                                $value .= strval($feature->getProperty(substr($item, 1)));
+                        } else
+                            $value .= strval($item);
+                    }
+                } else $value = strval($mappingArray);
+
+                $feature->addProperty($key, $value);
+            }
+        }
     }
 
     /**
