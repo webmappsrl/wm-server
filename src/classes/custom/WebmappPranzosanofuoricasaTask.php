@@ -65,24 +65,6 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $j['title']['rendered'] = $ja['title']['rendered'];
                     $j['content']['rendered'] = '';
 
-                    if (!empty($ja["tipologie-azienda"]) && is_array($ja["tipologie-azienda"])) {
-                        $types = [];
-                        foreach ($ja["tipologie-azienda"] as $id) {
-                            if (isset($ja["_embedded"]["wp:term"]) &&
-                                is_array($ja["_embedded"]["wp:term"]) &&
-                                count($ja["_embedded"]["wp:term"]) > 0 &&
-                                is_array($ja["_embedded"]["wp:term"][0]) &&
-                                count($ja["_embedded"]["wp:term"][0]) > 0) {
-                                foreach ($ja["_embedded"]["wp:term"][0] as $term) {
-                                    if (isset($term["id"]) && strval($term["id"]) === strval($id))
-                                        $types[] = $term["name"];
-                                }
-                            }
-                        }
-
-                        if (count($types) > 0)
-                            $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tipologia</span>: " . implode(", ", $types) . "</p>";
-                    }
                     if (!empty($ja['acf']['giornochiusura'])) {
                         $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'] . "</p>";
                     }
@@ -187,6 +169,25 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                                 $ids[] = $ricetta["ID"];
                         }
                         $poi->addProperty('ricette', $ids);
+                    }
+
+                    if (!empty($ja["tipologie-azienda"]) && is_array($ja["tipologie-azienda"])) {
+                        $types = [];
+                        foreach ($ja["tipologie-azienda"] as $id) {
+                            if (isset($ja["_embedded"]["wp:term"]) &&
+                                is_array($ja["_embedded"]["wp:term"]) &&
+                                count($ja["_embedded"]["wp:term"]) > 0 &&
+                                is_array($ja["_embedded"]["wp:term"][0]) &&
+                                count($ja["_embedded"]["wp:term"][0]) > 0) {
+                                foreach ($ja["_embedded"]["wp:term"][0] as $term) {
+                                    if (isset($term["id"]) && strval($term["id"]) === strval($id))
+                                        $types[] = $term["name"];
+                                }
+                            }
+                        }
+
+                        if (count($types) > 0)
+                            $poi->addProperty('tipologie-azienda', array_values($types));
                     }
 
                     // TASSONOMIA:
