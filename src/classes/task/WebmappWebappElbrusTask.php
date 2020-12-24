@@ -184,6 +184,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         echo self::fg_color('cyan', " OK\n");
         if (isset($json["APP"]["gtagId"])) {
+            echo "Adding analytics code in index.html...    ";
             $gtagCode = <<<EOD
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id={$json["APP"]["gtagId"]}"></script>
@@ -198,6 +199,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
 EOD;
             $file = preg_replace('/<\/head>/', "$gtagCode</head>", $file);
+            echo self::fg_color('cyan', " OK\n");
         }
 
         echo "Updating index.html...                    ";
@@ -232,7 +234,7 @@ EOD;
         }
 
         if (file_exists("{$this->__zip_base_url}/core")) {
-            echo "Removing temp files...                    ";
+            echo "\nRemoving temp files...                    ";
             $cmd = "rm -Rf {$this->__zip_base_url}/core";
             exec($cmd);
             echo self::fg_color('cyan', " OK\n");
