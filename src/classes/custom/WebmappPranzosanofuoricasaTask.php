@@ -66,7 +66,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $j['content']['rendered'] = '';
 
                     if (!empty($ja['acf']['giornochiusura'])) {
-                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>: " . $ja['acf']['giornochiusura'] . "</p>";
+                        $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Giorno di chiusura</span>:<br>" . $ja['acf']['giornochiusura'] . "</p>";
                     }
                     $j['content']['rendered'] .= $ja['content']['rendered'];
                     if (!empty($ja['acf']['menu'])) {
