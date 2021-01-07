@@ -500,12 +500,21 @@ abstract class WebmappAbstractJob
      */
     protected function _updateRouteIndex(string $url, int $id, array $json = null)
     {
-        $file = null;
+        $file = [
+            "type" => "FeatureCollection",
+            "features" => []
+        ];
         if ($this->verbose) {
             $this->_verbose("Updating route index from {$url}");
         }
         if (file_exists($url)) {
             $file = json_decode(file_get_contents($url), true);
+            if (is_null($file)) {
+                $file = [
+                    "type" => "FeatureCollection",
+                    "features" => []
+                ];
+            }
             $done = false;
             if (isset($file["features"]) && is_array($file["features"])) {
                 foreach ($file["features"] as $key => $feature) {
