@@ -1,4 +1,5 @@
 <?php
+
 class WebmappWebappElbrusTask extends WebmappAbstractTask
 {
     private $__path;
@@ -126,8 +127,10 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
 
         echo "Updating core...  ";
 
-        $cmd = "rm -Rf {$this->__zip_base_url}/core";
-        exec($cmd);
+        if (file_exists("{$this->__zip_base_url}/core")) {
+            $cmd = "rm -Rf {$this->__zip_base_url}/core";
+            exec($cmd);
+        }
 
         $cmd = "mkdir {$this->__zip_base_url}/core";
         exec($cmd);
@@ -171,13 +174,36 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo self::fg_color('yellow', " Splash missing in resources/splash.png\n");
         }
 
-        echo "Updating index.html...                    ";
+        echo "Updating title in index.html...           ";
 
         $json = json_decode(file_get_contents("{$this->__path}/config.json"), true);
         $title = $json["APP"]["name"];
 
         $file = file_get_contents("{$this->__path}/core/index.html");
         $file = preg_replace('/<title>[^<]*<\/title>/', "<title>" . $title . "</title>", $file);
+
+        echo self::fg_color('cyan', " OK\n");
+        if (isset($json["APP"]["gtagId"])) {
+            echo "Adding analytics code in index.html...    ";
+            $gtagCode = <<<EOD
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id={$json["APP"]["gtagId"]}"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "{$json["APP"]["gtagId"]}");
+  </script>
+
+EOD;
+            $file = preg_replace('/<\/head>/', "$gtagCode</head>", $file);
+            echo self::fg_color('cyan', " OK\n");
+        }
+
+        echo "Updating index.html...                    ";
+
         file_put_contents("{$this->__path}/core/index.html", $file);
 
         echo self::fg_color('cyan', " OK\n");
@@ -205,6 +231,13 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo "\n - Android files               " . self::fg_color('cyan', "OK\n");
         } else {
             echo self::fg_color('yellow', "\n - Android: WARNING: {$this->__path}/google*.html file missing and needed for android deeplinks");
+        }
+
+        if (file_exists("{$this->__zip_base_url}/core")) {
+            echo "\nRemoving temp files...                    ";
+            $cmd = "rm -Rf {$this->__zip_base_url}/core";
+            exec($cmd);
+            echo self::fg_color('cyan', " OK\n");
         }
 
         echo self::fg_color('green', "\n\nWebapp updated successfully\n\n\n");

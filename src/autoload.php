@@ -76,6 +76,7 @@ require 'classes/caiosm/WebmappOSMCAIRelationsTask.php';
 require 'classes/custom/WebmappTrentinoATask.php';
 require 'classes/custom/WebmappTrentinoAGalleryTask.php';
 require 'classes/custom/WebmappVetrinaToscanaTask.php';
+require 'classes/custom/WebmappPranzosanofuoricasaTask.php';
 require 'classes/custom/WebmappDrupalTask.php';
 require 'classes/custom/WebmappPNABAlgorabTask.php';
 require 'classes/custom/WebmappAlaTask.php';
