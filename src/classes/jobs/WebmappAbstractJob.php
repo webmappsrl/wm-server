@@ -471,7 +471,7 @@ abstract class WebmappAbstractJob
     protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null)
     {
         $mapping = $this->_getMapping();
-        if (array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
+        if (isset($mapping) && is_array($mapping) && array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
             foreach ($mapping[$mappingKey] as $key => $mappingArray) {
                 $value = "";
                 if (is_array($mappingArray)) {
@@ -563,7 +563,7 @@ abstract class WebmappAbstractJob
             $modified = curl_exec($ch);
         } catch (Exception $e) {
             $this->_warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
-            return;
+            return $defaultValue;
         }
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
             $this->_warning("The api {$apiUrl} seems unreachable: " . curl_error($ch));

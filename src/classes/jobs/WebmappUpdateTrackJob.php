@@ -84,8 +84,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 }
             }
 
-            $track->setProperty("modified", $this->_getPostLastModified($id, strtotime($track->getProperty("modified"))));
-
+            $track->setProperty("modified", [
+                "modified" => WebmappUtils::formatDate($this->_getPostLastModified($id, strtotime($track->getProperty("modified"))))
+            ]);
+            
             if ($this->verbose) {
                 $this->_verbose("Applying the mapping");
             }
