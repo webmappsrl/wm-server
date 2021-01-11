@@ -171,6 +171,8 @@ abstract class WebmappAbstractFeature
 
         // set Accessibility
         $this->setAccessibility($json_array);
+        // set Reachability
+        $this->setReachability($json_array);
 
         // Related URL
         $this->setRelatedUrl($json_array);
@@ -312,33 +314,37 @@ abstract class WebmappAbstractFeature
 
     // Setters
 
+    /**
+     * @param array $json_array
+     * @param array $types
+     * @return array
+     */
+    private function _getObjectWithCheckAndDescription(array $json_array, array $types): array
+    {
+        $result = [];
+        foreach ($types as $type) {
+            $check = 'access_' . $type . '_check';
+            $description = 'access_' . $type . '_description';
+            $result[$type]['check'] = isset($json_array[$check]) ? !!$json_array[$check] : false;
+            $result[$type]['description'] = isset($json_array[$description]) ? $json_array[$description] : "";
+        }
+
+        return $result;
+    }
+
     protected function setAccessibility($json_array)
     {
-
         // ACCESSIBILITA'
         // TODO: GESTIRE IL CASO VUOTO
-
         $types = array('mobility', 'hearing', 'vision', 'cognitive', 'food');
+        $this->properties['accessibility'] = $this->_getObjectWithCheckAndDescription($json_array, $types);
+    }
 
-        $access = array();
-
-        foreach ($types as $type) {
-            $check_var = 'access_' . $type . '_check';
-            $descr_var = 'access_' . $type . '_description';
-            $check = false;
-            $descr = '';
-            if (isset($json_array[$check_var])) {
-                $check = $json_array[$check_var];
-            }
-
-            if (isset($json_array[$descr_var])) {
-                $descr = $json_array[$descr_var];
-            }
-
-            $access[$type]['check'] = $check;
-            $access[$type]['description'] = $descr;
-        }
-        $this->properties['accessibility'] = $access;
+    protected function setReachability($json_array)
+    {
+        // TODO: GESTIRE IL CASO VUOTO
+        $types = array('by_bike', 'on_foot', 'by_car', 'by_public_transportation');
+        $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription($json_array, $types);;
     }
 
     private function setRelatedUrl($ja)
