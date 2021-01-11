@@ -16,12 +16,6 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
 
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
-
         $taxonomyType = null;
         $items = [];
         foreach (TAXONOMY_TYPES as $taxType) {
@@ -32,13 +26,13 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                 }
                 $json = json_decode(file_get_contents($jsonUrl), true);
 
-                if (is_array($json) && array_key_exists($id, $json)) {
+                if (is_array($json) && array_key_exists($this->id, $json)) {
                     if ($this->verbose) {
                         $this->_verbose("Taxonomy found in $taxType file");
                     }
                     $taxonomyType = $taxType;
 
-                    $ch = $this->_getCurl($this->wp->getApiUrl() . "/{$taxonomyType}/{$id}");
+                    $ch = $this->_getCurl($this->wp->getApiUrl() . "/{$taxonomyType}/{$this->id}");
                     curl_exec($ch);
 
 
@@ -46,12 +40,12 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                         throw new WebmappExceptionTaxonomyStillExists("The taxonomy seems to be still public. Deletion stopped to prevent data loss");
                     }
 
-                    if (isset($json[$id]["items"]) && is_array($json[$id]["items"]) && count($json[$id]["items"]) > 0)
-                        $items = $json[$id]["items"];
-                    unset($json[$id]);
+                    if (isset($json[$this->id]["items"]) && is_array($json[$this->id]["items"]) && count($json[$this->id]["items"]) > 0)
+                        $items = $json[$this->id]["items"];
+                    unset($json[$this->id]);
 
                     if ($this->verbose) {
-                        $this->_verbose("Deleting taxonomy $id from $jsonUrl");
+                        $this->_verbose("Deleting taxonomy $this->id from $jsonUrl");
                     }
                     file_put_contents($jsonUrl, json_encode($json));
                     break;
@@ -59,7 +53,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
             }
         }
 
-        $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$id}.geojson";
+        $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$this->id}.geojson";
         if (file_exists($collectionUrl)) {
             if ($this->verbose) {
                 $this->_verbose("Deleting feature collection file {$collectionUrl}");
@@ -73,7 +67,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                     $this->_verbose("Deleting taxonomy from features");
                 }
 
-                $this->_deleteTaxonomyFromFeatures($id, $taxonomyType, $items);
+                $this->_deleteTaxonomyFromFeatures($this->id, $taxonomyType, $items);
             }
         }
     }

@@ -100,18 +100,22 @@ require 'classes/simap/WebmappSIMapCSVTask.php';
 require 'classes/custom/WebmappSIMapTask.php';
 require 'classes/custom/WebmappSIMapStatsTask.php';
 
-// HOQU
+/**
+ * HOQU
+ */
 require 'classes/cli/WebmappCliServerCommand.php';
 require 'classes/hoqu/WebmappHoquServer.php';
 // Jobs
 require 'classes/jobs/WebmappAbstractJob.php';
-require 'classes/jobs/WebmappUpdatePoiJob.php';
-require 'classes/jobs/WebmappDeletePoiJob.php';
-require 'classes/jobs/WebmappUpdateTrackJob.php';
-require 'classes/jobs/WebmappDeleteTrackJob.php';
-require 'classes/jobs/WebmappUpdateRouteJob.php';
-require 'classes/jobs/WebmappDeleteRouteJob.php';
-require 'classes/jobs/WebmappGenerateMbtilesJob.php';
-require 'classes/jobs/WebmappGenerateElevationChartImageJob.php';
-require 'classes/jobs/WebmappUpdateTaxonomyJob.php';
-require 'classes/jobs/WebmappDeleteTaxonomyJob.php';
+// Features
+require 'classes/jobs/features/WebmappUpdatePoiJob.php';
+require 'classes/jobs/features/WebmappDeletePoiJob.php';
+require 'classes/jobs/features/WebmappUpdateTrackJob.php';
+require 'classes/jobs/features/WebmappDeleteTrackJob.php';
+require 'classes/jobs/features/WebmappGenerateElevationChartImageJob.php';
+require 'classes/jobs/features/WebmappUpdateRouteJob.php';
+require 'classes/jobs/features/WebmappDeleteRouteJob.php';
+require 'classes/jobs/features/WebmappGenerateMbtilesJob.php';
+// Taxonomies
+require 'classes/jobs/taxonomies/WebmappUpdateTaxonomyJob.php';
+require 'classes/jobs/taxonomies/WebmappDeleteTaxonomyJob.php';

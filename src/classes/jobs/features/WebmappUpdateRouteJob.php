@@ -8,24 +8,29 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @param string $instanceUrl containing the instance url
      * @param string $params containing an encoded JSON with the poi ID
      * @param false $verbose
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct(string $instanceUrl, string $params, bool $verbose = false)
     {
         parent::__construct("update_route", $instanceUrl, $params, $verbose);
     }
 
+    /**
+     * @throws WebmappExceptionHoquRequest
+     * @throws WebmappExceptionHttpRequest
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
+     */
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
         // Load poi from be
         if ($this->verbose) {
-            $this->_verbose("Loading route from {$this->wp->getApiRoute($id)}");
+            $this->_verbose("Loading route from {$this->wp->getApiRoute($this->id)}");
         }
-        $route = new WebmappRoute("{$this->wp->getApiRoute($id)}", '', true);
+        $route = new WebmappRoute("{$this->wp->getApiRoute($this->id)}", '', true);
         $apiTracks = $route->getApiTracks();
         $tracks = [];
 
@@ -57,28 +62,28 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
 
         $route->buildPropertiesAndFeaturesFromTracksGeojson($tracks);
         $route = $this->_setCustomProperties($route);
-        $route->setProperty("modified", $this->_getPostLastModified($id, strtotime($route->getProperty("modified"))));
+        $route->setProperty("modified", $this->_getPostLastModified($this->id, strtotime($route->getProperty("modified"))));
 
-        file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $route->getJson());
+        file_put_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson", $route->getJson());
         $json = json_decode($route->getPoiJson(), true);
 
         // Route index handling
         $this->_updateRouteIndex(
             "{$this->aProject->getRoot()}/geojson/route_index.geojson",
-            $id,
+            $this->id,
             $json
         );
         $this->_updateRouteIndex(
             "{$this->aProject->getRoot()}/geojson/full_geometry_route_index.geojson",
-            $id,
+            $this->id,
             json_decode($route->getTrackJson(), true)
         );
 
-        $this->_updateKProjects('route', $id, $route->getJson());
-        $this->_updateKRoutes($id, $route);
+        $this->_updateKProjects('route', $this->id, $route->getJson());
+        $this->_updateKRoutes($this->id, $route);
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
         $this->_setTaxonomies("route", $json);
-        $this->_setKTaxonomies($id, $taxonomies);
+        $this->_setKTaxonomies($this->id, $taxonomies);
     }
 
     /**
@@ -87,7 +92,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @param WebmappRoute $route
      * @return WebmappRoute
      */
-    protected function _setCustomProperties(WebmappRoute $route)
+    protected function _setCustomProperties(WebmappRoute $route): WebmappRoute
     {
         if ($this->verbose) {
             $this->_verbose("Mapping custom properties");
@@ -280,7 +285,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 file_put_contents("{$kProject->getRoot()}/routes/$id/map.json", json_encode($newMapJson));
 
                 $this->_store("generate_mbtiles", [
-                    "id" => $this->params["id"]
+                    "id" => $this->id
                 ]);
             }
         }

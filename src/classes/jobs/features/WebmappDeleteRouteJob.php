@@ -8,23 +8,23 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
      * @param string $params containing an encoded JSON with the route ID
      * @param bool $verbose
      * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct(string $instanceUrl, string $params, bool $verbose = false)
     {
         parent::__construct("delete_route", $instanceUrl, $params, $verbose);
     }
 
+    /**
+     * @throws WebmappExceptionFeatureStillExists
+     */
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
         if ($this->verbose) {
-            $this->_verbose("Checking if route is available from {$this->wp->getApiRoute($id)}");
+            $this->_verbose("Checking if route is available from {$this->wp->getApiRoute($this->id)}");
         }
-        $ch = $this->_getCurl($this->wp->getApiRoute($id));
+        $ch = $this->_getCurl($this->wp->getApiRoute($this->id));
         curl_exec($ch);
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) < 400)
@@ -35,7 +35,7 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
             }
 
             // Delete the geojson
-            $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$id}.geojson";
+            $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
             if (file_exists($geojsonUrl)) {
                 if ($this->verbose) {
                     $this->_verbose("Removing {$geojsonUrl}");
@@ -46,16 +46,16 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
             // Delete id from the taxonomies
             $this->_setTaxonomies('route', [
                 "properties" => [
-                    "id" => $id,
+                    "id" => $this->id,
                     "taxonomies" => []
                 ]
             ]);
 
             // Delete the id from the route_indexes
             $routeIndexUrl = "{$this->aProject->getRoot()}/geojson/route_index.geojson";
-            $this->_updateRouteIndex($routeIndexUrl, $id);
+            $this->_updateRouteIndex($routeIndexUrl, $this->id);
             $routeIndexUrl = "{$this->aProject->getRoot()}/geojson/full_geometry_route_index.geojson";
-            $this->_updateRouteIndex($routeIndexUrl, $id);
+            $this->_updateRouteIndex($routeIndexUrl, $this->id);
 
             // Delete the route from the routes directory
             if (count($this->kProjects) > 0) {
@@ -70,22 +70,22 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
                     if (file_exists($routeIndexUrl)) {
                         $this->_updateRouteIndex(
                             $routeIndexUrl,
-                            $id
+                            $this->id
                         );
                     }
                     $routeIndexUrl = "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson";
                     if (file_exists($routeIndexUrl)) {
                         $this->_updateRouteIndex(
                             $routeIndexUrl,
-                            $id
+                            $this->id
                         );
                     }
 
-                    $routeFolderUrl = "{$kProject->getRoot()}/routes/{$id}";
+                    $routeFolderUrl = "{$kProject->getRoot()}/routes/{$this->id}";
                     if (file_exists($routeFolderUrl))
                         $this->_removeDirectory($routeFolderUrl);
 
-                    $this->_removeKTaxonomies($kProject, $id);
+                    $this->_removeKTaxonomies($kProject, $this->id);
                 }
             }
         }
@@ -97,7 +97,7 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
      * @param string $url the directory url
      * @return bool
      */
-    private function _removeDirectory(string $url)
+    private function _removeDirectory(string $url): bool
     {
         $dir_handle = null;
         if (is_dir($url))

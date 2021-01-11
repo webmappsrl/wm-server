@@ -7,6 +7,9 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
      * @param string $instanceUrl containing the instance url
      * @param string $params containing an encoded JSON with the poi ID
      * @param boolean $verbose
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct(string $instanceUrl, string $params, $verbose = false)
     {
@@ -15,11 +18,6 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
 
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
         $kCodes = [];
         global $wm_config;
         if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
@@ -29,7 +27,7 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         }
 
         foreach ($kCodes as $kCode) {
-            $this->_generateMbtiles($kCode, $id);
+            $this->_generateMbtiles($kCode, $this->id);
         }
 
         $this->_success("MBTiles generated successfully");

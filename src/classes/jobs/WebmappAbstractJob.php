@@ -5,10 +5,11 @@ define("TAXONOMY_TYPES", ["webmapp_category", "activity", "theme", "when", "wher
 abstract class WebmappAbstractJob
 {
     protected $name; // Job name
-    protected $params; // Job params
     protected $instanceUrl; // Job instance url
     protected $instanceName; // Instance name
     protected $instanceCode; // Instance code
+    protected $params; // Job params
+    protected $id; // The job id
     protected $verbose; // Verbose option
     protected $wp; // WordPress backend
     protected $aProject; // Project root
@@ -17,6 +18,16 @@ abstract class WebmappAbstractJob
     protected $hoquBaseUrl; // Token to create other jobs
     protected $cachedTaxonomies; // An array of already downloaded taxonomies
 
+    /**
+     * WebmappAbstractJob constructor.
+     * @param string $name
+     * @param string $instanceUrl
+     * @param string $params
+     * @param bool $verbose
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterMandatory
+     * @throws WebmappExceptionParameterError
+     */
     public function __construct(string $name, string $instanceUrl, string $params, bool $verbose)
     {
         declare(ticks=1);
@@ -65,6 +76,18 @@ abstract class WebmappAbstractJob
             $this->params = array();
         }
 
+        if (isset($this->params['id']) && !is_nan(intval($this->params['id']))) {
+            $this->id = intval($this->params['id']);
+            unset ($this->params['id']);
+        } else {
+            if (!isset($this->params['id']))
+                throw new WebmappExceptionParameterMandatory("The parameter 'id' is required");
+            elseif (is_nan(intval($this->params['id'])))
+                throw new WebmappExceptionParameterError("Invalid parameter 'id': " . $this->params['id'] . " must be a number");
+            else
+                throw new WebmappExceptionParameterError("Invalid parameter 'id': " . $this->params['id']);
+        }
+
         if (isset($wm_config["hoqu"]["url"])) {
             $this->hoquBaseUrl = $wm_config["hoqu"]["url"];
         }
@@ -78,6 +101,7 @@ abstract class WebmappAbstractJob
             $this->_verbose("Instantiating $name job with");
             $this->_verbose("  instanceName: $this->instanceName");
             $this->_verbose("  instanceUrl: $this->instanceUrl");
+            $this->_verbose("  id: " . $this->id);
             $this->_verbose("  params: " . json_encode($this->params));
         }
 
@@ -87,8 +111,8 @@ abstract class WebmappAbstractJob
     public function run()
     {
         $startTime = round(microtime(true) * 1000);
-        if (isset($this->params["id"])) {
-            $this->_title("Starting generation of {$this->params['id']}");
+        if (isset($this->id)) {
+            $this->_title("Starting generation of {$this->id}");
         } else {
             $this->_title("Starting");
         }
@@ -101,8 +125,8 @@ abstract class WebmappAbstractJob
         if ($this->verbose) {
             $this->_verbose("end time: $endTime");
         }
-        if (isset($this->params["id"])) {
-            $this->_success("Completed generation of {$this->params['id']} in {$duration} seconds");
+        if (isset($this->id)) {
+            $this->_success("Completed generation of {$this->id} in {$duration} seconds");
         } else {
             $this->_success("Completed in {$duration} seconds");
         }

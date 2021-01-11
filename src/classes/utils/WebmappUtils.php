@@ -604,14 +604,6 @@ class WebmappUtils
         return array($lon, $lat);
     }
 
-    // Estensione degli assert di phpunit x verificare che un
-    // numero è in un range
-    public function testDelta($expected, $actual, $delta)
-    {
-        $test->assertGreaterThan($actual, $expected - $delta);
-        $test->assertLesserThan($actual, $expected + $delta);
-    }
-
     // Returns distance in KM (haversineGreatCircleDistance)
     // REF: https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php
     public static function distance(
@@ -631,7 +623,7 @@ class WebmappUtils
         return $angle * $earthRadius;
     }
 
-    public static function getOptimalBBox($bbox, $width, $height, $perc = 0.05)
+    public static function getOptimalBBox($bbox, $width, $height, $perc = 0.05): string
     {
         $bbox_array = explode(',', $bbox);
         $xmin = $bbox_array[0];
@@ -680,13 +672,13 @@ class WebmappUtils
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         $image_url = curl_exec($ch);
+        WebmappUtils::verbose("Generating image from $image_url");
         curl_close($ch);
         file_put_contents($img_path, file_get_contents($image_url));
     }
 
     public static function generateImageWithPois($geojson_url, $pois_geojson_url, $bbox, $width, $height, $img_path, $fit = true)
     {
-
         if ($fit) {
             $bbox = WebmappUtils::getOptimalBBox($bbox, $width, $height);
         }
@@ -703,9 +695,7 @@ class WebmappUtils
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         $image_url = curl_exec($ch);
-
-        echo "\n\n\n$image_url\n\n\n";
-
+        WebmappUtils::verbose("Generating image with poi from $image_url");
         curl_close($ch);
         file_put_contents($img_path, file_get_contents($image_url));
     }
@@ -729,7 +719,6 @@ class WebmappUtils
      * @return  void
      *
      */
-
     public static function showStatus($done, $total, $size = 30)
     {
 
@@ -897,6 +886,8 @@ class WebmappUtils
      */
     public static function verbose(string $message, string $customHeader = 'VERBOSE')
     {
-        echo WebmappUtils::colorText("[{$customHeader}]", "bold_gray") . " $message\n";
+        global $wm_config;
+        if ($wm_config["debug"])
+            echo WebmappUtils::colorText("[{$customHeader}]", "bold_gray") . " $message\n";
     }
 }

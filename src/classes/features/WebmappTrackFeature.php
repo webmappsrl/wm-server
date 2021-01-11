@@ -185,7 +185,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     public function setComputedProperties2($instance_id = '')
     {
         if (!$this->hasGeometry()) {
-            throw new WebmappExceptionFeaturesNoGeometry("Track {$this->getId()} is missing the geometry");
+            throw new WebmappExceptionFeaturesNoGeometry("The track {$this->getId()} is missing the geometry");
             return;
         }
         if (!$this->has3D()) {
@@ -501,8 +501,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     public function generateAllImages($instance_id = '', $path = '')
     {
-
-        // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
         }
@@ -523,8 +521,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
     public function generateImage($width, $height, $instance_id = '', $path = '')
     {
         // TODO: check parameter
-
-        // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
         }
@@ -581,17 +577,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     public function generateRBImages($width, $height, $bbox_dx, $instance_id = '', $path = '')
     {
-
         // TODO: check PARAMETER
-
-        // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
         }
 
         // DEBUG INPUT PARAMETER
-        echo "\n\n\n=====================\n";
-        echo "generateRBImages(W=$width,H=$height,DX=$bbox_dx,INST=$instance_id,PATH=$path)\n";
+        WebmappUtils::verbose("Generating roadbook images: W = $width, H = $height, DX = $bbox_dx, INST = $instance_id, PATH = $path");
 
         // GRANDEZZE DERIVATE
         // 2. DY del BBOX=1300/491*624m
@@ -601,7 +593,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         $l = $this->computeDistance3857($instance_id);
         $n = ceil($l / $running_d) + 1;
 
-        echo "DY=$bbox_dy,d=$running_d l=$l n=$n\n";
+        WebmappUtils::verbose("DY = $bbox_dy, d = $running_d, l = $l, n = $n");
         $points = $this->getRunningPoints($n, $instance_id);
         $i = 0;
         if (count($points) > 0) {
@@ -682,16 +674,11 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     public function generateLandscapeRBImages($instance_id = '', $path = '')
     {
-        // BIKE
         $this->generateRBImages(624, 491, 3300, $instance_id, $path);
-        // TREKKING
-        // $this->generateRBImages(624,491,1300,$instance_id,$path);
     }
 
     public function writeRBRelatedPoi($path, $instance_id = '')
     {
-
-        // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
         }
@@ -711,8 +698,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                         $ids[] = $poi->getId();
                     }
                 } catch (Exception $e) {
-                    echo "WARNING Exception thrown " . get_class($e) . "\n";
-                    echo $e->getMessage() . "\n";
+                    WebmappUtils::verbose("WARNING Exception thrown " . get_class($e) . ": {$e->getMessage()}");
                 }
             }
             if (count($ids) > 0) {

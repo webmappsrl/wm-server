@@ -222,7 +222,7 @@ class WebmappPoiFeature extends WebmappAbstractFeature
             $lng = $json_array['coordinates']['center_lng'];
             $lat = $json_array['coordinates']['center_lat'];
         } else {
-            throw new WebmappExceptionPOINoCoodinates("INVALID POI no id:$id", 1);
+            throw new WebmappExceptionPOINoCoodinates("The poi with id {$id} is missing the coordinates");
         }
 
         $this->geometry['type'] = 'Point';

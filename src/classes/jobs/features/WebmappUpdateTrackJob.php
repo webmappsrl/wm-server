@@ -29,6 +29,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * @param false $verbose
      * @param string $type the type, default "update_track"
      * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct(string $instanceUrl, string $params, bool $verbose = false, string $type = "update_track")
     {
@@ -36,87 +38,79 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         $this->skipRouteCheck = array_key_exists("skipRouteCheck", $this->params) ? boolval($this->params["skipRouteCheck"]) : false;
     }
 
+    /**
+     * @throws WebmappExceptionFeaturesNoGeometry
+     * @throws WebmappExceptionGeoJsonBadGeomType
+     * @throws WebmappExceptionHttpRequest
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
+     */
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
         $updateOsmGeometry = isset($this->params['update_geometry']) && $this->params['update_geometry'] === true;
 
-        try {
-            // Load track from be
+        if ($this->verbose) {
+            $this->_verbose("Loading track from {$this->wp->getApiTrack($this->id)}");
+        }
+        $track = new WebmappTrackFeature($this->wp->getApiTrack($this->id), false);
+        if ($track->hasGeometry() &&
+            ($updateOsmGeometry ||
+                !$track->hasProperty('osmid') ||
+                !file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson"))) {
+            $track = $this->_addGeometryToTrack($track);
+        } else {
+            if ($this->verbose && !$updateOsmGeometry && $track->hasProperty('osmid')) {
+                $this->_verbose("Skipping geometry due to job parameters");
+            }
+        }
+        $track = $this->_setCustomProperties($track);
+
+        if (!$updateOsmGeometry &&
+            $track->hasProperty('osmid') &&
+            file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson")) {
             if ($this->verbose) {
-                $this->_verbose("Loading track from {$this->wp->getApiTrack($id)}");
+                $this->_verbose("Skipping geometry generation. Using geometry from {$this->aProject->getRoot()}/geojson/{$this->id}.geojson");
             }
-            $track = new WebmappTrackFeature($this->wp->getApiTrack($id), false);
-            if ($track->hasGeometry() &&
-                ($updateOsmGeometry ||
-                    !$track->hasProperty('osmid') ||
-                    !file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson"))) {
-                $track = $this->_addGeometryToTrack($track);
-            } else {
-                if ($this->verbose && !$updateOsmGeometry && $track->hasProperty('osmid')) {
-                    $this->_verbose("Skipping geometry due to job parameters");
-                }
-            }
-            $track = $this->_setCustomProperties($track);
+            $currentGeojson = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson"), true);
+            if (isset($currentGeojson["properties"])) {
+                $currentMetadata = $currentGeojson["properties"];
 
-            if (!$updateOsmGeometry &&
-                $track->hasProperty('osmid') &&
-                file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson")) {
-                if ($this->verbose) {
-                    $this->_verbose("Skipping geometry generation. Using geometry from {$this->aProject->getRoot()}/geojson/{$id}.geojson");
-                }
-                $currentGeojson = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson"), true);
-                if (isset($currentGeojson["properties"])) {
-                    $currentMetadata = $currentGeojson["properties"];
-
-                    foreach (GEOMETRY_METADATA_PROPERTIES as $key) {
-                        if (array_key_exists($key, $currentMetadata)) {
-                            $track->setProperty($key, $currentMetadata, $key);
-                        }
+                foreach (GEOMETRY_METADATA_PROPERTIES as $key) {
+                    if (array_key_exists($key, $currentMetadata)) {
+                        $track->setProperty($key, $currentMetadata, $key);
                     }
                 }
-                if (isset($currentGeojson["geometry"])) {
-                    $track->setGeometry($currentGeojson["geometry"]);
-                }
             }
-
-            $track->setProperty("modified", [
-                "modified" => WebmappUtils::formatDate($this->_getPostLastModified($id, strtotime($track->getProperty("modified"))))
-            ]);
-            
-            if ($this->verbose) {
-                $this->_verbose("Applying the mapping");
+            if (isset($currentGeojson["geometry"])) {
+                $track->setGeometry($currentGeojson["geometry"]);
             }
-            $this->_applyMapping($track, "track");
-            if ($track->hasProperty('osmid')) {
-                if (!$track->hasRelation())
-                    $track->setRelation($track->getProperty('osmid'));
-                $this->_applyMapping($track, "osm", $track->getRelation());
-            }
-
-            if ($this->verbose) {
-                $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$id}.geojson");
-            }
-            file_put_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson", $track->getJson());
-
-            $this->_setTaxonomies("track", json_decode($track->getJson(), true));
-
-            $this->_updateKProjects("track", $id, $track->getJson());
-
-            $this->_updateRelatedRoutes($id);
-        } catch (WebmappExceptionFeaturesNoGeometry $e) {
-            throw new WebmappExceptionHttpRequest("The track {$id} is missing the geometry");
-        } catch (WebmappExceptionGeoJsonBadGeomType $e) {
-            throw new WebmappExceptionHttpRequest("The track {$id} has an invalid geometry type: " . $e->getMessage());
-        } catch (WebmappExceptionHttpRequest $e) {
-            throw new WebmappExceptionHttpRequest("The instance $this->instanceUrl is unreachable or the track with id {$id} does not exists: " . $e->getMessage());
-        } catch (Exception $e) {
-            throw new WebmappException("An unknown error occurred: " . json_encode($e));
         }
+
+        $track->setProperty("modified", [
+            "modified" => WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($track->getProperty("modified"))))
+        ]);
+
+        if ($this->verbose) {
+            $this->_verbose("Applying the mapping");
+        }
+        $this->_applyMapping($track, "track");
+        if ($track->hasProperty('osmid')) {
+            if (!$track->hasRelation())
+                $track->setRelation($track->getProperty('osmid'));
+            $this->_applyMapping($track, "osm", $track->getRelation());
+        }
+
+        if ($this->verbose) {
+            $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$this->id}.geojson");
+        }
+        file_put_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson", $track->getJson());
+
+        $this->_setTaxonomies("track", json_decode($track->getJson(), true));
+
+        $this->_updateKProjects("track", $this->id, $track->getJson());
+
+        $this->_updateRelatedRoutes($this->id);
     }
 
     /**
@@ -126,8 +120,11 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * @return WebmappTrackFeature
      * @throws WebmappExceptionFeaturesNoGeometry
      * @throws WebmappExceptionGeoJsonBadGeomType
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
-    protected function _addGeometryToTrack(WebmappTrackFeature $track)
+    protected function _addGeometryToTrack(WebmappTrackFeature $track): WebmappTrackFeature
     {
         if ($this->verbose) {
             $this->_verbose("Writing to postgis");
@@ -140,7 +137,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 }
                 $track->setComputedProperties2();
 
-                // TODO: From params
                 if ($this->verbose) {
                     $this->_verbose("Adding bounding box");
                 }
@@ -155,12 +151,24 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 if ($this->verbose) {
                     $this->_verbose("Writing related poi for roadbook");
                 }
-                $track->writeRBRelatedPoi($trackPath);
+                try {
+                    $track->writeRBRelatedPoi($trackPath);
+                } catch (Exception $e) {
+                    $this->_warning("An error occurred writing the related pois for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+                }
                 if ($this->verbose) {
                     $this->_verbose("Writing roadbook images");
                 }
-                $track->generateAllImages('', $trackPath);
-                $track->generateLandscapeRBImages('', $trackPath);
+                try {
+                    $track->generateAllImages('', $trackPath);
+                } catch (Exception $e) {
+                    $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+                }
+                try {
+                    $track->generateLandscapeRBImages('', $trackPath);
+                } catch (Exception $e) {
+                    $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+                }
 
                 if ($this->verbose) {
                     $this->_verbose("Generating gpx");
@@ -170,16 +178,16 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     $this->_verbose("Generating kml");
                 }
                 $track->writeKML($trackPath);
-            } else if ($track->getGeometryType() !== 'MultiLineString') {
-                throw new WebmappExceptionGeoJsonBadGeomType("{$track->getGeometryType()} geometry type is not accepted");
+            } elseif ($track->getGeometryType() !== 'MultiLineString') {
+                throw new WebmappExceptionGeoJsonBadGeomType("The {$track->getGeometryType()} geometry type is not supported");
             }
         } else {
-            throw new WebmappExceptionFeaturesNoGeometry("Track {$track->getId()} is missing the geometry");
+            throw new WebmappExceptionFeaturesNoGeometry("The track {$track->getId()} is missing the geometry");
         }
 
         try {
             if ($track->getGeometryType() === 'LineString') {
-                $this->_store("generate_elevation_chart_image", ["id" => $this->params["id"]]);
+                $this->_store("generate_elevation_chart_image", ["id" => $this->id]);
             } else if ($track->getGeometryType() === 'MultiLineString') {
                 $this->_warning("The track is a MultiLineString. Elevation is not supported");
             }
@@ -195,8 +203,11 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      *
      * @param WebmappTrackFeature $track
      * @return WebmappTrackFeature
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
-    private function _orderRelatedPoi(WebmappTrackFeature $track)
+    private function _orderRelatedPoi(WebmappTrackFeature $track): WebmappTrackFeature
     {
         if ($track->hasProperty("related")) {
             $related = $track->getProperty("related");
@@ -226,29 +237,12 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
     }
 
     /**
-     * Perform all the operations needed to generate all the track metadata
-     *
-     * @param WebmappTrackFeature $track
-     * @return WebmappTrackFeature
-     */
-    protected function _removeGeometryMetadata(WebmappTrackFeature $track)
-    {
-        foreach (GEOMETRY_METADATA_PROPERTIES as $property) {
-            if ($track->hasProperty($property)) {
-                $track->removeProperty($property);
-            }
-        }
-
-        return $track;
-    }
-
-    /**
      * Map the custom properties in the track
      *
      * @param WebmappTrackFeature $track
      * @return WebmappTrackFeature
      */
-    protected function _setCustomProperties(WebmappTrackFeature $track)
+    protected function _setCustomProperties(WebmappTrackFeature $track): WebmappTrackFeature
     {
         if ($this->verbose) {
             $this->_verbose("Mapping custom properties");

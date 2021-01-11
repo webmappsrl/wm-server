@@ -276,13 +276,13 @@ EOFQUERY;
         }
         return -1;
     }
-    
+
     /**
      * @param string $geom string containing the encoded geometry without 3D
      * @return false|string containing the geometry with 3D
      * @throws WebmappExceptionGeoJsonBadGeomType
      */
-    public function addEle($geom)
+    public function addEle(string $geom)
     {
         // TODO check $geom
         $j = json_decode($geom, true);
@@ -313,8 +313,7 @@ EOFQUERY;
                 break;
 
             default:
-                throw new WebmappExceptionGeoJsonBadGeomType("$type not valid geojson type or not yet implemented in WebmappPostGis::addEle method.", 1);
-                break;
+                throw new WebmappExceptionGeoJsonBadGeomType("The {$type} geometry type is not supported in the WebmappPostGis::addEle method");
         }
         $j_new = array('type' => $type, 'coordinates' => $new_coord);
 

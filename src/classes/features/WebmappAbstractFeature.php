@@ -41,10 +41,12 @@ abstract class WebmappAbstractFeature
         $this->debug = !!$wm_config['debug'];
 
         if (!is_array($array_or_url)) {
-            // E' Un URL quindi leggo API WP e converto in array
-            $json_array = WebmappUtils::getJsonFromApi($array_or_url);
+            try {
+                $json_array = WebmappUtils::getJsonFromApi($array_or_url);
+            } catch (WebmappExceptionHttpRequest $e) {
+                throw new WebmappExceptionHttpRequest("The instance is unreachable or the feature with id {$this->id} does not exists");
+            }
             $this->wp_url = $array_or_url;
-
         } else {
             $json_array = $array_or_url;
         }
@@ -364,7 +366,7 @@ abstract class WebmappAbstractFeature
 
     abstract protected function mappingGeometry($json_array);
 
-    public function getWPUrl()
+    public function getWPUrl(): string
     {
         return $this->wp_url;
     }
@@ -379,7 +381,7 @@ abstract class WebmappAbstractFeature
         return $this->geometry;
     }
 
-    public function getGeometryType()
+    public function getGeometryType(): string
     {
         if (!$this->hasGeometry()) {
             return 'no-geometry';
@@ -394,17 +396,17 @@ abstract class WebmappAbstractFeature
         return $this->geometry['type'];
     }
 
-    public function hasGeometry()
+    public function hasGeometry(): bool
     {
         return !empty($this->geometry);
     }
 
-    public function getWebmappCategoryIds()
+    public function getWebmappCategoryIds(): array
     {
         return $this->webmapp_category_ids;
     }
 
-    public function getIcon()
+    public function getIcon(): string
     {
         if (isset($this->properties['icon'])) {
             return $this->properties['icon'];

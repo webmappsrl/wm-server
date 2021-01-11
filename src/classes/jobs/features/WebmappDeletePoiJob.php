@@ -8,23 +8,23 @@ class WebmappDeletePoiJob extends WebmappAbstractJob
      * @param string $params containing an encoded JSON with the poi ID
      * @param bool $verbose
      * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct(string $instanceUrl, string $params, bool $verbose = false)
     {
         parent::__construct("delete_poi", $instanceUrl, $params, $verbose);
     }
 
+    /**
+     * @throws WebmappExceptionFeatureStillExists
+     */
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
         if ($this->verbose) {
-            $this->_verbose("Checking if poi is available from {$this->wp->getApiPoi($id)}");
+            $this->_verbose("Checking if poi is available from {$this->wp->getApiPoi($this->id)}");
         }
-        $ch = $this->_getCurl($this->wp->getApiPoi($id));
+        $ch = $this->_getCurl($this->wp->getApiPoi($this->id));
         curl_exec($ch);
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) < 400)
@@ -35,7 +35,7 @@ class WebmappDeletePoiJob extends WebmappAbstractJob
             }
 
             // Delete the geojson
-            $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$id}.geojson";
+            $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
             if (file_exists($geojsonUrl)) {
                 if ($this->verbose) {
                     $this->_verbose("Removing {$geojsonUrl}");
@@ -46,7 +46,7 @@ class WebmappDeletePoiJob extends WebmappAbstractJob
             // Delete id from the taxonomies
             $this->_setTaxonomies('poi', [
                 "properties" => [
-                    "id" => $id,
+                    "id" => $this->id,
                     "taxonomies" => []
                 ]
             ]);

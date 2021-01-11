@@ -9,6 +9,9 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
      * @param string $instanceUrl containing the instance url
      * @param string $params containing an encoded JSON with the poi ID
      * @param boolean $verbose
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionParameterError
+     * @throws WebmappExceptionParameterMandatory
      */
     public function __construct(string $instanceUrl, string $params, $verbose = false)
     {
@@ -22,14 +25,12 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
         }
     }
 
+    /**
+     * @throws WebmappException
+     */
     protected function process()
     {
-        $id = $this->params["id"];
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
-        $descriptorspec = array(
+        $descriptorSpec = array(
             0 => array("pipe", "r"),   // stdin is a pipe that the child will read from
             1 => array("pipe", "w"),   // stdout is a pipe that the child will write to
             2 => array("pipe", "w")    // stderr is a pipe that the child will write to
@@ -37,13 +38,13 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
         flush();
 
         chdir(__DIR__ . "/../../node");
-        $src = "{$this->aProject->getRoot()}/geojson/{$id}.geojson";
+        $src = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
         $dest = "{$this->aProject->getRoot()}/media/elevation-chart/";
         if (!file_exists($dest)) {
             $cmd = "mkdir -p {$dest}";
             system($cmd);
         }
-        $dest .= "{$id}.png";
+        $dest .= "{$this->id}.png";
         $cmd = "{$this->_nodeCmd} generate-elevation-chart-png {$src} {$dest}";
 
         $config = "{$this->aProject->getRoot()}/server/server.conf";
@@ -55,7 +56,7 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
             $this->_verbose("Running node command: {$cmd}");
         }
 
-        $process = proc_open($cmd, $descriptorspec, $pipes, realpath('./'), array());
+        $process = proc_open($cmd, $descriptorSpec, $pipes, realpath('./'), array());
         if (is_resource($process)) {
             while ($s = fgets($pipes[1])) {
                 if ($this->verbose) {
@@ -64,10 +65,8 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
                 flush();
             }
 
-            if ($s = fgets($pipes[2])) {
+            if ($s = fgets($pipes[2]))
                 throw new WebmappException($s);
-                return;
-            }
         }
     }
 }

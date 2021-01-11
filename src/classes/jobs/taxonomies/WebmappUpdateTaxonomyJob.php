@@ -16,12 +16,6 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
 
     protected function process()
     {
-        $id = intval($this->params['id']);
-        if (is_null($id)) {
-            throw new WebmappExceptionParameterError("The id must be set, null given");
-            return;
-        }
-
         $taxonomyType = null;
         $taxonomyMetadata = null;
         foreach (TAXONOMY_TYPES as $taxType) {
@@ -32,21 +26,21 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                 }
                 $json = json_decode(file_get_contents($jsonUrl), true);
 
-                if (is_array($json) && array_key_exists($id, $json)) {
+                if (is_array($json) && array_key_exists($this->id, $json)) {
                     if ($this->verbose) {
                         $this->_verbose("Taxonomy found in $taxType file. Updating metadata");
                     }
                     $taxonomyType = $taxType;
-                    $currentItems = is_array($json[$id]["items"]) ? $json[$id]["items"] : [];
+                    $currentItems = is_array($json[$this->id]["items"]) ? $json[$this->id]["items"] : [];
                     if (count($currentItems) > 0) {
-                        $taxonomyMetadata = $this->_getTaxonomy($taxonomyType, $id);
+                        $taxonomyMetadata = $this->_getTaxonomy($taxonomyType, $this->id);
                         $newTaxonomy = $taxonomyMetadata;
                         if ($newTaxonomy) {
                             $newTaxonomy["items"] = $currentItems;
-                            $json[$id] = $this->_cleanTaxonomy($newTaxonomy);
+                            $json[$this->id] = $this->_cleanTaxonomy($newTaxonomy);
                         }
                     } else
-                        unset($json[$id]);
+                        unset($json[$this->id]);
 
                     if ($this->verbose) {
                         $this->_verbose("Updating file $jsonUrl");
@@ -58,7 +52,7 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
         }
 
         if ($taxonomyType && $taxonomyMetadata) {
-            $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$id}.geojson";
+            $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$this->id}.geojson";
             if (file_exists($collectionUrl)) {
                 if ($this->verbose) {
                     $this->_verbose("Updating feature collection file {$collectionUrl}");
@@ -72,10 +66,10 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                 }
             }
 
-            $this->_updateKTaxonomy($id, $taxonomyType, $taxonomyMetadata);
+            $this->_updateKTaxonomy($this->id, $taxonomyType, $taxonomyMetadata);
         } else {
             if ($this->verbose)
-                $this->_verbose("The taxonomy with id {$id} has no related features. There is no need to update it");
+                $this->_verbose("The taxonomy with id {$this->id} has no related features. There is no need to update it");
         }
     }
 
