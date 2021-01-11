@@ -882,14 +882,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 }
 
                 // TODO: Move this code to a mapping specific/mapping standard
-                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash");
-                foreach ($mapProperties as $property) {
-                    if (!$this->hasProperty($property) && $this->_relation->hasTag($property)) {
-                        $this->addProperty($property, $this->_relation->getTag($property));
-                    }
-                }
-
-                // TODO: Move this code to a mapping specific/mapping standard
                 $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash", "duration:forward", "duration:backward");
                 foreach ($mapProperties as $property) {
                     if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property))) {

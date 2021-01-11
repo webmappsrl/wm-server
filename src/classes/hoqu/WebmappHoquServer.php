@@ -79,7 +79,7 @@ class WebmappHoquServer
      * @param string $url the request url
      * @param array $payload the payload to pass
      * @param array|null $headers the headers - optional
-     * @return false|resource
+     * @return bool|resource
      */
     private function _getPutCurl(string $url, array $payload, array $headers = null)
     {
@@ -116,7 +116,7 @@ class WebmappHoquServer
      *
      * @param int $signal the signal number
      */
-    public function signal_handler(int $signal)
+    public function signal_handler(int $signal): void
     {
         if ($this->running) {
             WebmappUtils::warning("");
@@ -137,7 +137,7 @@ class WebmappHoquServer
     /**
      * @return string
      */
-    private function _logHeader()
+    private function _logHeader(): string
     {
         return date("Y-m-d H:i:s") . " - {$this->serverId} | ";
     }
