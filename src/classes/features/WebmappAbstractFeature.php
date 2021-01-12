@@ -319,7 +319,7 @@ abstract class WebmappAbstractFeature
      * @param array $types
      * @return array
      */
-    private function _getObjectWithCheckAndDescription(array $json_array, array $types): array
+    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types): array
     {
         $result = [];
         foreach ($types as $type) {
@@ -337,14 +337,14 @@ abstract class WebmappAbstractFeature
         // ACCESSIBILITA'
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('mobility', 'hearing', 'vision', 'cognitive', 'food');
-        $this->properties['accessibility'] = $this->_getObjectWithCheckAndDescription($json_array, $types);
+        $this->properties['accessibility'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types);
     }
 
     protected function setReachability($json_array)
     {
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('by_bike', 'on_foot', 'by_car', 'by_public_transportation');
-        $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription($json_array, $types);;
+        $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types);;
     }
 
     private function setRelatedUrl($ja)
