@@ -37,7 +37,7 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
         );
         flush();
 
-        chdir(__DIR__ . "/../../node");
+        chdir(__DIR__ . "/../../../node");
         $src = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
         $dest = "{$this->aProject->getRoot()}/media/elevation-chart/";
         if (!file_exists($dest)) {
