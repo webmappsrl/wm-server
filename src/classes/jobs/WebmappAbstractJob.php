@@ -582,6 +582,7 @@ abstract class WebmappAbstractJob
             $config = json_decode(file_get_contents("{$projectRoot}/server/server.conf"), true);
         } catch (Exception $e) {
         }
+        if (is_null($config)) $config = [];
         return $config;
     }
 
