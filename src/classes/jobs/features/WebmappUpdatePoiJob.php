@@ -21,18 +21,14 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
      */
     protected function process()
     {
-        if ($this->verbose) {
-            $this->_verbose("Loading poi from {$this->wp->getApiPoi($this->id)}");
-        }
+        $this->_verbose("Loading poi from {$this->wp->getApiPoi($this->id)}");
         $poi = new WebmappPoiFeature($this->wp->getApiPoi($this->id));
         $poi = $this->_setCustomProperties($poi);
 
         $poi->setProperty("modified", $this->_getPostLastModified($this->id, strtotime($poi->getProperty("modified"))));
 
         // Write geojson
-        if ($this->verbose) {
-            $this->_verbose("Writing poi to {$this->aProject->getRoot()}/geojson/{$this->id}.geojson...");
-        }
+        $this->_verbose("Writing poi to {$this->aProject->getRoot()}/geojson/{$this->id}.geojson...");
         file_put_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson", $poi->getJson());
 
         $this->_setTaxonomies("poi", json_decode($poi->getJson(), true));
@@ -48,9 +44,7 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
      */
     protected function _setCustomProperties(WebmappPoiFeature $poi)
     {
-        if ($this->verbose) {
-            $this->_verbose("Mapping custom properties");
-        }
+        $this->_verbose("Mapping custom properties");
         $properties = $this->_getCustomProperties("poi");
         if (isset($properties) && is_array($properties)) {
             $poi->mapCustomProperties($properties);

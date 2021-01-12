@@ -21,15 +21,11 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
         foreach (TAXONOMY_TYPES as $taxType) {
             $jsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxType}.json";
             if (file_exists($jsonUrl)) {
-                if ($this->verbose) {
-                    $this->_verbose("Checking $taxType file $jsonUrl");
-                }
+                $this->_verbose("Checking $taxType file $jsonUrl");
                 $json = json_decode(file_get_contents($jsonUrl), true);
 
                 if (is_array($json) && array_key_exists($this->id, $json)) {
-                    if ($this->verbose) {
-                        $this->_verbose("Taxonomy found in $taxType file");
-                    }
+                    $this->_verbose("Taxonomy found in $taxType file");
                     $taxonomyType = $taxType;
 
                     $ch = $this->_getCurl($this->wp->getApiUrl() . "/{$taxonomyType}/{$this->id}");
@@ -44,9 +40,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                         $items = $json[$this->id]["items"];
                     unset($json[$this->id]);
 
-                    if ($this->verbose) {
-                        $this->_verbose("Deleting taxonomy $this->id from $jsonUrl");
-                    }
+                    $this->_verbose("Deleting taxonomy $this->id from $jsonUrl");
                     file_put_contents($jsonUrl, json_encode($json));
                     break;
                 }
@@ -55,17 +49,13 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
 
         $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$this->id}.geojson";
         if (file_exists($collectionUrl)) {
-            if ($this->verbose) {
-                $this->_verbose("Deleting feature collection file {$collectionUrl}");
-            }
+            $this->_verbose("Deleting feature collection file {$collectionUrl}");
             unlink($collectionUrl);
         }
 
         if ($taxonomyType) {
             if (is_array($items) && count($items) > 0) {
-                if ($this->verbose) {
-                    $this->_verbose("Deleting taxonomy from features");
-                }
+                $this->_verbose("Deleting taxonomy from features");
 
                 $this->_deleteTaxonomyFromFeatures($this->id, $taxonomyType, $items);
             }
@@ -121,9 +111,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
     private function _deleteTaxonomyFromGeojson(string $url, string $taxonomyId, string $taxonomyType, array $featuresIds)
     {
         if (file_exists($url)) {
-            if ($this->verbose) {
-                $this->_verbose("Checking file {$url}");
-            }
+            $this->_verbose("Checking file {$url}");
             $json = json_decode(file_get_contents($url), true);
             if (isset($json["type"]) &&
                 ($json["type"] === "Feature" ||
@@ -147,9 +135,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                     isset($json["features"]) &&
                     is_array($json["features"]) &&
                     count($json["features"]) > 0) {
-                    if ($this->verbose) {
-                        $this->_verbose("File is a feature collection. Searching and updating features " . json_encode($featuresIds));
-                    }
+                    $this->_verbose("File is a feature collection. Searching and updating features " . json_encode($featuresIds));
                     foreach ($json["features"] as $key => $feature) {
                         if (isset($feature["properties"]["id"]) &&
                             in_array($feature["properties"]["id"], $featuresIds) &&
@@ -158,7 +144,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                             count($feature["properties"]["taxonomy"][$taxonomyType]) > 0) {
                             $taxonomies = $feature["properties"]["taxonomy"][$taxonomyType];
                             $keys = array_keys($taxonomies, $taxonomyId);
-                            if ($this->verbose && count($keys) > 0) {
+                            if (count($keys) > 0) {
                                 $this->_verbose("  Removing taxonomy from feature {$feature["properties"]["id"]}");
                             }
                             foreach ($keys as $key) {
@@ -171,9 +157,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                                 unset($json["features"][$key]["properties"]["taxonomy"][$taxonomyType]);
                             }
                             if (count($json["features"][$key]["properties"]["taxonomy"]) === 0) {
-                                if ($this->verbose) {
-                                    $this->_verbose("    The feature {$feature["properties"]["id"]} has no more taxonomies. Removing from file {$url}");
-                                }
+                                $this->_verbose("    The feature {$feature["properties"]["id"]} has no more taxonomies. Removing from file {$url}");
                                 unset($json["features"][$key]);
                                 $json["features"] = array_values($json["features"]);
                             }
@@ -182,9 +166,7 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                 }
             }
 
-            if ($this->verbose) {
-                $this->_verbose("Check complete. Overwriting file {$url}");
-            }
+            $this->_verbose("Check complete. Overwriting file {$url}");
             file_put_contents($url, json_encode($json));
         }
     }

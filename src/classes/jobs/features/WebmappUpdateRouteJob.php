@@ -27,9 +27,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     protected function process()
     {
         // Load poi from be
-        if ($this->verbose) {
-            $this->_verbose("Loading route from {$this->wp->getApiRoute($this->id)}");
-        }
+        $this->_verbose("Loading route from {$this->wp->getApiRoute($this->id)}");
         $route = new WebmappRoute("{$this->wp->getApiRoute($this->id)}", '', true);
         $apiTracks = $route->getApiTracks();
         $tracks = [];
@@ -45,9 +43,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                     $generatedDate = strtotime($file["properties"]["modified"]);
                 }
                 if ($currentDate > $generatedDate) {
-                    if ($this->verbose) {
-                        $this->_verbose("Updating track {$track['ID']}");
-                    }
+                    $this->_verbose("Updating track {$track['ID']}");
                     $params = [
                         "id" => $track["ID"],
                         "skipRouteCheck" => true
@@ -94,9 +90,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      */
     protected function _setCustomProperties(WebmappRoute $route): WebmappRoute
     {
-        if ($this->verbose) {
-            $this->_verbose("Mapping custom properties");
-        }
+        $this->_verbose("Mapping custom properties");
         $track_properties = $this->_getCustomProperties("track");
         if (isset($track_properties) && is_array($track_properties)) {
             $route->mapCustomProperties($track_properties);
@@ -116,19 +110,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     private function _updateKRoutes(int $id, WebmappRoute $route)
     {
         if (count($this->kProjects) > 0) {
-            if ($this->verbose) {
-                $this->_verbose("Updating K projects...");
-            }
+            $this->_verbose("Updating K projects...");
             foreach ($this->kProjects as $kProject) {
-                if ($this->verbose) {
-                    $this->_verbose("  {$kProject->getRoot()}");
-                }
+                $this->_verbose("  {$kProject->getRoot()}");
                 if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
                     $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
                     if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                        if ($this->verbose) {
-                            $this->_verbose("Updating route index files in single map k project");
-                        }
+                        $this->_verbose("Updating route index files in single map k project");
                         if (!isset($conf["routesFilter"]) || !is_array($conf["routesFilter"]) || in_array($id, $conf["routesFilter"])) {
                             $this->_updateRouteIndex(
                                 "{$kProject->getRoot()}/routes/route_index.geojson",
@@ -301,13 +289,9 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     {
         $postType = 'route';
 
-        if ($this->verbose) {
-            $this->_verbose("Checking K taxonomies...");
-        }
+        $this->_verbose("Checking K taxonomies...");
         foreach ($this->kProjects as $kProject) {
-            if ($this->verbose) {
-                $this->_verbose("  {$kProject->getRoot()}");
-            }
+            $this->_verbose("  {$kProject->getRoot()}");
             if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
                 $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
                 if (isset($conf["multimap"]) && $conf["multimap"] === true) {
@@ -382,9 +366,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                                 }
                             }
 
-                            if ($this->verbose) {
-                                $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-                            }
+                            $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
                             file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
                         }
                     }

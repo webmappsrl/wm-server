@@ -97,13 +97,11 @@ abstract class WebmappAbstractJob
 
         $this->wp = new WebmappWP($this->instanceUrl);
 
-        if ($this->verbose) {
-            $this->_verbose("Instantiating $name job with");
-            $this->_verbose("  instanceName: $this->instanceName");
-            $this->_verbose("  instanceUrl: $this->instanceUrl");
-            $this->_verbose("  id: " . $this->id);
-            $this->_verbose("  params: " . json_encode($this->params));
-        }
+        $this->_verbose("Instantiating $name job with");
+        $this->_verbose("  instanceName: $this->instanceName");
+        $this->_verbose("  instanceUrl: $this->instanceUrl");
+        $this->_verbose("  id: " . $this->id);
+        $this->_verbose("  params: " . json_encode($this->params));
 
         $this->cachedTaxonomies = [];
     }
@@ -111,25 +109,13 @@ abstract class WebmappAbstractJob
     public function run()
     {
         $startTime = round(microtime(true) * 1000);
-        if (isset($this->id)) {
-            $this->_title("Starting generation of {$this->id}");
-        } else {
-            $this->_title("Starting");
-        }
-        if ($this->verbose) {
-            $this->_verbose("start time: $startTime");
-        }
+        $this->_title(isset($this->id) ? "Starting generation of {$this->id}" : "Starting");
+        $this->_verbose("start time: $startTime");
         $this->process();
         $endTime = round(microtime(true) * 1000);
         $duration = ($endTime - $startTime) / 1000;
-        if ($this->verbose) {
-            $this->_verbose("end time: $endTime");
-        }
-        if (isset($this->id)) {
-            $this->_success("Completed generation of {$this->id} in {$duration} seconds");
-        } else {
-            $this->_success("Completed in {$duration} seconds");
-        }
+        $this->_verbose("end time: $endTime");
+        $this->_success(isset($this->id) ? "Completed generation of {$this->id} in {$duration} seconds" : "Completed in {$duration} seconds");
     }
 
     abstract protected function process();
@@ -172,10 +158,8 @@ abstract class WebmappAbstractJob
         }
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
 
-        if ($this->verbose) {
-            $this->_verbose("Taxonomies: " . json_encode($taxonomies));
-            $this->_verbose("Checking taxonomies...");
-        }
+        $this->_verbose("Taxonomies: " . json_encode($taxonomies));
+        $this->_verbose("Checking taxonomies...");
         foreach (TAXONOMY_TYPES as $taxTypeId) {
             $taxonomyJson = null;
             if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
@@ -217,9 +201,7 @@ abstract class WebmappAbstractJob
                     $taxonomy = $this->_cleanTaxonomy($taxonomy);
                     $taxonomyJson[$taxId] = $taxonomy;
 
-                    if ($this->verbose) {
-                        $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
-                    }
+                    $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
                     $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
                     $taxonomyGeojson = [
                         "type" => "FeatureCollection",
@@ -252,9 +234,7 @@ abstract class WebmappAbstractJob
 
                     $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
 
-                    if ($this->verbose) {
-                        $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
-                    }
+                    $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
                     file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
                 }
             }
@@ -294,9 +274,7 @@ abstract class WebmappAbstractJob
                 if (!in_array($taxId, $taxArray)) {
                     $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
                     if (file_exists($geojsonUrl)) {
-                        if ($this->verbose) {
-                            $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
-                        }
+                        $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
                         $taxonomyGeojson = json_decode(file_get_contents($geojsonUrl), true);
                         $found = false;
                         $key = 0;
@@ -309,9 +287,7 @@ abstract class WebmappAbstractJob
                         }
 
                         if ($found) {
-                            if ($this->verbose) {
-                                $this->_verbose("Cleaning {$taxTypeId} {$taxId} taxonomy term feature collection");
-                            }
+                            $this->_verbose("Cleaning {$taxTypeId} {$taxId} taxonomy term feature collection");
                             unset($taxonomyGeojson["features"][$key]);
                             $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
                             if (count($taxonomyGeojson["features"]) === 0) {
@@ -324,9 +300,7 @@ abstract class WebmappAbstractJob
                 }
             }
 
-            if ($this->verbose) {
-                $this->_verbose("Writing $taxTypeId to {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-            }
+            $this->_verbose("Writing $taxTypeId to {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json");
             file_put_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($taxonomyJson));
         }
     }
@@ -399,14 +373,10 @@ abstract class WebmappAbstractJob
     protected function _updateKProjects(string $postType, int $id, string $json)
     {
         if (count($this->kProjects) > 0) {
-            if ($this->verbose) {
-                $this->_verbose("Updating k projects...");
-            }
+            $this->_verbose("Updating k projects...");
             if (in_array($postType, ["poi", "track", "route"])) {
                 foreach ($this->kProjects as $kProject) {
-                    if ($this->verbose) {
-                        $this->_verbose("  {$kProject->getRoot()}");
-                    }
+                    $this->_verbose("  {$kProject->getRoot()}");
                 }
             }
         }
@@ -418,7 +388,7 @@ abstract class WebmappAbstractJob
      * @param string $type the geometry type
      * @return null | array with the property mapping
      */
-    protected function _getCustomProperties(string $type)
+    protected function _getCustomProperties(string $type): ?array
     {
         if ($type !== 'poi' && $type !== 'track' && $type !== 'route')
             return null;
@@ -433,9 +403,7 @@ abstract class WebmappAbstractJob
         $properties = array();
         $custom_mapping = $config["custom_mapping"];
 
-        if ($this->verbose) {
-            $this->_verbose("  Custom mapping: " . json_encode($custom_mapping));
-        }
+        $this->_verbose("  Custom mapping: " . json_encode($custom_mapping));
 
         // Map the global properties
         foreach ($custom_mapping as $key => $property) {
@@ -478,9 +446,7 @@ abstract class WebmappAbstractJob
 
         $mapping = $config["mapping"];
 
-        if ($this->verbose) {
-            $this->_verbose("  Mapping: " . json_encode($mapping));
-        }
+        $this->_verbose("  Mapping: " . json_encode($mapping));
 
         return $mapping;
     }
@@ -528,9 +494,7 @@ abstract class WebmappAbstractJob
             "type" => "FeatureCollection",
             "features" => []
         ];
-        if ($this->verbose) {
-            $this->_verbose("Updating route index from {$url}");
-        }
+        $this->_verbose("Updating route index from {$url}");
         if (file_exists($url)) {
             $file = json_decode(file_get_contents($url), true);
             if (is_null($file)) {
@@ -606,6 +570,22 @@ abstract class WebmappAbstractJob
     }
 
     /**
+     * Return the config of the given root project directory
+     *
+     * @param string $projectRoot the root directory of the project
+     * @return array|mixed the config
+     */
+    protected function _getConfig(string $projectRoot): array
+    {
+        $config = [];
+        try {
+            $config = json_decode(file_get_contents("{$projectRoot}/server/server.conf"), true);
+        } catch (Exception $e) {
+        }
+        return $config;
+    }
+
+    /**
      * Perform a store operation to hoqu
      *
      * @param string $job the job name
@@ -616,9 +596,7 @@ abstract class WebmappAbstractJob
      */
     protected function _store(string $job, array $params)
     {
-        if ($this->verbose) {
-            $this->_verbose("Performing new Store operation to HOQU");
-        }
+        $this->_verbose("Performing new Store operation to HOQU");
 
         if (!$this->hoquBaseUrl || !$this->storeToken) {
             throw new WebmappExceptionHoquRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU url or a store token are missing in the configuration");
@@ -637,11 +615,9 @@ abstract class WebmappAbstractJob
 
         $url = "{$this->hoquBaseUrl}/api/store";
 
-        if ($this->verbose) {
-            $this->_verbose("Initializing POST curl using:");
-            $this->_verbose("  url: {$url}");
-            $this->_verbose("  payload: " . json_encode($payload));
-        }
+        $this->_verbose("Initializing POST curl using:");
+        $this->_verbose("  url: {$url}");
+        $this->_verbose("  payload: " . json_encode($payload));
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -674,10 +650,8 @@ abstract class WebmappAbstractJob
             $headers = [];
         }
 
-        if ($this->verbose) {
-            $this->_verbose("Initializing GET curl using:");
-            $this->_verbose("  url: {$url}");
-        }
+        $this->_verbose("Initializing GET curl using:");
+        $this->_verbose("  url: {$url}");
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
@@ -690,7 +664,7 @@ abstract class WebmappAbstractJob
         return $ch;
     }
 
-    private function _logHeader()
+    private function _logHeader(): string
     {
         return date("Y-m-d H:i:s") . " - {$this->name} JOB | ";
     }
@@ -702,7 +676,8 @@ abstract class WebmappAbstractJob
 
     protected function _verbose($message)
     {
-        WebmappUtils::verbose($this->_logHeader() . $message);
+        if ($this->verbose)
+            WebmappUtils::verbose($this->_logHeader() . $message);
     }
 
     protected function _success($message)

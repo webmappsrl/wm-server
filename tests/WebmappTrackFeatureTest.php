@@ -82,14 +82,6 @@ class WebmappTrackFeatureTest extends TestCase
         $this->assertEquals('WebmappPoiFeature', get_class($pois[0]));
     }
 
-    // public function testGetWebmappCategoryIds() {
-    //         $poi = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
-    //         $ids = $poi->getWebmappCategoryIds();
-    //         $this->assertTrue(is_array($ids));
-    //         $this->assertEquals(2,count($ids));
-    //         $this->assertEquals(14,$ids[0]);
-    // }
-
     public function testRemoveProperty()
     {
         $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/580');
@@ -278,29 +270,6 @@ class WebmappTrackFeatureTest extends TestCase
 
     }
 
-    // public function testGenerateLandscapeRBImages() {
-
-    //     // Prepare TEST
-    //     if(!file_exists('/tmp/rbtest')) {
-    //         $cmd = 'mkdir /tmp/rbtest';
-    //         system($cmd);
-    //     }
-    //     $cmd = 'rm -Rf /tmp/rbtest/*';
-    //     system($cmd);
-
-    //     // LOAD DATA
-    //     $t = new WebmappTrackFeature('http://dev.be.webmapp.it/wp-json/wp/v2/track/711');
-
-    //     // PERFORM OPERATIONS
-    //     $t->writeToPostGis('http://dev.be.webmapp.it');
-    //     $t->generateLandscapeRBImages('http://dev.be.webmapp.it','/tmp/rbtest');
-
-    //     // TEST(S)
-
-    //     // Esistenza di tutti i file che devono essere creati
-    //     // Dimensioni in pixel delle immagini
-
-    // }
     public function testSetComputedProperties()
     {
         // Prepare TEST
@@ -819,5 +788,73 @@ class WebmappTrackFeatureTest extends TestCase
 
         $this->assertEquals("track", $ja['properties']['typetest']);
         $this->assertEquals("pisa-condotti-lucca", $ja['properties']['slug']);
+    }
+
+    public function testInvertGeometry()
+    {
+        $p1 = [0, 0, 0];
+        $p2 = [1, 1, 1];
+        $p3 = [2, 2, 2];
+        $t = new WebmappTrackFeature([
+            "type" => "Feature",
+            "properties" => []
+        ]);
+
+        try {
+            $t->invertGeometry();
+            $this->fail("The inversion should not work since the geometry has not been set but no exception was triggered");
+        } catch (WebmappExceptionFeaturesNoGeometry $e) {
+            $geom = $t->getGeometry();
+            $this->assertFalse(isset($geom));
+        }
+
+        // Only with LineString inversion is supported
+        $geometry = [
+            "type" => "LineString",
+            "coordinates" => [
+                $p1, $p2, $p3
+            ]
+        ];
+        $t->setGeometry($geometry);
+
+        $t->invertGeometry();
+        $geom = $t->getGeometry();
+
+        $this->assertIsArray($geom);
+        $this->assertArrayHasKey("type", $geom);
+        $this->assertSame("LineString", $geom["type"]);
+        $this->assertArrayHasKey("coordinates", $geom);
+        $this->assertCount(3, $geom["coordinates"]);
+        $this->assertSame(json_encode($geom["coordinates"]), json_encode([$p3, $p2, $p1]));
+
+        $geometry = [
+            "type" => "MultiLineString",
+            "coordinates" => [
+                [$p1, $p2], [$p3, $p1]
+            ]
+        ];
+        $t->setGeometry($geometry);
+
+        try {
+            $t->invertGeometry();
+            $this->fail("The inversion should not work with a MultiLineString but no exception was triggered");
+        } catch (WebmappExceptionGeoJsonBadGeomType $e) {
+            $geom = $t->getGeometry();
+            $this->assertSame(json_encode($geometry), json_encode($geom));
+        }
+
+        $geometry = [
+            "type" => "Point",
+            "coordinates" => $p1
+        ];
+        $t->setGeometry($geometry);
+
+        try {
+            $t->invertGeometry();
+            $this->fail("The inversion should not work with a Point but no exception was triggered");
+        } catch (WebmappExceptionGeoJsonBadGeomType $e) {
+            $geom = $t->getGeometry();
+            $this->assertSame(json_encode($geometry), json_encode($geom));
+        }
     }
 }

@@ -52,16 +52,12 @@ class WebmappGenerateElevationChartImageJob extends WebmappAbstractJob
             $cmd .= " {$config}";
         }
 
-        if ($this->verbose) {
-            $this->_verbose("Running node command: {$cmd}");
-        }
+        $this->_verbose("Running node command: {$cmd}");
 
         $process = proc_open($cmd, $descriptorSpec, $pipes, realpath('./'), array());
         if (is_resource($process)) {
             while ($s = fgets($pipes[1])) {
-                if ($this->verbose) {
-                    $this->_verbose($s);
-                }
+                $this->_verbose($s);
                 flush();
             }
 

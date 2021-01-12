@@ -43,18 +43,14 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         $routeGeojsonUrl = "{$geojsonPath}/{$id}.geojson";
         $decrypted = false;
 
-        if ($this->verbose) {
-            $this->_verbose("Generating map.mbtiles for {$instanceName}");
-            $this->_verbose(" - Route ID    : $id");
-            $this->_verbose(" - Min zoom    : $minZoom");
-            $this->_verbose(" - Max zoom    : $maxZoom");
-            $this->_verbose(" - MBTiles path: $mbtilesPath");
-            $this->_verbose(" - Geojson path: $geojsonPath");
-        }
+        $this->_verbose("Generating map.mbtiles for {$instanceName}");
+        $this->_verbose(" - Route ID    : $id");
+        $this->_verbose(" - Min zoom    : $minZoom");
+        $this->_verbose(" - Max zoom    : $maxZoom");
+        $this->_verbose(" - MBTiles path: $mbtilesPath");
+        $this->_verbose(" - Geojson path: $geojsonPath");
 
-        if ($this->verbose) {
-            $this->_verbose("Cleaning temporary tables");
-        }
+        $this->_verbose("Cleaning temporary tables");
         $cmd = 'psql -U webmapp -d offline -h localhost -c "DROP TABLE tmp0;"';
         system($cmd . " > /dev/null 2>&1");
         $cmd = 'psql -U webmapp -d offline -h localhost -c "DROP TABLE tmp1;"';
@@ -76,17 +72,13 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         $cmd = 'psql -U webmapp -d offline -h localhost -c "DROP TABLE tmptracks;"';
         system($cmd . " > /dev/null 2>&1");
 
-        if ($this->verbose) {
-            $this->_verbose("Using {$routeGeojsonUrl} file");
-        }
+        $this->_verbose("Using {$routeGeojsonUrl} file");
         $geojson = file_get_contents($routeGeojsonUrl);
         json_decode($geojson);
 
         if (json_last_error() != JSON_ERROR_NONE) {
             $dest = "{$mbtilesPath}/{$id}_temp.geojson";
-            if ($this->verbose) {
-                $this->_verbose("Decrypting {$routeGeojsonUrl} into {$dest}");
-            }
+            $this->_verbose("Decrypting {$routeGeojsonUrl} into {$dest}");
 
             global $wm_config;
             $method = $wm_config['crypt']['method'];
@@ -98,17 +90,13 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
             $routeGeojsonUrl = $dest;
         }
 
-        if ($this->verbose) {
-            $this->_verbose("Importing tracks to POSTGRES");
-        }
+        $this->_verbose("Importing tracks to POSTGRES");
         $cmd = "ogr2ogr -f \"PostgreSQL\" PG:\"host=localhost dbname=offline user=webmapp\" \"{$routeGeojsonUrl}\" -nln tmptracks -t_srs EPSG:3857 -append";
         system($cmd . " > /dev/null");
 
         chdir($mbtilesPath);
 
-        if ($this->verbose) {
-            $this->_verbose("Creating the tiles buffer");
-        }
+        $this->_verbose("Creating the tiles buffer");
         // Creo il buffer intorno alle linee e ai tracks:
         $cmd = "psql -U webmapp -d offline -h localhost -c \"create table tmp0 AS SELECT ST_Buffer(wkb_geometry, 5000, 'endcap=round join=round') FROM tmptracks;\"";
         system($cmd . " > /dev/null");
@@ -155,17 +143,13 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         system($cmd . " > /dev/null");
 
         // Eseguo i comandi di creazione mbtile totale, copia dal file mbtile al sistema di cartelle ./map e creazione del nuovo mbtile:
-        if ($this->verbose) {
-            $this->_verbose("Creating the mbtiles file");
-        }
+        $this->_verbose("Creating the mbtiles file");
         $cmd = "bash tlcopy.sh";
         system($cmd);
         $cmd = "bash bbox.sh";
         system($cmd);
 
-        if ($this->verbose) {
-            $this->_verbose("Cleaning up");
-        }
+        $this->_verbose("Cleaning up");
         $cmd = "mv tmp6.csv map/metadata.json";
         system($cmd);
         $cmd = "rm -rf map.mbtiles";

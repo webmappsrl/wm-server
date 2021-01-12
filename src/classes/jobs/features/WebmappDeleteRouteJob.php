@@ -21,25 +21,19 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
      */
     protected function process()
     {
-        if ($this->verbose) {
-            $this->_verbose("Checking if route is available from {$this->wp->getApiRoute($this->id)}");
-        }
+        $this->_verbose("Checking if route is available from {$this->wp->getApiRoute($this->id)}");
         $ch = $this->_getCurl($this->wp->getApiRoute($this->id));
         curl_exec($ch);
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) < 400)
             throw new WebmappExceptionFeatureStillExists("The route seems to be still public. Deletion stopped to prevent data loss");
         else {
-            if ($this->verbose) {
-                $this->_verbose("Check complete. Starting clean");
-            }
+            $this->_verbose("Check complete. Starting clean");
 
             // Delete the geojson
             $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
             if (file_exists($geojsonUrl)) {
-                if ($this->verbose) {
-                    $this->_verbose("Removing {$geojsonUrl}");
-                }
+                $this->_verbose("Removing {$geojsonUrl}");
                 unlink($geojsonUrl);
             }
 
@@ -59,13 +53,9 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
 
             // Delete the route from the routes directory
             if (count($this->kProjects) > 0) {
-                if ($this->verbose) {
-                    $this->_verbose("Deleting from k projects");
-                }
+                $this->_verbose("Deleting from k projects");
                 foreach ($this->kProjects as $kProject) {
-                    if ($this->verbose) {
-                        $this->_verbose("  {$kProject->getRoot()}");
-                    }
+                    $this->_verbose("  {$kProject->getRoot()}");
                     $routeIndexUrl = "{$kProject->getRoot()}/routes/route_index.geojson";
                     if (file_exists($routeIndexUrl)) {
                         $this->_updateRouteIndex(
@@ -127,17 +117,14 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
     {
         $postType = 'route';
 
-        if ($this->verbose) {
-            $this->_verbose("Checking taxonomies in {$kProject->getRoot()}...");
-        }
+        $this->_verbose("Checking taxonomies in {$kProject->getRoot()}...");
         if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
             $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
             if (isset($conf["multimap"]) && $conf["multimap"] === true) {
                 foreach (TAXONOMY_TYPES as $taxTypeId) {
                     $kJson = null;
-                    if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
+                    if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"))
                         $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
-                    }
 
                     if (!$kJson) $kJson = [];
 
@@ -153,31 +140,21 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
                             foreach ($keys as $key) {
                                 unset($kJson[$taxId]["items"][$postType][$key]);
                             }
-                            if (count($taxonomy["items"][$postType]) == 0) {
+                            if (count($taxonomy["items"][$postType]) == 0)
                                 unset($kJson[$taxId]["items"][$postType]);
-                            } else {
+                            else
                                 $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
-                            }
-                            if (count($taxonomy["items"]) == 0) {
+                            if (count($taxonomy["items"]) == 0)
                                 unset($kJson[$taxId][$taxId]);
-                            }
                         }
                     }
 
-                    if ($this->verbose) {
-                        $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-                    }
+                    $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
                     file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
                 }
-            } else {
-                if ($this->verbose) {
-                    $this->_verbose("Skipping {$kProject->getRoot()} since is not a multimap project...");
-                }
-            }
-        } else {
-            if ($this->verbose) {
+            } else
                 $this->_verbose("Skipping {$kProject->getRoot()} since is not a multimap project...");
-            }
-        }
+        } else
+            $this->_verbose("Skipping {$kProject->getRoot()} since is not a multimap project...");
     }
 }

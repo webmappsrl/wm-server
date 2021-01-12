@@ -879,7 +879,7 @@ class WebmappUtils
     }
 
     /**
-     * Write a message in gray as verbose message log
+     * Write a message in gray as verbose message log when the debug is active
      *
      * @param string $message the message
      * @param string $customHeader a custom header to replace to the default VERBOSE

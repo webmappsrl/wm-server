@@ -560,7 +560,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     public function writeToPostGis($instance_id = '')
     {
-
         // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
@@ -879,5 +878,19 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 echo "Geometry not set\n\n\n";
             }
         }
+    }
+
+    /**
+     * @throws WebmappExceptionFeaturesNoGeometry
+     * @throws WebmappExceptionGeoJsonBadGeomType
+     */
+    public function invertGeometry()
+    {
+        if (isset($this->geometry["type"]) && $this->geometry["type"] === "LineString" && isset($this->geometry["coordinates"]) && is_array($this->geometry["coordinates"]))
+            $this->geometry["coordinates"] = array_reverse($this->geometry["coordinates"], false);
+        elseif (isset($this->geometry["type"]) && $this->geometry["type"] !== "LineString")
+            throw new WebmappExceptionGeoJsonBadGeomType("The inversion of geometry type {$this->geometry["type"]} is not supported");
+        else
+            throw new WebmappExceptionFeaturesNoGeometry("The geometry is not present or is malformed");
     }
 }
