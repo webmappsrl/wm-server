@@ -99,6 +99,46 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         return $route;
     }
 
+    private function _filterKRoute(array $config, WebmappRoute $route): bool
+    {
+        $id = $route->getId();
+        $result = false;
+        $this->_title(json_encode($config));
+        if (isset($config["filters"]) && is_array($config["filters"])) {
+            if (isset($config["filters"]["routes_id"]) || isset($config["filters"]["routes_taxonomy"])) {
+                if (isset($config["filters"]["routes_id"])
+                    && is_array($config["filters"]["routes_id"])
+                    && in_array($id, $config["filters"]["routes_id"]))
+                    $result = true;
+                elseif (isset($config["filters"]["routes_taxonomy"])
+                    && is_array($config["filters"]["routes_taxonomy"])) {
+                    $taxonomies = $route->getTaxonomies();
+                    $taxArray = [];
+                    foreach ($taxonomies as $ids) {
+                        array_push($taxArray, ...$ids);
+                    }
+                    $taxArray = array_values(array_unique($taxArray));
+
+                    foreach ($taxArray as $taxId) {
+                        if (in_array($taxId, $config["filters"]["routes_taxonomy"])) {
+                            $result = true;
+                            break;
+                        }
+                    }
+                } elseif (
+                    isset($config["filters"]["routes_id"])
+                    && !is_array($config["filters"]["routes_id"])
+                    && isset($config["filters"]["routes_taxonomy"])
+                    && !is_array($config["filters"]["routes_taxonomy"]))
+                    $result = true;
+            } else
+                $result = true;
+        } else
+            $result = true;
+
+        return $result;
+    }
+
     /**
      * Update the K roots
      *
@@ -113,32 +153,32 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             $this->_verbose("Updating K projects...");
             foreach ($this->kProjects as $kProject) {
                 $this->_verbose("  {$kProject->getRoot()}");
-                if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
-                    $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
-                    if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                        $this->_verbose("Updating route index files in single map k project");
-                        if (!isset($conf["routesFilter"]) || !is_array($conf["routesFilter"]) || in_array($id, $conf["routesFilter"])) {
-                            $this->_updateRouteIndex(
-                                "{$kProject->getRoot()}/routes/route_index.geojson",
-                                $id,
-                                json_decode($route->getPoiJson(), true)
-                            );
-                            $this->_updateRouteIndex(
-                                "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
-                                $id,
-                                json_decode($route->getTrackJson(), true)
-                            );
-                            $this->_updateKRouteDirectory($kProject, $id, $route);
-                        } else {
-                            $this->_updateRouteIndex(
-                                "{$kProject->getRoot()}/routes/route_index.geojson",
-                                $id
-                            );
-                            $this->_updateRouteIndex(
-                                "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
-                                $id
-                            );
-                        }
+                $conf = $this->_getConfig($kProject->getRoot());
+                if (isset($conf["multimap"]) && $conf["multimap"] === true) {
+                    $this->_verbose("Updating route index files in single map k project");
+                    if ($this->_filterKRoute($conf, $route)) {
+                        $this->_warning("---------- SI");
+                        $this->_updateRouteIndex(
+                            "{$kProject->getRoot()}/routes/route_index.geojson",
+                            $id,
+                            json_decode($route->getPoiJson(), true)
+                        );
+                        $this->_updateRouteIndex(
+                            "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
+                            $id,
+                            json_decode($route->getTrackJson(), true)
+                        );
+                        $this->_updateKRouteDirectory($kProject, $id, $route);
+                    } else {
+                        $this->_warning("---------- NO");
+                        $this->_updateRouteIndex(
+                            "{$kProject->getRoot()}/routes/route_index.geojson",
+                            $id
+                        );
+                        $this->_updateRouteIndex(
+                            "{$kProject->getRoot()}/routes/full_geometry_route_index.geojson",
+                            $id
+                        );
                     }
                 }
             }
@@ -292,83 +332,82 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         $this->_verbose("Checking K taxonomies...");
         foreach ($this->kProjects as $kProject) {
             $this->_verbose("  {$kProject->getRoot()}");
-            if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
-                $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
-                if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                    foreach (TAXONOMY_TYPES as $taxTypeId) {
-                        $kJson = null;
-                        $aJson = null;
-                        if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
-                            $aJson = json_decode(file_get_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
-                        }
-                        if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
-                            $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
-                        }
 
-                        if (!isset($aJson)) {
-                            $this->_warning("The file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing and should exists. Skipping the k {$taxTypeId} generation");
+            $conf = $this->_getConfig($kProject->getRoot());
+            if (isset($conf["multimap"]) && $conf["multimap"] === true) {
+                foreach (TAXONOMY_TYPES as $taxTypeId) {
+                    $kJson = null;
+                    $aJson = null;
+                    if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
+                        $aJson = json_decode(file_get_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
+                    }
+                    if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
+                        $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
+                    }
 
-                            if (!$kJson) {
-                                file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode([]));
+                    if (!isset($aJson)) {
+                        $this->_warning("The file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing and should exists. Skipping the k {$taxTypeId} generation");
+
+                        if (!$kJson) {
+                            file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode([]));
+                        }
+                    } else {
+                        if (!$kJson) $kJson = [];
+                        $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
+                        // Add post to its taxonomies
+                        foreach ($taxArray as $taxId) {
+                            $taxonomy = null;
+                            $items = [
+                                $postType => [$id]
+                            ];
+                            if (!isset($aJson[$taxId])) {
+                                $this->_warning("The taxonomy json file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing the {$taxId} taxonomy.");
+                            } else {
+                                $taxonomy = $aJson[$taxId];
+                                if (isset($kJson[$taxId]["items"])) {
+                                    $items = $kJson[$taxId]["items"];
+                                    if (!isset($items[$postType])) {
+                                        $items[$postType] = [];
+                                    }
+                                    foreach ($items as $postTypeKey => $value) {
+                                        if ($postTypeKey !== $postType) {
+                                            unset($items[$postTypeKey]);
+                                        }
+                                    }
+                                    $items[$postType][] = $id;
+                                    $items[$postType] = array_values(array_unique($items[$postType]));
+                                }
+                                $taxonomy["items"] = $items;
+                                $kJson[$taxId] = $taxonomy;
                             }
-                        } else {
-                            if (!$kJson) $kJson = [];
-                            $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
-                            // Add post to its taxonomies
-                            foreach ($taxArray as $taxId) {
-                                $taxonomy = null;
-                                $items = [
-                                    $postType => [$id]
-                                ];
-                                if (!isset($aJson[$taxId])) {
-                                    $this->_warning("The taxonomy json file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing the {$taxId} taxonomy.");
+                        }
+
+                        // Remove post from its not taxonomies
+                        foreach ($kJson as $taxId => $taxonomy) {
+                            if (
+                                !in_array($taxId, $taxArray) &&
+                                array_key_exists("items", $taxonomy) &&
+                                array_key_exists($postType, $taxonomy["items"]) &&
+                                is_array($taxonomy["items"][$postType]) &&
+                                in_array($id, $taxonomy["items"][$postType])
+                            ) {
+                                $keys = array_keys($taxonomy["items"][$postType], $id);
+                                foreach ($keys as $key) {
+                                    unset($kJson[$taxId]["items"][$postType][$key]);
+                                }
+                                if (count($taxonomy["items"][$postType]) == 0) {
+                                    unset($kJson[$taxId]["items"][$postType]);
                                 } else {
-                                    $taxonomy = $aJson[$taxId];
-                                    if (isset($kJson[$taxId]["items"])) {
-                                        $items = $kJson[$taxId]["items"];
-                                        if (!isset($items[$postType])) {
-                                            $items[$postType] = [];
-                                        }
-                                        foreach ($items as $postTypeKey => $value) {
-                                            if ($postTypeKey !== $postType) {
-                                                unset($items[$postTypeKey]);
-                                            }
-                                        }
-                                        $items[$postType][] = $id;
-                                        $items[$postType] = array_values(array_unique($items[$postType]));
-                                    }
-                                    $taxonomy["items"] = $items;
-                                    $kJson[$taxId] = $taxonomy;
+                                    $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
+                                }
+                                if (count($taxonomy["items"]) == 0) {
+                                    unset($kJson[$taxId][$taxId]);
                                 }
                             }
-
-                            // Remove post from its not taxonomies
-                            foreach ($kJson as $taxId => $taxonomy) {
-                                if (
-                                    !in_array($taxId, $taxArray) &&
-                                    array_key_exists("items", $taxonomy) &&
-                                    array_key_exists($postType, $taxonomy["items"]) &&
-                                    is_array($taxonomy["items"][$postType]) &&
-                                    in_array($id, $taxonomy["items"][$postType])
-                                ) {
-                                    $keys = array_keys($taxonomy["items"][$postType], $id);
-                                    foreach ($keys as $key) {
-                                        unset($kJson[$taxId]["items"][$postType][$key]);
-                                    }
-                                    if (count($taxonomy["items"][$postType]) == 0) {
-                                        unset($kJson[$taxId]["items"][$postType]);
-                                    } else {
-                                        $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
-                                    }
-                                    if (count($taxonomy["items"]) == 0) {
-                                        unset($kJson[$taxId][$taxId]);
-                                    }
-                                }
-                            }
-
-                            $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-                            file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
                         }
+
+                        $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
+                        file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
                     }
                 }
             }

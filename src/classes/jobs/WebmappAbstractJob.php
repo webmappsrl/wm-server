@@ -393,10 +393,7 @@ abstract class WebmappAbstractJob
         if ($type !== 'poi' && $type !== 'track' && $type !== 'route')
             return null;
 
-        if (!file_exists("{$this->aProject->getRoot()}/server/server.conf"))
-            return null;
-
-        $config = json_decode(file_get_contents("{$this->aProject->getRoot()}/server/server.conf"), true);
+        $config = $this->_getConfig($this->aProject->getRoot());
         if (!isset($config["custom_mapping"]))
             return null;
 
@@ -437,15 +434,11 @@ abstract class WebmappAbstractJob
      */
     private function _getMapping(): ?array
     {
-        if (!file_exists("{$this->aProject->getRoot()}/server/server.conf"))
-            return null;
-
-        $config = json_decode(file_get_contents("{$this->aProject->getRoot()}/server/server.conf"), true);
+        $config = $this->_getConfig($this->aProject->getRoot());
         if (!isset($config["mapping"]))
             return null;
 
         $mapping = $config["mapping"];
-
         $this->_verbose("  Mapping: " . json_encode($mapping));
 
         return $mapping;

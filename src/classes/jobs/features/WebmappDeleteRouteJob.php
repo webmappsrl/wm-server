@@ -118,42 +118,39 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
         $postType = 'route';
 
         $this->_verbose("Checking taxonomies in {$kProject->getRoot()}...");
-        if (file_exists("{$kProject->getRoot()}/server/server.conf")) {
-            $conf = json_decode(file_get_contents("{$kProject->getRoot()}/server/server.conf"), true);
-            if (isset($conf["multimap"]) && $conf["multimap"] === true) {
-                foreach (TAXONOMY_TYPES as $taxTypeId) {
-                    $kJson = null;
-                    if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"))
-                        $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
+        $conf = $this->_getConfig($kProject->getRoot());
+        if (isset($conf["multimap"]) && $conf["multimap"] === true) {
+            foreach (TAXONOMY_TYPES as $taxTypeId) {
+                $kJson = null;
+                if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"))
+                    $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
 
-                    if (!$kJson) $kJson = [];
+                if (!$kJson) $kJson = [];
 
-                    // Remove post from its not taxonomies
-                    foreach ($kJson as $taxId => $taxonomy) {
-                        if (
-                            array_key_exists("items", $taxonomy) &&
-                            array_key_exists($postType, $taxonomy["items"]) &&
-                            is_array($taxonomy["items"][$postType]) &&
-                            in_array($id, $taxonomy["items"][$postType])
-                        ) {
-                            $keys = array_keys($taxonomy["items"][$postType], $id);
-                            foreach ($keys as $key) {
-                                unset($kJson[$taxId]["items"][$postType][$key]);
-                            }
-                            if (count($taxonomy["items"][$postType]) == 0)
-                                unset($kJson[$taxId]["items"][$postType]);
-                            else
-                                $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
-                            if (count($taxonomy["items"]) == 0)
-                                unset($kJson[$taxId][$taxId]);
+                // Remove post from its not taxonomies
+                foreach ($kJson as $taxId => $taxonomy) {
+                    if (
+                        array_key_exists("items", $taxonomy) &&
+                        array_key_exists($postType, $taxonomy["items"]) &&
+                        is_array($taxonomy["items"][$postType]) &&
+                        in_array($id, $taxonomy["items"][$postType])
+                    ) {
+                        $keys = array_keys($taxonomy["items"][$postType], $id);
+                        foreach ($keys as $key) {
+                            unset($kJson[$taxId]["items"][$postType][$key]);
                         }
+                        if (count($taxonomy["items"][$postType]) == 0)
+                            unset($kJson[$taxId]["items"][$postType]);
+                        else
+                            $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
+                        if (count($taxonomy["items"]) == 0)
+                            unset($kJson[$taxId][$taxId]);
                     }
-
-                    $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-                    file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
                 }
-            } else
-                $this->_verbose("Skipping {$kProject->getRoot()} since is not a multimap project...");
+
+                $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
+                file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
+            }
         } else
             $this->_verbose("Skipping {$kProject->getRoot()} since is not a multimap project...");
     }
