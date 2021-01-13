@@ -8,8 +8,8 @@ Tutto il server si riduce alla chiamata di un unico script:
 
 > php src/webmapp-server.php CONFFILE.conf
 
-Che legge le informazioni dal file di configurazione ed esegue di conseguenza le operazioni necessarie. Il File di configurazione è un file json. Un esempio
-utilizzato per i test si trova della directory data.
+Che legge le informazioni dal file di configurazione ed esegue di conseguenza le operazioni necessarie. Il File di
+configurazione è un file json. Un esempio utilizzato per i test si trova della directory data.
 
 ## 2 TEST
 
@@ -35,7 +35,8 @@ I test possono essere lanciati come segue:
 
 ## 3 Utilities
 
-All'interno del progetto ci sono anche una serie di utilities scollegate all'utilizzo del wmcli. Le utilities rappresentano script che possono essere eseguiti singolarmente senza dipendenze esterne.
+All'interno del progetto ci sono anche una serie di utilities scollegate all'utilizzo del wmcli. Le utilities
+rappresentano script che possono essere eseguiti singolarmente senza dipendenze esterne.
 
 Nel progetto sono presenti le seguenti utilities:
 
@@ -61,16 +62,43 @@ The server command handle all the Webmapp Jobs.
 
 ### 5.1 Installation
 
-The only job that needs an installation process is the `generate_elevation_chart_image` job. Node and npm must be available in the machine. Please follow the installation section [here](https://github.com/Automattic/node-canvas#installation) and when done run `npm i` in the `src/node` directory
+The only job that needs an installation process is the `generate_elevation_chart_image` job. Node and npm must be
+available in the machine. Please follow the installation
+section [here](https://github.com/Automattic/node-canvas#installation) and when done run `npm i` in the `src/node`
+directory. TODO: Add the installation check/process at runtime
 
 ### 5.2 Jobs
 
-| Job name                         | Description                                                                                          | Triggers                         |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `update_poi`                     | Update the poi geojson and the related taxonomies                                                    |                                  |
-| `update_track`                   | Update the track geojson and the related taxonomies                                                  | `generate_elevation_chart_image` |
-| `update_track_metadata`          | Update the track metadata in the track geojson and the related taxonomies                            |                                  |
-| `update_track_geometry`          | Update the track geometry in the track geojson                                                       | `generate_elevation_chart_image` |
-| `update_route`                   | Update the route geojson, route index, the related taxonomies and create the `routes/[id]` directory | `generate_mbtiles`               |
-| `generate_mbtiles`               | Create the mbtiles for the route                                                                     |                                  |
-| `generate_elevation_chart_image` | Create the elevation chart png of the track                                                          |
+| Job name                         | Params                             | Description                                                                                                                                       | Triggers                         |
+| -------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `update_poi`                     | `int(id)`                          | Update the poi geojson and the related taxonomies                                                                                                 |                                  |
+| `update_track`                   | `int(id)`, `bool(update_geometry)` | Update the track geojson and the related taxonomies. The `update_geometry` param force the geometry update when the `osmid` property is available | `generate_elevation_chart_image` |
+| `update_route`                   | `int(id)`                          | Update the route geojson, route index, the related taxonomies and create the `routes/[id]` directory                                              | `generate_mbtiles`               |
+| `update_taxonomy`                | `int(id)`                          | Update the taxonomy definition                                                                                                                    |                                  |
+| `generate_mbtiles`               | `int(id)`                          | Create the mbtiles for the route                                                                                                                  |                                  |
+| `generate_elevation_chart_image` | `int(id)`                          | Create the elevation chart png of the track                                                                                                       |                                  |
+| `delete_poi`                     | `int(id)`                          | Delete the poi geojson and prune the id from the taxonomies                                                                                       |                                  |
+| `delete_track`                   | `int(id)`                          | Delete the track geojson and prune the id from the taxonomies                                                                                     |                                  |
+| `delete_route`                   | `int(id)`                          | Delete the route geojson and prune the id from the taxonomies                                                                                     |                                  |
+| `delete_taxonomy`                | `int(id)`                          | Delete the taxonomy json                                                                                                                          |                                  |
+
+### 5.3 Server.conf
+
+Every instance can be configured using the file `/server/server.conf`.
+
+#### 5.3.1 A Project
+
+##### 5.3.1.1 Elevation Chart Image
+
+#### 5.3.2 K Project
+
+##### 5.3.2.1 Multimap Project
+
+To enable the multimap in the k project you need to set the `multimap` property to `true`. This will trigger the routes'
+generation, mbtiles included. The routes can be filtered using the `filters` property which currently support two type
+of filtering. If more than one filter is set then the results are unified (`OR` filters).
+
+| Key               | Type    | Description                                                                           |
+| ----------------- | ------- | ------------------------------------------------------------------------------------- |
+| `routes_id`       | `int[]` | When set a route is generated if its id is present in the array                       |
+| `routes_taxonomy` | `int[]` | When set a route is generated if at least one of its taxonomy is present in the array |
