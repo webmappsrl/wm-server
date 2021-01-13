@@ -167,51 +167,53 @@ class WebmappHoquServer
             $job = curl_exec($ch);
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
                 $this->running = false;
-                if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 204) {
+                if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 204)
                     WebmappUtils::message($this->_logHeader() . "No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
-                } else if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 0) {
+                else if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 0)
                     WebmappUtils::warning($this->_logHeader() . "HOQU appears slow: " . curl_error($ch));
-                } else {
+                else
                     WebmappUtils::error($this->_logHeader() . "An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while getting a new job: " . curl_error($ch));
-                }
+
                 curl_close($ch);
                 sleep(SLEEP_TIME);
             } else {
                 curl_close($ch);
                 if ($job) {
                     $job = json_decode($job, true);
-                    $jobTypeSplit = explode('_', $job['job']);
-                    foreach ($jobTypeSplit as $key => $jobToken) {
-                        $jobTypeSplit[$key] = strtoupper($jobToken[0]) . substr($jobToken, 1);
-                    }
-                    $jobType = implode("", $jobTypeSplit);
-                    $jobClass = "Webmapp{$jobType}Job";
-
-                    if (class_exists("Webmapp{$jobType}Job")) {
-                        try {
-                            $startTime = round(microtime(true) * 1000);
-                            WebmappUtils::title($this->_logHeader() . "Starting {$jobType} job {$job['id']} on instance {$job['instance']}");
-                            $a = new $jobClass($job['instance'], $job['parameters'], $this->verbose);
-                            if ($this->verbose) {
-                                WebmappUtils::verbose($this->_logHeader() . "Running process...");
-                            }
-                            $a->run();
-                            if ($this->verbose) {
-                                WebmappUtils::verbose($this->_logHeader() . "Process completed");
-                            }
-                            $this->_jobCompleted(true, $job['id']);
-                            $endTime = round(microtime(true) * 1000);
-                            $duration = ($endTime - $startTime) / 1000;
-                            WebmappUtils::success($this->_logHeader() . "Job {$job['id']} completed in {$duration} seconds");
-                        } catch (Exception $e) {
-                            WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']}: {$e->getMessage()}");
-                            $this->_jobCompleted(false, $job['id'], $e->getMessage());
+                    if ($job && $job["job"]) {
+                        $jobTypeSplit = explode('_', $job['job']);
+                        foreach ($jobTypeSplit as $key => $jobToken) {
+                            $jobTypeSplit[$key] = strtoupper($jobToken[0]) . substr($jobToken, 1);
                         }
+                        $jobType = implode("", $jobTypeSplit);
+                        $jobClass = "Webmapp{$jobType}Job";
+
+                        if (class_exists("Webmapp{$jobType}Job")) {
+                            try {
+                                $startTime = round(microtime(true) * 1000);
+                                WebmappUtils::title($this->_logHeader() . "Starting {$jobType} job {$job['id']} on instance {$job['instance']}");
+                                $a = new $jobClass($job['instance'], $job['parameters'], $this->verbose);
+                                WebmappUtils::verbose($this->_logHeader() . "Running process...");
+                                $a->run();
+                                WebmappUtils::verbose($this->_logHeader() . "Process completed");
+                                $this->_jobCompleted(true, $job['id']);
+                                $endTime = round(microtime(true) * 1000);
+                                $duration = ($endTime - $startTime) / 1000;
+                                WebmappUtils::success($this->_logHeader() . "Job {$job['id']} completed in {$duration} seconds");
+                            } catch (Exception $e) {
+                                WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']}: {$e->getMessage()}");
+                                $this->_jobCompleted(false, $job['id'], $e->getMessage());
+                            }
+                        } else {
+                            WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']} - Job not supported");
+                            $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
+                        }
+                        $this->running = false;
                     } else {
-                        WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']} - Job not supported");
-                        $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
+                        $this->running = false;
+                        WebmappUtils::message($this->_logHeader() . "No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
+                        sleep(SLEEP_TIME);
                     }
-                    $this->running = false;
                 } else {
                     $this->running = false;
                     WebmappUtils::message($this->_logHeader() . "No jobs currently available. Retrying in " . SLEEP_TIME . " seconds");
@@ -230,22 +232,25 @@ class WebmappHoquServer
      *
      * @param bool $done true if the process has completed successfully
      * @param int $jobId the id of the job just completed
-     * @param string|null $message with a log
+     * @param string|null $errorLog with an error description
+     * @param string|null $log with a log
      */
-    private function _jobCompleted(bool $done, int $jobId, string $message = null)
+    private function _jobCompleted(bool $done, int $jobId, string $errorLog = null, string $log = null)
     {
         $url = $this->hoquBaseUrl;
-        if ($done) {
+        if ($done)
             $url .= UPDATE_DONE_ENDPOINT;
-        } else {
+        else
             $url .= UPDATE_ERROR_ENDPOINT;
-        }
 
         $payload = [
             'id_server' => $this->serverId,
-            'log' => $message,
+            'log' => $log,
             'id_task' => $jobId
         ];
+
+        if (isset($errorLog))
+            $payload['error_log'] = $errorLog;
 
         $ch = $this->_getPutCurl($url, $payload);
         curl_exec($ch);
