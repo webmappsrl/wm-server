@@ -36,6 +36,7 @@ abstract class WebmappAbstractFeature
      */
     public function __construct($array_or_url, bool $skip_geometry = false)
     {
+        declare(ticks=1);
         global $wm_config;
 
         $this->debug = !!$wm_config['debug'];

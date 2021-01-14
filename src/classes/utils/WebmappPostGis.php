@@ -17,6 +17,7 @@ final class WebmappPostGis
 
     private function __construct()
     {
+        declare(ticks=1);
         global $wm_config;
         if (!isset($wm_config['postgis'])) {
             throw new WebmappExceptionConfPostgis("No Postgist section in conf.json", 1);

@@ -94,7 +94,15 @@ class WebmappHoquServer
         if ($this->verbose) {
             WebmappUtils::verbose("Initializing PUT curl using:");
             WebmappUtils::verbose("  url: {$url}");
-            WebmappUtils::verbose("  payload: " . json_encode($payload));
+            $fakePayload = [];
+            foreach ($payload as $key => $property) {
+                if ($key === 'log' || $key === 'error_log') {
+                    $string = json_encode($property);
+                    $fakePayload[$key] = substr($string, 0, 10) . "..." . substr($string, strlen($string) - 5, 14);
+                } else
+                    $fakePayload[$key] = $property;
+            }
+            WebmappUtils::verbose("  payload: " . json_encode($fakePayload));
         }
 
         $ch = curl_init($url);
@@ -116,7 +124,7 @@ class WebmappHoquServer
      *
      * @param int $signal the signal number
      */
-    public function signal_handler(int $signal): void
+    public function signalHandler(int $signal): void
     {
         if ($this->running) {
             WebmappUtils::warning("");
@@ -131,6 +139,40 @@ class WebmappHoquServer
         }
         if ($this->running) {
             WebmappUtils::warning("");
+        }
+    }
+
+    /**
+     * Handle errors and warnings
+     *
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param string $errline
+     * @throws WebmappExceptionFatalError triggers this when an error of any type is caught
+     */
+    public function errorHandler(int $errno, string $errstr, string $errfile, string $errline)
+    {
+        switch ($errno) {
+            case E_WARNING:
+            case E_USER_WARNING:
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                WebmappUtils::warning("Execution warning");
+                WebmappUtils::warning("  error code: $errno");
+                WebmappUtils::warning("  message: $errstr");
+                WebmappUtils::warning("  file: $errfile");
+                WebmappUtils::warning("  line: $errline");
+                break;
+            case E_ERROR:
+            case E_USER_ERROR:
+            default:
+                WebmappUtils::error("Execution error");
+                WebmappUtils::error("  error code: $errno");
+                WebmappUtils::error("  message: $errstr");
+                WebmappUtils::error("  file: $errfile");
+                WebmappUtils::error("  line: $errline");
+                throw new WebmappExceptionFatalError("Execution error: $errno, $errstr, $errfile, $errline");
         }
     }
 
@@ -157,12 +199,14 @@ class WebmappHoquServer
         ];
 
         declare(ticks=1);
-        pcntl_signal(SIGINT, array($this, "signal_handler"));
+        pcntl_signal(SIGINT, array($this, "signalHandler"));
+        set_error_handler(array($this, "errorHandler"), E_ALL);
 
         // TODO: Make it a daemon using a concurrency parameter
         while (!$this->interrupted) {
             $this->running = true;
             WebmappUtils::message("---------------------------------");
+            WebmappUtils::resetLogs();
             $ch = $this->_getPutCurl($pullUrl, $payload);
             $job = curl_exec($ch);
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
@@ -196,17 +240,17 @@ class WebmappHoquServer
                                 WebmappUtils::verbose($this->_logHeader() . "Running process...");
                                 $a->run();
                                 WebmappUtils::verbose($this->_logHeader() . "Process completed");
-                                $this->_jobCompleted(true, $job['id']);
                                 $endTime = round(microtime(true) * 1000);
                                 $duration = ($endTime - $startTime) / 1000;
                                 WebmappUtils::success($this->_logHeader() . "Job {$job['id']} completed in {$duration} seconds");
+                                $this->_jobCompleted(true, $job['id']);
                             } catch (Exception $e) {
                                 WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']}: {$e->getMessage()}");
-                                $this->_jobCompleted(false, $job['id'], $e->getMessage());
+                                $this->_jobCompleted(false, $job['id']);
                             }
                         } else {
-                            WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']} - Job not supported");
-                            $this->_jobCompleted(false, $job['id'], "The retrieved job is not supported: " . json_encode($job));
+                            WebmappUtils::error($this->_logHeader() . "Error executing job {$job['id']} - Job not supported, params: " . json_encode($job));
+                            $this->_jobCompleted(false, $job['id']);
                         }
                         $this->running = false;
                     } else {
@@ -232,10 +276,8 @@ class WebmappHoquServer
      *
      * @param bool $done true if the process has completed successfully
      * @param int $jobId the id of the job just completed
-     * @param string|null $errorLog with an error description
-     * @param string|null $log with a log
      */
-    private function _jobCompleted(bool $done, int $jobId, string $errorLog = null, string $log = null)
+    private function _jobCompleted(bool $done, int $jobId)
     {
         $url = $this->hoquBaseUrl;
         if ($done)
@@ -243,13 +285,16 @@ class WebmappHoquServer
         else
             $url .= UPDATE_ERROR_ENDPOINT;
 
+        $log = WebmappUtils::getLog();
+        $errorLog = WebmappUtils::getErrorLog();
+
         $payload = [
             'id_server' => $this->serverId,
             'log' => $log,
             'id_task' => $jobId
         ];
 
-        if (isset($errorLog))
+        if (isset($errorLog) && !$done)
             $payload['error_log'] = $errorLog;
 
         $ch = $this->_getPutCurl($url, $payload);

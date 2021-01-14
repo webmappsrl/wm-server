@@ -23,6 +23,7 @@ class WebmappWP
 
     public function __construct($code)
     {
+        declare(ticks=1);
         $this->code = $code;
 
         if (preg_match('|^http://|', $code) || preg_match('|^https://|', $code)) {

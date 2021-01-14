@@ -1,19 +1,19 @@
 <?php
 
 /** SINGLETON USED TO QUERY OSM MIRROR
-TODO: prevent writing
-List of relations
-Schema |        Name        | Type  | Owner
---------+--------------------+-------+-------
-public | planet_osm_line    | table | root
-public | planet_osm_nodes   | table | root
-public | planet_osm_point   | table | root
-public | planet_osm_polygon | table | root
-public | planet_osm_rels    | table | root
-public | planet_osm_roads   | table | root
-public | planet_osm_ways    | table | root
-public | spatial_ref_sys    | table | root
-(8 rows)
+ * TODO: prevent writing
+ * List of relations
+ * Schema |        Name        | Type  | Owner
+ * --------+--------------------+-------+-------
+ * public | planet_osm_line    | table | root
+ * public | planet_osm_nodes   | table | root
+ * public | planet_osm_point   | table | root
+ * public | planet_osm_polygon | table | root
+ * public | planet_osm_rels    | table | root
+ * public | planet_osm_roads   | table | root
+ * public | planet_osm_ways    | table | root
+ * public | spatial_ref_sys    | table | root
+ * (8 rows)
  **/
 
 final class WebmappPostGisOSM
@@ -32,6 +32,7 @@ final class WebmappPostGisOSM
 
     private function __construct()
     {
+        declare(ticks=1);
         global $wm_config;
         if (!isset($wm_config['postgisosm'])) {
             throw new WebmappExceptionConfPostgis("No Postgist section in conf.json", 1);

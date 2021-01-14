@@ -15,6 +15,12 @@ class WebmappUtilsExceptionsGPXNoEle extends Exception
 
 class WebmappUtils
 {
+
+    public function __construct()
+    {
+        declare(ticks=1);
+    }
+
     /**
      * returns an has array with stats info
      * $info['tracks'] Number of tracks
@@ -838,6 +844,25 @@ class WebmappUtils
         'light_gray' => '47',
     );
 
+    private static $log = "";
+    private static $errorLog = "";
+
+    public static function resetLogs()
+    {
+        self::$log = "";
+        self::$errorLog = "";
+    }
+
+    public static function getLog(): string
+    {
+        return self::$log;
+    }
+
+    public static function getErrorLog(): string
+    {
+        return self::$errorLog;
+    }
+
     /**
      * Return the given string in the given color
      *
@@ -855,27 +880,33 @@ class WebmappUtils
 
     public static function title($message)
     {
-        echo WebmappUtils::colorText($message, "cyan") . "\n";
+        self::$log .= "[TITLE]   {$message}\n";
+        echo self::colorText($message, "cyan") . "\n";
     }
 
     public static function success($message)
     {
-        echo WebmappUtils::colorText($message, "green") . "\n";
+        self::$log .= "[SUCCESS] {$message}\n";
+        echo self::colorText($message, "green") . "\n";
     }
 
     public static function message($message)
     {
+        self::$log .= $message . "\n";
         echo "$message\n";
     }
 
     public static function warning($message)
     {
-        echo WebmappUtils::colorText($message, "yellow") . "\n";
+        self::$log .= "[WARNING] {$message}\n";
+        echo self::colorText($message, "yellow") . "\n";
     }
 
     public static function error($message)
     {
-        echo WebmappUtils::colorText($message, "red") . "\n";
+        self::$log .= "[ERROR]   {$message}\n";
+        self::$errorLog .= "$message\n";
+        echo self::colorText($message, "red") . "\n";
     }
 
     /**
@@ -886,8 +917,9 @@ class WebmappUtils
      */
     public static function verbose(string $message, string $customHeader = 'VERBOSE')
     {
+        self::$log .= "[{$customHeader}] {$message}\n";
         global $wm_config;
         if ($wm_config["debug"])
-            echo WebmappUtils::colorText("[{$customHeader}]", "bold_gray") . " $message\n";
+            echo self::colorText("[{$customHeader}]", "bold_gray") . " $message\n";
     }
 }

@@ -26,6 +26,7 @@ class WebmappRoute
      */
     public function __construct($array_or_url, $base_url = '', $skip_tracks = false)
     {
+        declare(ticks=1);
         if (is_array($array_or_url)) {
             $this->json_array = $array_or_url;
             $this->base_url = $base_url;

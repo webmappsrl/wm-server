@@ -5,7 +5,11 @@ class WebmappException extends Exception
 {
 }
 
-// COnfigurazione
+class WebmappExceptionFatalError extends WebmappException
+{
+}
+
+// Configurazione
 class WebmappExceptionConf extends WebmappException
 {
 }

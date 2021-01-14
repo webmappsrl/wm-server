@@ -670,8 +670,7 @@ abstract class WebmappAbstractJob
 
     protected function _verbose($message)
     {
-        if ($this->verbose)
-            WebmappUtils::verbose($this->_logHeader() . $message);
+        WebmappUtils::verbose($this->_logHeader() . $message);
     }
 
     protected function _success($message)

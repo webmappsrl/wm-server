@@ -21,6 +21,7 @@ class WebmappLayer
 
     public function __construct($name, $path = '')
     {
+        declare(ticks=1);
         // TODO: check parameter
         $this->name = $name;
         $this->path = $path;

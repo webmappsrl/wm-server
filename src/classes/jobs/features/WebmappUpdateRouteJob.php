@@ -103,7 +103,6 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     {
         $id = $route->getId();
         $result = false;
-        $this->_title(json_encode($config));
         if (isset($config["filters"]) && is_array($config["filters"])) {
             if (isset($config["filters"]["routes_id"]) || isset($config["filters"]["routes_taxonomy"])) {
                 if (isset($config["filters"]["routes_id"])
@@ -157,7 +156,6 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 if (isset($conf["multimap"]) && $conf["multimap"] === true) {
                     $this->_verbose("Updating route index files in single map k project");
                     if ($this->_filterKRoute($conf, $route)) {
-                        $this->_warning("---------- SI");
                         $this->_updateRouteIndex(
                             "{$kProject->getRoot()}/routes/route_index.geojson",
                             $id,
@@ -170,7 +168,6 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                         );
                         $this->_updateKRouteDirectory($kProject, $id, $route);
                     } else {
-                        $this->_warning("---------- NO");
                         $this->_updateRouteIndex(
                             "{$kProject->getRoot()}/routes/route_index.geojson",
                             $id

@@ -147,17 +147,23 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $this->_verbose("Writing related poi for roadbook");
                 try {
                     $track->writeRBRelatedPoi($trackPath);
+                } catch (WebmappExceptionFatalError $e) {
+                    $this->_warning("An error occurred writing the related pois for the roadbook: {$e->getMessage()}");
                 } catch (Exception $e) {
                     $this->_warning("An error occurred writing the related pois for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
                 }
                 $this->_verbose("Writing roadbook images");
                 try {
                     $track->generateAllImages('', $trackPath);
+                } catch (WebmappExceptionFatalError $e) {
+                    $this->_warning("An error occurred running the generateAllImages for the roadbook: {$e->getMessage()}");
                 } catch (Exception $e) {
                     $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
                 }
                 try {
                     $track->generateLandscapeRBImages('', $trackPath);
+                } catch (WebmappExceptionFatalError $e) {
+                    $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: {$e->getMessage()}");
                 } catch (Exception $e) {
                     $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
                 }
