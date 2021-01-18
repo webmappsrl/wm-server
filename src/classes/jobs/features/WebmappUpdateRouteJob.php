@@ -244,9 +244,8 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             $route->setProperty("bbox_metric", $bbox_metric);
 
             foreach ($poisIds as $poiId) {
-                if (file_exists("{$kProject->getRoot()}/geojson/{$poiId}.geojson")) {
+                if (file_exists("{$kProject->getRoot()}/geojson/{$poiId}.geojson"))
                     $features[] = json_decode(file_get_contents("{$kProject->getRoot()}/geojson/{$poiId}.geojson"), true);
-                }
             }
 
             foreach ($features as $feature) {
@@ -282,8 +281,14 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                 }
             }
 
-            file_put_contents("{$kProject->getRoot()}/routes/$id/taxonomies/webmapp_category.json", json_encode($webmapp_categories));
-            file_put_contents("{$kProject->getRoot()}/routes/$id/taxonomies/activity.json", json_encode($activities));
+            $webmappCategoryUrl = "{$kProject->getRoot()}/routes/$id/taxonomies/webmapp_category.json";
+            $this->_lockFile($webmappCategoryUrl);
+            file_put_contents($webmappCategoryUrl, json_encode($webmapp_categories));
+            $this->_unlockFile($webmappCategoryUrl);
+            $activityUrl = "{$kProject->getRoot()}/routes/$id/taxonomies/activity.json";
+            $this->_lockFile($activityUrl);
+            file_put_contents($activityUrl, json_encode($activities));
+            $this->_unlockFile($activityUrl);
 
             $newMapJson = [
                 "maxZoom" => 16,
@@ -297,22 +302,24 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             ];
             $write = true;
 
+            $mapJsonUrl = "{$kProject->getRoot()}/routes/$id/map.json";
             // Update map.json verifying if routes need to be updated
-            if (file_exists("{$kProject->getRoot()}/routes/$id/map.json")) {
-                $mapJson = json_decode(file_get_contents("{$kProject->getRoot()}/routes/$id/map.json"), true);
+            if (file_exists($mapJsonUrl)) {
+                $this->_lockFile($mapJsonUrl);
+                $mapJson = json_decode(file_get_contents($mapJsonUrl), true);
 
-                if (json_encode($mapJson["bbox"]) === json_encode($bbox)) {
+                if (json_encode($mapJson["bbox"]) === json_encode($bbox))
                     $write = false;
-                }
             }
 
             if ($write) {
-                file_put_contents("{$kProject->getRoot()}/routes/$id/map.json", json_encode($newMapJson));
+                file_put_contents($mapJsonUrl, json_encode($newMapJson));
 
                 $this->_store("generate_mbtiles", [
                     "id" => $this->id
                 ]);
             }
+            $this->_unlockFile($mapJsonUrl);
         }
     }
 
@@ -333,19 +340,22 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             $conf = $this->_getConfig($kProject->getRoot());
             if (isset($conf["multimap"]) && $conf["multimap"] === true) {
                 foreach (TAXONOMY_TYPES as $taxTypeId) {
-                    $kJson = null;
                     $aJson = null;
-                    if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
-                        $aJson = json_decode(file_get_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
-                    }
-                    if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
-                        $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
+                    $aJsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json";
+                    $kJson = null;
+                    $kJsonUrl = "{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json";
+                    if (file_exists($aJsonUrl))
+                        $aJson = json_decode(file_get_contents($aJsonUrl), true);
+                    if (file_exists($kJsonUrl)) {
+                        $this->_lockFile($kJsonUrl);
+                        $kJson = json_decode(file_get_contents($kJsonUrl), true);
                     }
 
                     if (!isset($aJson)) {
                         $this->_warning("The file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing and should exists. Skipping the k {$taxTypeId} generation");
 
                         if (!$kJson) {
+                            $this->_lockFile($kJsonUrl);
                             file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode([]));
                         }
                     } else {
@@ -357,19 +367,18 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                             $items = [
                                 $postType => [$id]
                             ];
-                            if (!isset($aJson[$taxId])) {
+                            if (!isset($aJson[$taxId]))
                                 $this->_warning("The taxonomy json file {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json is missing the {$taxId} taxonomy.");
-                            } else {
+                            else {
                                 $taxonomy = $aJson[$taxId];
                                 if (isset($kJson[$taxId]["items"])) {
                                     $items = $kJson[$taxId]["items"];
-                                    if (!isset($items[$postType])) {
+                                    if (!isset($items[$postType]))
                                         $items[$postType] = [];
-                                    }
+
                                     foreach ($items as $postTypeKey => $value) {
-                                        if ($postTypeKey !== $postType) {
+                                        if ($postTypeKey !== $postType)
                                             unset($items[$postTypeKey]);
-                                        }
                                     }
                                     $items[$postType][] = $id;
                                     $items[$postType] = array_values(array_unique($items[$postType]));
@@ -392,20 +401,21 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
                                 foreach ($keys as $key) {
                                     unset($kJson[$taxId]["items"][$postType][$key]);
                                 }
-                                if (count($taxonomy["items"][$postType]) == 0) {
+                                if (count($taxonomy["items"][$postType]) == 0)
                                     unset($kJson[$taxId]["items"][$postType]);
-                                } else {
+                                else
                                     $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
-                                }
-                                if (count($taxonomy["items"]) == 0) {
+                                if (count($taxonomy["items"]) == 0)
                                     unset($kJson[$taxId][$taxId]);
-                                }
                             }
                         }
 
-                        $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-                        file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
+                        $this->_lockFile($kJsonUrl);
+                        $this->_verbose("Writing $taxTypeId to $kJsonUrl");
+                        file_put_contents($kJsonUrl, json_encode($kJson));
                     }
+
+                    $this->_unlockFile($kJsonUrl);
                 }
             }
         }

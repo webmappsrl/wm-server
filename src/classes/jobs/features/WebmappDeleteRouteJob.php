@@ -33,8 +33,10 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
             // Delete the geojson
             $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
             if (file_exists($geojsonUrl)) {
+                $this->_lockFile($geojsonUrl);
                 $this->_verbose("Removing {$geojsonUrl}");
                 unlink($geojsonUrl);
+                $this->_unlockFile($geojsonUrl);
             }
 
             // Delete id from the taxonomies
@@ -122,8 +124,11 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
         if (isset($conf["multimap"]) && $conf["multimap"] === true) {
             foreach (TAXONOMY_TYPES as $taxTypeId) {
                 $kJson = null;
-                if (file_exists("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"))
-                    $kJson = json_decode(file_get_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json"), true);
+                $taxonomyUrl = "{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json";
+                if (file_exists($taxonomyUrl)) {
+                    $this->_lockFile($taxonomyUrl);
+                    $kJson = json_decode(file_get_contents($taxonomyUrl), true);
+                }
 
                 if (!$kJson) $kJson = [];
 
@@ -148,8 +153,10 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
                     }
                 }
 
-                $this->_verbose("Writing $taxTypeId to {$kProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-                file_put_contents("{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($kJson));
+                $this->_lockFile($taxonomyUrl);
+                $this->_verbose("Writing $taxTypeId to $taxonomyUrl");
+                file_put_contents($taxonomyUrl, json_encode($kJson));
+                $this->_unlockFile($taxonomyUrl);
             }
         } else
             $this->_verbose("Skipping {$kProject->getRoot()} since is not a multimap project...");

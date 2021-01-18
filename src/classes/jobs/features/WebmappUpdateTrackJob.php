@@ -49,6 +49,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
     protected function process()
     {
         $updateOsmGeometry = isset($this->params['update_geometry']) && $this->params['update_geometry'] === true;
+        $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
 
         $this->_verbose("Loading track from {$this->wp->getApiTrack($this->id)}");
         $track = new WebmappTrackFeature($this->wp->getApiTrack($this->id), false);
@@ -58,17 +59,17 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 !file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson"))) {
             $track = $this->_addGeometryToTrack($track);
         } else {
-            if (!$updateOsmGeometry && $track->hasProperty('osmid')) {
+            if (!$updateOsmGeometry && $track->hasProperty('osmid'))
                 $this->_verbose("Skipping geometry due to job parameters");
-            }
         }
         $track = $this->_setCustomProperties($track);
 
         if (!$updateOsmGeometry &&
             $track->hasProperty('osmid') &&
             file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson")) {
-            $this->_verbose("Skipping geometry generation. Using geometry from {$this->aProject->getRoot()}/geojson/{$this->id}.geojson");
-            $currentGeojson = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson"), true);
+            $this->_verbose("Skipping geometry generation. Using geometry from $geojsonUrl");
+            $this->_lockFile($geojsonUrl);
+            $currentGeojson = json_decode(file_get_contents($geojsonUrl), true);
             if (isset($currentGeojson["properties"])) {
                 $currentMetadata = $currentGeojson["properties"];
 
@@ -78,9 +79,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     }
                 }
             }
-            if (isset($currentGeojson["geometry"])) {
+            if (isset($currentGeojson["geometry"]))
                 $track->setGeometry($currentGeojson["geometry"]);
-            }
         }
 
         $track->setProperty("modified", [
@@ -95,8 +95,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
             $this->_applyMapping($track, "osm", $track->getRelation());
         }
 
+        $this->_lockFile($geojsonUrl);
         $this->_verbose("Writing track to {$this->aProject->getRoot()}/geojson/{$this->id}.geojson");
         file_put_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson", $track->getJson());
+        $this->_unlockFile($geojsonUrl);
 
         $this->_setTaxonomies("track", json_decode($track->getJson(), true));
 

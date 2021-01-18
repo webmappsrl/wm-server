@@ -28,8 +28,11 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
         $poi->setProperty("modified", $this->_getPostLastModified($this->id, strtotime($poi->getProperty("modified"))));
 
         // Write geojson
-        $this->_verbose("Writing poi to {$this->aProject->getRoot()}/geojson/{$this->id}.geojson...");
-        file_put_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson", $poi->getJson());
+        $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
+        $this->_lockFile($geojsonUrl);
+        $this->_verbose("Writing poi to $geojsonUrl...");
+        file_put_contents($geojsonUrl, $poi->getJson());
+        $this->_unlockFile($geojsonUrl);
 
         $this->_setTaxonomies("poi", json_decode($poi->getJson(), true));
 

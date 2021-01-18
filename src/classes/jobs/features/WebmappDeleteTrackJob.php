@@ -33,8 +33,10 @@ class WebmappDeleteTrackJob extends WebmappAbstractJob
             // Delete the geojson
             $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
             if (file_exists($geojsonUrl)) {
+                $this->_lockFile($geojsonUrl);
                 $this->_verbose("Removing {$geojsonUrl}");
                 unlink($geojsonUrl);
+                $this->_unlockFile($geojsonUrl);
             }
 
             // Delete id from the taxonomies

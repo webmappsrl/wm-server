@@ -18,6 +18,9 @@ abstract class WebmappAbstractJob
     protected $hoquBaseUrl; // Token to create other jobs
     protected $cachedTaxonomies; // An array of already downloaded taxonomies
 
+    private $lockedFile;
+    private $lockedFileUrl;
+
     /**
      * WebmappAbstractJob constructor.
      * @param string $name
@@ -111,7 +114,13 @@ abstract class WebmappAbstractJob
         $startTime = round(microtime(true) * 1000);
         $this->_title(isset($this->id) ? "Starting generation of {$this->id}" : "Starting");
         $this->_verbose("start time: $startTime");
-        $this->process();
+        try {
+            $this->process();
+        } catch (Exception $e) {
+            if (!is_null($this->lockedFileUrl))
+                $this->_unlockFile($this->lockedFileUrl);
+            throw $e;
+        }
         $endTime = round(microtime(true) * 1000);
         $duration = ($endTime - $startTime) / 1000;
         $this->_verbose("end time: $endTime");
@@ -162,16 +171,18 @@ abstract class WebmappAbstractJob
         $this->_verbose("Checking taxonomies...");
         foreach (TAXONOMY_TYPES as $taxTypeId) {
             $taxonomyJson = null;
-            if (file_exists("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json")) {
-                $taxonomyJson = file_get_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json");
+            $idsToCheck = [];
+            $taxonomyUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json";
+            if (file_exists($taxonomyUrl)) {
+                $this->_lockFile($taxonomyUrl);
+                $taxonomyJson = file_get_contents($taxonomyUrl);
             }
-            if ($taxonomyJson) {
+            if ($taxonomyJson)
                 $taxonomyJson = json_decode($taxonomyJson, true);
-            }
+
             $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
-            if (!$taxonomyJson) {
+            if (!$taxonomyJson)
                 $taxonomyJson = [];
-            }
 
             // Add post to its taxonomies
             foreach ($taxArray as $taxId) {
@@ -183,9 +194,8 @@ abstract class WebmappAbstractJob
 
                 // Enrich the current taxonomy array
                 if (array_key_exists($taxId, $taxonomyJson)) {
-                    if (!isset($taxonomy)) {
+                    if (!isset($taxonomy))
                         $taxonomy = $taxonomyJson[$taxId];
-                    }
                     $items = array_key_exists("items", $taxonomyJson[$taxId]) ? $taxonomyJson[$taxId]["items"] : [];
                     $postTypeArray = array_key_exists($postType, $items) && is_array($items[$postType]) ? $items[$postType] : [];
 
@@ -200,47 +210,12 @@ abstract class WebmappAbstractJob
 
                     $taxonomy = $this->_cleanTaxonomy($taxonomy);
                     $taxonomyJson[$taxId] = $taxonomy;
-
-                    $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
-                    $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
-                    $taxonomyGeojson = [
-                        "type" => "FeatureCollection",
-                        "features" => [],
-                        "properties" => $taxonomy
-                    ];
-                    if (file_exists($geojsonUrl)) {
-                        $file = json_decode(file_get_contents($geojsonUrl), true);
-                        if (isset($file["features"]) && is_array($file["features"])) {
-                            $taxonomyGeojson["features"] = $file["features"];
-                        }
-                    }
-
-                    $found = false;
-                    $key = 0;
-
-                    while (!$found && $key < count($taxonomyGeojson["features"])) {
-                        if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id)) {
-                            $found = true;
-                        } else {
-                            $key++;
-                        }
-                    }
-
-                    if ($found) {
-                        $taxonomyGeojson["features"][$key] = $json;
-                    } else {
-                        $taxonomyGeojson["features"][] = $json;
-                    }
-
-                    $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
-
-                    $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
-                    file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
                 }
             }
 
             // Remove post from its not taxonomies
             foreach ($taxonomyJson as $taxId => $taxonomy) {
+                $idsToCheck[] = $taxId;
                 if (
                     !in_array($taxId, $taxArray) &&
                     array_key_exists("items", $taxonomy) &&
@@ -270,38 +245,80 @@ abstract class WebmappAbstractJob
                     $tax = $this->_cleanTaxonomy($tax);
                     $taxonomyJson[$taxId] = $tax;
                 }
+            }
 
+            $this->_verbose("Writing $taxTypeId to {$taxonomyUrl}");
+            file_put_contents($taxonomyUrl, json_encode($taxonomyJson));
+            $this->_unlockFile($taxonomyUrl);
+
+            foreach ($taxArray as $taxId) {
+                $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
+                $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
+                $taxonomyGeojson = [
+                    "type" => "FeatureCollection",
+                    "features" => [],
+                    "properties" => $taxonomyJson[$taxId]
+                ];
+                if (file_exists($geojsonUrl)) {
+                    $this->_lockFile($geojsonUrl);
+                    $file = json_decode(file_get_contents($geojsonUrl), true);
+                    if (isset($file["features"]) && is_array($file["features"]))
+                        $taxonomyGeojson["features"] = $file["features"];
+                }
+
+                $found = false;
+                $key = 0;
+
+                while (!$found && $key < count($taxonomyGeojson["features"])) {
+                    if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id))
+                        $found = true;
+                    else
+                        $key++;
+                }
+
+                if ($found)
+                    $taxonomyGeojson["features"][$key] = $json;
+                else
+                    $taxonomyGeojson["features"][] = $json;
+
+                $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
+
+                $this->_lockFile($geojsonUrl);
+                $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
+                file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
+                $this->_unlockFile($geojsonUrl);
+            }
+
+            // Remove post from its not taxonomies in the collections
+            foreach ($idsToCheck as $taxId) {
                 if (!in_array($taxId, $taxArray)) {
                     $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
                     if (file_exists($geojsonUrl)) {
+                        $this->_lockFile($geojsonUrl);
                         $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
                         $taxonomyGeojson = json_decode(file_get_contents($geojsonUrl), true);
                         $found = false;
                         $key = 0;
                         while (!$found && $key < count($taxonomyGeojson["features"])) {
-                            if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id)) {
+                            if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id))
                                 $found = true;
-                            } else {
+                            else
                                 $key++;
-                            }
                         }
 
                         if ($found) {
                             $this->_verbose("Cleaning {$taxTypeId} {$taxId} taxonomy term feature collection");
                             unset($taxonomyGeojson["features"][$key]);
                             $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
-                            if (count($taxonomyGeojson["features"]) === 0) {
+                            if (count($taxonomyGeojson["features"]) === 0)
                                 unlink($geojsonUrl);
-                            } else {
+                            else
                                 file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
-                            }
                         }
+                        $this->_unlockFile($geojsonUrl);
                     }
                 }
             }
-
-            $this->_verbose("Writing $taxTypeId to {$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json");
-            file_put_contents("{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json", json_encode($taxonomyJson));
         }
     }
 
@@ -427,6 +444,38 @@ abstract class WebmappAbstractJob
         return $properties;
     }
 
+    protected function _lockFile(string $url)
+    {
+        if (is_null($this->lockedFileUrl) && is_null($this->lockedFile)) {
+            $this->_verbose("Locking file $url");
+            $this->lockedFileUrl = $url;
+            if (file_exists($this->lockedFileUrl)) {
+                $this->lockedFile = fopen($this->lockedFileUrl, 'rw+');
+                if (flock($this->lockedFile, LOCK_EX))
+                    $this->_verbose("Locked successfully");
+            }
+        } elseif ($this->lockedFileUrl === $url && !is_null($this->lockedFile))
+            $this->_verbose("File $url already locked");
+        else
+            $this->_warning("Trying to lock {$url} while there is already {$this->lockedFileUrl} locked");
+    }
+
+    protected function _unlockFile($url)
+    {
+        if ($this->lockedFileUrl === $url) {
+            $this->_verbose("Unlocking file $url");
+            if ($this->lockedFile) {
+                flock($this->lockedFile, LOCK_UN);
+                fclose($this->lockedFile);
+            }
+            $this->lockedFileUrl = null;
+            $this->lockedFile = null;
+        } elseif (is_null($this->lockedFileUrl))
+            $this->_verbose("No file to unlock");
+        elseif (!is_null($this->lockedFileUrl))
+            $this->_warning("Trying to unlock {$url} while {$this->lockedFileUrl} is the locked file");
+    }
+
     /**
      * Return an array with the mapping
      *
@@ -487,6 +536,7 @@ abstract class WebmappAbstractJob
             "type" => "FeatureCollection",
             "features" => []
         ];
+        $this->_lockFile($url);
         $this->_verbose("Updating route index from {$url}");
         if (file_exists($url)) {
             $file = json_decode(file_get_contents($url), true);
@@ -525,6 +575,7 @@ abstract class WebmappAbstractJob
         }
 
         file_put_contents($url, json_encode($file));
+        $this->_unlockFile($url);
     }
 
     /**

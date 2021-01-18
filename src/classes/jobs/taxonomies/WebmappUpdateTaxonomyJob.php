@@ -21,6 +21,7 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
         foreach (TAXONOMY_TYPES as $taxType) {
             $jsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxType}.json";
             if (file_exists($jsonUrl)) {
+                $this->_lockFile($jsonUrl);
                 $this->_verbose("Checking $taxType file $jsonUrl");
                 $json = json_decode(file_get_contents($jsonUrl), true);
 
@@ -40,14 +41,18 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
 
                     $this->_verbose("Updating file $jsonUrl");
                     file_put_contents($jsonUrl, json_encode($json));
-                    break;
                 }
+                
+                $this->_unlockFile($jsonUrl);
+                if (is_array($json) && array_key_exists($this->id, $json))
+                    break;
             }
         }
 
         if ($taxonomyType && $taxonomyMetadata) {
             $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$this->id}.geojson";
             if (file_exists($collectionUrl)) {
+                $this->_lockFile($collectionUrl);
                 $this->_verbose("Updating feature collection file {$collectionUrl}");
                 $json = json_decode(file_get_contents($collectionUrl), true);
                 if (is_array($json) && array_key_exists("properties", $json)) {
@@ -56,6 +61,7 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                     $json["properties"] = $newMetadata;
                     file_put_contents($collectionUrl, json_encode($json));
                 }
+                $this->_unlockFile($collectionUrl);
             }
 
             $this->_updateKTaxonomy($this->id, $taxonomyType, $taxonomyMetadata);
@@ -75,6 +81,7 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
         foreach ($this->kProjects as $kProject) {
             $jsonUrl = "{$kProject->getRoot()}/taxonomies/{$taxonomyType}.json";
             if (file_exists($jsonUrl)) {
+                $this->_lockFile($jsonUrl);
                 $json = json_decode(file_get_contents($jsonUrl), true);
                 if (array_key_exists($id, $json)) {
                     $currentItems = is_array($json[$id]["items"]) ? $json[$id]["items"] : [];
@@ -90,6 +97,7 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                     $this->_verbose("Updating file $jsonUrl");
                     file_put_contents($jsonUrl, json_encode($json));
                 }
+                $this->_unlockFile($jsonUrl);
             }
         }
     }
