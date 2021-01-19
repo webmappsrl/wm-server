@@ -140,9 +140,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $this->_verbose("Adding bounding box");
                 $track->addBBox();
                 $trackPath = "{$this->aProject->getRoot()}/track";
-                if (!file_exists($trackPath)) {
+                if (!file_exists($trackPath))
                     system("mkdir -p {$trackPath}");
-                }
 
                 $track = $this->_orderRelatedPoi($track);
 
@@ -174,19 +173,16 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $track->writeGPX($trackPath);
                 $this->_verbose("Generating kml");
                 $track->writeKML($trackPath);
-            } elseif ($track->getGeometryType() !== 'MultiLineString') {
+            } elseif ($track->getGeometryType() !== 'MultiLineString')
                 throw new WebmappExceptionGeoJsonBadGeomType("The {$track->getGeometryType()} geometry type is not supported");
-            }
-        } else {
+        } else
             throw new WebmappExceptionFeaturesNoGeometry("The track {$track->getId()} is missing the geometry");
-        }
 
         try {
-            if ($track->getGeometryType() === 'LineString') {
+            if ($track->getGeometryType() === 'LineString')
                 $this->_store("generate_elevation_chart_image", ["id" => $this->id]);
-            } else if ($track->getGeometryType() === 'MultiLineString') {
+            else if ($track->getGeometryType() === 'MultiLineString')
                 $this->_warning("The track is a MultiLineString. Elevation is not supported");
-            }
         } catch (WebmappExceptionHoquRequest | WebmappExceptionHttpRequest $e) {
             $this->_warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
         }

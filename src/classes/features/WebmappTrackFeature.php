@@ -841,9 +841,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         if ((!isset($this->geometry) || empty($this->geometry)) && $this->hasProperty('osmid')) {
             try {
                 $osmid = $this->getProperty('osmid');
-                if ($this->debug) {
-                    WebmappUtils::verbose("Generating track geometry using osmid {$osmid}");
-                }
+                WebmappUtils::verbose("Generating track geometry using osmid {$osmid}");
                 $pg = WebmappPostGisOsm::Instance();
                 $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
                 $this->setRelation($osmid);
@@ -857,17 +855,26 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                         $color = '#E35234';
                     }
                 }
-                if (!$this->hasProperty("color") && $color) {
+                if (!$this->hasProperty("color") && $color)
                     $this->addProperty("color", $color);
-                }
 
                 // ADD lineDash for alternate
-                if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate') {
+                if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate')
                     $this->addProperty('lineDash', array(12, 8));
-                }
 
                 // TODO: Move this code to a mapping specific/mapping standard
-                $mapProperties = array("cai_scale", "name", "from", "to", "stroke_opacity", "stroke_width", "line_dash", "duration:forward", "duration:backward");
+                $mapProperties = array(
+                    "cai_scale",
+                    "name",
+                    "from",
+                    "to",
+                    "stroke_opacity",
+                    "stroke_width",
+                    "line_dash",
+                    "duration:forward",
+                    "duration:backward",
+                    "ref"
+                );
                 foreach ($mapProperties as $property) {
                     if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property))) {
                         $this->addProperty($property, $this->_relation->getTag($property));
