@@ -67,7 +67,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         if (!$updateOsmGeometry &&
             $track->hasProperty('osmid') &&
             file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson")) {
-            $this->_verbose("Skipping geometry generation. Using geometry from $geojsonUrl");
+            $this->_verbose("Using geometry from $geojsonUrl");
             $this->_lockFile($geojsonUrl);
             $currentGeojson = json_decode(file_get_contents($geojsonUrl), true);
             if (isset($currentGeojson["properties"])) {
@@ -88,9 +88,15 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         $this->_verbose("Applying the mapping");
         $this->_applyMapping($track, "track");
         if ($track->hasProperty('osmid')) {
-            if (!$track->hasRelation())
-                $track->setRelation($track->getProperty('osmid'));
-            $this->_applyMapping($track, "osm", $track->getRelation());
+            if (!$track->hasRelation()) {
+                try {
+                    $track->setRelation($track->getProperty('osmid'));
+                } catch (Exception $e) {
+                    $this->_warning("Unable to set the relation from the old osmid");
+                }
+            }
+            if ($track->hasRelation())
+                $this->_applyMapping($track, "osm", $track->getRelation());
         }
 
         $this->_lockFile($geojsonUrl);

@@ -8,8 +8,8 @@ class WebmappUpdateTrackJobTest extends TestCase
 {
     public function __construct()
     {
-        $this->setOutputCallback(function () {
-        });
+//        $this->setOutputCallback(function () {
+//        });
         parent::__construct();
     }
 
@@ -214,6 +214,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $id = 2036;
         $testName = '';
         $testAscent = 100000;
+        $testOsmid = 100000;
         $testFirstCoordinates = [0, 0, 0];
         $testGeometryType = 'MultiLineString';
 
@@ -243,6 +244,7 @@ class WebmappUpdateTrackJobTest extends TestCase
             $testName = $file["properties"]["name"];
             $file["properties"]["name"] = "Test track OSMID - Test";
             $file["properties"]["ascent"] = $testAscent;
+            $file["properties"]["osmid"] = $testOsmid;
             $file["geometry"]["coordinates"][0] = $testFirstCoordinates;
             $file["geometry"]["type"] = $testGeometryType;
             file_put_contents("{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson", json_encode($file));
@@ -275,6 +277,8 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertSame($file["properties"]["name"], $testName); // Has changed back since the manual change
         $this->assertArrayHasKey("ascent", $file["properties"]);
         $this->assertSame($file["properties"]["ascent"], $testAscent); // Has not changed since the manual change
+        $this->assertArrayHasKey("osmid", $file["properties"]);
+        $this->assertSame($file["properties"]["osmid"], $testOsmid); // Has not changed since the manual change
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
