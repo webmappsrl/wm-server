@@ -58,7 +58,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
 
         $route->buildPropertiesAndFeaturesFromTracksGeojson($tracks);
         $route = $this->_setCustomProperties($route);
-        $route->addProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($route->getProperty("modified")))));
+        $route->setProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($route->getProperty("modified")))));
 
         file_put_contents("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson", $route->getJson());
         $json = json_decode($route->getPoiJson(), true);
