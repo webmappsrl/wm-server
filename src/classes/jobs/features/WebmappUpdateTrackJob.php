@@ -83,9 +83,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $track->setGeometry($currentGeojson["geometry"]);
         }
 
-        $track->setProperty("modified", [
-            "modified" => WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($track->getProperty("modified"))))
-        ]);
+        $track->addProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($track->getProperty("modified")))));
 
         $this->_verbose("Applying the mapping");
         $this->_applyMapping($track, "track");

@@ -25,7 +25,7 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
         $poi = new WebmappPoiFeature($this->wp->getApiPoi($this->id));
         $poi = $this->_setCustomProperties($poi);
 
-        $poi->setProperty("modified", $this->_getPostLastModified($this->id, strtotime($poi->getProperty("modified"))));
+        $poi->addProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($poi->getProperty("modified")))));
 
         // Write geojson
         $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";

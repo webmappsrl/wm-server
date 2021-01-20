@@ -204,4 +204,44 @@ class WebmappUpdatePoiJobTest extends TestCase
         $this->assertArrayHasKey("test_custom_mapping", $file["properties"]);
         $this->assertSame($file["properties"]["test_custom_mapping"], "test_value");
     }
+
+    function testLastModified()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $id = 1459;
+
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $geojsonUrl = "{$aEndpoint}/{$instanceName}/geojson/{$id}.geojson";
+        $this->assertTrue(file_exists($geojsonUrl));
+        $file = json_decode(file_get_contents($geojsonUrl), true);
+
+        $this->assertArrayHasKey("modified", $file["properties"]);
+        $this->assertTrue(isset($file["properties"]["modified"]));
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, []);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, "{$instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id}");
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $lastModifiedApi = json_decode($result, true);
+        $lastModifiedApi = WebmappUtils::formatDate(strtotime($lastModifiedApi["last_modified"]));
+
+        $this->assertSame($file["properties"]["modified"], $lastModifiedApi);
+    }
 }
