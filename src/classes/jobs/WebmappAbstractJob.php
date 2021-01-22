@@ -79,16 +79,16 @@ abstract class WebmappAbstractJob
             $this->params = array();
         }
 
-        if (isset($this->params['id']) && !is_nan(intval($this->params['id']))) {
-            $this->id = intval($this->params['id']);
-            unset ($this->params['id']);
+        if (isset($this->params["id"]) && !is_nan(intval($this->params["id"]))) {
+            $this->id = intval($this->params["id"]);
+            unset ($this->params["id"]);
         } else {
-            if (!isset($this->params['id']))
+            if (!isset($this->params["id"]))
                 throw new WebmappExceptionParameterMandatory("The parameter 'id' is required");
-            elseif (is_nan(intval($this->params['id'])))
-                throw new WebmappExceptionParameterError("Invalid parameter 'id': " . $this->params['id'] . " must be a number");
+            elseif (is_nan(intval($this->params["id"])))
+                throw new WebmappExceptionParameterError("Invalid parameter 'id': " . $this->params["id"] . " must be a number");
             else
-                throw new WebmappExceptionParameterError("Invalid parameter 'id': " . $this->params['id']);
+                throw new WebmappExceptionParameterError("Invalid parameter 'id': " . $this->params["id"]);
         }
 
         if (isset($wm_config["hoqu"]["url"])) {
@@ -353,21 +353,21 @@ abstract class WebmappAbstractJob
      */
     protected function _cleanTaxonomy(array $taxonomy): array
     {
-        if (isset($taxonomy['featured_image']) && is_array($taxonomy['featured_image'])) {
-            if (isset($taxonomy['featured_image']['sizes']['large'])) {
-                $taxonomy['image'] = $taxonomy['featured_image']['sizes']['large'];
-            } else if (isset($taxonomy['featured_image']['sizes']['medium_large'])) {
-                $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium_large'];
-            } else if (isset($taxonomy['featured_image']['sizes']['medium'])) {
-                $taxonomy['image'] = $taxonomy['featured_image']['sizes']['medium'];
+        if (isset($taxonomy["featured_image"]) && is_array($taxonomy["featured_image"])) {
+            if (isset($taxonomy["featured_image"]["sizes"]["large"])) {
+                $taxonomy["image"] = $taxonomy["featured_image"]["sizes"]["large"];
+            } else if (isset($taxonomy["featured_image"]["sizes"]["medium_large"])) {
+                $taxonomy["image"] = $taxonomy["featured_image"]["sizes"]["medium_large"];
+            } else if (isset($taxonomy["featured_image"]["sizes"]["medium"])) {
+                $taxonomy["image"] = $taxonomy["featured_image"]["sizes"]["medium"];
             }
-        } else if (isset($taxonomy["acf"]['featured_image']) && is_array($taxonomy["acf"]['featured_image'])) {
-            if (isset($taxonomy["acf"]['featured_image']['sizes']['large'])) {
-                $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['large'];
-            } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium_large'])) {
-                $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium_large'];
-            } else if (isset($taxonomy["acf"]['featured_image']['sizes']['medium'])) {
-                $taxonomy['image'] = $taxonomy["acf"]['featured_image']['sizes']['medium'];
+        } else if (isset($taxonomy["acf"]["featured_image"]) && is_array($taxonomy["acf"]["featured_image"])) {
+            if (isset($taxonomy["acf"]["featured_image"]["sizes"]["large"])) {
+                $taxonomy["image"] = $taxonomy["acf"]["featured_image"]["sizes"]["large"];
+            } else if (isset($taxonomy["acf"]["featured_image"]["sizes"]["medium_large"])) {
+                $taxonomy["image"] = $taxonomy["acf"]["featured_image"]["sizes"]["medium_large"];
+            } else if (isset($taxonomy["acf"]["featured_image"]["sizes"]["medium"])) {
+                $taxonomy["image"] = $taxonomy["acf"]["featured_image"]["sizes"]["medium"];
             }
         }
 
@@ -387,7 +387,7 @@ abstract class WebmappAbstractJob
         $stringProperties = [];
 
         foreach ($taxonomy as $key => $value) {
-            if (is_null($value) || (is_string($value) && empty($value)) || $key === '_links') {
+            if (is_null($value) || (is_string($value) && empty($value)) || $key === "_links") {
                 unset($taxonomy[$key]);
             } else {
                 if (in_array($key, $floatProperties)) {
@@ -411,7 +411,7 @@ abstract class WebmappAbstractJob
      */
     protected function _getCustomProperties(string $type): ?array
     {
-        if ($type !== 'poi' && $type !== 'track' && $type !== 'route')
+        if ($type !== "poi" && $type !== "track" && $type !== "route")
             return null;
 
         $config = $this->_getConfig($this->aProject->getRoot());
@@ -425,7 +425,7 @@ abstract class WebmappAbstractJob
 
         // Map the global properties
         foreach ($custom_mapping as $key => $property) {
-            if ($key !== 'poi' && $key !== 'track' && $key !== 'route') {
+            if ($key !== "poi" && $key !== "track" && $key !== "route") {
                 if (is_numeric($key)) {
                     $properties[$property] = $property;
                 } else {
@@ -454,7 +454,7 @@ abstract class WebmappAbstractJob
             $this->_verbose("Locking file $url");
             $this->lockedFileUrl = $url;
             if (file_exists($this->lockedFileUrl)) {
-                $this->lockedFile = fopen($this->lockedFileUrl, 'rw+');
+                $this->lockedFile = fopen($this->lockedFileUrl, "rw+");
                 if (flock($this->lockedFile, LOCK_EX))
                     $this->_verbose("Locked successfully");
             }
@@ -503,24 +503,28 @@ abstract class WebmappAbstractJob
      * @param WebmappAbstractFeature $feature
      * @param string $mappingKey
      * @param object|null $relation
+     * @param array|null $oldGeojson
      */
-    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null)
+    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null, array $oldGeojson = null)
     {
         $mapping = $this->_getMapping();
         if (isset($mapping) && is_array($mapping) && array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
             foreach ($mapping[$mappingKey] as $key => $mappingArray) {
                 $value = "";
-                if (is_array($mappingArray)) {
-                    foreach ($mappingArray as $item) {
-                        if (is_string($item) && substr($item, 0, 1) === "$") {
-                            if ($mappingKey === "osm" && isset($relation) && $relation->hasTag(substr($item, 1)))
-                                $value .= strval($relation->getTag(substr($item, 1)));
-                            elseif ($feature->hasProperty(substr($item, 1)))
-                                $value .= strval($feature->getProperty(substr($item, 1)));
-                        } else
-                            $value .= strval($item);
-                    }
-                } else $value = strval($mappingArray);
+                if ($mappingKey === "osm" && isset($relation)) {
+                    if (is_array($mappingArray)) {
+                        foreach ($mappingArray as $item) {
+                            if (is_string($item) && substr($item, 0, 1) === "$") {
+                                if ($mappingKey === "osm" && isset($relation) && $relation->hasTag(substr($item, 1)))
+                                    $value .= strval($relation->getTag(substr($item, 1)));
+                                elseif ($feature->hasProperty(substr($item, 1)))
+                                    $value .= strval($feature->getProperty(substr($item, 1)));
+                            } else
+                                $value .= strval($item);
+                        }
+                    } else $value = strval($mappingArray);
+                } elseif (isset($oldGeojson[$mappingKey]))
+                    $value = $oldGeojson[$mappingKey];
 
                 $feature->addProperty($key, $value);
             }
@@ -672,7 +676,7 @@ abstract class WebmappAbstractJob
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13");
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -705,7 +709,7 @@ abstract class WebmappAbstractJob
         $this->_verbose("  url: {$url}");
 
         $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13");
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
