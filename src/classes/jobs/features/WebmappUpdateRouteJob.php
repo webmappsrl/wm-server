@@ -74,8 +74,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             $this->id,
             json_decode($route->getTrackJson(), true)
         );
-
-        $this->_updateKProjects('route', $this->id, $route->getJson());
+        
         $this->_updateKRoutes($this->id, $route);
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
         $this->_setTaxonomies("route", $json);

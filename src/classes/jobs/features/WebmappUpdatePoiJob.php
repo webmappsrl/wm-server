@@ -35,8 +35,6 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
         $this->_unlockFile($geojsonUrl);
 
         $this->_setTaxonomies("poi", json_decode($poi->getJson(), true));
-
-        $this->_updateKProjects("poi", $this->id, $poi->getJson());
     }
 
     /**

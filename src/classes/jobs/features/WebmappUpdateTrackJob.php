@@ -106,8 +106,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 
         $this->_setTaxonomies("track", json_decode($track->getJson(), true));
 
-        $this->_updateKProjects("track", $this->id, $track->getJson());
-
         $this->_updateRelatedRoutes($this->id);
     }
 

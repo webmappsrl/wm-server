@@ -151,4 +151,104 @@ class WebmappUpdateTaxonomyJobTest extends TestCase
 
         $this->assertTrue(file_exists("$kEndpoint/$instanceCode/taxonomies/webmapp_category.json"));
     }
+
+    function testCleanEmptyTaxonomy()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $instanceCode = "elm";
+        $conf = [
+            "multimap" => true
+        ];
+        $id = 161;
+        $emptyTaxonomyId = 10000;
+
+        $fcUrl = "$aEndpoint/$instanceName/taxonomies/$id.geojson";
+        $wcUrl = "$aEndpoint/$instanceName/taxonomies/webmapp_category.json";
+        $kWcUrl = "$kEndpoint/$instanceCode/taxonomies/webmapp_category.json";
+        $emptyFcUrl = "$aEndpoint/$instanceName/taxonomies/$emptyTaxonomyId.geojson";
+
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName, null, $instanceCode, $conf);
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdateTaxonomyJob($instanceUrl, $params, false);
+        try {
+            $fakeWC = [
+                $id => [
+                    "id" => "WrongTest",
+                    "items" => [
+                        "route" => [2056]
+                    ]
+                ],
+                $emptyTaxonomyId => [
+                    "id" => "WrongTest",
+                    "items" => [
+                        "route" => []
+                    ]
+                ]
+            ];
+            file_put_contents($wcUrl, json_encode($fakeWC));
+            $fakeFeatureCollection = [
+                "type" => "FeatureCollection",
+                "features" => [
+                    2056
+                ],
+                "properties" => [
+                    "id" => "WrongTest",
+                    "count" => 0
+                ]
+            ];
+            file_put_contents($fcUrl, json_encode($fakeFeatureCollection));
+            $fakeFeatureCollection = [
+                "type" => "FeatureCollection",
+                "features" => [
+                    2056
+                ],
+                "properties" => [
+                    "id" => "WrongTest",
+                    "count" => 0
+                ]
+            ];
+            file_put_contents($emptyFcUrl, json_encode($fakeFeatureCollection));
+            $fakeKWC = [
+                $id => [
+                    "id" => "WrongTest",
+                    "items" => [
+                        "route" => [2056]
+                    ]
+                ],
+                $emptyTaxonomyId => [
+                    "id" => "WrongTest",
+                    "items" => [
+                        "route" => []
+                    ]
+                ]
+            ];
+            file_put_contents($kWcUrl, json_encode($fakeKWC));
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists($wcUrl));
+        $json = json_decode(file_get_contents($wcUrl), true);
+        $this->assertIsArray($json);
+        $this->assertFalse(array_key_exists($emptyTaxonomyId, $json));
+
+        $this->assertFalse(file_exists("$aEndpoint/$instanceName/taxonomies/activity.json"));
+        $this->assertFalse(file_exists("$aEndpoint/$instanceName/taxonomies/theme.json"));
+        $this->assertFalse(file_exists("$aEndpoint/$instanceName/taxonomies/when.json"));
+        $this->assertFalse(file_exists("$aEndpoint/$instanceName/taxonomies/where.json"));
+        $this->assertFalse(file_exists("$aEndpoint/$instanceName/taxonomies/who.json"));
+
+        $this->assertFalse(file_exists($emptyFcUrl));
+        $this->assertTrue(file_exists($fcUrl));
+
+        $this->assertTrue(file_exists($kWcUrl));
+        $json = json_decode(file_get_contents($kWcUrl), true);
+        $this->assertIsArray($json);
+        $this->assertTrue(array_key_exists($id, $json));
+        $this->assertFalse(array_key_exists($emptyTaxonomyId, $json));
+    }
 }

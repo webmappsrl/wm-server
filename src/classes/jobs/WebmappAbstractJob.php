@@ -172,13 +172,14 @@ abstract class WebmappAbstractJob
         foreach (TAXONOMY_TYPES as $taxTypeId) {
             $taxonomyJson = null;
             $idsToCheck = [];
+            $cleanedIds = [];
             $taxonomyUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json";
             if (file_exists($taxonomyUrl)) {
                 $this->_lockFile($taxonomyUrl);
                 $taxonomyJson = file_get_contents($taxonomyUrl);
+                if ($taxonomyJson)
+                    $taxonomyJson = json_decode($taxonomyJson, true);
             }
-            if ($taxonomyJson)
-                $taxonomyJson = json_decode($taxonomyJson, true);
 
             $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
             if (!$taxonomyJson)
@@ -213,7 +214,7 @@ abstract class WebmappAbstractJob
                 }
             }
 
-            // Remove post from its not taxonomies
+            // Remove post from its not taxonomies and clean empty taxonomies
             foreach ($taxonomyJson as $taxId => $taxonomy) {
                 $idsToCheck[] = $taxId;
                 if (
@@ -223,27 +224,36 @@ abstract class WebmappAbstractJob
                     is_array($taxonomy["items"][$postType]) &&
                     in_array($id, $taxonomy["items"][$postType])
                 ) {
-                    $keys = array_keys($taxonomy["items"][$postType], $id);
+                    $this->_verbose("Removing post from $taxId");
+                    $keys = array_keys($taxonomyJson[$taxId]["items"][$postType], $id);
                     foreach ($keys as $key) {
-                        unset($taxonomy["items"][$postType][$key]);
+                        unset($taxonomyJson[$taxId]["items"][$postType][$key]);
                     }
 
-                    if (count($taxonomy["items"][$postType]) == 0) {
-                        unset($taxonomy["items"][$postType]);
-                    } else {
-                        $taxonomy["items"][$postType] = array_values($taxonomy["items"][$postType]);
-                    }
-                    if (count($taxonomy["items"]) == 0) {
-                        unset($taxonomyJson[$taxId]);
-                    } else {
-                        $taxonomyJson[$taxId] = $taxonomy;
-                    }
+                    if (count($taxonomyJson[$taxId]["items"][$postType]) == 0)
+                        unset($taxonomyJson[$taxId]["items"][$postType]);
+                    else
+                        $taxonomyJson[$taxId]["items"][$postType] = array_values($taxonomyJson[$taxId]["items"][$postType]);
                 }
 
                 if (isset($taxonomyJson[$taxId])) {
                     $tax = $taxonomyJson[$taxId];
                     $tax = $this->_cleanTaxonomy($tax);
-                    $taxonomyJson[$taxId] = $tax;
+                    $clean = true;
+                    if (isset($taxonomyJson[$taxId]["items"]) && count($taxonomyJson[$taxId]["items"]) > 0) {
+                        foreach ($taxonomyJson[$taxId]["items"] as $postTypeArray) {
+                            if (is_array($postTypeArray) && count($postTypeArray) > 0) {
+                                $clean = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($clean) {
+                        unset($taxonomyJson[$taxId]);
+                        $cleanedIds[] = $taxId;
+                    } else
+                        $taxonomyJson[$taxId] = $tax;
                 }
             }
 
@@ -287,6 +297,19 @@ abstract class WebmappAbstractJob
                 $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
                 file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
                 $this->_unlockFile($geojsonUrl);
+            }
+
+            $this->_verbose("Cleaning empty taxonomies of $taxTypeId");
+            if (count($cleanedIds) > 0) {
+                foreach ($cleanedIds as $taxId) {
+                    $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
+                    if (file_exists($geojsonUrl)) {
+                        $this->_lockFile($geojsonUrl);
+                        $this->_verbose("Cleaning {$taxTypeId} {$taxId} taxonomy term feature collection since it is empty");
+                        unlink($geojsonUrl);
+                        $this->_unlockFile($geojsonUrl);
+                    }
+                }
             }
 
             // Remove post from its not taxonomies in the collections
@@ -378,25 +401,6 @@ abstract class WebmappAbstractJob
         }
 
         return $taxonomy;
-    }
-
-    /**
-     * Write the file in the k projects if needed
-     *
-     * @param string $postType the post type
-     * @param int $id the post id
-     * @param string $json the content to write
-     */
-    protected function _updateKProjects(string $postType, int $id, string $json)
-    {
-        if (count($this->kProjects) > 0) {
-            $this->_verbose("Updating k projects...");
-            if (in_array($postType, ["poi", "track", "route"])) {
-                foreach ($this->kProjects as $kProject) {
-                    $this->_verbose("  {$kProject->getRoot()}");
-                }
-            }
-        }
     }
 
     /**

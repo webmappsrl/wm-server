@@ -8,8 +8,8 @@ class WebmappUpdateTrackJobTest extends TestCase
 {
     public function __construct()
     {
-//        $this->setOutputCallback(function () {
-//        });
+        $this->setOutputCallback(function () {
+        });
         parent::__construct();
     }
 
