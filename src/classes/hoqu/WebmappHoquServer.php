@@ -5,12 +5,14 @@ define("PULL_ENDPOINT", "/api/pull");
 define("UPDATE_DONE_ENDPOINT", "/api/updateDone");
 define("UPDATE_ERROR_ENDPOINT", "/api/updateError");
 define("JOBS_AVAILABLE", [
+    "delete_event",
     "delete_poi",
     "delete_route",
     "delete_taxonomy",
     "delete_track",
     "generate_elevation_chart_image",
     "generate_mbtiles",
+    "update_event",
     "update_poi",
     "update_route",
     "update_taxonomy",

@@ -213,7 +213,7 @@ class WebmappPoiFeature extends WebmappAbstractFeature
             !empty($json_array['n7webmap_coord']['lng'])) {
             $lng = $json_array['n7webmap_coord']['lng'];
             $lat = $json_array['n7webmap_coord']['lat'];
-        } else if (isset($json_array['coordinates']) &&
+        } elseif (isset($json_array['coordinates']) &&
             isset($json_array['coordinates']['center_lat']) &&
             isset($json_array['coordinates']['center_lng']) &&
             !empty($json_array['coordinates']['center_lat']) &&
@@ -221,11 +221,47 @@ class WebmappPoiFeature extends WebmappAbstractFeature
         ) {
             $lng = $json_array['coordinates']['center_lng'];
             $lat = $json_array['coordinates']['center_lat'];
+        } elseif (isset($json_array['coordinates']) &&
+            isset($json_array['coordinates']['lat']) &&
+            isset($json_array['coordinates']['lng']) &&
+            !empty($json_array['coordinates']['lat']) &&
+            !empty($json_array['coordinates']['lng'])
+        ) {
+            $lng = $json_array['coordinates']['lng'];
+            $lat = $json_array['coordinates']['lat'];
         } else {
             throw new WebmappExceptionPOINoCoodinates("The poi with id {$id} is missing the coordinates");
         }
 
         $this->geometry['type'] = 'Point';
         $this->geometry['coordinates'] = array((float)$lng, (float)$lat);
+    }
+
+    /**
+     * Set the event properties ftom the api json such as start date or end date
+     */
+    public function setEventProperties()
+    {
+        if (isset($this->json_array['start_date']))
+            $this->addProperty('start_date', $this->json_array['start_date']);
+        if (isset($this->json_array['end_date']))
+            $this->addProperty('end_date', $this->json_array['end_date']);
+
+        if (isset($this->json_array['acf']['event_promoters']) && is_array($this->json_array['acf']['event_promoters']) && count($this->json_array['acf']['event_promoters']) > 0) {
+            $ids = [];
+            foreach ($this->json_array['acf']['event_promoters'] as $promoter) {
+                if (isset($promoter['id']))
+                    $ids[] = $promoter['id'];
+                elseif (isset($promoter['ID']))
+                    $ids[] = $promoter['ID'];
+            }
+
+            if (!isset($this->properties["related"]))
+                $this->properties["related"] = [];
+            if (!isset($this->properties["related"]["poi"]))
+                $this->properties["related"]["poi"] = [];
+
+            $this->properties["related"]["poi"]["related"] = $ids;
+        }
     }
 }

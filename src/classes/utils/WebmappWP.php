@@ -6,6 +6,7 @@ class WebmappWP
     private $base_url;
     private $api_url;
     private $api_pois;
+    private $api_events;
     private $api_tracks;
     private $api_routes;
     private $api_areas;
@@ -35,6 +36,7 @@ class WebmappWP
         $this->api_wpml_list = "{$this->base_url}/wp-json/webmapp/v1/wpml/list";
         $this->api_url = "{$this->base_url}/wp-json/wp/v2";
         $this->api_pois = "{$this->api_url}/poi";
+        $this->api_events = "{$this->base_url}/wp-json/tribe/events/v1/events";
         $this->api_tracks = "{$this->api_url}/track";
         $this->api_routes = "{$this->api_url}/route";
         $this->api_areas = "{$this->api_url}/area";
@@ -42,7 +44,6 @@ class WebmappWP
         $this->api_categories = "{$this->api_url}/webmapp_category";
 
         $this->loadLanguages();
-
     }
 
     public function loadLanguages()
@@ -234,6 +235,11 @@ class WebmappWP
     public function getApiPoi($id)
     {
         return $this->api_pois . '/' . $id;
+    }
+
+    public function getApiEvent($id)
+    {
+        return $this->api_events . '/' . $id;
     }
 
     public function getApiTrack($id)

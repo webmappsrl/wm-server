@@ -98,12 +98,16 @@ abstract class WebmappAbstractFeature
     private function mappingStandard($json_array)
     {
         $this->setProperty('id', $json_array);
-        if (isset($json_array['title'])) {
+        if (isset($json_array['title']['rendered'])) {
             $this->setProperty('rendered', $json_array['title'], 'name');
+        } elseif (isset($json_array['title'])) {
+            $this->setProperty('title', $json_array, 'name');
         }
 
-        if (isset($json_array['content'])) {
+        if (isset($json_array['content']['rendered'])) {
             $this->setProperty('rendered', $json_array['content'], 'description');
+        } elseif (isset($json_array['description'])) {
+            $this->setProperty('description', $json_array, 'description');
         }
 
         $this->setProperty('modified', $json_array);
@@ -139,13 +143,15 @@ abstract class WebmappAbstractFeature
             $json_array['featured_media'] != 0
         ) {
             $jm = WebmappUtils::getJsonFromApi($json_array['_links']['wp:featuredmedia'][0]['href']);
-            if (isset($jm['media_details']['sizes']['large'])) {
-                $this->setImage($jm['media_details']['sizes']['large']['source_url']);
-            } else if (isset($jm['media_details']['sizes']['medium_large'])) {
-                $this->setImage($jm['media_details']['sizes']['medium_large']['source_url']);
-            } else if (isset($jm['media_details']['sizes']['medium'])) {
-                $this->setImage($jm['media_details']['sizes']['medium']['source_url']);
-            }
+            if (isset($jm['media_details']['sizes']))
+                $this->setImage($this->_getImageUrlFromSizes($jm['media_details']['sizes']));
+        } elseif (isset($json_array['image']['id'])
+            &&
+            !is_null($json_array['image']['id'])
+            &&
+            $json_array['image']['id'] != 0) {
+            if (isset($json_array['image']['sizes']) && is_array($json_array['image']['sizes']) && count($json_array['image']['sizes']) > 0)
+                $this->setImage($this->_getImageUrlFromSizes($json_array['image']['sizes']));
         }
 
         // FILE AUDIO
@@ -189,8 +195,8 @@ abstract class WebmappAbstractFeature
         }
 
         // SOURCE and WP_EDIT
-        $source = 'unknown';
-        $wp_edit = 'unknown';
+        $source = null;
+        $wp_edit = null;
         if (isset($json_array['_links']['self'][0]['href'])) {
             $source = $json_array['_links']['self'][0]['href'];
             // ADD wp_edit
@@ -199,8 +205,10 @@ abstract class WebmappAbstractFeature
             // http://dev.be.webmapp.it/wp-admin/post.php?post=509&action=edit
             $wp_edit = 'http://' . $host . '/wp-admin/post.php?post=' . $this->getId() . '&action=edit';
         }
-        $this->addProperty('source', $source);
-        $this->addProperty('wp_edit', $wp_edit);
+        if (!is_null($source))
+            $this->addProperty('source', $source);
+        if (!is_null($wp_edit))
+            $this->addProperty('wp_edit', $wp_edit);
 
         // TRANSLATIONS
         if (isset($json_array['wpml_translations'])) {
@@ -236,10 +244,10 @@ abstract class WebmappAbstractFeature
         }
 
         // LINK WEB
-        if (isset($json_array['link']) && !empty($json_array['link'])) {
+        if (isset($json_array['link']) && !empty($json_array['link']))
             $this->addProperty('web', $json_array['link']);
-        }
-
+        elseif (isset($json_array['url']) && !empty($json_array['url']))
+            $this->addProperty('web', $json_array['url']);
     }
 
     public function setProperty($key, $json_array, $key_map = '')
@@ -277,13 +285,7 @@ abstract class WebmappAbstractFeature
             foreach ($gallery as $item) {
                 // TODO: usare una grandezza standard
                 //$images[]=array('src'=>$item['url']);
-                if (isset($item['sizes']['large'])) {
-                    $src = $item['sizes']['large'];
-                } else if (isset($item['sizes']['medium_large'])) {
-                    $src = $item['sizes']['medium_large'];
-                } else if (isset($item['sizes']['medium'])) {
-                    $src = $item['sizes']['medium'];
-                }
+                $src = $this->_getImageUrlFromSizes($item['sizes']);
                 $images[] = array(
                     'src' => $src,
                     'id' => $item['id'],
@@ -294,9 +296,39 @@ abstract class WebmappAbstractFeature
         }
     }
 
+    /**
+     * @param array $sizes
+     * @return string|null
+     */
+    protected function _getImageUrlFromSizes(array $sizes): ?string
+    {
+        $url = null;
+        if (isset($sizes)) {
+            if (isset($sizes['large']['source_url']))
+                $url = $sizes['large']['source_url'];
+            elseif (isset($sizes['large']['url']))
+                $url = $sizes['large']['url'];
+            elseif (isset($sizes['medium_large']['source_url']))
+                $url = $sizes['medium_large']['source_url'];
+            elseif (isset($sizes['medium_large']['url']))
+                $url = $sizes['medium_large']['url'];
+            elseif (isset($sizes['medium']['source_url']))
+                $url = $sizes['medium']['source_url'];
+            elseif (isset($sizes['medium']['url']))
+                $url = $sizes['medium']['url'];
+            elseif (is_array($sizes) && isset($sizes[array_key_first($sizes)]['source_url']))
+                $url = $sizes[array_key_first($sizes)]['source_url'];
+            elseif (is_array($sizes) && isset($sizes[array_key_first($sizes)]['url']))
+                $url = $sizes[array_key_first($sizes)]['url'];
+        }
+
+        return $url;
+    }
+
     public function setImage($url)
     {
-        $this->properties['image'] = $url;
+        if (isset($url))
+            $this->properties['image'] = $url;
     }
 
     public function addProperty($key, $val)
@@ -356,7 +388,8 @@ abstract class WebmappAbstractFeature
                 $urls[] = $item['net7webmap_related_url'];
             }
             $this->properties['related_url'] = $urls;
-        }
+        } elseif (isset($ja['website']) && is_string($ja['website']))
+            $this->properties['related_url'] = [$ja['website']];
     }
 
     // Restituisce l'array con l'id WP delle categorie

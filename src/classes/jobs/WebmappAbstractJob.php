@@ -602,7 +602,7 @@ abstract class WebmappAbstractJob
         try {
             $modified = curl_exec($ch);
         } catch (Exception $e) {
-            $this->_warning("An error occurred getting last modified date for track {$id}: " . $e->getMessage());
+            $this->_warning("An error occurred getting last modified date for post {$id}: " . $e->getMessage());
             return $defaultValue;
         }
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
