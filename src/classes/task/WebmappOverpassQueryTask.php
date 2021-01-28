@@ -73,7 +73,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
 
                         if (isset($item["tags"]["ele"]) && !is_nan(floatval($item["tags"]["ele"]))) {
                             $feature["geometry"]["coordinates"][] = floatval($item["tags"]["ele"]);
-                            $feature["properties"]["ele"] = floatval($item["tags"][]);
+                            $feature["properties"]["ele"] = floatval($item["tags"]["ele"]);
                         }
 
                         if (isset($item['id']))
