@@ -99,11 +99,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         $this->_applyMapping($track, "track");
 
         if ($track->hasProperty("osmid")) {
-            if ($skippedGeometry) {
+            if ($skippedGeometry)
                 $this->_applyMapping($track, "osm", null, $oldGeojson);
-            } else {
+            else {
                 $relation = $track->hasRelation() ? $track->getRelation() : null;
-
                 $this->_applyMapping($track, "osm", $relation);
             }
         }

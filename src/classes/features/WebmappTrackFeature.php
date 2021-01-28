@@ -163,7 +163,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     public function hasRelation()
     {
-        return isset($this->relation);
+        return isset($this->_relation);
     }
 
     public function getRelation()
@@ -173,8 +173,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     public function setRelation($osmid)
     {
-        $relation = new WebmappOSMRelation($osmid);
-        $this->_relation = $relation;
+        $this->_relation = new WebmappOSMRelation($osmid);
     }
 
     /**

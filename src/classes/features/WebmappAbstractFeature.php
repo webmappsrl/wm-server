@@ -308,18 +308,26 @@ abstract class WebmappAbstractFeature
                 $url = $sizes['large']['source_url'];
             elseif (isset($sizes['large']['url']))
                 $url = $sizes['large']['url'];
+            elseif (isset($sizes['large']) && is_string($sizes['large']))
+                $url = $sizes['large'];
             elseif (isset($sizes['medium_large']['source_url']))
                 $url = $sizes['medium_large']['source_url'];
             elseif (isset($sizes['medium_large']['url']))
                 $url = $sizes['medium_large']['url'];
+            elseif (isset($sizes['medium_large']) && is_string($sizes['medium_large']))
+                $url = $sizes['medium_large'];
             elseif (isset($sizes['medium']['source_url']))
                 $url = $sizes['medium']['source_url'];
             elseif (isset($sizes['medium']['url']))
                 $url = $sizes['medium']['url'];
+            elseif (isset($sizes['medium']) && is_string($sizes['medium']))
+                $url = $sizes['medium'];
             elseif (is_array($sizes) && isset($sizes[array_key_first($sizes)]['source_url']))
                 $url = $sizes[array_key_first($sizes)]['source_url'];
             elseif (is_array($sizes) && isset($sizes[array_key_first($sizes)]['url']))
                 $url = $sizes[array_key_first($sizes)]['url'];
+            elseif (isset($sizes[array_key_first($sizes)]) && is_string($sizes[array_key_first($sizes)]))
+                $url = $sizes[array_key_first($sizes)];
         }
 
         return $url;

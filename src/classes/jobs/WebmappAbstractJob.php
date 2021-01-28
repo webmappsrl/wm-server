@@ -511,7 +511,7 @@ abstract class WebmappAbstractJob
         if (isset($mapping) && is_array($mapping) && array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
             foreach ($mapping[$mappingKey] as $key => $mappingArray) {
                 $value = "";
-                if ($mappingKey === "osm" && isset($relation)) {
+                if ($mappingKey !== "osm" || isset($relation)) {
                     if (is_array($mappingArray)) {
                         foreach ($mappingArray as $item) {
                             if (is_string($item) && substr($item, 0, 1) === "$") {
@@ -523,8 +523,8 @@ abstract class WebmappAbstractJob
                                 $value .= strval($item);
                         }
                     } else $value = strval($mappingArray);
-                } elseif (isset($oldGeojson[$mappingKey]))
-                    $value = $oldGeojson[$mappingKey];
+                } elseif (isset($oldGeojson[$key]))
+                    $value = $oldGeojson[$key];
 
                 $feature->addProperty($key, $value);
             }
