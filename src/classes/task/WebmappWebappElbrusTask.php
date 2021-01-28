@@ -198,7 +198,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
   </script>
 
 EOD;
-            $file = preg_replace('/<\/head>/', "$gtagCode</head>", $file);
+            $file = preg_replace('/<head>/', "<head>$gtagCode", $file);
             echo self::fg_color('cyan', " OK\n");
         }
 
