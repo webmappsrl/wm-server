@@ -68,21 +68,22 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             ]
                         ];
 
-                        if (isset($item["tags"]["name"])) {
+                        if (isset($item["tags"]["name"]))
                             $feature["properties"]["name"] = strval($item["tags"]["name"]);
+
+                        if (isset($item["tags"]["ele"]) && !is_nan(floatval($item["tags"]["ele"]))) {
+                            $feature["geometry"]["coordinates"][] = floatval($item["tags"]["ele"]);
+                            $feature["properties"]["ele"] = floatval($item["tags"][]);
                         }
 
-                        if (isset($item["tags"]["ele"])) {
-                            $feature["geometry"]["coordinates"][] = floatval($item["tags"]["ele"]);
-                            $feature["properties"]["ele"] = floatval($item["tags"]["ele"]);
-                        }
+                        if (isset($item['id']))
+                            $feature["properties"]["osmid"] = $item["id"];
 
                         $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
 
                         foreach ($propertiesToMap as $key => $property) {
-                            if (array_key_exists($property, $item["tags"])) {
+                            if (array_key_exists($property, $item["tags"]))
                                 $feature["properties"][$key] = $item["tags"][$property];
-                            }
                         }
 
                         if (is_array($this->_mapping)) {
@@ -91,23 +92,19 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                 if (is_array($mappingArray)) {
                                     foreach ($mappingArray as $val) {
                                         if (is_string($val) && substr($val, 0, 1) === "$") {
-                                            if (array_key_exists(substr($val, 1), $feature["properties"])) {
+                                            if (array_key_exists(substr($val, 1), $feature["properties"]))
                                                 $value .= strval($feature["properties"][substr($val, 1)]);
-                                            }
-                                        } else {
+                                        } else
                                             $value .= strval($val);
-                                        }
                                     }
                                 } else $value = strval($mappingArray);
 
                                 if (substr($key, 0, 9) === "default::") {
                                     $keyToCheck = substr($key, 9);
-                                    if (!isset($feature["properties"][$keyToCheck]) || empty($feature["properties"][$keyToCheck])) {
+                                    if (!isset($feature["properties"][$keyToCheck]) || empty($feature["properties"][$keyToCheck]))
                                         $feature["properties"][$keyToCheck] = trim($value);
-                                    }
-                                } else {
+                                } else
                                     $feature["properties"][$key] = trim($value);
-                                }
                             }
                         }
 
@@ -130,12 +127,11 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                                         count($apiJson["query"]["pages"][$key]["imageinfo"]) > 0) {
                                         $imageKey = array_key_first($apiJson["query"]["pages"][$key]["imageinfo"]);
                                         if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
-                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"])) {
+                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"]))
                                             $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"];
-                                        } else if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
-                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"])) {
+                                        else if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"]))
                                             $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"];
-                                        }
                                     }
                                 }
                                 echo " OK\n";
@@ -144,12 +140,12 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
                             }
 
                             if (isset($url)) {
-                                if (!isset($feature["properties"]["image"])) {
+                                if (!isset($feature["properties"]["image"]))
                                     $feature["properties"]["image"] = $url;
-                                } else {
-                                    if (!isset($feature["properties"]["imageGallery"])) {
+                                else {
+                                    if (!isset($feature["properties"]["imageGallery"]))
                                         $feature["properties"]["imageGallery"] = [];
-                                    }
+
                                     $feature["properties"]["imageGallery"][] = [
                                         "id" => $url,
                                         "src" => $url,
@@ -210,9 +206,9 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadString);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
-        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200)
             throw new WebmappException("An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while calling {$url}: " . curl_error($ch));
-        }
+
         $result = json_decode($result, true);
         return $result;
     }
