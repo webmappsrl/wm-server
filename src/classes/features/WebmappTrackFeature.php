@@ -380,6 +380,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     private function setPropsFromComputed($props_name)
     {
+        WebmappUtils::warning($props_name . " - " . $this->properties['computed'][$props_name] . " - " . $this->properties[$props_name]);
         if (isset($this->properties['computed'][$props_name]) &&
             (!isset($this->properties[$props_name]) || empty($this->properties[$props_name]))) {
             $this->properties[$props_name] = $this->properties['computed'][$props_name];
@@ -775,6 +776,10 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         $this->setProperty('ref', $json_array);
         $this->setProperty('ascent', $json_array);
         $this->setProperty('descent', $json_array);
+        $this->setProperty('ele:min', $json_array);
+        $this->setProperty('ele:max', $json_array);
+        $this->setProperty('ele:from', $json_array);
+        $this->setProperty('ele:to', $json_array);
         $this->setProperty('distance', $json_array);
         $this->setProperty('duration:forward', $json_array);
         $this->setProperty('duration:backward', $json_array);
