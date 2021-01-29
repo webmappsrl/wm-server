@@ -380,7 +380,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
     private function setPropsFromComputed($props_name)
     {
-        WebmappUtils::warning($props_name . " - " . $this->properties['computed'][$props_name] . " - " . $this->properties[$props_name]);
         if (isset($this->properties['computed'][$props_name]) &&
             (!isset($this->properties[$props_name]) || empty($this->properties[$props_name]))) {
             $this->properties[$props_name] = $this->properties['computed'][$props_name];
