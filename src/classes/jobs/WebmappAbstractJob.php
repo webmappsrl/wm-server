@@ -139,9 +139,9 @@ abstract class WebmappAbstractJob
     protected function _getTaxonomy(string $taxonomyType, string $id)
     {
         $taxonomy = null;
-        if (isset($this->cachedTaxonomies[$id])) {
+        if (isset($this->cachedTaxonomies[$id]))
             $taxonomy = $this->cachedTaxonomies[$id];
-        } else {
+        else {
             try {
                 $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}");
                 $this->cachedTaxonomies[$id] = $taxonomy; // Cache downloaded taxonomies
@@ -517,7 +517,7 @@ abstract class WebmappAbstractJob
                             if (is_string($item) && substr($item, 0, 1) === "$") {
                                 if ($mappingKey === "osm" && isset($relation) && $relation->hasTag(substr($item, 1)))
                                     $value .= strval($relation->getTag(substr($item, 1)));
-                                elseif ($feature->hasProperty(substr($item, 1)))
+                                elseif ($mappingKey !== "osm" && $feature->hasProperty(substr($item, 1)))
                                     $value .= strval($feature->getProperty(substr($item, 1)));
                             } else
                                 $value .= strval($item);
