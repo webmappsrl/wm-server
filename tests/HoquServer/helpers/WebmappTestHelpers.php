@@ -16,29 +16,35 @@ class WebmappHelpers
             "a" => $a,
             "k" => $k
         ];
+        $code = explode(',', $instanceName)[0];
+        $wm_config["a_k_instances"] = [
+            $instanceName => [
+                "a" => $code
+            ]
+        ];
         if (!empty($instanceCode)) {
             $wm_config["a_k_instances"] = [
                 $instanceName => [
-                    $instanceCode
+                    "k" => [$instanceCode]
                 ]
             ];
         }
 
-        if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
+        if (!file_exists("{$a}/{$code}/geojson")) {
+            $cmd = "mkdir -p {$a}/{$code}/geojson";
             system($cmd);
         }
-        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
+        if (!file_exists("{$a}/{$code}/taxonomies")) {
+            $cmd = "mkdir -p {$a}/{$code}/taxonomies";
             system($cmd);
         }
-        if (!file_exists("{$a}/{$instanceName}/server")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/server";
+        if (!file_exists("{$a}/{$code}/server")) {
+            $cmd = "mkdir -p {$a}/{$code}/server";
             system($cmd);
         }
 
         if (is_array($aConf) && count($aConf) > 0)
-            file_put_contents("{$a}/{$instanceName}/server/server.conf", json_encode($aConf));
+            file_put_contents("{$a}/{$code}/server/server.conf", json_encode($aConf));
 
         if (!empty($instanceCode)) {
             if (!file_exists("{$k}/{$instanceCode}/geojson")) {
@@ -61,9 +67,9 @@ class WebmappHelpers
                 file_put_contents("{$k}/{$instanceCode}/server/server.conf", json_encode($kConf));
         }
 
-        $cmd = "rm {$a}/{$instanceName}/geojson/* &>/dev/null";
+        $cmd = "rm {$a}/{$code}/geojson/* &>/dev/null";
         system($cmd);
-        $cmd = "rm {$a}/{$instanceName}/taxonomies/* &>/dev/null";
+        $cmd = "rm {$a}/{$code}/taxonomies/* &>/dev/null";
         system($cmd);
         if (!empty($instanceCode)) {
             $cmd = "rm {$k}/{$instanceCode}/geojson/* &>/dev/null";

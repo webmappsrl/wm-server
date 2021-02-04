@@ -20,8 +20,8 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
     {
         $kCodes = [];
         global $wm_config;
-        if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
-            foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
+        if (isset($wm_config["a_k_instances"][$this->instanceName]["k"]) && is_array($wm_config["a_k_instances"][$this->instanceName]["k"])) {
+            foreach ($wm_config["a_k_instances"][$this->instanceName]["k"] as $kName) {
                 $kCodes[] = $kName;
             }
         }

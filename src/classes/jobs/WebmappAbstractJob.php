@@ -7,7 +7,6 @@ abstract class WebmappAbstractJob
     protected $name; // Job name
     protected $instanceUrl; // Job instance url
     protected $instanceName; // Instance name
-    protected $instanceCode; // Instance code
     protected $params; // Job params
     protected $id; // The job id
     protected $verbose; // Verbose option
@@ -52,23 +51,23 @@ abstract class WebmappAbstractJob
 
         global $wm_config;
 
+        $aName = isset($wm_config["a_k_instances"][$this->instanceName]["a"]) ? $wm_config["a_k_instances"][$this->instanceName]["a"] : $this->instanceName;
         $this->aProject = new WebmappProjectStructure(
             isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["a"])
-                ? "{$wm_config["endpoint"]["a"]}/{$this->instanceName}"
-                : "/var/www/html/a.webmapp.it/{$this->instanceName}");
+                ? "{$wm_config["endpoint"]["a"]}/{$aName}"
+                : "/var/www/html/a.webmapp.it/{$aName}");
 
         if (!file_exists("{$this->aProject->getRoot()}") ||
             !file_exists("{$this->aProject->getRoot()}/geojson") ||
-            !file_exists("{$this->aProject->getRoot()}/taxonomies")) {
+            !file_exists("{$this->aProject->getRoot()}/taxonomies"))
             throw new WebmappExceptionNoDirectory("The a project for the instance {$this->instanceName} is missing or on a different server");
-        }
 
         $this->kProjects = [];
         $kBaseUrl = isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["k"])
             ? "{$wm_config["endpoint"]["k"]}"
             : "/var/www/html/k.webmapp.it";
-        if (isset($wm_config["a_k_instances"]) && is_array($wm_config["a_k_instances"]) && isset($wm_config["a_k_instances"][$this->instanceName])) {
-            foreach ($wm_config["a_k_instances"][$this->instanceName] as $kName) {
+        if (isset($wm_config["a_k_instances"][$this->instanceName]["k"]) && is_array($wm_config["a_k_instances"][$this->instanceName]["k"])) {
+            foreach ($wm_config["a_k_instances"][$this->instanceName]["k"] as $kName) {
                 $this->kProjects[] = new WebmappProjectStructure("{$kBaseUrl}/$kName");
             }
         }
