@@ -26,6 +26,8 @@ class WebmappHoquServer
     private $pullToken;
     private $updateToken;
     private $jobsAvailable;
+    private $acceptInstances;
+    private $excludeInstances;
     private $verbose;
     private $interrupted;
     private $running;
@@ -64,13 +66,30 @@ class WebmappHoquServer
         $this->jobsAvailable = [];
         if (is_array($wm_config['hoqu']['jobs'])) {
             foreach ($wm_config['hoqu']['jobs'] as $job) {
-                if (in_array($job, JOBS_AVAILABLE)) {
+                if (in_array($job, JOBS_AVAILABLE))
                     $this->jobsAvailable[] = $job;
-                }
             }
         } else if (is_string($wm_config['hoqu']['jobs']) && in_array($wm_config['hoqu']['jobs'], JOBS_AVAILABLE)) {
-            $this->jobsAvailable = $wm_config['hoqu']['jobs'];
+            $this->jobsAvailable[] = $wm_config['hoqu']['jobs'];
         }
+
+        $this->acceptInstances = [];
+        if (isset($wm_config['hoqu']['accept_instances']) && is_array($wm_config['hoqu']['accept_instances'])) {
+            foreach ($wm_config['hoqu']['accept_instances'] as $instance) {
+                $this->acceptInstances[] = $instance;
+            }
+        } else if (isset($wm_config['hoqu']['accept_instances']) && is_string($wm_config['hoqu']['accept_instances'])) {
+            $this->acceptInstances[] = $wm_config['hoqu']['accept_instances'];
+        } else $this->acceptInstances = null;
+
+        $this->excludeInstances = [];
+        if (isset($wm_config['hoqu']['exclude_instances']) && is_array($wm_config['hoqu']['exclude_instances'])) {
+            foreach ($wm_config['hoqu']['exclude_instances'] as $instance) {
+                $this->excludeInstances[] = $instance;
+            }
+        } else if (isset($wm_config['hoqu']['exclude_instances']) && is_string($wm_config['hoqu']['exclude_instances'])) {
+            $this->excludeInstances[] = $wm_config['hoqu']['exclude_instances'];
+        } else $this->excludeInstances = null;
 
         $this->verbose = $verbose;
     }
@@ -199,6 +218,11 @@ class WebmappHoquServer
             "id_server" => $this->serverId,
             "task_available" => $this->jobsAvailable,
         ];
+
+        if (isset($this->acceptInstances) && is_array($this->acceptInstances) && count($this->acceptInstances) > 0)
+            $payload["accept_instances"] = $this->acceptInstances;
+        if (isset($this->excludeInstances) && is_array($this->excludeInstances) && count($this->excludeInstances) > 0)
+            $payload["exclude_instances"] = $this->excludeInstances;
 
         declare(ticks=1);
         pcntl_signal(SIGINT, array($this, "signalHandler"));

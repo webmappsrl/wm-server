@@ -67,7 +67,19 @@ available in the machine. Please follow the installation
 section [here](https://github.com/Automattic/node-canvas#installation) and when done run `npm i` in the `src/node`
 directory. TODO: Add the installation check/process at runtime
 
-### 5.2 Jobs
+### 5.2 Server parameters
+
+The server can be instantiated with some parameters:
+
+| Parameter          | Description                                                                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `serverId`         | Set the server id used when communicating with HOQU                                                                                                      |
+| `jobs`             | Set the accepted jobs (list of jobs at [5.3](#53-jobs)). To specify more jobs separate them with a comma `,`                                             |
+| `acceptInstances`  | Set the accepted instances. To specify more instances separate them with a comma `,`                                                                     |
+| `excludeInstances` | Set the instances that must not be worked from the server. To specify more instances separate them with a comma `,`. Prevails over the `acceptInstances` |
+| `verbose`          | Force the verbose log in the console                                                                                                                     |
+
+### 5.3 Jobs
 
 | Job name                         | Params                             | Description                                                                                                                                       | Triggers                         |
 | -------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
@@ -82,17 +94,17 @@ directory. TODO: Add the installation check/process at runtime
 | `delete_route`                   | `int(id)`                          | Delete the route geojson and prune the id from the taxonomies                                                                                     |                                  |
 | `delete_taxonomy`                | `int(id)`                          | Delete the taxonomy json                                                                                                                          |                                  |
 
-### 5.3 Server.conf
+### 5.4 Server.conf
 
 Every instance can be configured using the file `/server/server.conf`.
 
-#### 5.3.1 A Project
+#### 5.4.1 A Project
 
-##### 5.3.1.1 Elevation Chart Image
+##### 5.4.1.1 Elevation Chart Image
 
-#### 5.3.2 K Project
+#### 5.4.2 K Project
 
-##### 5.3.2.1 Multimap Project
+##### 5.4.2.1 Multimap Project
 
 To enable the multimap in the k project you need to set the `multimap` property to `true`. This will trigger the routes'
 generation, mbtiles included. The routes can be filtered using the `filters` property which currently support two type

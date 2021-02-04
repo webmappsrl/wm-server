@@ -29,7 +29,7 @@ abstract class WebmappCliAbstractCommand
     /**
      * @return array with every options of argv mapped
      */
-    protected function _get_opts()
+    protected function _getOpts()
     {
         $opts = array();
         foreach ($_SERVER["argv"] as $k => $a) {

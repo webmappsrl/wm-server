@@ -4,49 +4,55 @@ class WebmappCliServerCommand extends WebmappCliAbstractCommand
 {
     private $_serverId = null;
     private $_jobs = null;
+    private $_acceptInstances = null;
+    private $_excludeInstances = null;
 
     public function __construct($argv)
     {
         parent::__construct($argv);
         global $wm_config;
 
-        $options = $this->_get_opts();
+        $options = $this->_getOpts();
 
         if (isset($options["configUrl"]) && !empty($options["configUrl"]) && is_string($options["configUrl"])) {
             $newConfig = json_decode(file_get_contents($options["configUrl"]), true);
             $wm_config = $newConfig;
         }
 
-        if (!isset($wm_config['hoqu'])) {
+        if (!isset($wm_config['hoqu']))
             throw new WebmappExceptionParameterMandatory("HOQU configuration missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['url'])) {
+        if (!isset($wm_config['hoqu']['url']))
             throw new WebmappExceptionParameterMandatory("HOQU url missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['pull_token'])) {
+        if (!isset($wm_config['hoqu']['pull_token']))
             throw new WebmappExceptionParameterMandatory("HOQU pull key missing. Aborting");
-        }
 
-        if (isset($options["serverId"]) && !empty($options["serverId"])) {
+        if (isset($options["serverId"]) && !empty($options["serverId"]))
             $this->_serverId = $options["serverId"];
-        }
-        if (isset($this->_serverId)) {
+        if (isset($this->_serverId))
             $wm_config["hoqu"]["server_id"] = $this->_serverId;
-        }
 
-        if (isset($options["jobs"]) && !empty($options["jobs"]) && is_string($options["jobs"])) {
+        if (isset($options["jobs"]) && !empty($options["jobs"]) && is_string($options["jobs"]))
             $this->_jobs = explode(",", $options["jobs"]);
-        }
-        if (isset($this->_jobs)) {
+        if (isset($this->_jobs))
             $wm_config["hoqu"]["jobs"] = $this->_jobs;
-        }
 
-        if (!isset($wm_config['hoqu']['server_id'])) {
+        if (isset($options["acceptInstances"]) && !empty($options["acceptInstances"]))
+            $this->_acceptInstances = explode(",", $options["acceptInstances"]);
+        if (isset($this->_acceptInstances))
+            $wm_config["hoqu"]["accept_instances"] = $this->_acceptInstances;
+
+        if (isset($options["excludeInstances"]) && !empty($options["excludeInstances"]))
+            $this->_excludeInstances = explode(",", $options["excludeInstances"]);
+        if (isset($this->_excludeInstances))
+            $wm_config["hoqu"]["exclude_instances"] = $this->_excludeInstances;
+
+        if (isset($options['verbose']) && !!$options["verbose"])
+            $wm_config['debug'] = true;
+
+        if (!isset($wm_config['hoqu']['server_id']))
             throw new WebmappExceptionParameterMandatory("HOQU server id missing. Aborting");
-        }
-        if (!isset($wm_config['hoqu']['jobs'])) {
+        if (!isset($wm_config['hoqu']['jobs']))
             throw new WebmappExceptionParameterMandatory("HOQU jobs missing. Aborting");
-        }
     }
 
     public function specificConstruct()
