@@ -512,14 +512,39 @@ abstract class WebmappAbstractJob
                 $value = "";
                 if ($mappingKey !== "osm" || isset($relation)) {
                     if (is_array($mappingArray)) {
+                        $values = [];
                         foreach ($mappingArray as $item) {
-                            if (is_string($item) && substr($item, 0, 1) === "$") {
-                                if ($mappingKey === "osm" && isset($relation) && $relation->hasTag(substr($item, 1)))
-                                    $value .= strval($relation->getTag(substr($item, 1)));
-                                elseif ($mappingKey !== "osm" && $feature->hasProperty(substr($item, 1)))
-                                    $value .= strval($feature->getProperty(substr($item, 1)));
+                            $strippedKey = strval($item);
+                            if (substr($strippedKey, 0, 1) === "?")
+                                $strippedKey = substr($strippedKey, 1);
+                            if (substr($strippedKey, strlen($strippedKey) - 1, 1) === "?")
+                                $strippedKey = substr($strippedKey, 0, strlen($strippedKey) - 1);
+
+                            if (is_string($strippedKey) && substr($strippedKey, 0, 1) === "$") {
+                                if ($mappingKey === "osm" && isset($relation) && $relation->hasTag(substr($strippedKey, 1)))
+                                    $values[] = strval($relation->getTag(substr($strippedKey, 1)));
+                                elseif ($mappingKey !== "osm" && $feature->hasProperty(substr($strippedKey, 1)))
+                                    $values[] = strval($feature->getProperty(substr($strippedKey, 1)));
+                                else
+                                    $values[] = "";
                             } else
-                                $value .= strval($item);
+                                $values[] = strval($strippedKey);
+                        }
+
+                        foreach ($values as $i => $currentValue) {
+                            $currentKey = $mappingArray[$i];
+                            $previous = $i > 0 ? $values[$i - 1] : true;
+                            $next = $i < count($values) - 1 ? $values[$i + 1] : true;
+
+                            if (isset($currentValue)
+                                && !(
+                                    (substr($currentKey, 0, 1) === "?"
+                                        && empty($previous))
+                                    || (substr($currentKey, strlen($currentKey) - 1, 1) === "?"
+                                        && empty($next))
+                                )
+                            )
+                                $value .= $currentValue;
                         }
                     } else $value = strval($mappingArray);
                 } elseif (isset($oldGeojson[$key]))
