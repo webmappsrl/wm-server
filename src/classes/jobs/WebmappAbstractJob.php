@@ -142,7 +142,17 @@ abstract class WebmappAbstractJob
             $taxonomy = $this->cachedTaxonomies[$id];
         else {
             try {
-                $taxonomy = WebmappUtils::getJsonFromApi("{$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}");
+                $url = $taxonomyType === "event"
+                    ? "{$this->instanceUrl}/wp-json/tribe/events/v1/categories/{$id}"
+                    : "{$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}";
+                $taxonomy = WebmappUtils::getJsonFromApi($url);
+                if ($taxonomyType === "event") {
+                    $propertiesToMap = ["icon", "color"];
+                    foreach ($propertiesToMap as $property) {
+                        if (isset($taxonomy["acf"][$property]))
+                            $taxonomy[$property] = $taxonomy["acf"][$property];
+                    }
+                }
                 $this->cachedTaxonomies[$id] = $taxonomy; // Cache downloaded taxonomies
             } catch (WebmappExceptionHttpRequest $e) {
                 $this->_warning("Taxonomy {$id} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}. Skipping");
@@ -164,6 +174,12 @@ abstract class WebmappAbstractJob
         if (!isset($id)) {
             return;
         }
+        $isEvent = false;
+        if ($postType === "event") {
+            $postType = "poi";
+            $isEvent = true;
+        }
+
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
 
         $this->_verbose("Taxonomies: " . json_encode($taxonomies));
@@ -190,7 +206,7 @@ abstract class WebmappAbstractJob
                 $items = [
                     $postType => [$id],
                 ];
-                $taxonomy = $this->_getTaxonomy($taxTypeId, $taxId);
+                $taxonomy = $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
 
                 // Enrich the current taxonomy array
                 if (array_key_exists($taxId, $taxonomyJson)) {

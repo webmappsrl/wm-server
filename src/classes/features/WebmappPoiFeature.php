@@ -200,7 +200,6 @@ class WebmappPoiFeature extends WebmappAbstractFeature
      */
     protected function mappingGeometry($json_array)
     {
-
         $id = $json_array['id'];
 
         $lat = $lng = '';
@@ -262,6 +261,18 @@ class WebmappPoiFeature extends WebmappAbstractFeature
                 $this->properties["related"]["poi"] = [];
 
             $this->properties["related"]["poi"]["related"] = $ids;
+        }
+
+        unset($this->properties["taxonomy"]);
+
+        if (isset($this->json_array["categories"])) {
+            $this->properties["taxonomy"] = [
+                "webmapp_category" => []
+            ];
+
+            foreach ($this->json_array["categories"] as $category) {
+                $this->properties["taxonomy"]["webmapp_category"][] = $category["id"];
+            }
         }
     }
 }

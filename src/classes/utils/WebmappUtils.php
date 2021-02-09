@@ -269,9 +269,7 @@ class WebmappUtils
         if (isset($wm_config['debug']) && $wm_config['debug']) {
             $debug = true;
         }
-        if ($debug) {
-            WebmappUtils::verbose("Fetching data from $url...");
-        }
+        WebmappUtils::verbose("Fetching data from $url...");
 
         $download = true;
         $webcache = false;

@@ -21,11 +21,12 @@ class WebmappUpdateEventJob extends WebmappAbstractJob
      */
     protected function process()
     {
-        $this->_verbose("Loading event from {$this->wp->getApiPoi($this->id)}");
+        $this->_verbose("Loading event from {$this->wp->getApiEvent($this->id)}");
         $poi = new WebmappPoiFeature($this->wp->getApiEvent($this->id));
         $poi = $this->_setCustomProperties($poi);
         $poi->setEventProperties();
         $poi->addProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($poi->getProperty("modified")))));
+        $poi->addProperty("post_type", "event");
 
         // Write geojson
         $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
@@ -34,7 +35,7 @@ class WebmappUpdateEventJob extends WebmappAbstractJob
         file_put_contents($geojsonUrl, $poi->getJson());
         $this->_unlockFile($geojsonUrl);
 
-        $this->_setTaxonomies("poi", json_decode($poi->getJson(), true));
+        $this->_setTaxonomies("event", json_decode($poi->getJson(), true));
     }
 
     /**
@@ -47,9 +48,8 @@ class WebmappUpdateEventJob extends WebmappAbstractJob
     {
         $this->_verbose("Mapping custom properties");
         $properties = $this->_getCustomProperties("poi");
-        if (isset($properties) && is_array($properties)) {
+        if (isset($properties) && is_array($properties))
             $poi->mapCustomProperties($properties);
-        }
 
         return $poi;
     }
