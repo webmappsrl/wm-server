@@ -137,27 +137,27 @@ abstract class WebmappAbstractFeature
 
         // Se è presente la featured image viene messa come immagine principale
         if (isset($json_array['featured_media'])
-            &&
-            !is_null($json_array['featured_media'])
-            &&
-            $json_array['featured_media'] != 0
+            && !is_null($json_array['featured_media'])
+            && $json_array['featured_media'] != 0
+            && isset($json_array['_links']['wp:featuredmedia'][0]['href'])
         ) {
-            $jm = WebmappUtils::getJsonFromApi($json_array['_links']['wp:featuredmedia'][0]['href']);
-            if (isset($jm['media_details']['sizes']))
-                $this->setImage($this->_getImageUrlFromSizes($jm['media_details']['sizes']));
+            try {
+                $jm = WebmappUtils::getJsonFromApi($json_array['_links']['wp:featuredmedia'][0]['href']);
+                if (isset($jm['media_details']['sizes']))
+                    $this->setImage($this->_getImageUrlFromSizes($jm['media_details']['sizes']));
+            } catch (WebmappExceptionHttpRequest $e) {
+                WebmappUtils::warning("Featured media unreachable at url {$json_array['_links']['wp:featuredmedia'][0]['href']}: " + $e->getMessage());
+            }
         } elseif (isset($json_array['image']['id'])
-            &&
-            !is_null($json_array['image']['id'])
-            &&
-            $json_array['image']['id'] != 0) {
+            && !is_null($json_array['image']['id'])
+            && $json_array['image']['id'] != 0) {
             if (isset($json_array['image']['sizes']) && is_array($json_array['image']['sizes']) && count($json_array['image']['sizes']) > 0)
                 $this->setImage($this->_getImageUrlFromSizes($json_array['image']['sizes']));
         }
 
         // FILE AUDIO
-        if (isset($json_array['audio']) && is_array($json_array['audio'])) {
+        if (isset($json_array['audio']) && is_array($json_array['audio']))
             $this->addProperty('audio', $json_array['audio']['url']);
-        }
 
         // Gestione delle categorie WEBMAPP
         // http://dev.be.webmapp.it/wp-json/wp/v2/poi/610
