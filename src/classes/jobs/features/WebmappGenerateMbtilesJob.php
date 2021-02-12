@@ -16,6 +16,10 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         parent::__construct("generate_mbtiles", $instanceUrl, $params, $verbose);
     }
 
+    /**
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionNoFile
+     */
     protected function process()
     {
         $kCodes = [];
@@ -33,6 +37,17 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         $this->_success("MBTiles generated successfully");
     }
 
+    /**
+     * Generate the mbtiles
+     *
+     * @param string $instanceName the instance name
+     * @param int $id the route id
+     * @param int $maxZoom the mbtiles max zoom
+     * @param int $minZoom the mbtiles min zoom
+     *
+     * @throws WebmappExceptionNoDirectory
+     * @throws WebmappExceptionNoFile
+     */
     private function _generateMbtiles(string $instanceName, int $id, int $maxZoom = 16, int $minZoom = 4)
     {
         $kBaseUrl = isset($wm_config["endpoint"]) && isset($wm_config["endpoint"]["k"])
@@ -42,6 +57,11 @@ class WebmappGenerateMbtilesJob extends WebmappAbstractJob
         $geojsonPath = "{$kBaseUrl}/{$instanceName}/geojson";
         $routeGeojsonUrl = "{$geojsonPath}/{$id}.geojson";
         $decrypted = false;
+
+        if (!file_exists($mbtilesPath))
+            throw new WebmappExceptionNoDirectory("The directory $mbtilesPath is required but missing");
+        if (!file_exists($routeGeojsonUrl))
+            throw new WebmappExceptionNoFile("The route geojson $routeGeojsonUrl is required but missing");
 
         $this->_verbose("Generating map.mbtiles for {$instanceName}");
         $this->_verbose(" - Route ID    : $id");
