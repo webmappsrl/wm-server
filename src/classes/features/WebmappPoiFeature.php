@@ -192,6 +192,9 @@ class WebmappPoiFeature extends WebmappAbstractFeature
             $address = $json_array['addr:street'] . ', ' . $num . ' ' . $json_array['addr:city'];
             $this->properties['address'] = $address;
         }
+
+        if (isset($json_array["ele"]) && !empty($json_array["ele"]))
+            $this->properties["ele"] = intval($json_array["ele"]);
     }
 
     /**

@@ -583,4 +583,87 @@ class WebmappUpdateRouteJobTest extends TestCase
 
         $this->assertSame($file["properties"]["modified"], $lastModifiedApi);
     }
+
+    function testKTaxonomiesUpdate()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $instanceCode = "elm";
+        $instanceCode2 = "elm2";
+        $id = 2056;
+
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName, null, [$instanceCode, $instanceCode2], [["multimap" => true], ["multimap" => false]]);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdateRouteJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/webmapp_category.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/webmapp_category.json"), true);
+        $this->assertIsArray($file);
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/activity.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/activity.json"), true);
+        $this->assertIsArray($file);
+        $this->assertArrayHasKey(127, $file);
+        $this->assertIsArray($file[127]);
+        $this->assertArrayHasKey("items", $file[127]);
+        $this->assertIsArray($file[127]["items"]);
+        $this->assertCount(1, $file[127]["items"]);
+        $this->assertArrayHasKey("route", $file[127]["items"]);
+        $this->assertCount(1, $file[127]["items"]["route"]);
+        $this->assertSame($file[127]["items"]["route"][0], $id);
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/theme.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/theme.json"), true);
+        $this->assertIsArray($file);
+        $this->assertArrayHasKey(384, $file);
+        $this->assertIsArray($file[384]);
+        $this->assertArrayHasKey("items", $file[384]);
+        $this->assertIsArray($file[384]["items"]);
+        $this->assertCount(1, $file[384]["items"]);
+        $this->assertArrayHasKey("route", $file[384]["items"]);
+        $this->assertCount(1, $file[384]["items"]["route"]);
+        $this->assertSame($file[384]["items"]["route"][0], $id);
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/when.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/when.json"), true);
+        $this->assertIsArray($file);
+        $this->assertArrayHasKey(190, $file);
+        $this->assertIsArray($file[190]);
+        $this->assertArrayHasKey("items", $file[190]);
+        $this->assertIsArray($file[190]["items"]);
+        $this->assertCount(1, $file[190]["items"]);
+        $this->assertArrayHasKey("route", $file[190]["items"]);
+        $this->assertCount(1, $file[190]["items"]["route"]);
+        $this->assertSame($file[190]["items"]["route"][0], $id);
+        $this->assertArrayHasKey(191, $file);
+        $this->assertIsArray($file[191]);
+        $this->assertArrayHasKey("items", $file[191]);
+        $this->assertIsArray($file[191]["items"]);
+        $this->assertCount(1, $file[191]["items"]);
+        $this->assertArrayHasKey("route", $file[191]["items"]);
+        $this->assertCount(1, $file[191]["items"]["route"]);
+        $this->assertSame($file[191]["items"]["route"][0], $id);
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/where.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/where.json"), true);
+        $this->assertIsArray($file);
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/who.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/who.json"), true);
+        $this->assertIsArray($file);
+
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/webmapp_category.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/activity.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/theme.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/when.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/where.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/who.json"));
+    }
 }

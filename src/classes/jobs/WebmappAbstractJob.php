@@ -108,6 +108,9 @@ abstract class WebmappAbstractJob
         $this->cachedTaxonomies = [];
     }
 
+    /**
+     * @throws Exception
+     */
     public function run()
     {
         $startTime = round(microtime(true) * 1000);
@@ -170,10 +173,6 @@ abstract class WebmappAbstractJob
      */
     protected function _setTaxonomies(string $postType, array $json)
     {
-        $id = isset($json["properties"]) && isset($json["properties"]["id"]) ? $json["properties"]["id"] : null;
-        if (!isset($id)) {
-            return;
-        }
         $isEvent = false;
         if ($postType === "event") {
             $postType = "poi";
@@ -183,7 +182,32 @@ abstract class WebmappAbstractJob
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
 
         $this->_verbose("Taxonomies: " . json_encode($taxonomies));
-        $this->_verbose("Checking taxonomies...");
+        $this->_verbose("Downloading taxonomies...");
+        foreach (TAXONOMY_TYPES as $taxTypeId) {
+            $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
+            foreach ($taxArray as $taxId) {
+                $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
+            }
+        }
+
+        $this->_setATaxonomies($postType, $json);
+
+        $this->_verbose("Checking K taxonomies...");
+        foreach ($this->kProjects as $kProject) {
+            $this->_setKTaxonomies($postType, $json, $kProject);
+        }
+    }
+
+    /**
+     * Set the taxonomies for the post id in the A project
+     *
+     * @param string $postType the post type for the id
+     * @param array $json the json of the feature
+     */
+    private function _setATaxonomies(string $postType, array $json)
+    {
+        $this->_verbose("Checking taxonomies in the A project {$this->aProject->getRoot()}...");
+        $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
         foreach (TAXONOMY_TYPES as $taxTypeId) {
             $taxonomyJson = null;
             $idsToCheck = [];
@@ -204,18 +228,20 @@ abstract class WebmappAbstractJob
             foreach ($taxArray as $taxId) {
                 $taxonomy = null;
                 $items = [
-                    $postType => [$id],
+                    $postType => [$this->id],
                 ];
-                $taxonomy = $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
+                $taxonomy = $this->cachedTaxonomies[$taxId];
 
                 // Enrich the current taxonomy array
                 if (array_key_exists($taxId, $taxonomyJson)) {
-                    if (!isset($taxonomy))
+                    if (!isset($taxonomy)) {
                         $taxonomy = $taxonomyJson[$taxId];
+                        $this->cachedTaxonomies[$taxId] = $taxonomy;
+                    }
                     $items = array_key_exists("items", $taxonomyJson[$taxId]) ? $taxonomyJson[$taxId]["items"] : [];
                     $postTypeArray = array_key_exists($postType, $items) && is_array($items[$postType]) ? $items[$postType] : [];
 
-                    $postTypeArray[] = $id;
+                    $postTypeArray[] = $this->id;
                     $postTypeArray = array_values(array_unique($postTypeArray));
 
                     $items[$postType] = $postTypeArray;
@@ -237,10 +263,10 @@ abstract class WebmappAbstractJob
                     array_key_exists("items", $taxonomy) &&
                     array_key_exists($postType, $taxonomy["items"]) &&
                     is_array($taxonomy["items"][$postType]) &&
-                    in_array($id, $taxonomy["items"][$postType])
+                    in_array($this->id, $taxonomy["items"][$postType])
                 ) {
                     $this->_verbose("Removing post from $taxId");
-                    $keys = array_keys($taxonomyJson[$taxId]["items"][$postType], $id);
+                    $keys = array_keys($taxonomyJson[$taxId]["items"][$postType], $this->id);
                     foreach ($keys as $key) {
                         unset($taxonomyJson[$taxId]["items"][$postType][$key]);
                     }
@@ -295,7 +321,8 @@ abstract class WebmappAbstractJob
                 $key = 0;
 
                 while (!$found && $key < count($taxonomyGeojson["features"])) {
-                    if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id))
+                    if (isset($taxonomyGeojson["features"][$key]["properties"]["id"])
+                        && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($this->id))
                         $found = true;
                     else
                         $key++;
@@ -338,7 +365,8 @@ abstract class WebmappAbstractJob
                         $found = false;
                         $key = 0;
                         while (!$found && $key < count($taxonomyGeojson["features"])) {
-                            if (isset($taxonomyGeojson["features"][$key]["properties"]["id"]) && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($id))
+                            if (isset($taxonomyGeojson["features"][$key]["properties"]["id"])
+                                && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($this->id))
                                 $found = true;
                             else
                                 $key++;
@@ -358,6 +386,107 @@ abstract class WebmappAbstractJob
                 }
             }
         }
+    }
+
+    /**
+     * Set the taxonomies in the k project if needed
+     *
+     * @param string $postType the post type
+     * @param array $json the json
+     * @param WebmappProjectStructure $kProject the project
+     */
+    private function _setKTaxonomies(string $postType, array $json, WebmappProjectStructure $kProject)
+    {
+        $this->_verbose("Checking taxonomies for {$kProject->getRoot()}");
+        $config = $this->_getConfig($kProject->getRoot());
+        if (isset($config["multimap"]) && !!$config["multimap"]) {
+            $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
+            foreach (TAXONOMY_TYPES as $taxTypeId) {
+                $aJson = null;
+                $aJsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxTypeId}.json";
+                $kJson = null;
+                $kJsonUrl = "{$kProject->getRoot()}/taxonomies/{$taxTypeId}.json";
+                if (file_exists($aJsonUrl))
+                    $aJson = json_decode(file_get_contents($aJsonUrl), true);
+                if (file_exists($kJsonUrl)) {
+                    $this->_lockFile($kJsonUrl);
+                    $kJson = json_decode(file_get_contents($kJsonUrl), true);
+                }
+
+                if (!isset($aJson)) {
+                    $this->_warning("The file {$aJsonUrl} is missing and should exists. Skipping the k {$taxTypeId} generation");
+
+                    if (!$kJson) {
+                        $this->_lockFile($kJsonUrl);
+                        file_put_contents($kJsonUrl, json_encode([]));
+                    }
+                } else {
+                    if (!$kJson) $kJson = [];
+                    $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
+                    // Add post to its taxonomies
+                    foreach ($taxArray as $taxId) {
+                        $taxonomy = null;
+                        $items = [];
+                        if ($postType === "route")
+                            $items[$postType] = [$this->id];
+
+                        if (!isset($aJson[$taxId]))
+                            $this->_warning("The taxonomy json file {$aJsonUrl} is missing the {$taxId} taxonomy.");
+                        else {
+                            $taxonomy = $aJson[$taxId];
+                            if (isset($kJson[$taxId]["items"])) {
+                                $items = $kJson[$taxId]["items"];
+                                foreach ($items as $postTypeKey => $value) {
+                                    if ($postTypeKey !== "route")
+                                        unset($items[$postTypeKey]);
+                                }
+
+                                if ($postType === "route" && !isset($items[$postType])) {
+                                    $items[$postType] = [];
+                                    $items[$postType][] = $this->id;
+                                    $items[$postType] = array_values(array_unique($items[$postType]));
+                                }
+                            }
+                            $taxonomy["items"] = $items;
+                            $kJson[$taxId] = $taxonomy;
+                        }
+                    }
+
+                    // Remove post from its not taxonomies
+                    foreach ($kJson as $taxId => $taxonomy) {
+                        $items = $taxonomy["items"];
+                        foreach ($items as $postTypeKey => $value) {
+                            if ($postTypeKey !== "route")
+                                unset($items[$postTypeKey]);
+                        }
+
+                        if (
+                            $postType === "route" &&
+                            !in_array($taxId, $taxArray) &&
+                            isset($taxonomy["items"][$postType]) &&
+                            is_array($taxonomy["items"][$postType]) &&
+                            in_array($this->id, $taxonomy["items"][$postType])
+                        ) {
+                            $keys = array_keys($taxonomy["items"][$postType], $this->id);
+                            foreach ($keys as $key) {
+                                unset($kJson[$taxId]["items"][$postType][$key]);
+                            }
+                            if (count($taxonomy["items"][$postType]) == 0)
+                                unset($kJson[$taxId]["items"][$postType]);
+                            else
+                                $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
+                        }
+                    }
+
+                    $this->_lockFile($kJsonUrl);
+                    $this->_verbose("Writing $taxTypeId to $kJsonUrl");
+                    file_put_contents($kJsonUrl, json_encode($kJson));
+                }
+
+                $this->_unlockFile($kJsonUrl);
+            }
+        } else
+            $this->_verbose("Single map project found. No action needed");
     }
 
     /**
@@ -727,7 +856,7 @@ abstract class WebmappAbstractJob
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201) {
             curl_close($ch);
-            throw new WebmappExceptionHttpRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU is unreachable");
+            throw new WebmappExceptionHoquRequest("Unable to perform a Store operation ({$this->instanceUrl}, {$job}, " . json_encode($params) . "). HOQU is unreachable");
         }
         curl_close($ch);
     }

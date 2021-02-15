@@ -244,4 +244,62 @@ class WebmappUpdatePoiJobTest extends TestCase
 
         $this->assertSame($file["properties"]["modified"], $lastModifiedApi);
     }
+
+    function testKTaxonomiesUpdate()
+    {
+        $aEndpoint = "./data/a";
+        $kEndpoint = "./data/k";
+        $instanceUrl = "http://elm.be.webmapp.it";
+        $instanceName = "elm.be.webmapp.it";
+        $instanceCode = "elm";
+        $instanceCode2 = "elm2";
+        $id = 1459;
+
+        WebmappHelpers::createProjectStructure($aEndpoint, $kEndpoint, $instanceName, null, [$instanceCode, $instanceCode2], [["multimap" => true], ["multimap" => false]]);
+
+        $params = "{\"id\":{$id}}";
+        $job = new WebmappUpdatePoiJob($instanceUrl, $params, false);
+        try {
+            $job->run();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/webmapp_category.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/webmapp_category.json"), true);
+        $this->assertIsArray($file);
+        $this->assertArrayHasKey(161, $file);
+        $this->assertIsArray($file[161]);
+        $this->assertArrayHasKey("items", $file[161]);
+        $this->assertIsArray($file[161]["items"]);
+        $this->assertCount(0, $file[161]["items"]);
+
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/activity.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/activity.json"), true);
+        $this->assertIsArray($file);
+        $this->assertCount(0, $file);
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/theme.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/theme.json"), true);
+        $this->assertIsArray($file);
+        $this->assertCount(0, $file);
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/when.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/when.json"), true);
+        $this->assertIsArray($file);
+        $this->assertCount(0, $file);
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/where.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/where.json"), true);
+        $this->assertIsArray($file);
+        $this->assertCount(0, $file);
+        $this->assertTrue(file_exists("{$kEndpoint}/{$instanceCode}/taxonomies/who.json"));
+        $file = json_decode(file_get_contents("{$kEndpoint}/{$instanceCode}/taxonomies/who.json"), true);
+        $this->assertIsArray($file);
+        $this->assertCount(0, $file);
+
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/webmapp_category.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/activity.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/theme.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/when.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/where.json"));
+        $this->assertFalse(file_exists("{$kEndpoint}/{$instanceCode2}/taxonomies/who.json"));
+    }
 }

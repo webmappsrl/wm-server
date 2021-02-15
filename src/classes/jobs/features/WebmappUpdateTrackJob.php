@@ -170,6 +170,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     $this->_warning("An error occurred running the generateAllImages for the roadbook: {$e->getMessage()}");
                 } catch (Exception $e) {
                     $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+                } catch (Error $e) {
+                    $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
                 }
                 try {
                     $track->generateLandscapeRBImages("", $trackPath);
