@@ -2,9 +2,9 @@
 /**
  * Project: wm-server
  * Author: Webmapp
- * Version 0.1.18
+ * Version 0.1.19
  */
-echo "wmcli v0.1.18\n";
+echo "wmcli v0.1.19\n";
 
 require 'autoload.php';
 $c = new WebmappCli($argv);
