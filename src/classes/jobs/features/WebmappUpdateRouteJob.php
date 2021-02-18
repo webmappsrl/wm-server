@@ -37,22 +37,24 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
             foreach ($apiTracks as $track) {
                 $currentDate = 1;
                 $generatedDate = 0;
-                if (file_exists("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson")) {
-                    $currentDate = $this->_getPostLastModified($track["ID"], strtotime($track["post_modified"]));
-                    $file = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
+                $id = isset($track["ID"]) ? $track["ID"] : strval($track);
+                $lastModified = isset($track["post_modified"]) ? strtotime($track["post_modified"]) : strtotime("01-01-2000");
+                if (file_exists("{$this->aProject->getRoot()}/geojson/{$id}.geojson")) {
+                    $currentDate = $this->_getPostLastModified($id, $lastModified);
+                    $file = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson"), true);
                     $generatedDate = strtotime($file["properties"]["modified"]);
                 }
                 if ($currentDate > $generatedDate) {
-                    $this->_verbose("Updating track {$track['ID']}");
+                    $this->_verbose("Updating track {$id}");
                     $params = [
-                        "id" => $track["ID"],
+                        "id" => $id,
                         "skipRouteCheck" => true
                     ];
                     $job = new WebmappUpdateTrackJob($this->instanceUrl, json_encode($params), $this->verbose);
                     $job->run();
                 }
 
-                $tracks[] = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$track['ID']}.geojson"), true);
+                $tracks[] = json_decode(file_get_contents("{$this->aProject->getRoot()}/geojson/{$id}.geojson"), true);
             }
         }
 
