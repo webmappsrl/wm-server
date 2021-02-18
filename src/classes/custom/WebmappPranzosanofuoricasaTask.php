@@ -73,7 +73,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $j['content']['rendered'] .= $ja['acf']['menu'];
                     }
                     if (!empty($ja['acf']['ingredienti'])) {
-                        $j['content']['rendered'] .= "<p><h3>Ingredienti</h3>:<br>" . $ja['acf']['ingredienti'] . "</p>";
+                        $j['content']['rendered'] .= "<p><h3><b>Ingredienti:</b></h3><br>" . $ja['acf']['ingredienti'] . "</p>";
                     }
                     if (!empty($ja['acf']['tempo_cottura'])) {
                         $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tempo di cottura</span>: " . $ja['acf']['tempo_cottura'] . "</p>";
@@ -94,9 +94,9 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     }
 
                     $j['opening_hours'] = "";
-                    if (!empty($ja['link'])) {
-                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">pranzosanofuoricasa.it</a></p>";
-                    }
+//                    if (!empty($ja['link'])) {
+//                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">pranzosanofuoricasa.it</a></p>";
+//                    }
 
                     if (isset($ja["acf"])) {
                         foreach ($ja['acf'] as $acfKey => $acfValue) {
