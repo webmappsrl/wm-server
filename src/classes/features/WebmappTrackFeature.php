@@ -618,6 +618,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
 
                 // Add rotated images
                 $r_image_path = $path . '/' . $this->getId() . '_' . $width . 'x' . $height . '_' . $bbox_dx . '_' . $i . '_r.png';
+                WebmappUtils::verbose("Running 'imagecreatefrompng' on {$image_path}");
                 $source = imagecreatefrompng($image_path);
                 $rotated = imagerotate($source, 90, 0);
                 imagepng($rotated, $r_image_path);
@@ -626,7 +627,6 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             }
             $this->addProperty('rb_images', $images);
         }
-
     }
 
     public function computeDistance3857($instance_id = '')
