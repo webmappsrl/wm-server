@@ -285,11 +285,14 @@ abstract class WebmappAbstractFeature
             foreach ($gallery as $item) {
                 // TODO: usare una grandezza standard
                 //$images[]=array('src'=>$item['url']);
-                $src = $this->_getImageUrlFromSizes($item['sizes']);
-                $images[] = array(
-                    'src' => $src,
-                    'id' => $item['id'],
-                    'caption' => $item['caption']);
+                if (isset($item['sizes'])) {
+                    $src = $this->_getImageUrlFromSizes($item['sizes']);
+                    $images[] = array(
+                        'src' => $src,
+                        'id' => $item['id'],
+                        'caption' => $item['caption']);
+                } else
+                    WebmappUtils::warning("The image sizes are not available. Image item: " . json_encode($item));
             }
             $this->properties['imageGallery'] = $images;
             $this->setImage($images[0]['src']);
