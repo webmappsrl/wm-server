@@ -73,7 +73,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                         $j['content']['rendered'] .= $ja['acf']['menu'];
                     }
                     if (!empty($ja['acf']['ingredienti'])) {
-                        $j['content']['rendered'] .= $ja['acf']['ingredienti'];
+                        $j['content']['rendered'] .= "<p><h3>Ingredienti</h3>:<br>" . $ja['acf']['ingredienti'] . "</p>";
                     }
                     if (!empty($ja['acf']['tempo_cottura'])) {
                         $j['content']['rendered'] .= "<p><span class=\"vt_chiusura\">Tempo di cottura</span>: " . $ja['acf']['tempo_cottura'] . "</p>";
@@ -194,16 +194,20 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     $tax = array();
                     $tax['tipo'] = array($type);
                     $tax['localita'] = array(empty($provincia) ? null : $provincia);
-                    $tags = array();
-                    if (isset($ja['tags']) && is_array($ja['tags'])) {
-                        $tags = $ja['tags'];
+                    if ($type === "posts") {
+                        $tags = array();
+                        if (isset($ja['tags']) && is_array($ja['tags'])) {
+                            $tags = $ja['tags'];
+                        }
+                        $tax['tags'] = $tags;
                     }
-                    $tax['tags'] = $tags;
-                    $recipeCategories = array();
-                    if (isset($ja['categorie-ricette']) && is_array($ja['categorie-ricette'])) {
-                        $recipeCategories = $ja['categorie-ricette'];
+                    if ($type === "ricette") {
+                        $recipeCategories = array();
+                        if (isset($ja['categorie-ricette']) && is_array($ja['categorie-ricette'])) {
+                            $recipeCategories = $ja['categorie-ricette'];
+                        }
+                        $tax['categorie-ricette'] = $recipeCategories;
                     }
-                    $tax['categorie-ricette'] = $recipeCategories;
                     $poi->addProperty('taxonomy', $tax);
 
                     $properties = $poi->getProperties();
