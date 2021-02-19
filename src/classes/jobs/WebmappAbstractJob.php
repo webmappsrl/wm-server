@@ -649,7 +649,7 @@ abstract class WebmappAbstractJob
      * @param object|null $relation
      * @param array|null $oldGeojson
      */
-    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null, array $oldGeojson = null)
+    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null, array $oldProperties = null)
     {
         $mapping = $this->_getMapping();
         if (isset($mapping) && is_array($mapping) && array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
@@ -692,10 +692,11 @@ abstract class WebmappAbstractJob
                                 $value .= $currentValue;
                         }
                     } else $value = strval($mappingArray);
-                } elseif (isset($oldGeojson[$key]))
-                    $value = $oldGeojson[$key];
+                } elseif (isset($oldProperties[$key]))
+                    $value = $oldProperties[$key];
 
-                $feature->addProperty($key, $value);
+                if (isset($value) && !empty($value))
+                    $feature->addProperty($key, $value);
             }
         }
     }

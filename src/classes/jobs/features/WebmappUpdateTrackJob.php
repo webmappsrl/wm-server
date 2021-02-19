@@ -95,12 +95,13 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
 
         $track->addProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($track->getProperty("modified")))));
 
-        $this->_verbose("Applying the mapping");
+        $this->_verbose("Applying the track mapping");
         $this->_applyMapping($track, "track");
 
         if ($track->hasProperty("osmid")) {
+            $this->_verbose("Applying the osm mapping");
             if ($skippedGeometry)
-                $this->_applyMapping($track, "osm", null, $oldGeojson);
+                $this->_applyMapping($track, "osm", null, $oldGeojson["properties"]);
             else {
                 $relation = $track->hasRelation() ? $track->getRelation() : null;
                 $this->_applyMapping($track, "osm", $relation);
