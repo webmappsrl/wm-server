@@ -225,8 +225,8 @@ class WebmappTrackFeature extends WebmappAbstractFeature
             $this->addProperty('computed', $computed);
 
             // Set "normal properties"
-            $this->addProperty('distance', $dist);
-            //this->setPropsFromComputed('distance');
+//            $this->addProperty('distance', $dist);
+            $this->setPropsFromComputed('distance');
             $this->setPropsFromComputed('ele:from');
             $this->setPropsFromComputed('ele:to');
             $this->setPropsFromComputed('ele:min');
@@ -773,13 +773,13 @@ class WebmappTrackFeature extends WebmappAbstractFeature
         $this->setProperty('n7webmap_start', $json_array, 'from');
         $this->setProperty('n7webmap_end', $json_array, 'to');
         $this->setProperty('ref', $json_array);
-        $this->setProperty('ascent', $json_array);
-        $this->setProperty('descent', $json_array);
-        $this->setProperty('ele:min', $json_array);
-        $this->setProperty('ele:max', $json_array);
-        $this->setProperty('ele:from', $json_array);
-        $this->setProperty('ele:to', $json_array);
-        $this->setProperty('distance', $json_array);
+        $this->setPropertyFloat('ascent', $json_array);
+        $this->setPropertyFloat('descent', $json_array);
+        $this->setPropertyFloat('ele:min', $json_array);
+        $this->setPropertyFloat('ele:max', $json_array);
+        $this->setPropertyFloat('ele:from', $json_array);
+        $this->setPropertyFloat('ele:to', $json_array);
+        $this->setPropertyFloat('distance', $json_array);
         $this->setProperty('duration:forward', $json_array);
         $this->setProperty('duration:backward', $json_array);
         $this->setProperty('cai_scale', $json_array);
@@ -848,44 +848,49 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 $pg = WebmappPostGisOsm::Instance();
                 $this->setGeometryGeoJSON($pg->getRelationJsonGeometry($osmid));
                 $this->setRelation($osmid);
-                $red_match = '/red:red:white_stripe:[^:]+:black/';
-                $color = '#636363';
-                if ($this->_relation->hasTag('source') &&
-                    $this->_relation->getTag('source') == 'survey:CAI') {
-                    $color = '#A63FD1';
-                    if ($this->_relation->hasTag('osmc:symbol') &&
-                        preg_match($red_match, $this->_relation->getTag('osmc:symbol'))) {
-                        $color = '#E35234';
-                    }
-                }
-                if (!$this->hasProperty("color") && $color)
-                    $this->addProperty("color", $color);
-
-                // ADD lineDash for alternate
-                if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate')
-                    $this->addProperty('lineDash', array(12, 8));
-
-                // TODO: Move this code to a mapping specific/mapping standard
-                $mapProperties = array(
-                    "cai_scale",
-                    "name",
-                    "from",
-                    "to",
-                    "stroke_opacity",
-                    "stroke_width",
-                    "line_dash",
-                    "duration:forward",
-                    "duration:backward",
-                    "ref"
-                );
-                foreach ($mapProperties as $property) {
-                    if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property))) {
-                        $this->addProperty($property, $this->_relation->getTag($property));
-                    }
-                }
+//                $this->setOsmProperties();
             } catch (Exception $e) {
                 echo "\n\n\nWARNING Exception " . get_class($e) . " thrown. " . $e->getMessage() . "\n";
                 echo "Geometry not set\n\n\n";
+            }
+        }
+    }
+
+    public function setOsmProperties()
+    {
+        $red_match = '/red:red:white_stripe:[^:]+:black/';
+        $color = '#636363';
+        if ($this->_relation->hasTag('source') &&
+            $this->_relation->getTag('source') == 'survey:CAI') {
+            $color = '#A63FD1';
+            if ($this->_relation->hasTag('osmc:symbol') &&
+                preg_match($red_match, $this->_relation->getTag('osmc:symbol'))) {
+                $color = '#E35234';
+            }
+        }
+        if (!$this->hasProperty("color") && $color)
+            $this->addProperty("color", $color);
+
+        // ADD lineDash for alternate
+        if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate')
+            $this->addProperty('lineDash', array(12, 8));
+
+        // TODO: Move this code to a mapping specific/mapping standard
+        $mapProperties = array(
+            "cai_scale",
+            "name",
+            "from",
+            "to",
+            "stroke_opacity",
+            "stroke_width",
+            "line_dash",
+            "duration:forward",
+            "duration:backward",
+            "ref"
+        );
+        foreach ($mapProperties as $property) {
+            if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property))) {
+                $this->addProperty($property, $this->_relation->getTag($property));
             }
         }
     }

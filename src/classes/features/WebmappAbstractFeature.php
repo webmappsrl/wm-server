@@ -261,6 +261,16 @@ abstract class WebmappAbstractFeature
         }
     }
 
+    public function setPropertyFloat($key, $json_array, $key_map = '')
+    {
+        if (isset($json_array[$key]) && !is_null($json_array[$key])) {
+            if ($key_map == '')
+                $key_map = $key;
+
+            $this->properties[$key_map] = floatval($json_array[$key]);
+        }
+    }
+
     protected function setPropertyBool($key, $json_array, $key_map = '')
     {
         if ($key_map == '') {

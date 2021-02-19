@@ -1,8 +1,16 @@
 <?php
 
-define("GEOMETRY_METADATA_PROPERTIES", [
+define("GEOMETRY_OSM_METADATA_PROPERTIES", [
     "osmid",
     "computed",
+    "bbox",
+    "bbox_metric",
+    "id_pois",
+    "related",
+    "color"
+]);
+
+define("GEOMETRY_BACKEND_METADATA_PROPERTIES", [
     "distance",
     "ascent",
     "descent",
@@ -11,12 +19,7 @@ define("GEOMETRY_METADATA_PROPERTIES", [
     "ele:min",
     "ele:max",
     "duration:forward",
-    "duration:backward",
-    "bbox",
-    "bbox_metric",
-    "id_pois",
-    "related",
-    "color"
+    "duration:backward"
 ]);
 
 class WebmappUpdateTrackJob extends WebmappAbstractJob
@@ -84,8 +87,17 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $oldGeojson = $currentGeojson;
                 $currentMetadata = $currentGeojson["properties"];
 
-                foreach (GEOMETRY_METADATA_PROPERTIES as $key) {
+                foreach (GEOMETRY_OSM_METADATA_PROPERTIES as $key) {
+//                    WebmappUtils::warning("$key: " . ($track->hasProperty($key) ? json_encode($track->getProperty($key)) : "NULL"));
                     if (array_key_exists($key, $currentMetadata))
+                        $track->setProperty($key, $currentMetadata, $key);
+                    else
+                        $track->removeProperty($key);
+                }
+
+                foreach (GEOMETRY_BACKEND_METADATA_PROPERTIES as $key) {
+//                    WebmappUtils::warning("$key: " . ($track->hasProperty($key) ? json_encode($track->getProperty($key)) : "NULL"));
+                    if (!$track->hasProperty($key) && array_key_exists($key, $currentMetadata))
                         $track->setProperty($key, $currentMetadata, $key);
                 }
             }
@@ -142,6 +154,9 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                     $this->_warning($e->getMessage());
                 }
             }
+
+            if ($track->hasProperty("osmid"))
+                $track->setOsmProperties();
 
             $track->writeToPostGis();
             if ($track->getGeometryType() === "LineString") {
