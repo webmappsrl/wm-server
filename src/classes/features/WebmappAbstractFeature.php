@@ -373,7 +373,7 @@ abstract class WebmappAbstractFeature
      * @param array $types
      * @return array
      */
-    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types): array
+    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types = []): array
     {
         $result = [];
         foreach ($types as $type) {

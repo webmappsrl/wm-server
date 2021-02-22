@@ -619,9 +619,34 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                 // Add rotated images
                 $r_image_path = $path . '/' . $this->getId() . '_' . $width . 'x' . $height . '_' . $bbox_dx . '_' . $i . '_r.png';
                 WebmappUtils::verbose("Running 'imagecreatefrompng' on {$image_path}");
-                $source = imagecreatefrompng($image_path);
-                $rotated = imagerotate($source, 90, 0);
-                imagepng($rotated, $r_image_path);
+                $valid = true;
+                if (file_exists($image_path)) {
+                    if (extension_loaded('imagick')) {
+                        WebmappUtils::verbose("  Checking image validity with Imagick");
+                        try {
+                            if (method_exists(Imagick, "valid")) {
+                                WebmappUtils::verbose("  Using static method");
+                                $valid = Imagick::valid($image_path);
+                            } else {
+                                WebmappUtils::verbose("  Using instance method");
+                                $imagick = new Imagick($image_path);
+                                $valid = $imagick->valid();
+                            }
+                        } catch (Exception $e) {
+                            $valid = false;
+                        }
+                    }
+                    if ($valid) {
+                        WebmappUtils::verbose("  Image is valid or Imagick is not available");
+                        $source = @imagecreatefrompng($image_path);
+                        if ($source) {
+                            $rotated = imagerotate($source, 90, 0);
+                            imagepng($rotated, $r_image_path);
+                        } else
+                            WebmappUtils::warning("File {$image_path} is not a valid png file. {$r_image_path} will be skipped");
+                    } else
+                        WebmappUtils::warning("File {$image_path} is not a valid png file. {$r_image_path} will be skipped");
+                } else WebmappUtils::warning("File {$image_path} does not exists. {$r_image_path} will be skipped");
 
                 $i++;
             }
