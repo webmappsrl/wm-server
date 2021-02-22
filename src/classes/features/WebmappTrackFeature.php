@@ -645,6 +645,7 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                         if ($source) {
                             $rotated = imagerotate($source, 90, 0);
                             imagepng($rotated, $r_image_path);
+                            WebmappUtils::verbose("  File {$r_image_path} written successfully");
                         } else
                             WebmappUtils::warning("File {$image_path} is not a valid png file. {$r_image_path} will be skipped");
                     } else
