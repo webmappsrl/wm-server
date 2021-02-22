@@ -624,13 +624,16 @@ class WebmappTrackFeature extends WebmappAbstractFeature
                     if (extension_loaded('imagick')) {
                         WebmappUtils::verbose("  Checking image validity with Imagick");
                         try {
-                            if (method_exists(Imagick, "valid")) {
-                                WebmappUtils::verbose("  Using static method");
-                                $valid = Imagick::valid($image_path);
-                            } else {
-                                WebmappUtils::verbose("  Using instance method");
-                                $imagick = new Imagick($image_path);
-                                $valid = $imagick->valid();
+                            if (method_exists(Imagick::class, "valid")) {
+                                $method = new ReflectionMethod ('Imagick', 'valid');
+                                if ($method->isStatic()) {
+                                    WebmappUtils::verbose("  Using static method");
+                                    $valid = Imagick::valid($image_path);
+                                } else {
+                                    WebmappUtils::verbose("  Using instance method");
+                                    $imagick = new Imagick($image_path);
+                                    $valid = $imagick->valid();
+                                }
                             }
                         } catch (Exception $e) {
                             $valid = false;
