@@ -454,7 +454,7 @@ abstract class WebmappAbstractJob
 
                     // Remove post from its not taxonomies
                     foreach ($kJson as $taxId => $taxonomy) {
-                        $items = $taxonomy["items"];
+                        $items = $taxonomy["items"] ? $taxonomy["items"] : [];
                         foreach ($items as $postTypeKey => $value) {
                             if ($postTypeKey !== "route")
                                 unset($items[$postTypeKey]);
