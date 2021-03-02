@@ -70,8 +70,7 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     }
                     $j['content']['rendered'] .= $ja['content']['rendered'];
                     if (!empty($ja['acf']['menu'])) {
-                        $j['content']['rendered'] .= "<p><h2>Il menù di Pranzo Sano Fuori Casa</h2><br>" . $ja['acf']['ingredienti'] . "</p>";
-                        $j['content']['rendered'] .= $ja['acf']['menu'];
+                        $j['content']['rendered'] .= "<h2>Il menù di Pranzo Sano Fuori Casa</h2>" . $ja['acf']['menu'];
                     }
                     if (!empty($ja['acf']['ingredienti'])) {
                         $j['content']['rendered'] .= "<p><h2>Ingredienti:</h2><br>" . $ja['acf']['ingredienti'] . "</p>";
