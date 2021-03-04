@@ -47,114 +47,40 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             ];
 
             if (array_key_exists("elements", $json) && is_array($json["elements"])) {
+                $ways = [];
+                $nodes = [];
                 $id = 1;
                 foreach ($json["elements"] as $item) {
-                    if (is_array($item) &&
-                        array_key_exists("lat", $item) &&
-                        array_key_exists("lon", $item) &&
-                        array_key_exists("tags", $item) &&
-                        is_array($item["tags"])) {
-                        $feature = [
-                            "type" => "Feature",
-                            "geometry" => [
+                    if (is_array($item)) {
+                        if (isset($item["type"]) && $item["type"] === "way") {
+                            if (array_key_exists("nodes", $item))
+                                $ways[] = $item;
+                        } elseif (array_key_exists("lat", $item) && array_key_exists("lon", $item)) {
+                            $geometry = [
                                 "type" => "Point",
                                 "coordinates" => [
                                     floatval($item["lon"]),
                                     floatval($item["lat"])
                                 ]
-                            ],
-                            "properties" => [
-                                "id" => $id,
-                            ]
-                        ];
+                            ];
 
-                        if (isset($item["tags"]["name"]))
-                            $feature["properties"]["name"] = strval($item["tags"]["name"]);
-
-                        if (isset($item["tags"]["ele"]) && !is_nan(floatval($item["tags"]["ele"]))) {
-                            $feature["geometry"]["coordinates"][] = floatval($item["tags"]["ele"]);
-                            $feature["properties"]["ele"] = floatval($item["tags"]["ele"]);
-                        }
-
-                        if (isset($item['id']))
-                            $feature["properties"]["osmid"] = $item["id"];
-
-                        $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
-
-                        foreach ($propertiesToMap as $key => $property) {
-                            if (array_key_exists($property, $item["tags"]))
-                                $feature["properties"][$key] = $item["tags"][$property];
-                        }
-
-                        if (is_array($this->_mapping)) {
-                            foreach ($this->_mapping as $key => $mappingArray) {
-                                $value = "";
-                                if (is_array($mappingArray)) {
-                                    foreach ($mappingArray as $val) {
-                                        if (is_string($val) && substr($val, 0, 1) === "$") {
-                                            if (array_key_exists(substr($val, 1), $feature["properties"]))
-                                                $value .= strval($feature["properties"][substr($val, 1)]);
-                                        } else
-                                            $value .= strval($val);
-                                    }
-                                } else $value = strval($mappingArray);
-
-                                if (substr($key, 0, 9) === "default::") {
-                                    $keyToCheck = substr($key, 9);
-                                    if (!isset($feature["properties"][$keyToCheck]) || empty($feature["properties"][$keyToCheck]))
-                                        $feature["properties"][$keyToCheck] = trim($value);
-                                } else
-                                    $feature["properties"][$key] = trim($value);
-                            }
-                        }
-
-                        if (isset($item["tags"]["wikimedia_commons"])) {
-                            $filename = $item["tags"]["wikimedia_commons"];
-                            $url = null;
-                            try {
-                                echo "Fetching wikimedia img url from https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600...";
-                                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600"), true);
-                                if (isset($apiJson) &&
-                                    isset($apiJson["query"]) &&
-                                    isset($apiJson["query"]["pages"]) &&
-                                    is_array($apiJson["query"]["pages"]) &&
-                                    count($apiJson["query"]["pages"]) > 0
-                                ) {
-                                    $key = array_key_first($apiJson["query"]["pages"]);
-                                    if (isset($apiJson["query"]["pages"][$key]) &&
-                                        isset($apiJson["query"]["pages"][$key]["imageinfo"]) &&
-                                        is_array($apiJson["query"]["pages"][$key]["imageinfo"]) &&
-                                        count($apiJson["query"]["pages"][$key]["imageinfo"]) > 0) {
-                                        $imageKey = array_key_first($apiJson["query"]["pages"][$key]["imageinfo"]);
-                                        if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
-                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"]))
-                                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"];
-                                        else if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
-                                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"]))
-                                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"];
-                                    }
-                                }
-                                echo " OK\n";
-                            } catch (Exception $e) {
-                                echo "\nError getting wikimedia file: {$e->getMessage()}\n";
-                            }
-
-                            if (isset($url)) {
-                                if (!isset($feature["properties"]["image"]))
-                                    $feature["properties"]["image"] = $url;
-                                else {
-                                    if (!isset($feature["properties"]["imageGallery"]))
-                                        $feature["properties"]["imageGallery"] = [];
-
-                                    $feature["properties"]["imageGallery"][] = [
-                                        "id" => $url,
-                                        "src" => $url,
-                                        "caption" => ""
-                                    ];
+                            if (isset($item["tags"]) && is_array($item["tags"])) {
+                                $feature = $this->getFeature($item, $geometry, $id);
+                                if (isset($feature["properties"]["name"])) {
+                                    $geojson["features"][] = $feature;
+                                    $id++;
                                 }
                             }
+                            if (isset($item["id"]))
+                                $nodes[$item["id"]] = $geometry;
                         }
+                    }
+                }
 
+                foreach ($ways as $way) {
+                    $geometry = $this->getPoint($way, $nodes);
+                    if (isset($geometry)) {
+                        $feature = $this->getFeature($way, $geometry, $id);
                         if (isset($feature["properties"]["name"])) {
                             $geojson["features"][] = $feature;
                             $id++;
@@ -172,6 +98,150 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         } catch (Exception $e) {
             echo $e->getMessage() . "\n";
         }
+    }
+
+    /**
+     * Return a geojson geometry point given a way and a set of nodes
+     *
+     * @param array $way the way
+     * @param array $nodes the nodes
+     * @return array|null
+     */
+    private function getPoint(array $way, array $nodes): ?array
+    {
+        $sumLon = 0;
+        $sumLat = 0;
+        $count = 0;
+        $nodesDone = [];
+
+        $ids = $way["nodes"];
+
+        if (is_array($ids)) {
+            foreach ($ids as $id) {
+                if (isset($nodes[$id]) && !in_array($id, $nodesDone)) {
+                    $sumLon += $nodes[$id]["coordinates"][0];
+                    $sumLat += $nodes[$id]["coordinates"][1];
+                    $count++;
+                    $nodesDone[] = $id;
+                }
+            }
+        }
+
+        return $count > 0 ? [
+            "type" => "Point",
+            "coordinates" => [
+                $sumLon / $count,
+                $sumLat / $count
+            ]
+        ] : null;
+    }
+
+    /**
+     * Return a feature from a overpass element
+     *
+     * @param array $item the overpass item
+     * @param array $geometry the geometry
+     * @param int $id the item id
+     * @return array
+     */
+    private function getFeature(array $item, array $geometry, int $id): array
+    {
+        $feature = [
+            "type" => "Feature",
+            "geometry" => $geometry,
+            "properties" => [
+                "id" => $id,
+            ]
+        ];
+
+        if (isset($item["tags"]["name"]))
+            $feature["properties"]["name"] = strval($item["tags"]["name"]);
+
+        if (isset($item["tags"]["ele"]) && !is_nan(floatval($item["tags"]["ele"]))) {
+            $feature["geometry"]["coordinates"][] = floatval($item["tags"]["ele"]);
+            $feature["properties"]["ele"] = floatval($item["tags"]["ele"]);
+        }
+
+        if (isset($item['id']))
+            $feature["properties"]["osmid"] = $item["id"];
+
+        $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
+
+        foreach ($propertiesToMap as $key => $property) {
+            if (array_key_exists($property, $item["tags"]))
+                $feature["properties"][$key] = $item["tags"][$property];
+        }
+
+        if (is_array($this->_mapping)) {
+            foreach ($this->_mapping as $key => $mappingArray) {
+                $value = "";
+                if (is_array($mappingArray)) {
+                    foreach ($mappingArray as $val) {
+                        if (is_string($val) && substr($val, 0, 1) === "$") {
+                            if (array_key_exists(substr($val, 1), $feature["properties"]))
+                                $value .= strval($feature["properties"][substr($val, 1)]);
+                        } else
+                            $value .= strval($val);
+                    }
+                } else $value = strval($mappingArray);
+
+                if (substr($key, 0, 9) === "default::") {
+                    $keyToCheck = substr($key, 9);
+                    if (!isset($feature["properties"][$keyToCheck]) || empty($feature["properties"][$keyToCheck]))
+                        $feature["properties"][$keyToCheck] = trim($value);
+                } else
+                    $feature["properties"][$key] = trim($value);
+            }
+        }
+
+        if (isset($item["tags"]["wikimedia_commons"])) {
+            $filename = $item["tags"]["wikimedia_commons"];
+            $url = null;
+            try {
+                echo "Fetching wikimedia img url from https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600...";
+                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600"), true);
+                if (isset($apiJson) &&
+                    isset($apiJson["query"]) &&
+                    isset($apiJson["query"]["pages"]) &&
+                    is_array($apiJson["query"]["pages"]) &&
+                    count($apiJson["query"]["pages"]) > 0
+                ) {
+                    $key = array_key_first($apiJson["query"]["pages"]);
+                    if (isset($apiJson["query"]["pages"][$key]) &&
+                        isset($apiJson["query"]["pages"][$key]["imageinfo"]) &&
+                        is_array($apiJson["query"]["pages"][$key]["imageinfo"]) &&
+                        count($apiJson["query"]["pages"][$key]["imageinfo"]) > 0) {
+                        $imageKey = array_key_first($apiJson["query"]["pages"][$key]["imageinfo"]);
+                        if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"]))
+                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["thumburl"];
+                        else if (isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]) &&
+                            isset($apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"]))
+                            $url = $apiJson["query"]["pages"][$key]["imageinfo"][$imageKey]["url"];
+                    }
+                }
+                echo " OK\n";
+            } catch (Exception $e) {
+                echo "\nError getting wikimedia file: {$e->getMessage()}\n";
+            }
+
+            if (isset($url)) {
+                if (!isset($feature["properties"]["image"]))
+                    $feature["properties"]["image"] = $url;
+                else {
+                    if (!isset($feature["properties"]["imageGallery"]))
+                        $feature["properties"]["imageGallery"] = [];
+
+                    $feature["properties"]["imageGallery"][] = [
+                        "id" => $url,
+                        "src" => $url,
+                        "caption" => ""
+                    ];
+                }
+            }
+        }
+
+        return $feature;
     }
 
     /**
