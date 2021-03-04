@@ -151,6 +151,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             "geometry" => $geometry,
             "properties" => [
                 "id" => $id,
+                "osm_type" => isset($item["type"]) ? $item["type"] : "node"
             ]
         ];
 
