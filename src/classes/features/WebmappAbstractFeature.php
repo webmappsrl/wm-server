@@ -373,12 +373,12 @@ abstract class WebmappAbstractFeature
      * @param array $types
      * @return array
      */
-    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types = []): array
+    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types = [], string $prefix): array
     {
         $result = [];
         foreach ($types as $type) {
-            $check = 'access_' . $type . '_check';
-            $description = 'access_' . $type . '_description';
+            $check = $prefix . '_' . $type . '_check';
+            $description = $prefix . '_' . $type . '_description';
             $result[$type]['check'] = isset($json_array[$check]) ? !!$json_array[$check] : false;
             $result[$type]['description'] = isset($json_array[$description]) ? $json_array[$description] : "";
         }
@@ -391,14 +391,14 @@ abstract class WebmappAbstractFeature
         // ACCESSIBILITA'
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('mobility', 'hearing', 'vision', 'cognitive', 'food');
-        $this->properties['accessibility'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types);
+        $this->properties['accessibility'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types, 'access');
     }
 
     protected function setReachability($json_array)
     {
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('by_bike', 'on_foot', 'by_car', 'by_public_transportation');
-        $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types);;
+        $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types, 'reachability');
     }
 
     private function setRelatedUrl($ja)
