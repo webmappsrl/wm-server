@@ -181,6 +181,8 @@ abstract class WebmappAbstractFeature
         // set Reachability
         $this->setReachability($json_array);
 
+        $this->setNotAccessible($json_array);
+
         // Related URL
         $this->setRelatedUrl($json_array);
 
@@ -402,6 +404,17 @@ abstract class WebmappAbstractFeature
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('by_bike', 'on_foot', 'by_car', 'by_public_transportation');
         $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types, 'reachability');
+    }
+
+    protected function setNotAccessible($json_array)
+    {
+        if (isset($json_array['not_accessible']) && !!$json_array['not_accessible']) {
+            $this->properties['not_accessible'] = [
+                "check" => true,
+            ];
+            if (isset($json_array['not_accessible_description']) && !empty($json_array['not_accessible_description']))
+                $this->properties["not_accessible"]["description"] = $json_array['not_accessible_description'];
+        }
     }
 
     private function setRelatedUrl($ja)
