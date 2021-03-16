@@ -379,8 +379,11 @@ abstract class WebmappAbstractFeature
         foreach ($types as $type) {
             $check = $prefix . '_' . $type . '_check';
             $description = $prefix . '_' . $type . '_description';
+            $level = $prefix . '_' . $type . '_level';
             $result[$type]['check'] = isset($json_array[$check]) ? !!$json_array[$check] : false;
             $result[$type]['description'] = isset($json_array[$description]) ? $json_array[$description] : "";
+            if (isset($json_array[$level]))
+                $result[$type]['level'] = $json_array[$level];
         }
 
         return $result;
