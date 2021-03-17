@@ -199,8 +199,11 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             $filename = $item["tags"]["wikimedia_commons"];
             $url = null;
             try {
-                echo "Fetching wikimedia img url from https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600...";
-                $apiJson = json_decode(file_get_contents("https://commons.wikimedia.org/w/api.php?action=query&titles={$filename}&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600"), true);
+                $url = "https://commons.wikimedia.org/w/api.php?action=query&titles=" .
+                    rawurlencode($filename) .
+                    "&format=json&prop=imageinfo&iiprop=url&iilimit=1&iiurlwidth=600";
+                echo "Fetching wikimedia img url from $url...";
+                $apiJson = json_decode(file_get_contents($url), true);
                 if (isset($apiJson) &&
                     isset($apiJson["query"]) &&
                     isset($apiJson["query"]["pages"]) &&
