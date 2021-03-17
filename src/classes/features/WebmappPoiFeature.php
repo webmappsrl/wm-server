@@ -266,16 +266,22 @@ class WebmappPoiFeature extends WebmappAbstractFeature
             $this->properties["related"]["poi"]["related"] = $ids;
         }
 
-        unset($this->properties["taxonomy"]);
-
-        if (isset($this->json_array["categories"])) {
-            $this->properties["taxonomy"] = [
-                "webmapp_category" => []
-            ];
-
-            foreach ($this->json_array["categories"] as $category) {
-                $this->properties["taxonomy"]["webmapp_category"][] = $category["id"];
+        if (isset($this->properties["taxonomy"])) {
+            foreach ($this->properties["taxonomy"] as $taxType => $array) {
+                $this->properties["taxonomy"][$taxType] = array_filter($array);
             }
         }
+
+//        unset($this->properties["taxonomy"]);
+//
+//        if (isset($this->json_array["categories"])) {
+//            $this->properties["taxonomy"] = [
+//                "webmapp_category" => []
+//            ];
+//
+//            foreach ($this->json_array["categories"] as $category) {
+//                $this->properties["taxonomy"]["webmapp_category"][] = $category["id"];
+//            }
+//        }
     }
 }

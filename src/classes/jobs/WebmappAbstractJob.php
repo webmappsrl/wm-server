@@ -186,7 +186,9 @@ abstract class WebmappAbstractJob
         foreach (TAXONOMY_TYPES as $taxTypeId) {
             $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
             foreach ($taxArray as $taxId) {
-                $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
+                if (!is_null($taxId))
+//                $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
+                    $this->_getTaxonomy($taxTypeId, $taxId);
             }
         }
 
