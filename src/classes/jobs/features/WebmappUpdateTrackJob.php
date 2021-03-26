@@ -7,7 +7,9 @@ define("GEOMETRY_OSM_METADATA_PROPERTIES", [
     "bbox_metric",
     "id_pois",
     "related",
-    "color"
+    "color",
+    "from",
+    "to"
 ]);
 
 define("GEOMETRY_BACKEND_METADATA_PROPERTIES", [
