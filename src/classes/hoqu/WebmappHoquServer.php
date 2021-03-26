@@ -210,16 +210,6 @@ class WebmappHoquServer
      */
     public function run()
     {
-        $aEndpoint = "/Users/dvdpzzt/Documents/wm-server/data/a";
-        $kEndpoint = "/Users/dvdpzzt/Documents/wm-server/data/k";
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "elm", "elm");
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "caiparma.wp.webmapp.it", "caiparma");
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "sentieroitalia.cai.it", "sentieroitalia");
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "ir.be.webmapp.it", "ir");
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "ucvs.wp.webmapp.it", "ucvs");
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "campos.wp.webmapp.it", "campos");
-        $this->_createProjectStructure($aEndpoint, $kEndpoint, "fie.wp.webmapp.it", "fie");
-
         WebmappUtils::success("New HOQU server started. Press CTRL + C to stop");
 
         $pullUrl = $this->hoquBaseUrl . PULL_ENDPOINT;
@@ -340,92 +330,5 @@ class WebmappHoquServer
         }
         curl_close($ch);
     }
-
-    private function _createProjectStructure($a, $k, $instanceName, $instanceCode)
-    {
-        global $wm_config;
-        $wm_config["endpoint"] = [
-            "a" => $a,
-            "k" => $k
-        ];
-
-        if (!file_exists("{$a}/{$instanceName}/geojson")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/server")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/server";
-            system($cmd);
-        }
-        if (!file_exists("{$a}/{$instanceName}/media/elevation-chart")) {
-            $cmd = "mkdir -p {$a}/{$instanceName}/media/elevation-chart";
-            system($cmd);
-        }
-        $conf =
-            [
-                "elevation-chart" => [
-                    "width" => 1200,
-                    "height" => 600,
-                    "fontColor" => "#000",
-                    "fontSize" => 25,
-                    "fontStyle" => "normal",
-                    "steps" => 36,
-                    "fillColor" => "rgba(180, 163, 145 , 0.2)",
-                    "lineColor" => "#68582d",
-                    "lineWidth" => 4,
-                    "pointBorderColor" => "#68582d",
-                    "pointFillColor" => "#68582d",
-                    "pointRadius" => 1,
-                    "xMaxValues" => 8,
-                    "yMaxValues" => 8,
-                    "showGrid" => true
-                ],
-                "custom_mapping" => [
-                    "track" => [
-                        "n7webmapp_track_color"
-                    ],
-                    "poi" => [
-                        "caipr_poi_collegamenti"
-                    ]
-                ],
-                "mapping" => [
-                    "osm" => [
-                        "name" => [
-                            '$ref', '? - ?', '$name'
-                        ]
-                    ]
-                ]
-            ];
-
-        file_put_contents("{$a}/{$instanceName}/server/server.conf", json_encode($conf));
-
-        if (!file_exists("{$k}/{$instanceCode}/geojson")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/geojson";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/taxonomies")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/taxonomies";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/routes")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/routes";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/server")) {
-            $cmd = "mkdir -p {$k}/{$instanceCode}/server";
-            system($cmd);
-        }
-        if (!file_exists("{$k}/{$instanceCode}/server/server.conf")) {
-            $conf = [
-                "multimap" => false,
-                "routesFilter" => [2056]
-            ];
-
-            file_put_contents("{$k}/{$instanceCode}/server/server.conf", json_encode($conf));
-        }
-    }
 }
+
