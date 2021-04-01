@@ -1,23 +1,22 @@
 <?php
 
-class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
-{
+class WebmappUpdateTaxonomyJob extends WebmappAbstractJob {
     /**
      * WebmappUpdateTaxonomyJob constructor.
+     *
      * @param string $instanceUrl containing the instance url
-     * @param string $params containing an encoded JSON with the poi ID
-     * @param bool $verbose
+     * @param string $params      containing an encoded JSON with the poi ID
+     * @param bool   $verbose
+     *
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct(string $instanceUrl, string $params, bool $verbose = false)
-    {
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false) {
         parent::__construct("update_taxonomy", $instanceUrl, $params, $verbose);
     }
 
-    protected function process()
-    {
+    protected function process() {
         $taxonomyType = null;
         $taxonomyMetadata = null;
         $validIds = [];
@@ -34,7 +33,8 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                         $this->_verbose("Taxonomy found in $taxType file. Updating metadata");
                         $taxonomyType = $taxType;
                         $currentItems = is_array($json[$this->id]["items"]) ? $json[$this->id]["items"] : [];
-                        if (count($currentItems) > 0) {
+                        $isParent = $this->_isParentTaxonomy($this->id, $json);
+                        if (count($currentItems) > 0 || $isParent) {
                             $taxonomyMetadata = $this->_getTaxonomy($taxonomyType, $this->id);
                             $newTaxonomy = $taxonomyMetadata;
                             if ($newTaxonomy) {
@@ -43,7 +43,6 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                             }
                         } else
                             unset($json[$this->id]);
-
                     }
 
                     $this->_verbose("Cleaning empty taxonomies in $jsonUrl");
@@ -58,8 +57,12 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
                             }
                         }
                         if ($clean) {
-                            unset($json[$id]);
-                            $cleanedIds[] = $id;
+                            $isParent = $this->_isParentTaxonomy($id, $json);
+
+                            if (!$isParent) {
+                                unset($json[$id]);
+                                $cleanedIds[] = $id;
+                            }
                         }
                     }
 
@@ -84,27 +87,36 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
 
                 array_push($validIds, ...array_keys($json));
 
-//                if (is_array($json) && array_key_exists($this->id, $json))
-//                    break;
+                //                if (is_array($json) && array_key_exists($this->id, $json))
+                //                    break;
             }
         }
 
         $this->_cleanKTaxonomies($validIds);
 
+        $this->_warning($taxonomyType);
+
         if ($taxonomyType && $taxonomyMetadata) {
             $collectionUrl = "{$this->aProject->getRoot()}/taxonomies/{$this->id}.geojson";
+            $json = null;
             if (file_exists($collectionUrl)) {
                 $this->_lockFile($collectionUrl);
-                $this->_verbose("Updating feature collection file {$collectionUrl}");
                 $json = json_decode(file_get_contents($collectionUrl), true);
-                if (is_array($json) && array_key_exists("properties", $json)) {
-                    $newMetadata = $this->_cleanTaxonomy($taxonomyMetadata);
-                    $newMetadata["count"] = is_array($json["features"]) ? count($json["features"]) : 0;
-                    $json["properties"] = $newMetadata;
-                    file_put_contents($collectionUrl, json_encode($json));
-                }
-                $this->_unlockFile($collectionUrl);
+            } else
+                $json = [
+                    "type" => "FeatureCollection",
+                    "features" => [],
+                    "properties" => []
+                ];
+
+            $this->_verbose("Updating feature collection file {$collectionUrl}");
+            if (is_array($json) && array_key_exists("properties", $json)) {
+                $newMetadata = $this->_cleanTaxonomy($taxonomyMetadata);
+                $newMetadata["count"] = is_array($json["features"]) ? count($json["features"]) : 0;
+                $json["properties"] = $newMetadata;
+                file_put_contents($collectionUrl, json_encode($json));
             }
+            $this->_unlockFile($collectionUrl);
 
             $this->_updateKTaxonomy($this->id, $taxonomyType, $taxonomyMetadata);
         } else
@@ -116,10 +128,9 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
      *
      * @param string $id
      * @param string $taxonomyType
-     * @param array $taxonomyMetadata
+     * @param array  $taxonomyMetadata
      */
-    private function _updateKTaxonomy(string $id, string $taxonomyType, array $taxonomyMetadata)
-    {
+    private function _updateKTaxonomy(string $id, string $taxonomyType, array $taxonomyMetadata) {
         foreach ($this->kProjects as $kProject) {
             $config = $this->_getConfig($kProject->getRoot());
             if (isset($config) && is_array($config) && isset($config["multimap"]) && $config["multimap"] === true) {
@@ -152,9 +163,7 @@ class WebmappUpdateTaxonomyJob extends WebmappAbstractJob
      *
      * @param array $validIds
      */
-    private function _cleanKTaxonomies(array $validIds = [])
-    {
-        $this->_warning(json_encode($validIds));
+    private function _cleanKTaxonomies(array $validIds = []) {
         foreach ($this->kProjects as $kProject) {
             $config = $this->_getConfig($kProject->getRoot());
             if (isset($config) && is_array($config) && isset($config["multimap"]) && $config["multimap"] === true) {

@@ -1,26 +1,25 @@
 <?php
 
-class WebmappDeleteRouteJob extends WebmappAbstractJob
-{
+class WebmappDeleteRouteJob extends WebmappAbstractJob {
     /**
      * WebmappDeleteRouteJob constructor.
+     *
      * @param string $instanceUrl containing the instance url
-     * @param string $params containing an encoded JSON with the route ID
-     * @param bool $verbose
+     * @param string $params      containing an encoded JSON with the route ID
+     * @param bool   $verbose
+     *
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct(string $instanceUrl, string $params, bool $verbose = false)
-    {
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false) {
         parent::__construct("delete_route", $instanceUrl, $params, $verbose);
     }
 
     /**
      * @throws WebmappExceptionFeatureStillExists
      */
-    protected function process()
-    {
+    protected function process() {
         $this->_verbose("Checking if route is available from {$this->wp->getApiRoute($this->id)}");
         $ch = $this->_getCurl($this->wp->getApiRoute($this->id));
         curl_exec($ch);
@@ -87,10 +86,10 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
      * Remove the given directory. Symlinks are unlinked and files removed
      *
      * @param string $url the directory url
+     *
      * @return bool
      */
-    private function _removeDirectory(string $url): bool
-    {
+    private function _removeDirectory(string $url): bool {
         $dir_handle = null;
         if (is_dir($url))
             $dir_handle = opendir($url);
@@ -106,6 +105,7 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
         }
         closedir($dir_handle);
         rmdir($url);
+
         return true;
     }
 
@@ -113,10 +113,9 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
      * Remove the route from the taxonomies in the k projects
      *
      * @param WebmappProjectStructure $kProject
-     * @param int $id the route id
+     * @param int                     $id the route id
      */
-    private function _removeKTaxonomies(WebmappProjectStructure $kProject, int $id)
-    {
+    private function _removeKTaxonomies(WebmappProjectStructure $kProject, int $id) {
         $postType = 'route';
 
         $this->_verbose("Checking taxonomies in {$kProject->getRoot()}...");
@@ -149,7 +148,7 @@ class WebmappDeleteRouteJob extends WebmappAbstractJob
                         else
                             $kJson[$taxId]["items"][$postType] = array_values($kJson[$taxId]["items"][$postType]);
                         if (count($taxonomy["items"]) == 0)
-                            unset($kJson[$taxId][$taxId]);
+                            unset($kJson[$taxId]["items"]);
                     }
                 }
 

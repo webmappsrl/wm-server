@@ -2,8 +2,7 @@
 
 define("TAXONOMY_TYPES", ["webmapp_category", "activity", "theme", "when", "where", "who"]);
 
-abstract class WebmappAbstractJob
-{
+abstract class WebmappAbstractJob {
     protected $name; // Job name
     protected $instanceUrl; // Job instance url
     protected $instanceName; // Instance name
@@ -16,23 +15,23 @@ abstract class WebmappAbstractJob
     protected $storeToken; // Token to create other jobs
     protected $hoquBaseUrl; // Token to create other jobs
     protected $cachedTaxonomies; // An array of already downloaded taxonomies
-
     private $lockedFile;
     private $lockedFileUrl;
 
     /**
      * WebmappAbstractJob constructor.
+     *
      * @param string $name
      * @param string $instanceUrl
      * @param string $params
-     * @param bool $verbose
+     * @param bool   $verbose
+     *
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterMandatory
      * @throws WebmappExceptionParameterError
      */
-    public function __construct(string $name, string $instanceUrl, string $params, bool $verbose)
-    {
-        declare(ticks=1);
+    public function __construct(string $name, string $instanceUrl, string $params, bool $verbose) {
+        declare(ticks = 1);
         $this->verbose = $verbose;
         $this->name = $name;
 
@@ -111,8 +110,7 @@ abstract class WebmappAbstractJob
     /**
      * @throws Exception
      */
-    public function run()
-    {
+    public function run() {
         $startTime = round(microtime(true) * 1000);
         $this->_title(isset($this->id) ? "Starting generation of {$this->id}" : "Starting");
         $this->_verbose("start time: $startTime");
@@ -136,10 +134,10 @@ abstract class WebmappAbstractJob
      *
      * @param string $taxonomyType
      * @param string $id
+     *
      * @return mixed|void|null
      */
-    protected function _getTaxonomy(string $taxonomyType, string $id)
-    {
+    protected function _getTaxonomy(string $taxonomyType, string $id) {
         $taxonomy = null;
         if (isset($this->cachedTaxonomies[$id]))
             $taxonomy = $this->cachedTaxonomies[$id];
@@ -169,10 +167,9 @@ abstract class WebmappAbstractJob
      * Set the taxonomies for the post id
      *
      * @param string $postType the post type for the id
-     * @param array $json the json of the feature
+     * @param array  $json     the json of the feature
      */
-    protected function _setTaxonomies(string $postType, array $json)
-    {
+    protected function _setTaxonomies(string $postType, array $json) {
         $isEvent = false;
         if ($postType === "event") {
             $postType = "poi";
@@ -187,7 +184,7 @@ abstract class WebmappAbstractJob
             $taxArray = array_key_exists($taxTypeId, $taxonomies) ? $taxonomies[$taxTypeId] : [];
             foreach ($taxArray as $taxId) {
                 if (!is_null($taxId))
-//                $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
+                    //                $this->_getTaxonomy($isEvent ? "event" : $taxTypeId, $taxId);
                     $this->_getTaxonomy($taxTypeId, $taxId);
             }
         }
@@ -204,10 +201,9 @@ abstract class WebmappAbstractJob
      * Set the taxonomies for the post id in the A project
      *
      * @param string $postType the post type for the id
-     * @param array $json the json of the feature
+     * @param array  $json     the json of the feature
      */
-    private function _setATaxonomies(string $postType, array $json)
-    {
+    private function _setATaxonomies(string $postType, array $json) {
         $this->_verbose("Checking taxonomies in the A project {$this->aProject->getRoot()}...");
         $taxonomies = isset($json["properties"]) && isset($json["properties"]["taxonomy"]) ? $json["properties"]["taxonomy"] : [];
         foreach (TAXONOMY_TYPES as $taxTypeId) {
@@ -293,54 +289,25 @@ abstract class WebmappAbstractJob
                     }
 
                     if ($clean) {
-                        unset($taxonomyJson[$taxId]);
-                        $cleanedIds[] = $taxId;
+                        $isParent = $this->_isParentTaxonomy($taxId, $taxonomyJson);
+
+                        if (!$isParent) {
+                            unset($taxonomyJson[$taxId]);
+                            $cleanedIds[] = $taxId;
+                        }
                     } else
                         $taxonomyJson[$taxId] = $tax;
                 }
             }
+
+            $taxonomyJson = $this->_checkParentsTaxonomies($taxTypeId, $taxonomyJson, $taxArray);
 
             $this->_verbose("Writing $taxTypeId to {$taxonomyUrl}");
             file_put_contents($taxonomyUrl, json_encode($taxonomyJson));
             $this->_unlockFile($taxonomyUrl);
 
             foreach ($taxArray as $taxId) {
-                $this->_verbose("Checking {$taxTypeId} {$taxId} taxonomy term feature collection");
-                $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$taxId}.geojson";
-                $taxonomyGeojson = [
-                    "type" => "FeatureCollection",
-                    "features" => [],
-                    "properties" => $taxonomyJson[$taxId]
-                ];
-                if (file_exists($geojsonUrl)) {
-                    $this->_lockFile($geojsonUrl);
-                    $file = json_decode(file_get_contents($geojsonUrl), true);
-                    if (isset($file["features"]) && is_array($file["features"]))
-                        $taxonomyGeojson["features"] = $file["features"];
-                }
-
-                $found = false;
-                $key = 0;
-
-                while (!$found && $key < count($taxonomyGeojson["features"])) {
-                    if (isset($taxonomyGeojson["features"][$key]["properties"]["id"])
-                        && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($this->id))
-                        $found = true;
-                    else
-                        $key++;
-                }
-
-                if ($found)
-                    $taxonomyGeojson["features"][$key] = $json;
-                else
-                    $taxonomyGeojson["features"][] = $json;
-
-                $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
-
-                $this->_lockFile($geojsonUrl);
-                $this->_verbose("Writing {$taxTypeId} {$taxId} taxonomy term feature collection to {$geojsonUrl}");
-                file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
-                $this->_unlockFile($geojsonUrl);
+                $this->_setTaxonomyFeatureCollection($taxTypeId, $taxId, $taxonomyJson, $json);
             }
 
             $this->_verbose("Cleaning empty taxonomies of $taxTypeId");
@@ -391,14 +358,125 @@ abstract class WebmappAbstractJob
     }
 
     /**
+     * Return true if the given id is a parent taxonomy
+     *
+     * @param string $id   the taxonomy id
+     * @param array  $json the taxonomies json
+     *
+     * @return bool
+     */
+    protected function _isParentTaxonomy(string $id, array $json): bool {
+        return in_array($id, $this->_getParentsTaxonomiesIds($json));
+    }
+
+    /**
+     * Return the parents ids of the taxonomies in the given json
+     *
+     * @param array      $json the json
+     * @param array|null $ids  the taxonomies ids to get the parents of
+     *
+     * @return array
+     */
+    private function _getParentsTaxonomiesIds(array $json, array $ids = null): array {
+        $parents = [];
+        if (is_null($ids)) {
+            $ids = array_keys($json);
+        }
+
+        foreach ($ids as $taxId) {
+            if (isset($json[$taxId]["parent"]) && intval($json[$taxId]["parent"]) > 0)
+                $parents[] = $json[$taxId]["parent"];
+        }
+
+        return array_values(array_unique($parents));
+    }
+
+    /**
+     * Set the parents taxonomies of the given taxonomies id in the given json
+     *
+     * @param string     $taxonomyType
+     * @param array      $json
+     * @param array|null $ids
+     *
+     * @return array
+     */
+    private function _checkParentsTaxonomies(string $taxonomyType, array $json, array $ids = null): array {
+        $this->_verbose("Checking taxonomies parents");
+        $parents = $this->_getParentsTaxonomiesIds($json, $ids);
+
+        foreach ($parents as $parentId) {
+            if (!isset($json[$parentId])) {
+                try {
+                    $taxonomy = $this->_getTaxonomy($taxonomyType, $parentId);
+                    $taxonomy = $this->_cleanTaxonomy($taxonomy);
+                    $json[$parentId] = $taxonomy;
+                    $this->_store("update_taxonomy", ["id" => $parentId]);
+                } catch (Exception $e) {
+                    WebmappUtils::warning("An error occurred updating the parent taxonomy {$parentId}: " . $e->getMessage());
+                }
+            }
+        }
+
+        return $json;
+    }
+
+    /**
+     * Set the feature collection of the given taxonomy adding the given feature
+     *
+     * @param string     $type
+     * @param int        $id
+     * @param array      $taxonomyJson
+     * @param array|null $feature
+     */
+    private function _setTaxonomyFeatureCollection(string $type, int $id, array $taxonomyJson, array $feature = null) {
+        $this->_verbose("Checking {$type} {$id} taxonomy term feature collection");
+        $geojsonUrl = "{$this->aProject->getRoot()}/taxonomies/{$id}.geojson";
+        $taxonomyGeojson = [
+            "type" => "FeatureCollection",
+            "features" => [],
+            "properties" => $taxonomyJson[$id]
+        ];
+        if (file_exists($geojsonUrl)) {
+            $this->_lockFile($geojsonUrl);
+            $file = json_decode(file_get_contents($geojsonUrl), true);
+            if (isset($file["features"]) && is_array($file["features"]))
+                $taxonomyGeojson["features"] = $file["features"];
+        }
+
+        $found = false;
+        $key = 0;
+
+        while (!$found && $key < count($taxonomyGeojson["features"])) {
+            if (isset($taxonomyGeojson["features"][$key]["properties"]["id"])
+                && strval($taxonomyGeojson["features"][$key]["properties"]["id"]) === strval($this->id))
+                $found = true;
+            else
+                $key++;
+        }
+
+        if (isset($feature)) {
+            if ($found)
+                $taxonomyGeojson["features"][$key] = $feature;
+            else
+                $taxonomyGeojson["features"][] = $feature;
+        }
+
+        $taxonomyGeojson["features"] = array_values($taxonomyGeojson["features"]);
+
+        $this->_lockFile($geojsonUrl);
+        $this->_verbose("Writing {$type} {$id} taxonomy term feature collection to {$geojsonUrl}");
+        file_put_contents($geojsonUrl, json_encode($taxonomyGeojson));
+        $this->_unlockFile($geojsonUrl);
+    }
+
+    /**
      * Set the taxonomies in the k project if needed
      *
-     * @param string $postType the post type
-     * @param array $json the json
+     * @param string                  $postType the post type
+     * @param array                   $json     the json
      * @param WebmappProjectStructure $kProject the project
      */
-    private function _setKTaxonomies(string $postType, array $json, WebmappProjectStructure $kProject)
-    {
+    private function _setKTaxonomies(string $postType, array $json, WebmappProjectStructure $kProject) {
         $this->_verbose("Checking taxonomies for {$kProject->getRoot()}");
         $config = $this->_getConfig($kProject->getRoot());
         if (isset($config["multimap"]) && !!$config["multimap"]) {
@@ -495,10 +573,10 @@ abstract class WebmappAbstractJob
      * Clean the unneeded values of the given taxonomy
      *
      * @param array $taxonomy the taxonomy to clean
+     *
      * @return array the resulted cleaned taxonomy
      */
-    protected function _cleanTaxonomy(array $taxonomy): array
-    {
+    protected function _cleanTaxonomy(array $taxonomy): array {
         if (isset($taxonomy["featured_image"]) && is_array($taxonomy["featured_image"])) {
             if (isset($taxonomy["featured_image"]["sizes"]["large"])) {
                 $taxonomy["image"] = $taxonomy["featured_image"]["sizes"]["large"];
@@ -553,10 +631,10 @@ abstract class WebmappAbstractJob
      * Return an associative array with the key as the property in the json and the value the property to map it in
      *
      * @param string $type the geometry type
+     *
      * @return null | array with the property mapping
      */
-    protected function _getCustomProperties(string $type): ?array
-    {
+    protected function _getCustomProperties(string $type): ?array {
         if ($type !== "poi" && $type !== "track" && $type !== "route")
             return null;
 
@@ -594,8 +672,7 @@ abstract class WebmappAbstractJob
         return $properties;
     }
 
-    protected function _lockFile(string $url)
-    {
+    protected function _lockFile(string $url) {
         if (is_null($this->lockedFileUrl) && is_null($this->lockedFile)) {
             $this->_verbose("Locking file $url");
             $this->lockedFileUrl = $url;
@@ -610,8 +687,7 @@ abstract class WebmappAbstractJob
             $this->_warning("Trying to lock {$url} while there is already {$this->lockedFileUrl} locked");
     }
 
-    protected function _unlockFile($url)
-    {
+    protected function _unlockFile($url) {
         if ($this->lockedFileUrl === $url) {
             $this->_verbose("Unlocking file $url");
             if ($this->lockedFile) {
@@ -631,8 +707,7 @@ abstract class WebmappAbstractJob
      *
      * @return null | array with the property mapping
      */
-    private function _getMapping(): ?array
-    {
+    private function _getMapping(): ?array {
         $config = $this->_getConfig($this->aProject->getRoot());
         if (!isset($config["mapping"]))
             return null;
@@ -647,12 +722,11 @@ abstract class WebmappAbstractJob
      * Apply the mapping from the configuration file for the specified type
      *
      * @param WebmappAbstractFeature $feature
-     * @param string $mappingKey
-     * @param object|null $relation
-     * @param array|null $oldGeojson
+     * @param string                 $mappingKey
+     * @param object|null            $relation
+     * @param array|null             $oldGeojson
      */
-    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null, array $oldProperties = null)
-    {
+    protected function _applyMapping(WebmappAbstractFeature $feature, string $mappingKey, object $relation = null, array $oldProperties = null) {
         $mapping = $this->_getMapping();
         if (isset($mapping) && is_array($mapping) && array_key_exists($mappingKey, $mapping) && is_array($mapping[$mappingKey])) {
             foreach ($mapping[$mappingKey] as $key => $mappingArray) {
@@ -706,12 +780,11 @@ abstract class WebmappAbstractJob
     /**
      * Add the given json feature in the specified file
      *
-     * @param string $url the file url
-     * @param int $id the feature id
+     * @param string     $url  the file url
+     * @param int        $id   the feature id
      * @param array|null $json the feature array. If null the route will be deleted from the file
      */
-    protected function _updateRouteIndex(string $url, int $id, array $json = null)
-    {
+    protected function _updateRouteIndex(string $url, int $id, array $json = null) {
         $file = [
             "type" => "FeatureCollection",
             "features" => []
@@ -761,12 +834,12 @@ abstract class WebmappAbstractJob
     /**
      * Return the last modified date for the given post
      *
-     * @param int $id the post id
+     * @param int      $id           the post id
      * @param int|null $defaultValue the default last modified value
+     *
      * @return false|int|void
      */
-    protected function _getPostLastModified(int $id, int $defaultValue = null)
-    {
+    protected function _getPostLastModified(int $id, int $defaultValue = null) {
         $lastModified = isset($defaultValue) ? $defaultValue : strtotime("now");
         $apiUrl = "{$this->instanceUrl}/wp-json/webmapp/v1/feature/last_modified/{$id}";
         $ch = $this->_getCurl($apiUrl);
@@ -775,6 +848,7 @@ abstract class WebmappAbstractJob
             $modified = curl_exec($ch);
         } catch (Exception $e) {
             $this->_warning("An error occurred getting last modified date for post {$id}: " . $e->getMessage());
+
             return $defaultValue;
         }
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
@@ -797,10 +871,10 @@ abstract class WebmappAbstractJob
      * Return the config of the given root project directory
      *
      * @param string $projectRoot the root directory of the project
+     *
      * @return array|mixed the config
      */
-    protected function _getConfig(string $projectRoot): array
-    {
+    protected function _getConfig(string $projectRoot): array {
         $config = [];
         try {
             $configUrl = "{$projectRoot}/server/server.conf";
@@ -809,20 +883,20 @@ abstract class WebmappAbstractJob
         } catch (Exception $e) {
         }
         if (is_null($config) || !is_array($config) || empty($config)) $config = [];
+
         return $config;
     }
 
     /**
      * Perform a store operation to hoqu
      *
-     * @param string $job the job name
-     * @param array $params the array of params
+     * @param string $job    the job name
+     * @param array  $params the array of params
      *
      * @throws WebmappExceptionHoquRequest for any problem with HOQU (missing params)
      * @throws WebmappExceptionHttpRequest for any problem with connection
      */
-    protected function _store(string $job, array $params)
-    {
+    protected function _store(string $job, array $params) {
         $this->_verbose("Performing new Store operation to HOQU");
 
         if (!$this->hoquBaseUrl || !$this->storeToken) {
@@ -867,12 +941,12 @@ abstract class WebmappAbstractJob
     /**
      * Prepare curl for a put request
      *
-     * @param string $url the request url
+     * @param string     $url     the request url
      * @param array|null $headers the headers - optional
+     *
      * @return false|resource
      */
-    protected function _getCurl(string $url, array $headers = null)
-    {
+    protected function _getCurl(string $url, array $headers = null) {
         if (!isset($headers)) {
             $headers = [];
         }
@@ -891,38 +965,31 @@ abstract class WebmappAbstractJob
         return $ch;
     }
 
-    private function _logHeader(): string
-    {
+    private function _logHeader(): string {
         return date("Y-m-d H:i:s") . " - {$this->name} JOB | ";
     }
 
-    protected function _title($message)
-    {
+    protected function _title($message) {
         WebmappUtils::title($this->_logHeader() . $message);
     }
 
-    protected function _verbose($message)
-    {
+    protected function _verbose($message) {
         WebmappUtils::verbose($this->_logHeader() . $message);
     }
 
-    protected function _success($message)
-    {
+    protected function _success($message) {
         WebmappUtils::success($this->_logHeader() . $message);
     }
 
-    protected function _message($message)
-    {
+    protected function _message($message) {
         WebmappUtils::message($this->_logHeader() . $message);
     }
 
-    protected function _warning($message)
-    {
+    protected function _warning($message) {
         WebmappUtils::warning($this->_logHeader() . $message);
     }
 
-    protected function _error($message)
-    {
+    protected function _error($message) {
         WebmappUtils::error($this->_logHeader() . $message);
     }
 }

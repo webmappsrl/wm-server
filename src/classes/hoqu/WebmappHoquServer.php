@@ -19,8 +19,7 @@ define("JOBS_AVAILABLE", [
     "update_track"
 ]);
 
-class WebmappHoquServer
-{
+class WebmappHoquServer {
     private $serverId;
     private $hoquBaseUrl;
     private $pullToken;
@@ -36,10 +35,10 @@ class WebmappHoquServer
      * WebmappHoquServer constructor.
      *
      * @param bool $verbose
+     *
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct(bool $verbose)
-    {
+    public function __construct(bool $verbose) {
         // TODO: add concurrency param to handle multiple server loops
         global $wm_config;
         if (!isset($wm_config['hoqu'])) {
@@ -97,13 +96,13 @@ class WebmappHoquServer
     /**
      * Prepare curl for a put request
      *
-     * @param string $url the request url
-     * @param array $payload the payload to pass
+     * @param string     $url     the request url
+     * @param array      $payload the payload to pass
      * @param array|null $headers the headers - optional
+     *
      * @return bool|resource
      */
-    private function _getPutCurl(string $url, array $payload, array $headers = null)
-    {
+    private function _getPutCurl(string $url, array $payload, array $headers = null) {
         if (!isset($headers)) {
             $headers = [
                 "Accept: application/json",
@@ -145,8 +144,7 @@ class WebmappHoquServer
      *
      * @param int $signal the signal number
      */
-    public function signalHandler(int $signal): void
-    {
+    public function signalHandler(int $signal): void {
         if ($this->running) {
             WebmappUtils::warning("");
         }
@@ -166,14 +164,14 @@ class WebmappHoquServer
     /**
      * Handle errors and warnings
      *
-     * @param int $errno
+     * @param int    $errno
      * @param string $errstr
      * @param string $errfile
      * @param string $errline
+     *
      * @throws WebmappExceptionFatalError triggers this when an error of any type is caught
      */
-    public function errorHandler(int $errno, string $errstr, string $errfile, string $errline)
-    {
+    public function errorHandler(int $errno, string $errstr, string $errfile, string $errline) {
         switch ($errno) {
             case E_WARNING:
             case E_USER_WARNING:
@@ -200,16 +198,24 @@ class WebmappHoquServer
     /**
      * @return string
      */
-    private function _logHeader(): string
-    {
+    private function _logHeader(): string {
         return date("Y-m-d H:i:s") . " - {$this->serverId} | ";
     }
 
     /**
      * Run the HOQU server
      */
-    public function run()
-    {
+    public function run() {
+        $aEndpoint = "/Users/dvdpzzt/Documents/wm-server/data/a";
+        $kEndpoint = "/Users/dvdpzzt/Documents/wm-server/data/k";
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "elm", "elm");
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "caiparma.wp.webmapp.it", "caiparma");
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "caipontedera.wp.webmapp.it", "caipontedera");
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "sentieroitalia.cai.it", "sentieroitalia");
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "ir.be.webmapp.it", "ir");
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "ucvs.wp.webmapp.it", "ucvs");
+        $this->_createProjectStructure($aEndpoint, $kEndpoint, "fie.wp.webmapp.it", "fie");
+
         WebmappUtils::success("New HOQU server started. Press CTRL + C to stop");
 
         $pullUrl = $this->hoquBaseUrl . PULL_ENDPOINT;
@@ -224,7 +230,7 @@ class WebmappHoquServer
         if (isset($this->excludeInstances) && is_array($this->excludeInstances) && count($this->excludeInstances) > 0)
             $payload["exclude_instances"] = $this->excludeInstances;
 
-        declare(ticks=1);
+        declare(ticks = 1);
         pcntl_signal(SIGINT, array($this, "signalHandler"));
         set_error_handler(array($this, "errorHandler"), E_ALL);
 
@@ -300,11 +306,10 @@ class WebmappHoquServer
     /**
      * Notify HOQU about the completed job
      *
-     * @param bool $done true if the process has completed successfully
-     * @param int $jobId the id of the job just completed
+     * @param bool $done  true if the process has completed successfully
+     * @param int  $jobId the id of the job just completed
      */
-    private function _jobCompleted(bool $done, int $jobId)
-    {
+    private function _jobCompleted(bool $done, int $jobId) {
         $url = $this->hoquBaseUrl;
         if ($done)
             $url .= UPDATE_DONE_ENDPOINT;
@@ -330,5 +335,91 @@ class WebmappHoquServer
         }
         curl_close($ch);
     }
-}
 
+    private function _createProjectStructure($a, $k, $instanceName, $instanceCode) {
+        global $wm_config;
+        $wm_config["endpoint"] = [
+            "a" => $a,
+            "k" => $k
+        ];
+
+        if (!file_exists("{$a}/{$instanceName}/geojson")) {
+            $cmd = "mkdir -p {$a}/{$instanceName}/geojson";
+            system($cmd);
+        }
+        if (!file_exists("{$a}/{$instanceName}/taxonomies")) {
+            $cmd = "mkdir -p {$a}/{$instanceName}/taxonomies";
+            system($cmd);
+        }
+        if (!file_exists("{$a}/{$instanceName}/server")) {
+            $cmd = "mkdir -p {$a}/{$instanceName}/server";
+            system($cmd);
+        }
+        if (!file_exists("{$a}/{$instanceName}/media/elevation-chart")) {
+            $cmd = "mkdir -p {$a}/{$instanceName}/media/elevation-chart";
+            system($cmd);
+        }
+        $conf =
+            [
+                "elevation-chart" => [
+                    "width" => 1200,
+                    "height" => 600,
+                    "fontColor" => "#000",
+                    "fontSize" => 25,
+                    "fontStyle" => "normal",
+                    "steps" => 36,
+                    "fillColor" => "rgba(180, 163, 145 , 0.2)",
+                    "lineColor" => "#68582d",
+                    "lineWidth" => 4,
+                    "pointBorderColor" => "#68582d",
+                    "pointFillColor" => "#68582d",
+                    "pointRadius" => 1,
+                    "xMaxValues" => 8,
+                    "yMaxValues" => 8,
+                    "showGrid" => true
+                ],
+                "custom_mapping" => [
+                    "track" => [
+                        "n7webmapp_track_color"
+                    ],
+                    "poi" => [
+                        "caipr_poi_collegamenti"
+                    ]
+                ],
+                "mapping" => [
+                    "osm" => [
+                        "name" => [
+                            '$ref', '? - ?', '$name'
+                        ]
+                    ]
+                ]
+            ];
+
+        file_put_contents("{$a}/{$instanceName}/server/server.conf", json_encode($conf));
+
+        if (!file_exists("{$k}/{$instanceCode}/geojson")) {
+            $cmd = "mkdir -p {$k}/{$instanceCode}/geojson";
+            system($cmd);
+        }
+        if (!file_exists("{$k}/{$instanceCode}/taxonomies")) {
+            $cmd = "mkdir -p {$k}/{$instanceCode}/taxonomies";
+            system($cmd);
+        }
+        if (!file_exists("{$k}/{$instanceCode}/routes")) {
+            $cmd = "mkdir -p {$k}/{$instanceCode}/routes";
+            system($cmd);
+        }
+        if (!file_exists("{$k}/{$instanceCode}/server")) {
+            $cmd = "mkdir -p {$k}/{$instanceCode}/server";
+            system($cmd);
+        }
+        if (!file_exists("{$k}/{$instanceCode}/server/server.conf")) {
+            $conf = [
+                "multimap" => false,
+                "routesFilter" => [2056]
+            ];
+
+            file_put_contents("{$k}/{$instanceCode}/server/server.conf", json_encode($conf));
+        }
+    }
+}

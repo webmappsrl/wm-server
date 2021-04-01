@@ -1,21 +1,20 @@
 <?php
 
-class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
-{
+class WebmappDeleteTaxonomyJob extends WebmappAbstractJob {
     /**
      * WebmappDeleteTaxonomyJob constructor.
+     *
      * @param string $instanceUrl containing the instance url
-     * @param string $params containing an encoded JSON with the poi ID
-     * @param bool $verbose
+     * @param string $params      containing an encoded JSON with the poi ID
+     * @param bool   $verbose
+     *
      * @throws WebmappExceptionNoDirectory
      */
-    public function __construct(string $instanceUrl, string $params, bool $verbose = false)
-    {
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false) {
         parent::__construct("delete_taxonomy", $instanceUrl, $params, $verbose);
     }
 
-    protected function process()
-    {
+    protected function process() {
         $taxonomyType = null;
         $items = [];
         foreach (TAXONOMY_TYPES as $taxType) {
@@ -36,7 +35,9 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
                         throw new WebmappExceptionTaxonomyStillExists("The taxonomy seems to be still public. Deletion stopped to prevent data loss");
                     }
 
-                    if (isset($json[$this->id]["items"]) && is_array($json[$this->id]["items"]) && count($json[$this->id]["items"]) > 0)
+                    if (isset($json[$this->id]["items"]) &&
+                        is_array($json[$this->id]["items"]) &&
+                        count($json[$this->id]["items"]) > 0)
                         $items = $json[$this->id]["items"];
                     unset($json[$this->id]);
 
@@ -71,10 +72,9 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
      *
      * @param string $id the taxonomy id
      * @param string $taxonomyType
-     * @param array $features
+     * @param array  $features
      */
-    private function _deleteTaxonomyFromFeatures(string $id, string $taxonomyType, array $features)
-    {
+    private function _deleteTaxonomyFromFeatures(string $id, string $taxonomyType, array $features) {
         if (is_array($features) && count($features) > 0) {
             foreach ($features as $postType => $featuresIds) {
                 if (is_array($featuresIds) && count($featuresIds) > 0) {
@@ -107,13 +107,13 @@ class WebmappDeleteTaxonomyJob extends WebmappAbstractJob
 
     /**
      * Remove the given taxonomy from the given features in the given geojson
+     *
      * @param string $url
      * @param string $taxonomyId
      * @param string $taxonomyType
-     * @param array $featuresIds
+     * @param array  $featuresIds
      */
-    private function _deleteTaxonomyFromGeojson(string $url, string $taxonomyId, string $taxonomyType, array $featuresIds)
-    {
+    private function _deleteTaxonomyFromGeojson(string $url, string $taxonomyId, string $taxonomyType, array $featuresIds) {
         if (file_exists($url)) {
             $this->_verbose("Checking file {$url}");
             $this->_lockFile($url);
