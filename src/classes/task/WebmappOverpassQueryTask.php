@@ -1,14 +1,12 @@
 <?php
 
-class WebmappOverpassQueryTask extends WebmappAbstractTask
-{
+class WebmappOverpassQueryTask extends WebmappAbstractTask {
     private $_path;
     private $_query;
     private $_layerName;
     private $_mapping;
 
-    public function check()
-    {
+    public function check() {
         if (!array_key_exists('query', $this->options)) {
             throw new WebmappExceptionParameterMandatory("Missing mandatory parameter: 'query'", 1);
         }
@@ -36,8 +34,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         return true;
     }
 
-    public function process()
-    {
+    public function process() {
         try {
             $json = $this->getOverpassJson();
 
@@ -103,12 +100,12 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
     /**
      * Return a geojson geometry point given a way and a set of nodes
      *
-     * @param array $way the way
+     * @param array $way   the way
      * @param array $nodes the nodes
+     *
      * @return array|null
      */
-    private function getPoint(array $way, array $nodes): ?array
-    {
+    private function getPoint(array $way, array $nodes): ?array {
         $sumLon = 0;
         $sumLat = 0;
         $count = 0;
@@ -139,13 +136,13 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
     /**
      * Return a feature from a overpass element
      *
-     * @param array $item the overpass item
+     * @param array $item     the overpass item
      * @param array $geometry the geometry
-     * @param int $id the item id
+     * @param int   $id       the item id
+     *
      * @return array
      */
-    private function getFeature(array $item, array $geometry, int $id): array
-    {
+    private function getFeature(array $item, array $geometry, int $id): array {
         $feature = [
             "type" => "Feature",
             "geometry" => $geometry,
@@ -166,12 +163,33 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
         if (isset($item['id']))
             $feature["properties"]["osmid"] = $item["id"];
 
-        $propertiesToMap = ["ref" => "ref", "operator" => "operator"];
+        $propertiesToMap = [
+            "ref" => "ref",
+            "operator" => "operator",
+            "contact:email" => "contact:email",
+            "contact:phone" => "contact:phone",
+            "email" => "contact:email",
+            "phone" => "contact:phone",
+            "opening_hours" => "opening_hours",
+            "description" => "description",
+            "capacity" => "capacity"
+        ];
 
         foreach ($propertiesToMap as $key => $property) {
-            if (array_key_exists($property, $item["tags"]))
-                $feature["properties"][$key] = $item["tags"][$property];
+            if (array_key_exists($key, $item["tags"]) && !isset($feature["properties"][$property]))
+                $feature["properties"][$property] = $item["tags"][$key];
         }
+
+        $related_url = [];
+        if (array_key_exists("contact:website", $item["tags"]))
+            $related_url[] = $item["tags"]["contact:website"];
+        if (array_key_exists("website", $item["tags"]))
+            $related_url[] = $item["tags"]["website"];
+        if (array_key_exists("url", $item["tags"]))
+            $related_url[] = $item["tags"]["url"];
+
+        if (count($related_url) > 0)
+            $feature["properties"]["related_url"] = $related_url;
 
         if (is_array($this->_mapping)) {
             foreach ($this->_mapping as $key => $mappingArray) {
@@ -254,8 +272,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
      * @return array
      * @throws WebmappException if any error occurs during the request
      */
-    private function getOverpassJson()
-    {
+    private function getOverpassJson() {
         $url = "https://overpass-api.de/api/interpreter";
         $headers = [
             "Content-Type: application/x-www-form-urlencoded"
@@ -284,6 +301,7 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask
             throw new WebmappException("An error " . curl_getinfo($ch, CURLINFO_HTTP_CODE) . " occurred while calling {$url}: " . curl_error($ch));
 
         $result = json_decode($result, true);
+
         return $result;
     }
 }
