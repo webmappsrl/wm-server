@@ -24,22 +24,22 @@ define("GEOMETRY_BACKEND_METADATA_PROPERTIES", [
     "duration:backward"
 ]);
 
-class WebmappUpdateTrackJob extends WebmappAbstractJob
-{
+class WebmappUpdateTrackJob extends WebmappAbstractJob {
     protected $skipRouteCheck;
 
     /**
      * WebmappUpdateTrackJob constructor.
+     *
      * @param string $instanceUrl containing the instance url
-     * @param string $params containing an encoded JSON with the track ID
-     * @param false $verbose
-     * @param string $type the type, default "update_track"
+     * @param string $params      containing an encoded JSON with the track ID
+     * @param false  $verbose
+     * @param string $type        the type, default "update_track"
+     *
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct(string $instanceUrl, string $params, bool $verbose = false, string $type = "update_track")
-    {
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false, string $type = "update_track") {
         parent::__construct($type, $instanceUrl, $params, $verbose);
         $this->skipRouteCheck = array_key_exists("skipRouteCheck", $this->params) ? boolval($this->params["skipRouteCheck"]) : false;
     }
@@ -52,8 +52,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    protected function process()
-    {
+    protected function process() {
         $updateOsmGeometry = isset($this->params["update_geometry"]) && $this->params["update_geometry"] === true;
         $geojsonUrl = "{$this->aProject->getRoot()}/geojson/{$this->id}.geojson";
         $skippedGeometry = false;
@@ -81,7 +80,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
         if (!$updateOsmGeometry &&
             $track->hasProperty("osmid") &&
             file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson")) {
-
             $this->_verbose("Using geometry from $geojsonUrl");
             $this->_lockFile($geojsonUrl);
             $currentGeojson = json_decode(file_get_contents($geojsonUrl), true);
@@ -90,7 +88,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $currentMetadata = $currentGeojson["properties"];
 
                 foreach (GEOMETRY_OSM_METADATA_PROPERTIES as $key) {
-//                    WebmappUtils::warning("$key: " . ($track->hasProperty($key) ? json_encode($track->getProperty($key)) : "NULL"));
                     if (array_key_exists($key, $currentMetadata))
                         $track->setProperty($key, $currentMetadata, $key);
                     else
@@ -98,7 +95,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 }
 
                 foreach (GEOMETRY_BACKEND_METADATA_PROPERTIES as $key) {
-//                    WebmappUtils::warning("$key: " . ($track->hasProperty($key) ? json_encode($track->getProperty($key)) : "NULL"));
                     if (!$track->hasProperty($key) && array_key_exists($key, $currentMetadata))
                         $track->setProperty($key, $currentMetadata, $key);
                 }
@@ -136,6 +132,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * Perform all the operations needed to generate the full geometry
      *
      * @param WebmappTrackFeature $track
+     *
      * @return WebmappTrackFeature
      * @throws WebmappExceptionFeaturesNoGeometry
      * @throws WebmappExceptionGeoJsonBadGeomType
@@ -143,8 +140,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    protected function _addGeometryToTrack(WebmappTrackFeature $track): WebmappTrackFeature
-    {
+    protected function _addGeometryToTrack(WebmappTrackFeature $track): WebmappTrackFeature {
         $this->_verbose("Writing to postgis");
         if ($track->hasGeometry()) {
             $config = $this->_getConfig($this->aProject->getRoot());
@@ -157,8 +153,11 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 }
             }
 
-            if ($track->hasProperty("osmid"))
-                $track->setOsmProperties();
+            if ($track->hasProperty("osmid")) {
+                $this->_warning($config['skip_color_from_osm']);
+                $setColor = !isset($config['skip_color_from_osm']) || !$config['skip_color_from_osm'];
+                $track->setOsmProperties($setColor);
+            }
 
             $track->writeToPostGis();
             if ($track->getGeometryType() === "LineString") {
@@ -224,13 +223,13 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * Order the list of related pois based on the track geometry
      *
      * @param WebmappTrackFeature $track
+     *
      * @return WebmappTrackFeature
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    private function _orderRelatedPoi(WebmappTrackFeature $track): WebmappTrackFeature
-    {
+    private function _orderRelatedPoi(WebmappTrackFeature $track): WebmappTrackFeature {
         if ($track->hasProperty("related")) {
             $related = $track->getProperty("related");
             if (isset($related) && isset($related["poi"]) && isset($related["poi"]["related"]) && is_array($related["poi"]["related"]) && count($related["poi"]["related"]) > 0) {
@@ -262,10 +261,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      * Map the custom properties in the track
      *
      * @param WebmappTrackFeature $track
+     *
      * @return WebmappTrackFeature
      */
-    protected function _setCustomProperties(WebmappTrackFeature $track): WebmappTrackFeature
-    {
+    protected function _setCustomProperties(WebmappTrackFeature $track): WebmappTrackFeature {
         $this->_verbose("Mapping custom properties");
         $track_properties = $this->_getCustomProperties("track");
         if (isset($track_properties) && is_array($track_properties))
@@ -279,8 +278,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
      *
      * @param int $id the route id
      */
-    protected function _updateRelatedRoutes(int $id)
-    {
+    protected function _updateRelatedRoutes(int $id) {
         if (!$this->skipRouteCheck) {
             $ch = $this->_getCurl("{$this->instanceUrl}/wp-json/webmapp/v1/track/related_routes/{$id}");
             $routes = null;
@@ -288,6 +286,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob
                 $routes = curl_exec($ch);
             } catch (Exception $e) {
                 $this->_warning("An error occurred creating a new generate_elevation_chart_image job: " . $e->getMessage());
+
                 return;
             }
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
