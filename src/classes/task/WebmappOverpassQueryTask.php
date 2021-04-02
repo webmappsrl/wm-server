@@ -182,11 +182,11 @@ class WebmappOverpassQueryTask extends WebmappAbstractTask {
 
         $related_url = [];
         if (array_key_exists("contact:website", $item["tags"]))
-            $related_url[] = [$item["tags"]["contact:website"]];
+            $related_url[] = $item["tags"]["contact:website"];
         if (array_key_exists("website", $item["tags"]))
-            $related_url[] = [$item["tags"]["website"]];
+            $related_url[] = $item["tags"]["website"];
         if (array_key_exists("url", $item["tags"]))
-            $related_url[] = [$item["tags"]["url"]];
+            $related_url[] = $item["tags"]["url"];
 
         if (count($related_url) > 0)
             $feature["properties"]["related_url"] = $related_url;
