@@ -1,13 +1,13 @@
 <?php
 
 define("GEOMETRY_OSM_METADATA_PROPERTIES", [
-    "osmid",
-    "computed",
-    "bbox",
-    "bbox_metric",
-    "id_pois",
-    "related",
-    "color",
+    //    "osmid",
+    //    "computed",
+    //    "bbox",
+    //    "bbox_metric",
+    //    "id_pois",
+    //    "related",
+    //    "color",
     "from",
     "to"
 ]);
@@ -71,6 +71,10 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
         } elseif (!$updateOsmGeometry && $track->hasProperty("osmid") && file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson")) {
             $this->_verbose("Skipping geometry due to job parameters");
             $skippedGeometry = true;
+            if ($track->hasProperty("osmid")) {
+                $track->setRelation($track->getProperty("osmid"));
+                $this->_setOsmProperties($track);
+            }
         }
 
         $track = $this->_setCustomProperties($track);
@@ -87,12 +91,12 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
                 $oldGeojson = $currentGeojson;
                 $currentMetadata = $currentGeojson["properties"];
 
-                foreach (GEOMETRY_OSM_METADATA_PROPERTIES as $key) {
-                    if (array_key_exists($key, $currentMetadata))
-                        $track->setProperty($key, $currentMetadata, $key);
-                    else
-                        $track->removeProperty($key);
-                }
+                //                foreach (GEOMETRY_OSM_METADATA_PROPERTIES as $key) {
+                //                    if (array_key_exists($key, $currentMetadata))
+                //                        $track->setProperty($key, $currentMetadata, $key);
+                //                    else
+                //                        $track->removeProperty($key);
+                //                }
 
                 foreach (GEOMETRY_BACKEND_METADATA_PROPERTIES as $key) {
                     if (!$track->hasProperty($key) && array_key_exists($key, $currentMetadata))
@@ -102,6 +106,9 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
             if (isset($currentGeojson["geometry"]))
                 $track->setGeometry($currentGeojson["geometry"]);
         }
+        $track = $this->_orderRelatedPoi($track);
+        if (!$skippedGeometry)
+            $this->_generateImages($track);
 
         $track->addProperty("modified", WebmappUtils::formatDate($this->_getPostLastModified($this->id, strtotime($track->getProperty("modified")))));
 
@@ -136,9 +143,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
      * @return WebmappTrackFeature
      * @throws WebmappExceptionFeaturesNoGeometry
      * @throws WebmappExceptionGeoJsonBadGeomType
-     * @throws WebmappExceptionNoDirectory
-     * @throws WebmappExceptionParameterError
-     * @throws WebmappExceptionParameterMandatory
      */
     protected function _addGeometryToTrack(WebmappTrackFeature $track): WebmappTrackFeature {
         $this->_verbose("Writing to postgis");
@@ -153,11 +157,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
                 }
             }
 
-            if ($track->hasProperty("osmid")) {
-                $this->_warning($config['skip_color_from_osm']);
-                $setColor = !isset($config['skip_color_from_osm']) || !$config['skip_color_from_osm'];
-                $track->setOsmProperties($setColor);
-            }
+            $this->_setOsmProperties($track);
 
             $track->writeToPostGis();
             if ($track->getGeometryType() === "LineString") {
@@ -166,42 +166,6 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
 
                 $this->_verbose("Adding bounding box");
                 $track->addBBox();
-                $trackPath = "{$this->aProject->getRoot()}/track";
-                if (!file_exists($trackPath))
-                    system("mkdir -p {$trackPath}");
-
-                $track = $this->_orderRelatedPoi($track);
-
-                $this->_verbose("Writing related poi for roadbook");
-                try {
-                    $track->writeRBRelatedPoi($trackPath);
-                } catch (WebmappExceptionFatalError $e) {
-                    $this->_warning("An error occurred writing the related pois for the roadbook: {$e->getMessage()}");
-                } catch (Exception $e) {
-                    $this->_warning("An error occurred writing the related pois for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
-                }
-                $this->_verbose("Writing roadbook images");
-                try {
-                    $track->generateAllImages("", $trackPath);
-                } catch (WebmappExceptionFatalError $e) {
-                    $this->_warning("An error occurred running the generateAllImages for the roadbook: {$e->getMessage()}");
-                } catch (Exception $e) {
-                    $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
-                } catch (Error $e) {
-                    $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
-                }
-                try {
-                    $track->generateLandscapeRBImages("", $trackPath);
-                } catch (WebmappExceptionFatalError $e) {
-                    $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: {$e->getMessage()}");
-                } catch (Exception $e) {
-                    $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
-                }
-
-                $this->_verbose("Generating gpx");
-                $track->writeGPX($trackPath);
-                $this->_verbose("Generating kml");
-                $track->writeKML($trackPath);
             } elseif ($track->getGeometryType() !== "MultiLineString")
                 throw new WebmappExceptionGeoJsonBadGeomType("The {$track->getGeometryType()} geometry type is not supported");
         } else
@@ -217,6 +181,59 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
         }
 
         return $track;
+    }
+
+    /**
+     * @param WebmappTrackFeature $track
+     */
+    protected function _generateImages(WebmappTrackFeature $track) {
+        $trackPath = "{$this->aProject->getRoot()}/track";
+        if (!file_exists($trackPath))
+            system("mkdir -p {$trackPath}");
+
+        $this->_verbose("Writing related poi for roadbook");
+        try {
+            $track->writeRBRelatedPoi($trackPath);
+        } catch (WebmappExceptionFatalError $e) {
+            $this->_warning("An error occurred writing the related pois for the roadbook: {$e->getMessage()}");
+        } catch (Exception $e) {
+            $this->_warning("An error occurred writing the related pois for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+        }
+        $this->_verbose("Writing roadbook images");
+        try {
+            $track->generateAllImages("", $trackPath);
+        } catch (WebmappExceptionFatalError $e) {
+            $this->_warning("An error occurred running the generateAllImages for the roadbook: {$e->getMessage()}");
+        } catch (Exception $e) {
+            $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+        } catch (Error $e) {
+            $this->_warning("An error occurred running the generateAllImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+        }
+        try {
+            $track->generateLandscapeRBImages("", $trackPath);
+        } catch (WebmappExceptionFatalError $e) {
+            $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: {$e->getMessage()}");
+        } catch (Exception $e) {
+            $this->_warning("An error occurred running the generateLandscapeRBImages for the roadbook: " . get_class($e) . " - {$e->getMessage()}");
+        }
+
+        $this->_verbose("Generating gpx");
+        $track->writeGPX($trackPath);
+        $this->_verbose("Generating kml");
+        $track->writeKML($trackPath);
+    }
+
+    /**
+     * Set the properties from the osm relation
+     *
+     * @param WebmappTrackFeature $track
+     */
+    private function _setOsmProperties(WebmappTrackFeature $track) {
+        if ($track->hasProperty('osmid')) {
+            $config = $this->_getConfig($this->aProject->getRoot());
+            $setColor = !isset($config['skip_color_from_osm']) || !$config['skip_color_from_osm'];
+            $track->setOsmProperties($setColor);
+        }
     }
 
     /**

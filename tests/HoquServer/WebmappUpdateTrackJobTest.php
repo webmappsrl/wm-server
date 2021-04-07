@@ -4,17 +4,14 @@ require_once 'helpers/WebmappTestHelpers.php';
 
 use PHPUnit\Framework\TestCase;
 
-class WebmappUpdateTrackJobTest extends TestCase
-{
-    public function __construct()
-    {
+class WebmappUpdateTrackJobTest extends TestCase {
+    public function __construct() {
         $this->setOutputCallback(function () {
         });
         parent::__construct();
     }
 
-    function testFileCreation()
-    {
+    function testFileCreation() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
@@ -58,7 +55,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/webmapp_category.json"), true);
         $this->assertIsArray($file);
-//        $this->assertSame(count($file), 0); No more true since the job could generate also pois
+        //        $this->assertSame(count($file), 0); No more true since the job could generate also pois
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
         $this->assertIsArray($file);
@@ -93,8 +90,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
     }
 
-    function testFileUpdate()
-    {
+    function testFileUpdate() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
@@ -205,8 +201,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertTrue(filesize("{$aEndpoint}/{$instanceName}/track/{$id}.kml") > 0);
     }
 
-    function testFileUpdateNoGeometry()
-    {
+    function testFileUpdateNoGeometry() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
@@ -278,7 +273,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertArrayHasKey("ascent", $file["properties"]);
         $this->assertSame($file["properties"]["ascent"], $testAscent); // Has not changed since the manual change
         $this->assertArrayHasKey("osmid", $file["properties"]);
-        $this->assertSame($file["properties"]["osmid"], $testOsmid); // Has not changed since the manual change
+        $this->assertNotSame($file["properties"]["osmid"], $testOsmid); // Has been restored
 
         $this->assertTrue(file_exists("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"));
         $file = json_decode(file_get_contents("{$aEndpoint}/{$instanceName}/taxonomies/activity.json"), true);
@@ -308,8 +303,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertSame(count($file), 0);
     }
 
-    function testRelatedPoiOrder()
-    {
+    function testRelatedPoiOrder() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
@@ -341,8 +335,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertSame(intval($file["properties"]["related"]["poi"]["related"][2]), 2145);
     }
 
-    function testDurations()
-    {
+    function testDurations() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
@@ -368,8 +361,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertSame($file["properties"]["duration:backward"], "03:00");
     }
 
-    function testLastModified()
-    {
+    function testLastModified() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
@@ -408,8 +400,7 @@ class WebmappUpdateTrackJobTest extends TestCase
         $this->assertSame($file["properties"]["modified"], $lastModifiedApi);
     }
 
-    function testKTaxonomiesUpdate()
-    {
+    function testKTaxonomiesUpdate() {
         $aEndpoint = "./data/a";
         $kEndpoint = "./data/k";
         $instanceUrl = "http://elm.be.webmapp.it";
