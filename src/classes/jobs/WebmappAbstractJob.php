@@ -156,7 +156,7 @@ abstract class WebmappAbstractJob {
             if (isset($json['properties']['locale']) &&
                 isset($json['properties']['description']) &&
                 !empty($json['properties']['description']) &&
-                !isset($json['propoerties']['audio'])) {
+                !isset($json['properties']['audio'])) {
                 $languages[] = $json['properties']['locale'];
             }
 
