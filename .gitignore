@@ -1,5 +1,7 @@
 test-log/
 data/
 src/config.json
+src/google_tts_key.json
 .idea
 **/node_modules/**
+src/vendor

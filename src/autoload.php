@@ -2,10 +2,12 @@
 
 date_default_timezone_set('Etc/UTC');
 // VENDOR
+require 'vendor/autoload.php';
+
 //require 'vendor/gisconverter/gisconverter.php';
-require 'vendor/GPXIngest/GPXIngest.php';
-require_once 'vendor/gisconverter/vendor/autoload.php';
-require 'vendor/PHPMailer-master/PHPMailerAutoload.php';
+require 'static_vendor/GPXIngest/GPXIngest.php';
+require_once 'static_vendor/gisconverter/vendor/autoload.php';
+require 'static_vendor/PHPMailer-master/PHPMailerAutoload.php';
 
 // Configuration file
 $conf = __DIR__ . '/config.json';
@@ -114,10 +116,12 @@ require 'classes/jobs/features/WebmappUpdateEventJob.php';
 require 'classes/jobs/features/WebmappDeleteEventJob.php';
 require 'classes/jobs/features/WebmappUpdateTrackJob.php';
 require 'classes/jobs/features/WebmappDeleteTrackJob.php';
-require 'classes/jobs/features/WebmappGenerateElevationChartImageJob.php';
 require 'classes/jobs/features/WebmappUpdateRouteJob.php';
 require 'classes/jobs/features/WebmappDeleteRouteJob.php';
-require 'classes/jobs/features/WebmappGenerateMbtilesJob.php';
 // Taxonomies
 require 'classes/jobs/taxonomies/WebmappUpdateTaxonomyJob.php';
 require 'classes/jobs/taxonomies/WebmappDeleteTaxonomyJob.php';
+// Files
+require 'classes/jobs/files/WebmappGenerateAudioJob.php';
+require 'classes/jobs/files/WebmappGenerateElevationChartImageJob.php';
+require 'classes/jobs/files/WebmappGenerateMbtilesJob.php';

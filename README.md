@@ -81,24 +81,31 @@ The server can be instantiated with some parameters:
 
 ### 5.3 Jobs
 
-| Job name                         | Params                             | Description                                                                                                                                       | Triggers                         |
-| -------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `update_poi`                     | `int(id)`                          | Update the poi geojson and the related taxonomies                                                                                                 |                                  |
-| `update_track`                   | `int(id)`, `bool(update_geometry)` | Update the track geojson and the related taxonomies. The `update_geometry` param force the geometry update when the `osmid` property is available | `generate_elevation_chart_image` |
-| `update_route`                   | `int(id)`                          | Update the route geojson, route index, the related taxonomies and create the `routes/[id]` directory                                              | `generate_mbtiles`               |
-| `update_taxonomy`                | `int(id)`                          | Update the taxonomy definition                                                                                                                    |                                  |
-| `generate_mbtiles`               | `int(id)`                          | Create the mbtiles for the route                                                                                                                  |                                  |
-| `generate_elevation_chart_image` | `int(id)`                          | Create the elevation chart png of the track                                                                                                       |                                  |
-| `delete_poi`                     | `int(id)`                          | Delete the poi geojson and prune the id from the taxonomies                                                                                       |                                  |
-| `delete_track`                   | `int(id)`                          | Delete the track geojson and prune the id from the taxonomies                                                                                     |                                  |
-| `delete_route`                   | `int(id)`                          | Delete the route geojson and prune the id from the taxonomies                                                                                     |                                  |
-| `delete_taxonomy`                | `int(id)`                          | Delete the taxonomy json                                                                                                                          |                                  |
+| Job name                         | Params                             | Description                                                                                                                                       | Triggers                                           |
+| -------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `update_poi`                     | `int(id)`                          | Update the poi geojson and the related taxonomies                                                                                                 | `generate_audio`                                   |
+| `update_track`                   | `int(id)`, `bool(update_geometry)` | Update the track geojson and the related taxonomies. The `update_geometry` param force the geometry update when the `osmid` property is available | `generate_elevation_chart_image`, `generate_audio` |
+| `update_route`                   | `int(id)`                          | Update the route geojson, route index, the related taxonomies and create the `routes/[id]` directory                                              | `generate_mbtiles`, `generate_audio`               |
+| `update_event`                   | `int(id)`                          | Update the event geojson and the related taxonomies                                              | `generate_audio`                               |                                                    |
+| `update_taxonomy`                | `int(id)`                          | Update the taxonomy definition                                                                                                                    |                                                    |
+| `generate_mbtiles`               | `int(id)`                          | Create the mbtiles for the route                                                                                                                  |                                                    |
+| `generate_elevation_chart_image` | `int(id)`                          | Create the elevation chart png of the track                                                                                                       |                                                    |
+| `delete_poi`                     | `int(id)`                          | Delete the poi geojson and prune the id from the taxonomies                                                                                       |                                                    |
+| `delete_track`                   | `int(id)`                          | Delete the track geojson and prune the id from the taxonomies                                                                                     |                                                    |
+| `delete_route`                   | `int(id)`                          | Delete the route geojson and prune the id from the taxonomies                                                                                     |                                                    |
+| `delete_event`                   | `int(id)`                          | Delete the event geojson and prune the id from the taxonomies                                                                                     |                                                    |
+| `delete_taxonomy`                | `int(id)`                          | Delete the taxonomy json                                                                                                                          |                                                    |
+| `generate_audio`                 | `int(id)`, `string(lang)`          | Generate the audio from the description in the given language of the given feature                                                                |                                                    |
 
 ### 5.4 Server.conf
 
 Every instance can be configured using the file `/server/server.conf`.
 
 #### 5.4.1 A Project
+
+| Key               | Type   | Description                                                               |
+| ----------------- | ------ | ------------------------------------------------------------------------- |
+| `generate_audios` | `bool` | Make the server generate the audios of the description when not available |
 
 ##### 5.4.1.1 Elevation Chart Image
 

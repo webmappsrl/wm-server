@@ -16,7 +16,8 @@ define("JOBS_AVAILABLE", [
     "update_poi",
     "update_route",
     "update_taxonomy",
-    "update_track"
+    "update_track",
+    "generate_audio"
 ]);
 
 class WebmappHoquServer {

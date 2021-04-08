@@ -1,19 +1,18 @@
 <?php
 
-class WebmappUpdateRouteJob extends WebmappAbstractJob
-{
+class WebmappUpdateRouteJob extends WebmappAbstractJob {
     /**
      * WebmappUpdateRouteJob constructor.
      *
      * @param string $instanceUrl containing the instance url
-     * @param string $params containing an encoded JSON with the poi ID
-     * @param false $verbose
+     * @param string $params      containing an encoded JSON with the poi ID
+     * @param false  $verbose
+     *
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct(string $instanceUrl, string $params, bool $verbose = false)
-    {
+    public function __construct(string $instanceUrl, string $params, bool $verbose = false) {
         parent::__construct("update_route", $instanceUrl, $params, $verbose);
     }
 
@@ -24,8 +23,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    protected function process()
-    {
+    protected function process() {
         // Load poi from be
         $this->_verbose("Loading route from {$this->wp->getApiRoute($this->id)}");
         $route = new WebmappRoute("{$this->wp->getApiRoute($this->id)}", '', true);
@@ -79,16 +77,18 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
 
         $this->_updateKRoutes($this->id, $route);
         $this->_setTaxonomies("route", $json);
+
+        $this->_checkAudios(json_decode($route->getPoiJson(), true));
     }
 
     /**
      * Map the custom properties in the route
      *
      * @param WebmappRoute $route
+     *
      * @return WebmappRoute
      */
-    protected function _setCustomProperties(WebmappRoute $route): WebmappRoute
-    {
+    protected function _setCustomProperties(WebmappRoute $route): WebmappRoute {
         $this->_verbose("Mapping custom properties");
         $track_properties = $this->_getCustomProperties("track");
         if (isset($track_properties) && is_array($track_properties)) {
@@ -98,8 +98,7 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
         return $route;
     }
 
-    private function _filterKRoute(array $config, WebmappRoute $route): bool
-    {
+    private function _filterKRoute(array $config, WebmappRoute $route): bool {
         $id = $route->getId();
         $result = false;
         if (isset($config["filters"]) && is_array($config["filters"])) {
@@ -140,13 +139,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
     /**
      * Update the K roots
      *
-     * @param int $id the route id
+     * @param int          $id    the route id
      * @param WebmappRoute $route the route
+     *
      * @throws WebmappExceptionHoquRequest
      * @throws WebmappExceptionHttpRequest
      */
-    private function _updateKRoutes(int $id, WebmappRoute $route)
-    {
+    private function _updateKRoutes(int $id, WebmappRoute $route) {
         if (count($this->kProjects) > 0) {
             $this->_verbose("Updating K projects...");
             foreach ($this->kProjects as $kProject) {
@@ -185,13 +184,13 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob
      * Create or update the k route directory where the map.mbtiles will be
      *
      * @param WebmappProjectStructure $kProject the k root project
-     * @param int $id the route id
-     * @param WebmappRoute $route the route
+     * @param int                     $id       the route id
+     * @param WebmappRoute            $route    the route
+     *
      * @throws WebmappExceptionHoquRequest
      * @throws WebmappExceptionHttpRequest
      */
-    private function _updateKRouteDirectory(WebmappProjectStructure $kProject, int $id, WebmappRoute $route)
-    {
+    private function _updateKRouteDirectory(WebmappProjectStructure $kProject, int $id, WebmappRoute $route) {
         if (file_exists("{$kProject->getRoot()}/routes/")) {
             if (!file_exists("{$kProject->getRoot()}/routes/$id/taxonomies")) {
                 mkdir("{$kProject->getRoot()}/routes/$id/taxonomies", 0777, true);

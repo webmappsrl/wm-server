@@ -130,6 +130,49 @@ abstract class WebmappAbstractJob {
     abstract protected function process();
 
     /**
+     * Check if a feature has some audio that needs to be generated and push the related hoqu jobs
+     *
+     * @param array $json the feature
+     *
+     * @throws WebmappExceptionHoquRequest
+     * @throws WebmappExceptionHttpRequest
+     */
+    protected function _checkAudios(array $json) {
+        $config = $this->_getConfig($this->aProject->getRoot());
+
+        if (isset($config['generate_audios']) && !!$config['generate_audios']) {
+            $this->_verbose("Checking audios that need to be generated");
+            $languages = [];
+
+            if (isset($json['properties']['translations']) && is_array($json['properties']['translations'])) {
+                foreach ($json['properties']['translations'] as $lang => $translation) {
+                    if (isset($translation['description']) && !isset($translation['audio']))
+                        $languages[] = $lang;
+                }
+            }
+
+            if (isset($json['properties']['locale']) &&
+                isset($json['properties']['description']) &&
+                !isset($json['propoerties']['audio'])) {
+                $languages[] = $json['properties']['locale'];
+            }
+
+            if (count($languages) > 0) {
+                $this->_verbose("There are " . count($languages) . " audios to be generated: " . implode(', ', $languages));
+                $this->_verbose("Creating the hoqu jobs");
+
+                foreach ($languages as $lang) {
+                    $this->_store('generate_audio', [
+                        'id' => $this->id,
+                        'lang' => $lang
+                    ]);
+                }
+            } else
+                $this->_verbose("There are no audio to be generated");
+        }
+    }
+
+    /**
      * Return the current API value of the given taxonomy
      *
      * @param string $taxonomyType

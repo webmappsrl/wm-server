@@ -51,6 +51,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
+     * @throws WebmappExceptionHoquRequest
      */
     protected function process() {
         $updateOsmGeometry = isset($this->params["update_geometry"]) && $this->params["update_geometry"] === true;
@@ -133,6 +134,8 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
         $this->_setTaxonomies("track", json_decode($track->getJson(), true));
 
         $this->_updateRelatedRoutes($this->id);
+
+        $this->_checkAudios(json_decode($track->getJson(), true));
     }
 
     /**

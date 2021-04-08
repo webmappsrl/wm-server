@@ -1,26 +1,26 @@
 <?php
 
-class WebmappUpdatePoiJob extends WebmappAbstractJob
-{
+class WebmappUpdatePoiJob extends WebmappAbstractJob {
     /**
      * WebmappUpdatePoiJob constructor.
+     *
      * @param string $instanceUrl containing the instance url
-     * @param string $params containing an encoded JSON with the poi ID
-     * @param false $verbose
+     * @param string $params      containing an encoded JSON with the poi ID
+     * @param false  $verbose
+     *
      * @throws WebmappExceptionNoDirectory
      * @throws WebmappExceptionParameterError
      * @throws WebmappExceptionParameterMandatory
      */
-    public function __construct(string $instanceUrl, string $params, $verbose = false)
-    {
+    public function __construct(string $instanceUrl, string $params, $verbose = false) {
         parent::__construct("update_poi", $instanceUrl, $params, $verbose);
     }
 
     /**
      * @throws WebmappExceptionHttpRequest
+     * @throws WebmappExceptionHoquRequest
      */
-    protected function process()
-    {
+    protected function process() {
         $this->_verbose("Loading poi from {$this->wp->getApiPoi($this->id)}");
         $poi = new WebmappPoiFeature($this->wp->getApiPoi($this->id));
         $poi = $this->_setCustomProperties($poi);
@@ -35,16 +35,18 @@ class WebmappUpdatePoiJob extends WebmappAbstractJob
         $this->_unlockFile($geojsonUrl);
 
         $this->_setTaxonomies("poi", json_decode($poi->getJson(), true));
+
+        $this->_checkAudios(json_decode($poi->getJson(), true));
     }
 
     /**
      * Map the custom properties in the poi
      *
      * @param WebmappPoiFeature $poi
+     *
      * @return WebmappPoiFeature
      */
-    protected function _setCustomProperties(WebmappPoiFeature $poi)
-    {
+    protected function _setCustomProperties(WebmappPoiFeature $poi) {
         $this->_verbose("Mapping custom properties");
         $properties = $this->_getCustomProperties("poi");
         if (isset($properties) && is_array($properties)) {
