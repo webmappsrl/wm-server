@@ -849,41 +849,43 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
     }
 
     public function setOsmProperties(bool $setColor = true) {
-        if ($setColor) {
-            $red_match = '/red:red:white_stripe:[^:]+:black/';
-            $color = '#636363';
-            if ($this->_relation->hasTag('source') &&
-                $this->_relation->getTag('source') == 'survey:CAI') {
-                $color = '#A63FD1';
-                if ($this->_relation->hasTag('osmc:symbol') &&
-                    preg_match($red_match, $this->_relation->getTag('osmc:symbol'))) {
-                    $color = '#E35234';
+        if (isset($this->_relation)) {
+            if ($setColor) {
+                $red_match = '/red:red:white_stripe:[^:]+:black/';
+                $color = '#636363';
+                if ($this->_relation->hasTag('source') &&
+                    $this->_relation->getTag('source') == 'survey:CAI') {
+                    $color = '#A63FD1';
+                    if ($this->_relation->hasTag('osmc:symbol') &&
+                        preg_match($red_match, $this->_relation->getTag('osmc:symbol'))) {
+                        $color = '#E35234';
+                    }
                 }
+                if (!$this->hasProperty("color") && $color)
+                    $this->addProperty("color", $color);
             }
-            if (!$this->hasProperty("color") && $color)
-                $this->addProperty("color", $color);
-        }
 
-        // ADD lineDash for alternate
-        if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate' && !$this->hasProperty('lineDash'))
-            $this->addProperty('lineDash', array(12, 8));
+            // ADD lineDash for alternate
+            if ($this->_relation->hasTag('state') && $this->_relation->getTag('state') == 'alternate' && !$this->hasProperty('lineDash'))
+                $this->addProperty('lineDash', array(12, 8));
 
-        // TODO: Move this code to a mapping specific/mapping standard
-        $mapProperties = array(
-            "cai_scale",
-            "name",
-            "from",
-            "to",
-            "stroke_opacity",
-            "stroke_width",
-            "line_dash",
-            "duration:forward",
-            "duration:backward",
-            "ref"
-        );
-        foreach ($mapProperties as $property) {
-            if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property)))
-                $this->addProperty($property, $this->_relation->getTag($property));
+            // TODO: Move this code to a mapping specific/mapping standard
+            $mapProperties = array(
+                "cai_scale",
+                "name",
+                "from",
+                "to",
+                "stroke_opacity",
+                "stroke_width",
+                "line_dash",
+                "duration:forward",
+                "duration:backward",
+                "ref"
+            );
+            foreach ($mapProperties as $property) {
+                if (!$this->hasProperty($property) && $this->_relation->hasTag($property) && !empty($this->_relation->getTag($property)))
+                    $this->addProperty($property, $this->_relation->getTag($property));
+            }
         }
     }
 
