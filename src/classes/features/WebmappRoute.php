@@ -1,8 +1,6 @@
 <?php
 
-class WebmappRoute
-{
-
+class WebmappRoute {
     private $id;
     private $title;
     private $description;
@@ -10,23 +8,22 @@ class WebmappRoute
     private $tracks = array();
     private $geojsonTracks = array();
     private $base_url;
-
     private $properties = array();
     private $features = array();
-
     // Array con le lingue presenti
     private $languages = array();
 
     /**t
      * WebmappRoute constructor.
-     * @param $array_or_url
+     *
+     * @param        $array_or_url
      * @param string $base_url
-     * @param false $skip_tracks
+     * @param false  $skip_tracks
+     *
      * @throws WebmappExceptionHttpRequest
      */
-    public function __construct($array_or_url, $base_url = '', $skip_tracks = false)
-    {
-        declare(ticks=1);
+    public function __construct($array_or_url, $base_url = '', $skip_tracks = false) {
+        declare(ticks = 1);
         if (is_array($array_or_url)) {
             $this->json_array = $array_or_url;
             $this->base_url = $base_url;
@@ -155,54 +152,45 @@ class WebmappRoute
                 $this->properties['translations'] = $tp;
             }
         }
-
     }
 
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
-    public function getTitle()
-    {
+    public function getTitle() {
         return $this->title;
     }
 
-    public function getTracks()
-    {
+    public function getTracks() {
         return $this->tracks;
     }
 
-    public function getLanguages()
-    {
+    public function getLanguages() {
         return $this->languages;
     }
 
-    public function getProperties()
-    {
+    public function getProperties() {
         return $this->properties;
     }
 
-    public function getTaxonomies()
-    {
+    public function getTaxonomies() {
         if (isset($this->properties['taxonomy'])) {
             return $this->properties['taxonomy'];
         }
+
         return array();
     }
 
-    public function getApiTracks()
-    {
+    public function getApiTracks() {
         return $this->json_array['n7webmap_route_related_track'];
     }
 
-    public function getGeojsonTracks()
-    {
+    public function getGeojsonTracks() {
         return $this->geojsonTracks;
     }
 
-    private function _loadTracks()
-    {
+    private function _loadTracks() {
         if (isset($this->json_array['n7webmap_route_related_track']) &&
             is_array($this->json_array['n7webmap_route_related_track']) &&
             count($this->json_array['n7webmap_route_related_track']) > 0) {
@@ -217,8 +205,7 @@ class WebmappRoute
         }
     }
 
-    private function addTaxonomy($name)
-    {
+    private function addTaxonomy($name) {
         if (isset($this->json_array[$name]) &&
             is_array($this->json_array[$name]) &&
             count($this->json_array[$name]) > 0) {
@@ -226,8 +213,7 @@ class WebmappRoute
         }
     }
 
-    public function buildPropertiesAndFeaturesFromTracksGeojson($tracks)
-    {
+    public function buildPropertiesAndFeaturesFromTracksGeojson($tracks) {
         $this->properties['id'] = $this->id;
         $this->properties['name'] = $this->title;
         $this->properties['description'] = $this->description;
@@ -235,9 +221,12 @@ class WebmappRoute
             $dist = $asc = $desc = 0;
             $related = array();
             foreach ($tracks as $track) {
-                $dist += $track["properties"]["distance"];
-                $asc += $track["properties"]["ascent"];
-                $desc += $track["properties"]["descent"];
+                if (isset($track["properties"]["distance"]) && !empty($track["properties"]["distance"]))
+                    $dist += floatval($track["properties"]["distance"]);
+                if (isset($track["properties"]["ascent"]) && !empty($track["properties"]["ascent"]))
+                    $asc += floatval($track["properties"]["ascent"]);
+                if (isset($track["properties"]["descent"]) && !empty($track["properties"]["descent"]))
+                    $desc += floatval($track["properties"]["descent"]);
                 $this->features[] = $track;
                 $related[] = $track["properties"]["id"];
             }
@@ -250,8 +239,7 @@ class WebmappRoute
         }
     }
 
-    private function buildPropertiesAndFeatures()
-    {
+    private function buildPropertiesAndFeatures() {
         $this->properties['id'] = $this->id;
         $this->properties['name'] = $this->title;
         $this->properties['description'] = $this->description;
@@ -280,8 +268,7 @@ class WebmappRoute
      *
      * @param $custom_array
      */
-    public function mapCustomProperties($custom_array)
-    {
+    public function mapCustomProperties($custom_array) {
         foreach ($custom_array as $key => $property) {
             $this->customSetProperty(is_numeric($key) ? $property : $key, $this->json_array, $property);
         }
@@ -290,12 +277,11 @@ class WebmappRoute
     /**
      * Set the property in the properties
      *
-     * @param string $key the property to copy
-     * @param array $json_array the api value
-     * @param string $key_map the new key where to map the property
+     * @param string $key        the property to copy
+     * @param array  $json_array the api value
+     * @param string $key_map    the new key where to map the property
      */
-    protected function customSetProperty(string $key, array $json_array, string $key_map = '')
-    {
+    protected function customSetProperty(string $key, array $json_array, string $key_map = '') {
         $val = null;
         if (isset($json_array["acf"]) && isset($json_array["acf"][$key]) && !is_null($json_array["acf"][$key])) {
             $val = $json_array['acf'][$key];
@@ -318,17 +304,16 @@ class WebmappRoute
         }
     }
 
-    public function getJson()
-    {
+    public function getJson() {
         $json = array();
         $json['type'] = 'FeatureCollection';
         $json['properties'] = $this->properties;
         $json['features'] = $this->features;
+
         return json_encode($json);
     }
 
-    public function getPoiJson()
-    {
+    public function getPoiJson() {
         $json = array();
         $json['type'] = 'Feature';
         $json['properties'] = $this->properties;
@@ -349,8 +334,7 @@ class WebmappRoute
         return json_encode($json);
     }
 
-    public function getTrackJson()
-    {
+    public function getTrackJson() {
         $json = array();
         $json["type"] = "Feature";
         $json["properties"] = $this->properties;
@@ -385,8 +369,7 @@ class WebmappRoute
         return json_encode($json);
     }
 
-    public function writeToPostGis($instance_id = '')
-    {
+    public function writeToPostGis($instance_id = '') {
         // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
@@ -398,8 +381,7 @@ class WebmappRoute
         }
     }
 
-    public function addBBox($instance_id = '')
-    {
+    public function addBBox($instance_id = '') {
         // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
@@ -413,8 +395,7 @@ class WebmappRoute
         }
     }
 
-    public function write($path, $encrypt = false)
-    {
+    public function write($path, $encrypt = false) {
         $out = $this->getJson();
         if ($encrypt) {
             $out = WebmappUtils::encrypt($out);
@@ -422,9 +403,7 @@ class WebmappRoute
         file_put_contents($path . '/' . $this->id . '.geojson', $out);
     }
 
-    public function generateAllImages($instance_id = '', $path = '')
-    {
-
+    public function generateAllImages($instance_id = '', $path = '') {
         // Gestione della ISTANCE ID
         if (empty($instance_id)) {
             $instance_id = WebmappProjectStructure::getInstanceId();
@@ -439,11 +418,9 @@ class WebmappRoute
         foreach ($sizes as $v) {
             $this->generateImage($v[0], $v[1], $instance_id, $path);
         }
-
     }
 
-    public function generateImage($width, $height, $instance_id = '', $path = '')
-    {
+    public function generateImage($width, $height, $instance_id = '', $path = '') {
         // Ignore route without tracks
         if (count($this->tracks) == 0) {
             return;
@@ -464,9 +441,7 @@ class WebmappRoute
         WebmappUtils::generateImage($geojson_url, $this->properties['bbox_metric'], $width, $height, $img_path);
     }
 
-    public function generateRBHTML($path, $instance_id = '')
-    {
-
+    public function generateRBHTML($path, $instance_id = '') {
         if (count($this->tracks) == 0) {
             $this->_loadTracks();
         }
@@ -529,8 +504,7 @@ class WebmappRoute
         file_put_contents($file, $html);
     }
 
-    private function getRBTrackHTML($track, $code)
-    {
+    private function getRBTrackHTML($track, $code) {
         $html = '';
         $html .= '<div class="track">' . "\n";
 
@@ -579,7 +553,6 @@ class WebmappRoute
             $html .= '</div><!-- end class poi_item_info -->' . "\n";
 
             $html .= '</div><!-- end class poi_item -->' . "\n";
-
         }
         $html .= '</div><!-- end class poi -->' . "\n";
         $html .= '<pagebreak/>' . "\n";
@@ -594,16 +567,15 @@ class WebmappRoute
 
         $html .= '</div><!-- end class track -->' . "\n";
         $html .= "\n";
+
         return $html;
     }
 
-    public function setProperty($name, $value)
-    {
+    public function setProperty($name, $value) {
         $this->properties[$name] = $value;
     }
 
-    public function getProperty($key)
-    {
+    public function getProperty($key) {
         return $this->properties[$key];
     }
 }
