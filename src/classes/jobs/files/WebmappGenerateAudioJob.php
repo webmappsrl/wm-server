@@ -104,24 +104,29 @@ class WebmappGenerateAudioJob extends WebmappAbstractJob {
                     $text = $geojson['properties']['translations'][$lang]['description'];
             }
 
-            if (is_null($text)) {
+            if (is_null($text) || empty($text) || $text === "") {
                 $this->_unlockFile($geojsonUrl);
                 $this->_verbose('The audio does not need to be generated since there is no description to be read');
             } else {
                 $this->_verbose('Stripping html tags from text');
                 $text = strip_tags($text);
-                $audioUrl = $this->_generateAudioFile($text, $lang);
+                if (empty($text) || $text === "") {
+                    $this->_unlockFile($geojsonUrl);
+                    $this->_verbose('The audio does not need to be generated since there is no description to be read');
+                } else {
+                    $audioUrl = $this->_generateAudioFile($text, $lang);
 
-                if (isset($geojson['properties']['translations'][$lang]))
-                    $geojson['properties']['translations'][$lang]['audio'] = $audioUrl;
-                if (isset($geojson['properties']['locale']) &&
-                    substr($geojson['properties']['locale'], 0, 2) === $lang)
-                    $geojson['properties']['audio'] = $audioUrl;
+                    if (isset($geojson['properties']['translations'][$lang]))
+                        $geojson['properties']['translations'][$lang]['audio'] = $audioUrl;
+                    if (isset($geojson['properties']['locale']) &&
+                        substr($geojson['properties']['locale'], 0, 2) === $lang)
+                        $geojson['properties']['audio'] = $audioUrl;
 
-                $this->_verbose("Adding audio property to the geojson file");
-                file_put_contents($geojsonUrl, json_encode($geojson));
+                    $this->_verbose("Adding audio property to the geojson file");
+                    file_put_contents($geojsonUrl, json_encode($geojson));
 
-                $this->_unlockFile($geojsonUrl);
+                    $this->_unlockFile($geojsonUrl);
+                }
             }
         } else throw new WebmappExceptionNoFile("The audio for the feature {$this->id} can not be generated since the geojson file does not exists");
     }
