@@ -170,6 +170,6 @@ class WebmappGenerateAudioJob extends WebmappAbstractJob {
 
         $this->_verbose("Audio file generated successfully in {$audioUrl}");
 
-        return $audioUrl;
+        return "https://a.webmapp.it/" . $this->instanceName . "/media/audios/{$this->id}_{$lang}.mp3";
     }
 }
