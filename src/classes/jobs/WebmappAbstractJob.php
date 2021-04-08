@@ -146,13 +146,14 @@ abstract class WebmappAbstractJob {
 
             if (isset($json['properties']['translations']) && is_array($json['properties']['translations'])) {
                 foreach ($json['properties']['translations'] as $lang => $translation) {
-                    if (isset($translation['description']) && !isset($translation['audio']))
+                    if (isset($translation['description']) && !empty($translation['description']) && !isset($translation['audio']))
                         $languages[] = $lang;
                 }
             }
 
             if (isset($json['properties']['locale']) &&
                 isset($json['properties']['description']) &&
+                !empty($json['properties']['description']) &&
                 !isset($json['propoerties']['audio'])) {
                 $languages[] = $json['properties']['locale'];
             }
