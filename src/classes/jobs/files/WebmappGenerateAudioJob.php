@@ -150,7 +150,6 @@ class WebmappGenerateAudioJob extends WebmappAbstractJob {
         ]);
 
         $input = new SynthesisInput();
-        $input->setText($text);
         $voice = new VoiceSelectionParams();
         $voice->setLanguageCode(VOICES[$lang]['languageCode']);
         $voice->setSsmlGender(constant('\Google\Cloud\TextToSpeech\V1\SsmlVoiceGender::' . VOICES[$lang]['ssmlGender']));
@@ -160,13 +159,35 @@ class WebmappGenerateAudioJob extends WebmappAbstractJob {
         $audioConfig->setSpeakingRate(0.8);
         $audioConfig->setPitch(0);
 
-        $resp = $textToSpeechClient->synthesizeSpeech($input, $voice, $audioConfig);
+        $split = explode(" ", $text, 4998);
+        $i = 0;
+
+        $this->_verbose("Checking text length to prevent api errors due to text limits");
+        while ($i < count($split) - 1) {
+            if (strlen($split[$i]) + strlen($split[$i + 1]) < 4998) {
+                $split[$i] .= " " . $split[$i + 1];
+                array_splice($split, $i + 1, 1);
+            } else
+                $i++;
+        }
+
+        $this->_verbose("Splitted the text into " . count($split) . " pieces");
+
+        $audioString = '';
+
+        foreach ($split as $key => $inputText) {
+            $this->_verbose("Generating audio piece number " . ($key + 1));
+            $input->setText($inputText);
+            $resp = $textToSpeechClient->synthesizeSpeech($input, $voice, $audioConfig);
+            $audioString .= $resp->getAudioContent();
+            $this->_verbose("Audio piece " . ($key + 1) . " generated successfully");
+        }
 
         if (!file_exists($this->aProject->getRoot() . "/media/audios/"))
             mkdir($this->aProject->getRoot() . "/media/audios/", 0777, true);
 
         $audioUrl = $this->aProject->getRoot() . "/media/audios/{$this->id}_{$lang}.mp3";
-        file_put_contents($audioUrl, $resp->getAudioContent());
+        file_put_contents($audioUrl, $audioString);
 
         $this->_verbose("Audio file generated successfully in {$audioUrl}");
 
