@@ -827,6 +827,17 @@ class WebmappTrackFeature extends WebmappAbstractFeature {
             }
             $this->addProperty('surface', $surface);
         }
+        
+        // Line Dash
+        if (isset($json_array['line_dash_repeater'])
+            && is_array($json_array['line_dash_repeater'])
+            && count($json_array['line_dash_repeater']) > 0) {
+            $lineDash = [];
+            foreach ($json_array['line_dash_repeater'] as $item) {
+                $lineDash[] = floatval($item['line_dash']);
+            }
+            $this->addProperty('line_dash', $lineDash);
+        }
     }
 
     protected function mappingGeometry($json_array) {
