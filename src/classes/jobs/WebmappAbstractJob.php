@@ -200,6 +200,51 @@ abstract class WebmappAbstractJob {
                             $taxonomy[$property] = $taxonomy["acf"][$property];
                     }
                 }
+
+                if (isset($taxonomy['line_dash_repeater'])
+                    && is_array($taxonomy['line_dash_repeater'])
+                    && count($taxonomy['line_dash_repeater']) > 0) {
+                    $lineDash = [];
+                    foreach ($taxonomy['line_dash_repeater'] as $item) {
+                        $lineDash[] = floatval($item['line_dash']);
+                    }
+                    $taxonomy['line_dash'] = $lineDash;
+                }
+
+                if (isset($taxonomy["wpml_current_locale"])) {
+                    $taxonomy["locale"] = preg_replace('|_.*$|', '', $taxonomy["wpml_current_locale"]);
+                    unset($taxonomy["wpml_current_locale"]);
+                }
+
+                if (isset($taxonomy['yoast_head']))
+                    unset($taxonomy["yoast_head"]);
+
+                if (isset($taxonomy["wpml_translations"])) {
+                    if (is_array($taxonomy['wpml_translations']) && count($taxonomy['wpml_translations']) > 0) {
+                        $translations = [];
+                        foreach ($taxonomy['wpml_translations'] as $item) {
+                            $locale = preg_replace('|_.*$|', '', $item['locale']);
+                            $val = array();
+                            $val['id'] = $item['id'];
+                            $val['name'] = $item['name'];
+                            $val['source'] = preg_replace('|/[0-9]*$|', '/' . $val['id'], $item['source']);
+                            //                            try {
+                            //                                $ja = WebmappUtils::getJsonFromApi($val['source']);
+                            //                                if (isset($ja['name']))
+                            //                                    $val['name'] = $ja['name'];
+                            //                                if (isset($ja['html_description']))
+                            //                                    $val['description'] = $ja['html_description'];
+                            //
+                            $translations[$locale] = $val;
+                            //                            } catch (WebmappExceptionHttpRequest $e) {
+                            //                                WebmappUtils::warning("The taxonomy {$locale} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
+                            //                            }
+                        }
+                        $taxonomy["translations"] = $translations;
+                    }
+                    unset($taxonomy["wpml_translations"]);
+                }
+
                 $this->cachedTaxonomies[$id] = $taxonomy; // Cache downloaded taxonomies
             } catch (WebmappExceptionHttpRequest $e) {
                 $this->_warning("Taxonomy {$id} is not available from {$this->instanceUrl}/wp-json/wp/v2/{$taxonomyType}/{$id}. Skipping");
