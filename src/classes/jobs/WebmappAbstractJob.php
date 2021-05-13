@@ -227,18 +227,18 @@ abstract class WebmappAbstractJob {
                             $val = array();
                             $val['id'] = $item['id'];
                             $val['name'] = $item['name'];
-                            $val['source'] = preg_replace('|/[0-9]*$|', '/' . $val['id'], $item['source']);
-                            //                            try {
-                            //                                $ja = WebmappUtils::getJsonFromApi($val['source']);
-                            //                                if (isset($ja['name']))
-                            //                                    $val['name'] = $ja['name'];
-                            //                                if (isset($ja['html_description']))
-                            //                                    $val['description'] = $ja['html_description'];
-                            //
-                            $translations[$locale] = $val;
-                            //                            } catch (WebmappExceptionHttpRequest $e) {
-                            //                                WebmappUtils::warning("The taxonomy {$locale} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
-                            //                            }
+                            $val['source'] = $item['source'];
+                            try {
+                                $ja = WebmappUtils::getJsonFromApi($val['source']);
+                                if (isset($ja['name']))
+                                    $val['name'] = $ja['name'];
+                                if (isset($ja['html_description']))
+                                    $val['description'] = $ja['html_description'];
+
+                                $translations[$locale] = $val;
+                            } catch (WebmappExceptionHttpRequest $e) {
+                                WebmappUtils::warning("The taxonomy {$locale} language is not available at the url {$val['source']}. This could be due to the translation being in a draft state. HttpError: " . $e->getMessage());
+                            }
                         }
                         $taxonomy["translations"] = $translations;
                     }
