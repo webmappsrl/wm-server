@@ -607,13 +607,15 @@ abstract class WebmappAbstractJob {
                             $taxonomy = $aJson[$taxId];
                             if (isset($kJson[$taxId]["items"])) {
                                 $items = $kJson[$taxId]["items"];
+                                // Clean the non route items
                                 foreach ($items as $postTypeKey => $value) {
                                     if ($postTypeKey !== "route")
                                         unset($items[$postTypeKey]);
                                 }
 
-                                if ($postType === "route" && !isset($items[$postType])) {
-                                    $items[$postType] = [];
+                                if ($postType === "route") {
+                                    if (!isset($items[$postType]))
+                                        $items[$postType] = [];
                                     $items[$postType][] = $this->id;
                                     $items[$postType] = array_values(array_unique($items[$postType]));
                                 }
@@ -625,7 +627,7 @@ abstract class WebmappAbstractJob {
 
                     // Remove post from its not taxonomies
                     foreach ($kJson as $taxId => $taxonomy) {
-                        $items = isset($taxonomy["items"]) ? $taxonomy["items"] : [];
+                        $items = $taxonomy["items"] ?? [];
                         foreach ($items as $postTypeKey => $value) {
                             if ($postTypeKey !== "route")
                                 unset($items[$postTypeKey]);
