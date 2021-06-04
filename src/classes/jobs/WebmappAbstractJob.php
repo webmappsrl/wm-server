@@ -232,7 +232,9 @@ abstract class WebmappAbstractJob {
                                 $ja = WebmappUtils::getJsonFromApi($val['source']);
                                 if (isset($ja['name']))
                                     $val['name'] = $ja['name'];
-                                if (isset($ja['html_description']))
+                                if (isset($ja['description']))
+                                    $val['description'] = $ja['description'];
+                                else if (isset($ja['html_description']))
                                     $val['description'] = $ja['html_description'];
 
                                 $translations[$locale] = $val;
@@ -930,7 +932,6 @@ abstract class WebmappAbstractJob {
      * @param int      $id           the post id
      * @param int|null $defaultValue the default last modified value
      *
-     * @return false|int|void
      */
     protected function _getPostLastModified(int $id, int $defaultValue = null) {
         $lastModified = isset($defaultValue) ? $defaultValue : strtotime("now");
