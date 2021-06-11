@@ -238,6 +238,21 @@ class WebmappUpdateRouteJob extends WebmappAbstractJob {
             }
 
             $poisIds = array_unique($poisIds);
+
+            $dx = 0.05;
+            $dy = 0.05;
+            $dx_metric = 2000;
+            $dy_metric = 2000;
+            // This is not exactly right but calculate an enough accurate result
+            $bbox[0] -= ($dx + tan($bbox[0] * pi() / 180) * $dx);
+            $bbox[1] -= $dy;
+            $bbox[2] += ($dx + tan($bbox[2] * pi() / 180) * $dx);
+            $bbox[3] += $dy;
+            $bbox_metric[0] -= $dx_metric;
+            $bbox_metric[1] -= $dy_metric;
+            $bbox_metric[2] += $dx_metric;
+            $bbox_metric[3] += $dy_metric;
+
             $route->setProperty("bbox", $bbox);
             $route->setProperty("bbox_metric", $bbox_metric);
 
