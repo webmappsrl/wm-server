@@ -1,42 +1,33 @@
 <?php
 
-abstract class WebmappAbstractFeature
-{
-
+abstract class WebmappAbstractFeature {
     // Array geometria della feature
     protected $geometry;
-
     // Array associativo con la sezione properties
     protected $properties;
-
     // Array del json restituito dalle API
     protected $json_array;
-
     // Array degli ID delle categorie webmapp
     protected $webmapp_category_ids = array();
-
     // Array per la gestione delle traduzioni
     protected $languages = array();
-
     // WP URL
     private $wp_url = '';
-
     // GEOJSON FNAME (usato per il write)
     private $geojson_path;
-
     protected $debug = false;
-
     // Il costruttore prende in ingresso un array che rispecchia le API di WP
     // della singola feature oppure direttamente l'URL di un singolo POI
     /**
      * WebmappAbstractFeature constructor.
-     * @param $array_or_url
+     *
+     * @param      $array_or_url
      * @param bool $skip_geometry
+     *
      * @throws WebmappExceptionHttpRequest
      */
-    public function __construct($array_or_url, bool $skip_geometry = false)
-    {
-        declare(ticks=1);
+    public function __construct($array_or_url, bool $skip_geometry = false) {
+        declare(ticks = 1);
         global $wm_config;
 
         $this->debug = !!$wm_config['debug'];
@@ -88,15 +79,13 @@ abstract class WebmappAbstractFeature
 
     // Simple Getters
 
-    private function translate($lang, $key, $val)
-    {
+    private function translate($lang, $key, $val) {
         $this->languages[$lang][$key] = $val;
     }
 
     // GEOJSON FNAME
 
-    private function mappingStandard($json_array)
-    {
+    private function mappingStandard($json_array) {
         $this->setProperty('id', $json_array);
         if (isset($json_array['title']['rendered'])) {
             $this->setProperty('rendered', $json_array['title'], 'name');
@@ -232,7 +221,7 @@ abstract class WebmappAbstractFeature
                         if (isset($ja['rb_track_section'])) {
                             $val['rb_track_section'] = $ja['rb_track_section'];
                         }
-                        if (isset($ja['audio']) && is_array($ja['audio'])) {
+                        if (isset($ja['audio']) && is_array($ja['audio']) && isset($ja['audio']['url']) && $ja['audio']['url'] !== $this->getProperty('audio')) {
                             $val['audio'] = $ja['audio']['url'];
                         }
 
@@ -252,8 +241,7 @@ abstract class WebmappAbstractFeature
             $this->addProperty('web', $json_array['url']);
     }
 
-    public function setProperty($key, $json_array, $key_map = '')
-    {
+    public function setProperty($key, $json_array, $key_map = '') {
         if (isset($json_array[$key]) && !is_null($json_array[$key])) {
             if ($key_map == '') {
                 $key_map = $key;
@@ -263,8 +251,7 @@ abstract class WebmappAbstractFeature
         }
     }
 
-    public function setPropertyFloat($key, $json_array, $key_map = '')
-    {
+    public function setPropertyFloat($key, $json_array, $key_map = '') {
         if (isset($json_array[$key]) && !is_null($json_array[$key])) {
             if ($key_map == '')
                 $key_map = $key;
@@ -273,8 +260,7 @@ abstract class WebmappAbstractFeature
         }
     }
 
-    protected function setPropertyBool($key, $json_array, $key_map = '')
-    {
+    protected function setPropertyBool($key, $json_array, $key_map = '') {
         if ($key_map == '') {
             $key_map = $key;
         }
@@ -285,13 +271,11 @@ abstract class WebmappAbstractFeature
             if ($json_val == true or $json_val == 'true' or $json_val == '1') {
                 $val = true;
             }
-
         }
         $this->properties[$key_map] = $val;
     }
 
-    private function mappingImage($gallery)
-    {
+    private function mappingImage($gallery) {
         if (is_array($gallery) && count($gallery) > 0) {
             $images = array();
             foreach ($gallery as $item) {
@@ -313,10 +297,10 @@ abstract class WebmappAbstractFeature
 
     /**
      * @param array $sizes
+     *
      * @return string|null
      */
-    protected function _getImageUrlFromSizes(array $sizes): ?string
-    {
+    protected function _getImageUrlFromSizes(array $sizes): ?string {
         $url = null;
         if (isset($sizes)) {
             if (isset($sizes['large']['source_url']))
@@ -348,19 +332,16 @@ abstract class WebmappAbstractFeature
         return $url;
     }
 
-    public function setImage($url)
-    {
+    public function setImage($url) {
         if (isset($url))
             $this->properties['image'] = $url;
     }
 
-    public function addProperty($key, $val)
-    {
+    public function addProperty($key, $val) {
         $this->properties[$key] = $val;
     }
 
-    private function addTaxonomy($name)
-    {
+    private function addTaxonomy($name) {
         if (isset($this->json_array[$name]) &&
             is_array($this->json_array[$name]) &&
             count($this->json_array[$name]) > 0) {
@@ -373,10 +354,10 @@ abstract class WebmappAbstractFeature
     /**
      * @param array $json_array
      * @param array $types
+     *
      * @return array
      */
-    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types = [], string $prefix): array
-    {
+    private function _getObjectWithCheckAndDescription(array $json_array = [], array $types = [], string $prefix): array {
         $result = [];
         foreach ($types as $type) {
             $check = $prefix . '_' . $type . '_check';
@@ -391,23 +372,20 @@ abstract class WebmappAbstractFeature
         return $result;
     }
 
-    protected function setAccessibility($json_array)
-    {
+    protected function setAccessibility($json_array) {
         // ACCESSIBILITA'
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('mobility', 'hearing', 'vision', 'cognitive', 'food');
         $this->properties['accessibility'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types, 'access');
     }
 
-    protected function setReachability($json_array)
-    {
+    protected function setReachability($json_array) {
         // TODO: GESTIRE IL CASO VUOTO
         $types = array('by_bike', 'on_foot', 'by_car', 'by_public_transportation');
         $this->properties['reachability'] = $this->_getObjectWithCheckAndDescription(is_null($json_array) ? [] : $json_array, $types, 'reachability');
     }
 
-    protected function setNotAccessible($json_array)
-    {
+    protected function setNotAccessible($json_array) {
         if (isset($json_array['not_accessible']) && !!$json_array['not_accessible']) {
             $this->properties['not_accessible'] = [
                 "check" => true,
@@ -417,8 +395,7 @@ abstract class WebmappAbstractFeature
         }
     }
 
-    private function setRelatedUrl($ja)
-    {
+    private function setRelatedUrl($ja) {
         if (isset($ja['n7webmap_rpt_related_url']) && is_array($ja['n7webmap_rpt_related_url'])) {
             $urls = array();
             foreach ($ja['n7webmap_rpt_related_url'] as $item) {
@@ -431,11 +408,11 @@ abstract class WebmappAbstractFeature
 
     // Restituisce l'array con l'id WP delle categorie
 
-    public function getId()
-    {
+    public function getId() {
         if (isset($this->properties['id'])) {
             return $this->properties['id'];
         }
+
         return '';
     }
 
@@ -443,23 +420,19 @@ abstract class WebmappAbstractFeature
 
     abstract protected function mappingGeometry($json_array);
 
-    public function getWPUrl(): string
-    {
+    public function getWPUrl(): string {
         return $this->wp_url;
     }
 
-    public function getProperties()
-    {
+    public function getProperties() {
         return $this->properties;
     }
 
-    public function getGeometry()
-    {
+    public function getGeometry() {
         return $this->geometry;
     }
 
-    public function getGeometryType(): string
-    {
+    public function getGeometryType(): string {
         if (!$this->hasGeometry()) {
             return 'no-geometry';
         }
@@ -470,44 +443,41 @@ abstract class WebmappAbstractFeature
         if (empty($this->geometry)) {
             return 'empty-geomtrytype';
         }
+
         return $this->geometry['type'];
     }
 
-    public function hasGeometry(): bool
-    {
+    public function hasGeometry(): bool {
         return !empty($this->geometry);
     }
 
-    public function getWebmappCategoryIds(): array
-    {
+    public function getWebmappCategoryIds(): array {
         return $this->webmapp_category_ids;
     }
 
-    public function getIcon(): string
-    {
+    public function getIcon(): string {
         if (isset($this->properties['icon'])) {
             return $this->properties['icon'];
         }
+
         return '';
     }
 
-    public function getColor()
-    {
+    public function getColor() {
         if (isset($this->properties['color'])) {
             return $this->properties['color'];
         }
+
         return '';
     }
 
-    public function mapCustomProperties($custom_array)
-    {
+    public function mapCustomProperties($custom_array) {
         foreach ($custom_array as $key => $property) {
             $this->customSetProperty(is_numeric($key) ? $property : $key, $this->json_array, $property);
         }
     }
 
-    protected function customSetProperty($key, $json_array, $key_map = '')
-    {
+    protected function customSetProperty($key, $json_array, $key_map = '') {
         $val = null;
         if (isset($json_array["acf"]) && isset($json_array["acf"][$key]) && !is_null($json_array["acf"][$key])) {
             $val = $json_array['acf'][$key];
@@ -530,50 +500,42 @@ abstract class WebmappAbstractFeature
         }
     }
 
-    public function addImageToGallery($src, $caption = '', $id = '')
-    {
+    public function addImageToGallery($src, $caption = '', $id = '') {
         $this->properties['imageGallery'][] = array('src' => $src, 'caption' => $caption, 'id' => $id);
     }
 
-    public function cleanProperties()
-    {
+    public function cleanProperties() {
         $this->removeProperty('noInteraction');
         $this->removeProperty('noDetails');
         $this->removeProperty('accessibility');
         $this->removeProperty('id_pois');
     }
 
-    public function removeProperty($key)
-    {
+    public function removeProperty($key) {
         unset($this->properties[$key]);
     }
 
     // Map properties
 
-    public function map($a)
-    {
+    public function map($a) {
         foreach ($a as $key => $val) {
             $this->addProperty($key, $val);
         }
     }
 
-    public function setDescription($val)
-    {
+    public function setDescription($val) {
         $this->addProperty('description', $val);
     }
 
     // Mapping della gallery e della imagine di base
 
-    public function setGeometryGeoJSON($geom)
-    {
+    public function setGeometryGeoJSON($geom) {
         $this->geometry = json_decode($geom, true);
     }
 
     // Mapping delle proprietà specifiche di una feature esclusa la geometria
 
-    public function getRelatedPois()
-    {
-
+    public function getRelatedPois() {
         // Retrieve POIS URL
         if (!empty($this->wp_url)) {
             if (($parsed_url = parse_url($this->wp_url)) !== null) {
@@ -608,32 +570,31 @@ abstract class WebmappAbstractFeature
                 $pois[] = new WebmappPoiFeature($poi_url);
             }
         }
+
         return $pois;
     }
 
     // Mapping della geometria
 
-    public function hasProperty($k)
-    {
+    public function hasProperty($k) {
         return array_key_exists($k, $this->properties) && isset($this->properties[$k]) && !empty($this->properties[$k]);
     }
 
     // Force $geometry with geoJson geometry (string)
 
-    public function getProperty($k)
-    {
+    public function getProperty($k) {
         return $this->properties[$k];
     }
 
     // Restituisce un array di oggetti WebmappPoiFeature con i relatedPoi
 
-    public function getBB()
-    {
+    public function getBB() {
         $bb = array();
         $bb['bounds']['southWest'] = array($this->getLatMin(), $this->getLngMin());
         $bb['bounds']['northEast'] = array($this->getLatMax(), $this->getLngMax());
         $bb['center']['lat'] = ($this->getLatMin() + $this->getLatMax()) / 2;
         $bb['center']['lng'] = ($this->getLngMin() + $this->getLngMax()) / 2;
+
         return $bb;
     }
 
@@ -647,8 +608,7 @@ abstract class WebmappAbstractFeature
 
     abstract public function getLngMax();
 
-    public function write($path, $encrypt = false)
-    {
+    public function write($path, $encrypt = false) {
         $id = $this->properties['id'];
         $this->geojson_path = $path . "/$id.geojson";
         if (!file_exists($path)) {
@@ -668,14 +628,11 @@ abstract class WebmappAbstractFeature
     // ['center']array(lat,lng)
     // NON FARLA ASTRATTA MA IN FUNZIONE DELLE PRECEDENTI
 
-    public function getJson($lang = '')
-    {
+    public function getJson($lang = '') {
         return json_encode($this->getArrayJson($lang));
     }
 
-    public function getArrayJson($lang = '')
-    {
-
+    public function getArrayJson($lang = '') {
         $meta = $this->properties;
         // manage translations
         if ($lang != '') {
@@ -693,6 +650,7 @@ abstract class WebmappAbstractFeature
         $json['type'] = 'Feature';
         $json['properties'] = $meta;
         $json['geometry'] = $this->geometry;
+
         return $json;
     }
 
@@ -702,8 +660,7 @@ abstract class WebmappAbstractFeature
 
     abstract public function addEle();
 
-    public function writeRelated($path)
-    {
+    public function writeRelated($path) {
         $this->writeRelatedSpecific($path, 'poi', 'related');
         $this->writeRelatedSpecific($path, 'poi', 'neighbors');
         $this->writeRelatedSpecific($path, 'track', 'related');
@@ -712,8 +669,7 @@ abstract class WebmappAbstractFeature
         $this->writeRelatedSpecific($path, 'route', 'neighbors');
     }
 
-    private function writeRelatedSpecific($path, $ftype, $rtype)
-    {
+    private function writeRelatedSpecific($path, $ftype, $rtype) {
         if (isset($this->properties['related'][$ftype][$rtype])) {
             $rel = $this->properties['related'][$ftype][$rtype];
             if (is_array($rel) && count($rel) > 0) {
@@ -736,8 +692,7 @@ abstract class WebmappAbstractFeature
 
     // TODO: remove this PATCH
 
-    protected function addRelatedPoi($q)
-    {
+    protected function addRelatedPoi($q) {
         // PATH per recuperare i geojson dei POI
         $path = $this->getGeoJsonPath();
         if (preg_match('|/track/|', $path)) {
@@ -777,13 +732,11 @@ abstract class WebmappAbstractFeature
 
     // Recupero INFO dal file related (suppongo che i file POI già esistano)
 
-    public function getGeoJsonPath()
-    {
+    public function getGeoJsonPath() {
         return $this->geojson_path;
     }
 
-    public function getRelatedPoisId()
-    {
+    public function getRelatedPoisId() {
         $pois = array();
         if (isset($this->json_array['n7webmap_related_poi']) &&
             is_array($this->json_array['n7webmap_related_poi']) &&
@@ -792,11 +745,11 @@ abstract class WebmappAbstractFeature
                 $pois[] = $poi['ID'];
             }
         }
+
         return $pois;
     }
 
-    private function checkPoiPath($path)
-    {
+    private function checkPoiPath($path) {
         if (file_exists($path)) {
             return $path;
         } else {
@@ -805,12 +758,12 @@ abstract class WebmappAbstractFeature
             ////[...]/data/tmp/1532853048/geojson/449.geojson
             $new_path = preg_replace('|/geojson/.*/poi/|', '/geojson/', $path);
             echo "OLD: $path NEW:$new_path";
+
             return $new_path;
         }
     }
 
-    private function getPoiInfoArray($poi_path, $distance = -1)
-    {
+    private function getPoiInfoArray($poi_path, $distance = -1) {
         $j = WebmappUtils::getJsonFromApi($poi_path);
         $name = '';
         if (isset($j['properties']) && isset($j['properties']['name'])) {
@@ -838,9 +791,9 @@ abstract class WebmappAbstractFeature
         $r['web'] = $web;
         $r['lat'] = $lat;
         $r['lon'] = $lon;
+
         return $r;
     }
-
 }
 
 /** Esempio di classe concreta che estende la classe astratta
