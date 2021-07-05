@@ -36,7 +36,7 @@ abstract class WebmappAbstractFeature {
             try {
                 $json_array = WebmappUtils::getJsonFromApi($array_or_url);
             } catch (WebmappExceptionHttpRequest $e) {
-                throw new WebmappExceptionHttpRequest("The instance is unreachable or the feature with id " . (isset($this->id) ? $this->id : "NULL") . " does not exists");
+                throw new WebmappExceptionHttpRequest("The instance is unreachable or the feature does not exists");
             }
             $this->wp_url = $array_or_url;
         } else {

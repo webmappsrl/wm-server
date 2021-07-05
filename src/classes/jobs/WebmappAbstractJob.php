@@ -112,7 +112,7 @@ abstract class WebmappAbstractJob {
      */
     public function run() {
         $startTime = round(microtime(true) * 1000);
-        $this->_title(isset($this->id) ? "Starting generation of {$this->id}" : "Starting");
+        $this->_title(isset($this->id) ? "Starting job on object {$this->id}" : "Starting");
         $this->_verbose("start time: $startTime");
         try {
             $this->process();
