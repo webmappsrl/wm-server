@@ -154,7 +154,9 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask {
                     if (!empty($ja['acf']['sitoweb']))
                         $poi->addProperty('web', $ja['acf']['sitoweb']);
 
-                    if (!empty($ja['featured_media'])) {
+                    if (!empty($ja['vt_featured_image']))
+                        $poi->setImage($ja['vt_featured_image']);
+                    else if (!empty($ja['featured_media'])) {
                         $api = "{$this->url}/media/" . $ja['featured_media'];
                         echo "Getting media json form URL $api ...\n";
                         $media = WebmappUtils::getJsonFromApi($api);
