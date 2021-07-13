@@ -3,3 +3,5 @@ data/
 src/config.json
 .idea
 src/node/node_modules
+src/vendor
+src/google_tts_key.json
