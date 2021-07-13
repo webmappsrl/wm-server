@@ -1,15 +1,12 @@
 <?php
 
-class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
-{
-
+class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask {
     private $url;
     private $max;
     private $perPage;
     private $types = [];
 
-    public function check()
-    {
+    public function check() {
         // OPTIONS
         if (!array_key_exists('url', $this->options)) {
             throw new Exception("L'opzione URL è obbligatoria", 1);
@@ -29,16 +26,14 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
         return true;
     }
 
-    public function process()
-    {
+    public function process() {
         echo "\n\nProcessing WebmappPranzosanofuoricasaTask\n\n";
         foreach ($this->types as $type) {
             $this->processLayer($type);
         }
     }
 
-    private function processLayer($type)
-    {
+    private function processLayer($type) {
         echo "\nProcessing Layer for $type\n";
         $l = new WebmappLayer($type);
         $page = 0;
@@ -94,9 +89,9 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     }
 
                     $j['opening_hours'] = "";
-//                    if (!empty($ja['link'])) {
-//                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">pranzosanofuoricasa.it</a></p>";
-//                    }
+                    //                    if (!empty($ja['link'])) {
+                    //                        $j['content']['rendered'] .= "<p>Vedi tutti i dettagli su: <a href=\"" . $ja['link'] . "\">pranzosanofuoricasa.it</a></p>";
+                    //                    }
 
                     if (isset($ja["acf"])) {
                         foreach ($ja['acf'] as $acfKey => $acfValue) {
@@ -159,8 +154,13 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                     if (!empty($ja['acf']['sitoweb']))
                         $poi->addProperty('web', $ja['acf']['sitoweb']);
 
-                    if (!empty($ja['vt_featured_image']))
-                        $poi->setImage($ja['vt_featured_image']);
+                    if (!empty($ja['featured_media'])) {
+                        $api = "{$this->url}/media/" . $ja['featured_media'];
+                        echo "Getting media json form URL $api ...\n";
+                        $media = WebmappUtils::getJsonFromApi($api);
+                        if (isset($media['guid']['rendered']))
+                            $poi->setImage($media['guid']['rendered']);
+                    }
 
                     if (!empty($ja['acf']['ricette']) && is_array($ja['acf']['ricette']) && count($ja['acf']['ricette']) > 0) {
                         $ids = [];
@@ -216,14 +216,12 @@ class WebmappPranzosanofuoricasaTask extends WebmappAbstractTask
                             $poi->removeProperty($key);
                     }
 
-
                     //$poi->addProperty($key, $value);
                     $l->addFeature($poi);
                 }
             } else {
                 echo "No more items found.\n";
             }
-
         } while ($count > 0 && $total < $this->max);
 
         echo "Writing $total POI\n";
