@@ -1,11 +1,9 @@
 <?php
 
-class WebmappWebappElbrusTask extends WebmappAbstractTask
-{
+class WebmappWebappElbrusTask extends WebmappAbstractTask {
     private $__path;
     private $__zip_base_url;
     private $__zip_name;
-
     public static $foreground = array(
         'black' => '0;30',
         'dark_gray' => '1;30',
@@ -24,7 +22,6 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         'white' => '1;37',
         'bold_gray' => '0;37',
     );
-
     public static $background = array(
         'black' => '40',
         'red' => '41',
@@ -39,8 +36,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
     /**
      * Make string appear in color
      */
-    public static function fg_color($color, $string)
-    {
+    public static function fg_color($color, $string) {
         if (!isset(self::$foreground[$color])) {
             throw new \Exception('Foreground color is not defined');
         }
@@ -51,8 +47,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
     /**
      * Make string appear with background color
      */
-    public static function bg_color($color, $string)
-    {
+    public static function bg_color($color, $string) {
         if (!isset(self::$background[$color])) {
             throw new \Exception('Background color is not defined');
         }
@@ -60,8 +55,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         return "\033[" . self::$background[$color] . 'm' . $string . "\033[0m";
     }
 
-    public function check()
-    {
+    public function check() {
         $this->__path = $this->project_structure->getRoot();
 
         $this->__zip_base_url = '/root/wm-webapp-elbrus';
@@ -113,8 +107,7 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
         return true;
     }
 
-    public function process()
-    {
+    public function process() {
         $this->__zip_base_url = '/root/wm-webapp-elbrus';
         if (array_key_exists('zip_base_url', $this->options)) {
             $this->__zip_base_url = $this->options['zip_base_url'];
@@ -172,6 +165,19 @@ class WebmappWebappElbrusTask extends WebmappAbstractTask
             echo self::fg_color('cyan', " OK\n");
         } else {
             echo self::fg_color('yellow', " Splash missing in resources/splash.png\n");
+        }
+
+        echo "Copying menu icon...                      ";
+        if (file_exists("{$this->__path}/resources/menu-logo.png")) {
+            $cmd = "cp {$this->__path}/resources/menu-logo.png {$this->__path}/core/assets/images/menu-logo.png";
+            exec($cmd);
+            echo self::fg_color('cyan', " OK\n");
+        } else if (file_exists("{$this->__path}/resources/icon.png")) {
+            $cmd = "cp {$this->__path}/resources/icon.png {$this->__path}/core/assets/images/menu-logo.png";
+            exec($cmd);
+            echo self::fg_color('cyan', " OK\n");
+        } else {
+            echo self::fg_color('yellow', " Menu logo and icon are missing in resources/menu-logo.png | resources/icon.png\n");
         }
 
         echo "Updating title in index.html...           ";
@@ -245,8 +251,7 @@ EOD;
         return true;
     }
 
-    private function __clearTemp()
-    {
+    private function __clearTemp() {
         $cmd = "rm -Rf {$this->__zip_base_url}/tmp";
         exec($cmd);
     }
