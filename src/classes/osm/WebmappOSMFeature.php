@@ -32,14 +32,7 @@ abstract class WebmappOSMFeature {
         $this->base_url = 'https://www.openstreetmap.org/api/0.6/';
         $this->id = $id;
         $this->init();
-        // This lines prevents get_headers errors with ssl
-        $context = stream_context_create([
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ],
-        ]);
-        $h = get_headers($this->url, 0, $context);
+        $h = get_headers($this->url);
         if (!is_array($h) || !preg_match('/200/', $h[0])) {
             throw new WebmappExceptionNoOSMFeature("Error: can't load " . $this->url, 1);
         }
