@@ -232,7 +232,9 @@ EOD;
 
         $list = glob("{$this->__path}/google*.html");
         if (sizeof($list) >= 1) {
-            $cmd = "cd {$this->__path}/core && ln -s ../google*.html ./google*.html";
+            $split = explode('/', $list[0]);
+            $filename = end($split);
+            $cmd = "cd {$this->__path}/core && ln -s ../$filename ./$filename";
             exec($cmd);
             echo "\n - Android files               " . self::fg_color('cyan', "OK\n");
         } else {
