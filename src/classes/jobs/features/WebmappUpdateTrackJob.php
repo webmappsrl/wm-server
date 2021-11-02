@@ -82,30 +82,27 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
 
         // Import the generated data if
         // the osmid is set and the parameter is false and there is a previous file version
-        if (!$updateOsmGeometry &&
-            $track->hasProperty("osmid") &&
+        if ($track->hasProperty("osmid") &&
             file_exists("{$this->aProject->getRoot()}/geojson/{$this->id}.geojson")) {
-            $this->_verbose("Using geometry from $geojsonUrl");
+            $this->_verbose("Using old geojson from $geojsonUrl");
             $this->_lockFile($geojsonUrl);
             $currentGeojson = json_decode(file_get_contents($geojsonUrl), true);
             if (isset($currentGeojson["properties"])) {
                 $oldGeojson = $currentGeojson;
-                $currentMetadata = $currentGeojson["properties"];
+                if (!$updateOsmGeometry) {
+                    $this->_verbose("Setting old metadata");
+                    $currentMetadata = $currentGeojson["properties"];
 
-                //                foreach (GEOMETRY_OSM_METADATA_PROPERTIES as $key) {
-                //                    if (array_key_exists($key, $currentMetadata))
-                //                        $track->setProperty($key, $currentMetadata, $key);
-                //                    else
-                //                        $track->removeProperty($key);
-                //                }
-
-                foreach (GEOMETRY_BACKEND_METADATA_PROPERTIES as $key) {
-                    if (!$track->hasProperty($key) && array_key_exists($key, $currentMetadata))
-                        $track->setProperty($key, $currentMetadata, $key);
+                    foreach (GEOMETRY_BACKEND_METADATA_PROPERTIES as $key) {
+                        if (!$track->hasProperty($key) && array_key_exists($key, $currentMetadata))
+                            $track->setProperty($key, $currentMetadata, $key);
+                    }
                 }
             }
-            if (isset($currentGeojson["geometry"]))
+            if (isset($currentGeojson["geometry"]) && !$updateOsmGeometry) {
+                $this->_verbose("Using geometry from $geojsonUrl");
                 $track->setGeometry($currentGeojson["geometry"]);
+            }
         }
         $track = $this->_orderRelatedPoi($track);
         if (!$skippedGeometry)
@@ -122,7 +119,7 @@ class WebmappUpdateTrackJob extends WebmappAbstractJob {
                 $this->_applyMapping($track, "osm", null, $oldGeojson["properties"]);
             else {
                 $relation = $track->hasRelation() ? $track->getRelation() : null;
-                $this->_applyMapping($track, "osm", $relation);
+                $this->_applyMapping($track, "osm", $relation, $oldGeojson["properties"]);
             }
         }
 
