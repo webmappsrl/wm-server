@@ -17,8 +17,7 @@
 // NODE (N): https://www.openstreetmap.org/api/0.6/node/1950330571 (con TAGS)
 // <node id="1950330571" visible="true" version="4" changeset="20582530" timestamp="2014-02-15T18:27:12Z" user="dforsi" uid="24126" lat="40.0146760" lon="9.2313480">
 
-abstract class WebmappOSMFeature
-{
+abstract class WebmappOSMFeature {
     protected $id;
     protected $url;
     protected $xml;
@@ -28,14 +27,20 @@ abstract class WebmappOSMFeature
     protected $tags = array();
     protected $members = array();
 
-    public function __construct($id)
-    {
-        declare(ticks=1);
+    public function __construct($id) {
+        declare(ticks = 1);
         $this->base_url = 'https://www.openstreetmap.org/api/0.6/';
         $this->id = $id;
         $this->init();
-        $h = get_headers($this->url);
-        if (!preg_match('/200/', $h[0])) {
+        // This lines prevents get_headers errors with ssl
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ],
+        ]);
+        $h = get_headers($this->url, 0, $context);
+        if (!is_array($h) || !preg_match('/200/', $h[0])) {
             throw new WebmappExceptionNoOSMFeature("Error: can't load " . $this->url, 1);
         }
         $this->xml = WebmappUtils::getXMLFromUrl($this->url);
@@ -50,8 +55,7 @@ abstract class WebmappOSMFeature
     abstract protected function setFeature();
 
     // valid only for Relation and SuperRelation
-    private function setMembers()
-    {
+    private function setMembers() {
         if (isset($this->feature->member)) {
             foreach ($this->feature->member as $member) {
                 $ref = $member['ref']->__toString();
@@ -65,43 +69,35 @@ abstract class WebmappOSMFeature
         }
     }
 
-    public function getUrl()
-    {
+    public function getUrl() {
         return $this->url;
     }
 
-    public function getProperty($k)
-    {
+    public function getProperty($k) {
         return $this->properties[$k];
     }
 
-    public function getProperties()
-    {
+    public function getProperties() {
         return $this->properties;
     }
 
-    public function hasTag($k)
-    {
+    public function hasTag($k) {
         return array_key_exists($k, $this->tags);
     }
 
-    public function getTag($k)
-    {
+    public function getTag($k) {
         return $this->tags[$k];
     }
 
-    public function getTags()
-    {
+    public function getTags() {
         return $this->tags;
     }
 
-    public function getMembers()
-    {
+    public function getMembers() {
         return $this->members;
     }
 
-    private function extractProperties()
-    {
+    private function extractProperties() {
         $this->properties['id'] = $this->feature['id']->__toString();
         $this->properties['visible'] = $this->feature['visible']->__toString();
         $this->properties['version'] = $this->feature['version']->__toString();
@@ -111,8 +107,7 @@ abstract class WebmappOSMFeature
         $this->properties['uid'] = $this->feature['uid']->__toString();
     }
 
-    private function extractTags()
-    {
+    private function extractTags() {
         if (isset($this->feature->tag)) {
             foreach ($this->feature->tag as $tag) {
                 $k = $tag['k']->__toString();
@@ -125,28 +120,22 @@ abstract class WebmappOSMFeature
 
 // TODO: spostare in singoli file quando si implementano
 
-class WebmappOSMWay extends WebmappOSMFeature
-{
-    protected function init()
-    {
+class WebmappOSMWay extends WebmappOSMFeature {
+    protected function init() {
         $this->url = $this->base_url . 'way/' . $this->id;
     }
 
-    protected function setFeature()
-    {
+    protected function setFeature() {
         $this->feature = $this->xml->way;
     }
 }
 
-class WebmappOSMNode extends WebmappOSMFeature
-{
-    protected function init()
-    {
+class WebmappOSMNode extends WebmappOSMFeature {
+    protected function init() {
         $this->url = $this->base_url . 'node/' . $this->id;
     }
 
-    protected function setFeature()
-    {
+    protected function setFeature() {
         $this->feature = $this->xml->node;
     }
 }
